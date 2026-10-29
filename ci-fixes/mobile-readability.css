@@ -1,0 +1,25 @@
+/* Ankur mobile readability pass: dark owner and customer storefront. */
+html[data-theme='dark'] .bg-slate-50\/70,
+html[data-theme='dark'] .bg-slate-50\/80,
+html[data-theme='dark'] .bg-slate-50\/50 { background-color: #1d2b43 !important; }
+html[data-theme='dark'] .border-slate-200\/70,
+html[data-theme='dark'] .border-slate-200\/50 { border-color: #3b4b65 !important; }
+html[data-theme='dark'] .text-slate-400,
+html[data-theme='dark'] .text-slate-500 { color: #c5d0e1 !important; }
+html[data-theme='dark'] .text-slate-700 { color: #f0f4fa !important; }
+html[data-theme='dark'] .text-emerald-700 { color: #86efac !important; }
+html[data-theme='dark'] .text-sky-700 { color: #fdba74 !important; }
+html[data-theme='dark'] .bg-amber-50\/60 { background-color: #382d24 !important; }
+html[data-theme='dark'] .bg-white\/70,
+html[data-theme='dark'] .bg-white\/80 { background-color: #17243b !important; }
+html[data-theme='dark'] .text-slate-900 { color: #ffffff !important; }
+html[data-theme='dark'] button:disabled { opacity: .6; }
+html[data-theme='dark'] .bg-slate-900.text-white { background-color: #f97316 !important; color: #fff !important; }
+@media (max-width: 640px) {
+  html[data-theme='dark'] .text-\[10px\] { font-size: 11px; }
+  html[data-theme='dark'] .text-\[11px\] { font-size: 12px; }
+  html[data-theme='dark'] .bg-slate-50\/70 .grid { gap: 4px 8px; }
+  .page-with-bottom-nav { padding-bottom: calc(88px + env(safe-area-inset-bottom, 0px)); }
+  .c-app button { touch-action: manipulation; }
+  .c-app .t-sub { color: #465467; }
+}
