@@ -41,6 +41,32 @@ jobs:
         run: |
           test -n "$KEYSTORE_B64" && test -n "$STORE_PASSWORD" && test -n "$KEY_ALIAS" && test -n "$KEY_PASSWORD"
           printf '%s' "$KEYSTORE_B64" | base64 --decode > "$RUNNER_TEMP/ankur-release.jks"
+      - name: Configure Android Firebase Google Sign-In
+        env:
+          GOOGLE_SERVICES_B64: ${{ secrets.ANKUR_GOOGLE_SERVICES_JSON_BASE64 }}
+        run: |
+          test -n "$GOOGLE_SERVICES_B64" || { echo "::error::Set ANKUR_GOOGLE_SERVICES_JSON_BASE64 GitHub secret from the existing Firebase Android app"; exit 1; }
+          printf '%s' "$GOOGLE_SERVICES_B64" | base64 --decode > android/app/google-services.json
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          config = json.loads(Path("android/app/google-services.json").read_text())
+          pkgs = [c.get("client_info", {}).get("android_client_info", {}).get("package_name") for c in config.get("client", [])]
+          assert "com.ankurdryice.events" in pkgs, "Firebase JSON does not contain Android package com.ankurdryice.events"
+          p = Path("android/variables.gradle")
+          s = p.read_text()
+          if "rgcfaIncludeGoogle" not in s:
+              s = s.replace("ext {", "ext {\n    rgcfaIncludeGoogle = true", 1)
+              p.write_text(s)
+          assert "rgcfaIncludeGoogle = true" in p.read_text()
+          p = Path("android/app/build.gradle")
+          s = p.read_text()
+          idx = s.find("\ntry {\n    def servicesJSON = file('google-services.json')")
+          assert idx != -1, "Cannot locate optional Google Services Gradle block"
+          s = s[:idx] + "\ndef servicesJSON = file('google-services.json')\nif (!servicesJSON.exists() || servicesJSON.length() == 0) {\n    throw new GradleException('Firebase Android google-services.json missing')\n}\napply plugin: 'com.google.gms.google-services'\n"
+          p.write_text(s)
+          print("Firebase Android package verified; Google SDK enabled; Google Services made mandatory")
+          PY
       - name: Build web and sync
         run: |
           npm ci
@@ -109,4 +135,4 @@ jobs:
           if-no-files-found: error
       - name: Cleanup key
         if: always()
-        run: rm -f "$RUNNER_TEMP/ankur-release.jks"
+        run: rm -f "$RUNNER_TEMP/ankur-release.jks" android/app/google-services.json
