@@ -17,6 +17,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Extract app source archive
+        run: |
+          test -s Ankur_Order_GitHub_Source_Upload.zip
+          unzip -oq Ankur_Order_GitHub_Source_Upload.zip -d .
+          test -f package-lock.json && test -f android/app/build.gradle
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -48,6 +53,7 @@ jobs:
           VERSION_CODE: ${{ inputs.version_code }}
           VERSION_NAME: ${{ inputs.version_name }}
         run: |
+          chmod +x ./gradlew
           bash ./gradlew assembleRelease --no-daemon -PankurKeystorePath="$RUNNER_TEMP/ankur-release.jks" -PankurStorePassword="$STORE_PASSWORD" -PankurKeyAlias="$KEY_ALIAS" -PankurKeyPassword="$KEY_PASSWORD" -PankurVersionCode="$VERSION_CODE" -PankurVersionName="$VERSION_NAME"
       - name: Verify signed APK
         run: |
