@@ -50,6 +50,71 @@ jobs:
         run: |
           npm ci
           npm run android:sync
+      - name: Normalize Android release version in Gradle
+        env:
+          VERSION_CODE: ${{ inputs.version_code }}
+          VERSION_NAME: ${{ inputs.version_name }}
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import os, re
+          p = Path("android/app/build.gradle")
+          s = p.read_text()
+          code = os.environ["VERSION_CODE"]
+          name = os.environ["VERSION_NAME"]
+          assert code.isdecimal() and int(code) > 0
+          assert re.fullmatch(r"[0-9A-Za-z._-]+", name)
+          s, count1 = re.subn(r'^\s*versionCode\s+.*
+        env:
+          STORE_PASSWORD: ${{ secrets.ANKUR_RELEASE_STORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANKUR_RELEASE_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.ANKUR_RELEASE_KEY_PASSWORD }}
+          VERSION_CODE: ${{ inputs.version_code }}
+          VERSION_NAME: ${{ inputs.version_name }}
+        run: |
+          chmod +x ./gradlew
+          bash ./gradlew assembleRelease --no-daemon --stacktrace -PankurKeystorePath="$RUNNER_TEMP/ankur-release.jks" -PankurStorePassword="$STORE_PASSWORD" -PankurKeyAlias="$KEY_ALIAS" -PankurKeyPassword="$KEY_PASSWORD" -PankurVersionCode="$VERSION_CODE" -PankurVersionName="$VERSION_NAME"
+      - name: Verify signed APK
+        run: |
+          APK=android/app/build/outputs/apk/release/app-release.apk
+          test -s "$APK"
+          "$ANDROID_HOME/build-tools/$(ls "$ANDROID_HOME/build-tools" | sort -V | tail -1)/apksigner" verify --verbose "$APK"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Ankur-Order-Signed-Release
+          path: android/app/build/outputs/apk/release/app-release.apk
+          if-no-files-found: error
+      - name: Cleanup key
+        if: always()
+        run: rm -f "$RUNNER_TEMP/ankur-release.jks"
+, f'        versionCode {int(code)}', s, count=1, flags=re.M)
+          s, count2 = re.subn(r'^\s*versionName\s+.*
+        env:
+          STORE_PASSWORD: ${{ secrets.ANKUR_RELEASE_STORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANKUR_RELEASE_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.ANKUR_RELEASE_KEY_PASSWORD }}
+          VERSION_CODE: ${{ inputs.version_code }}
+          VERSION_NAME: ${{ inputs.version_name }}
+        run: |
+          chmod +x ./gradlew
+          bash ./gradlew assembleRelease --no-daemon -PankurKeystorePath="$RUNNER_TEMP/ankur-release.jks" -PankurStorePassword="$STORE_PASSWORD" -PankurKeyAlias="$KEY_ALIAS" -PankurKeyPassword="$KEY_PASSWORD" -PankurVersionCode="$VERSION_CODE" -PankurVersionName="$VERSION_NAME"
+      - name: Verify signed APK
+        run: |
+          APK=android/app/build/outputs/apk/release/app-release.apk
+          test -s "$APK"
+          "$ANDROID_HOME/build-tools/$(ls "$ANDROID_HOME/build-tools" | sort -V | tail -1)/apksigner" verify --verbose "$APK"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Ankur-Order-Signed-Release
+          path: android/app/build/outputs/apk/release/app-release.apk
+          if-no-files-found: error
+      - name: Cleanup key
+        if: always()
+        run: rm -f "$RUNNER_TEMP/ankur-release.jks"
+, f'        versionName "{name}"', s, count=1, flags=re.M)
+          assert count1 == count2 == 1, "Version fields missing"
+          p.write_text(s)
+          PY
       - name: Build signed release
         working-directory: android
         env:
