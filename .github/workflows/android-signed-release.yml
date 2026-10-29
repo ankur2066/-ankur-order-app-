@@ -67,6 +67,12 @@ jobs:
           p.write_text(s)
           print("Firebase Android package verified; Google SDK enabled; Google Services made mandatory")
           PY
+      - name: Apply mobile dashboard readability fixes
+        run: |
+          test -s ci-fixes/mobile-readability.css
+          test -f src/index.css
+          cat ci-fixes/mobile-readability.css >> src/index.css
+          grep -q 'Ankur mobile readability pass' src/index.css
       - name: Build web and sync
         run: |
           npm ci
