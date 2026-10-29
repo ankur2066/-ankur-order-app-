@@ -5,11 +5,11 @@ on:
       version_code:
         description: 'Android versionCode (greater than installed version)'
         required: true
-        default: '15'
+        default: '17'
       version_name:
         description: 'Release version'
         required: true
-        default: '1.0.15'
+        default: '1.0.17'
 permissions:
   contents: read
 jobs:
@@ -49,6 +49,20 @@ jobs:
         run: |
           cp ci-fixes/MainActivity.java android/app/src/main/java/com/ankurdryice/events/MainActivity.java
           grep -q FirebaseAuthenticationPlugin android/app/src/main/java/com/ankurdryice/events/MainActivity.java
+      - name: Verify Firebase plugin discovery and Android integration
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          plugins = json.loads(Path("android/app/src/main/assets/capacitor.plugins.json").read_text())
+          expected = "io.capawesome.capacitorjs.plugins.firebase.authentication.FirebaseAuthenticationPlugin"
+          assert any(p.get("classpath") == expected for p in plugins), f"FirebaseAuthentication missing from Capacitor discovery: {plugins}"
+          main = Path("android/app/src/main/java/com/ankurdryice/events/MainActivity.java").read_text()
+          assert "registerPlugin(FirebaseAuthenticationPlugin.class)" in main
+          gradle = Path("android/app/capacitor.build.gradle").read_text()
+          assert "project(':capacitor-firebase-authentication')" in gradle
+          print("FirebaseAuthentication discovery, Java registration and Gradle dependency present")
+          PY
       - name: Set release version directly in Gradle
         env:
           VERSION_CODE: ${{ inputs.version_code }}
