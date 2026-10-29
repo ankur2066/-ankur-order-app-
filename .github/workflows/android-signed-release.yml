@@ -30,13 +30,8 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
-      - name: Use GitHub runner Android SDK
-        run: |
-          test -d "$ANDROID_HOME" || { echo 'Android SDK missing'; exit 1; }
-          echo "$ANDROID_HOME/platform-tools" >> "$GITHUB_PATH"
-          echo "$ANDROID_HOME/cmdline-tools/latest/bin" >> "$GITHUB_PATH"
-          ls "$ANDROID_HOME/build-tools"
-          java -version
+      - name: Use runner Android SDK
+        run: test -d "$ANDROID_HOME"
       - name: Check signing configuration
         env:
           KEYSTORE_B64: ${{ secrets.ANKUR_RELEASE_KEYSTORE_BASE64 }}
@@ -50,70 +45,30 @@ jobs:
         run: |
           npm ci
           npm run android:sync
-      - name: Normalize Android release version in Gradle
+      - name: Set release version directly in Gradle
         env:
           VERSION_CODE: ${{ inputs.version_code }}
           VERSION_NAME: ${{ inputs.version_name }}
         run: |
           python3 - <<'PY'
+          import os
           from pathlib import Path
-          import os, re
-          p = Path("android/app/build.gradle")
-          s = p.read_text()
-          code = os.environ["VERSION_CODE"]
-          name = os.environ["VERSION_NAME"]
+          p = Path('android/app/build.gradle')
+          code = os.environ['VERSION_CODE']
+          name = os.environ['VERSION_NAME']
           assert code.isdecimal() and int(code) > 0
-          assert re.fullmatch(r"[0-9A-Za-z._-]+", name)
-          s, count1 = re.subn(r'^\s*versionCode\s+.*
-        env:
-          STORE_PASSWORD: ${{ secrets.ANKUR_RELEASE_STORE_PASSWORD }}
-          KEY_ALIAS: ${{ secrets.ANKUR_RELEASE_KEY_ALIAS }}
-          KEY_PASSWORD: ${{ secrets.ANKUR_RELEASE_KEY_PASSWORD }}
-          VERSION_CODE: ${{ inputs.version_code }}
-          VERSION_NAME: ${{ inputs.version_name }}
-        run: |
-          chmod +x ./gradlew
-          bash ./gradlew assembleRelease --no-daemon --stacktrace -PankurKeystorePath="$RUNNER_TEMP/ankur-release.jks" -PankurStorePassword="$STORE_PASSWORD" -PankurKeyAlias="$KEY_ALIAS" -PankurKeyPassword="$KEY_PASSWORD" -PankurVersionCode="$VERSION_CODE" -PankurVersionName="$VERSION_NAME"
-      - name: Verify signed APK
-        run: |
-          APK=android/app/build/outputs/apk/release/app-release.apk
-          test -s "$APK"
-          "$ANDROID_HOME/build-tools/$(ls "$ANDROID_HOME/build-tools" | sort -V | tail -1)/apksigner" verify --verbose "$APK"
-      - uses: actions/upload-artifact@v4
-        with:
-          name: Ankur-Order-Signed-Release
-          path: android/app/build/outputs/apk/release/app-release.apk
-          if-no-files-found: error
-      - name: Cleanup key
-        if: always()
-        run: rm -f "$RUNNER_TEMP/ankur-release.jks"
-, f'        versionCode {int(code)}', s, count=1, flags=re.M)
-          s, count2 = re.subn(r'^\s*versionName\s+.*
-        env:
-          STORE_PASSWORD: ${{ secrets.ANKUR_RELEASE_STORE_PASSWORD }}
-          KEY_ALIAS: ${{ secrets.ANKUR_RELEASE_KEY_ALIAS }}
-          KEY_PASSWORD: ${{ secrets.ANKUR_RELEASE_KEY_PASSWORD }}
-          VERSION_CODE: ${{ inputs.version_code }}
-          VERSION_NAME: ${{ inputs.version_name }}
-        run: |
-          chmod +x ./gradlew
-          bash ./gradlew assembleRelease --no-daemon -PankurKeystorePath="$RUNNER_TEMP/ankur-release.jks" -PankurStorePassword="$STORE_PASSWORD" -PankurKeyAlias="$KEY_ALIAS" -PankurKeyPassword="$KEY_PASSWORD" -PankurVersionCode="$VERSION_CODE" -PankurVersionName="$VERSION_NAME"
-      - name: Verify signed APK
-        run: |
-          APK=android/app/build/outputs/apk/release/app-release.apk
-          test -s "$APK"
-          "$ANDROID_HOME/build-tools/$(ls "$ANDROID_HOME/build-tools" | sort -V | tail -1)/apksigner" verify --verbose "$APK"
-      - uses: actions/upload-artifact@v4
-        with:
-          name: Ankur-Order-Signed-Release
-          path: android/app/build/outputs/apk/release/app-release.apk
-          if-no-files-found: error
-      - name: Cleanup key
-        if: always()
-        run: rm -f "$RUNNER_TEMP/ankur-release.jks"
-, f'        versionName "{name}"', s, count=1, flags=re.M)
-          assert count1 == count2 == 1, "Version fields missing"
-          p.write_text(s)
+          assert name.replace('.', '').replace('-', '').replace('_', '').isalnum()
+          lines = p.read_text().splitlines()
+          found_code = found_name = False
+          for i, line in enumerate(lines):
+              if line.strip().startswith('versionCode '):
+                  lines[i] = '        versionCode ' + str(int(code))
+                  found_code = True
+              if line.strip().startswith('versionName '):
+                  lines[i] = '        versionName "' + name + '"'
+                  found_name = True
+          assert found_code and found_name
+          p.write_text('\n'.join(lines) + '\n')
           PY
       - name: Build signed release
         working-directory: android
@@ -121,11 +76,9 @@ jobs:
           STORE_PASSWORD: ${{ secrets.ANKUR_RELEASE_STORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.ANKUR_RELEASE_KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.ANKUR_RELEASE_KEY_PASSWORD }}
-          VERSION_CODE: ${{ inputs.version_code }}
-          VERSION_NAME: ${{ inputs.version_name }}
         run: |
           chmod +x ./gradlew
-          bash ./gradlew assembleRelease --no-daemon -PankurKeystorePath="$RUNNER_TEMP/ankur-release.jks" -PankurStorePassword="$STORE_PASSWORD" -PankurKeyAlias="$KEY_ALIAS" -PankurKeyPassword="$KEY_PASSWORD" -PankurVersionCode="$VERSION_CODE" -PankurVersionName="$VERSION_NAME"
+          bash ./gradlew assembleRelease --no-daemon --stacktrace -PankurKeystorePath="$RUNNER_TEMP/ankur-release.jks" -PankurStorePassword="$STORE_PASSWORD" -PankurKeyAlias="$KEY_ALIAS" -PankurKeyPassword="$KEY_PASSWORD"
       - name: Verify signed APK
         run: |
           APK=android/app/build/outputs/apk/release/app-release.apk
