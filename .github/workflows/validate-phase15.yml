@@ -4,6 +4,9 @@ on:
     branches:
       - feature/self-pickup-security-tests
   workflow_dispatch:
+  pull_request:
+    branches:
+      - main
 permissions:
   contents: read
 jobs:
