@@ -27,10 +27,10 @@
   https://github.com/ankur2066/-ankur-order-app-/actions/runs/41082078178
 - Artifact name: `Ankur-Order-Signed-Release`, artifact ID `12988829965`. ZIP contains `app-release.apk` version 1.0.17 (versionCode 17).
 - Earlier assistant also checked v1.0.15 and v1.0.17 signing certificates matched. Actual device installation/upgrade is **not** yet verified.
-- The GitHub CI patch introduced after this build is for backend database alignment and must separately pass.
+- Named-database preflight passed in run #41087781350 (CI success). Prepared backend + rules config artifact: `Phase15-Prepared-Firebase-Backend`, artifact ID `12992767010`. No Firebase deploy.
 
 ## Not yet proven / production blockers
-1. The source ZIP backend uses `getFirestore()` (default); the app uses a **named** database. The CI script aligns the backend with the named database, but the source ZIP is still unchanged.
+1. The source ZIP backend uses `getFirestore()` (default); the app uses a **named** database. The CI script aligns the backend and the Firestore rules deployment configuration to the named database, but the original ZIP is unchanged. The aligned files are in a CI artifact.
 2. `enforceAppCheck: true` is present on the callable, while the source app has no configured App Check initialization. Do not weaken enforcement or deploy before Android App Check integration and tests.
 3. Self Pickup callable not confirmed deployed; no real-user transaction test against the target database.
 4. Pickup notification outbox is written but has no confirmed dispatch worker; it does not prove push/WhatsApp delivery.
