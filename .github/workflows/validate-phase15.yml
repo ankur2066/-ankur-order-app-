@@ -33,6 +33,11 @@ jobs:
         run: python3 app-check/apply_patch.py
       - name: Apply monthly report and optional Ice Blue theme fixes
         run: python3 ui-fixes/apply_patch.py
+      - name: Apply premium Android typography and surface styling
+        run: |
+          test -s ui-fixes/premium-native-v120.css
+          cat ui-fixes/premium-native-v120.css >> src/index.css
+          grep -q 'Premium Native v1.0.20' src/index.css
       - name: Verify and align Firebase named database (NO deployment)
         run: |
           python3 firebase-backend/align_database.py
