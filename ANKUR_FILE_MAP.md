@@ -47,3 +47,12 @@
 ## Planned future UX, NOT delivered in v1.0.17
 - New Order defaults to one Dry Ice line (kg, 1 box). `+` adds another line and `×` removes it; sums kg/boxes/amount. Optional notes.
 - Pyro deferred by owner. Admin-editable staff, items, rates, and optional images require separate implementation and verification.
+
+
+## 31 October 2026 — Customer theme + Android monthly PDF
+- User rejected dark navy/orange theme; **Ice Blue Professional** option added (optional, owner must select). File `ui-fixes/apply_patch.py` patches `src/theme/themes.ts`, `src/types.ts`, `src/index.css` after source ZIP extraction. The previous Firestore theme is not changed automatically.
+- `ui-fixes/monthlyReport.ts`: full monthly report (no 40-order cap), IST accounting period 15th–14th, verified/unverified receipts distinguished, `jspdf-autotable` function API.
+- `ui-fixes/mobileReport.ts`: Android Cache + `@capacitor/filesystem@7` + `@capacitor/share@7` for native PDF Save/Share chooser; browser uses jsPDF.save.
+- v1.0.19 build uses `@capacitor-firebase/app-check@7.5.0` with the existing Android Firebase integration. Backend was NOT deployed, billing not changed.
+- GitHub test run #41113041832: SUCCESS; signed Android run #41113041804: SUCCESS; artifact `Ankur-Order-Signed-Release-v1.0.19-Report-Theme`, ID `13004372481`. This is a CI build success, NOT a real phone Save/Share or on-device UI verification.
+- Do not auto-enable Ice Blue for existing customers before they update; older APKs do not recognize the new theme ID.
