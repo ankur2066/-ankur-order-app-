@@ -39,6 +39,8 @@ jobs:
             firebase-functions/index.js
             firebase-functions/pickupPolicy.js
             firebase-functions/package.json
+            firebase.json
+            firestore.rules
           if-no-files-found: error
       - uses: actions/setup-node@v4
         with:
