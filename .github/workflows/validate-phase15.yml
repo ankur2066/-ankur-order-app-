@@ -1,0 +1,38 @@
+name: Validate Phase 15 Self Pickup
+on:
+  push:
+    branches:
+      - feature/self-pickup-security-tests
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  phase15:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Extract Phase 15 source
+        run: |
+          test -s Ankur_Order_App_Upload_GitHub.zip
+          unzip -oq Ankur_Order_App_Upload_GitHub.zip -d .
+          test -f package.json
+          test -f package-lock.json
+          test -f firebase-functions/pickupPolicy.test.js
+          test -f PHASE15_FIX_NOTES.md
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: TypeScript check
+        run: npm run lint
+      - name: Web build
+        run: npm run build
+      - name: Backend security policy tests
+        run: node --test firebase-functions/pickupPolicy.test.js
+      - name: Backend syntax
+        run: |
+          node --check firebase-functions/index.js
+          node --check firebase-functions/pickupPolicy.js
