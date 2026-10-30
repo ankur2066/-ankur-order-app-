@@ -113,4 +113,14 @@ p=src/"index.css"
 s=p.read_text(encoding="utf-8")
 assert "Ice Blue Professional" not in s
 p.write_text(s+"\n"+css,encoding="utf-8")
+# Exclude repository-only patch templates (which are copied into src/utils/) from TS compilation.
+# Without this, the original ui-fixes/monthlyReport.ts has imports relative to the wrong folder.
+import json
+tsconfig_path = Path("tsconfig.json")
+tsconfig = json.loads(tsconfig_path.read_text(encoding="utf-8"))
+excluded = tsconfig.setdefault("exclude", [])
+assert isinstance(excluded, list)
+if "ui-fixes/**/*" not in excluded:
+    excluded.append("ui-fixes/**/*")
+tsconfig_path.write_text(json.dumps(tsconfig, indent=2) + "\\n", encoding="utf-8")
 print("PASS: Mobile PDF share flow and optional Ice Blue theme applied; no Firestore settings changed")
