@@ -7,16 +7,17 @@ on:
       - '.github/workflows/android-signed-release.yml'
       - 'Ankur_Order_App_Upload_GitHub.zip'
       - 'ci-fixes/**'
+      - 'app-check/**'
   workflow_dispatch:
     inputs:
       version_code:
         description: 'Android versionCode (greater than installed version)'
         required: true
-        default: '17'
+        default: '18'
       version_name:
         description: 'Release version'
         required: true
-        default: '1.0.17'
+        default: '1.0.18'
 permissions:
   contents: read
 jobs:
@@ -29,6 +30,8 @@ jobs:
           test -s Ankur_Order_App_Upload_GitHub.zip
           unzip -oq Ankur_Order_App_Upload_GitHub.zip -d .
           test -f package-lock.json && test -f android/app/build.gradle
+      - name: Apply Android App Check native-to-JS bridge
+        run: python3 app-check/apply_patch.py
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -80,6 +83,8 @@ jobs:
           test -f src/index.css
           cat ci-fixes/mobile-readability.css >> src/index.css
           grep -q 'Ankur mobile readability pass' src/index.css
+      - name: Pin Capacitor 7 App Check dependency in working copy
+        run: npm install @capacitor-firebase/app-check@7.5.0 --save-exact --package-lock-only --ignore-scripts --no-audit --no-fund
       - name: Build web and sync
         run: |
           npm ci
@@ -102,10 +107,25 @@ jobs:
           assert "project(':capacitor-firebase-authentication')" in gradle
           print("FirebaseAuthentication discovery, Java registration and Gradle dependency present")
           PY
+      - name: Verify Capacitor Android App Check native plugin and JS bridge
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          plugins = json.loads(Path("android/app/src/main/assets/capacitor.plugins.json").read_text())
+          assert any("FirebaseAppCheckPlugin" in p.get("classpath", "") for p in plugins), f"Native Firebase App Check missing from Capacitor plugin discovery: {plugins}"
+          gradle = Path("android/app/capacitor.build.gradle").read_text()
+          assert "capacitor-firebase-app-check" in gradle, "Capacitor Android App Check Gradle dependency missing"
+          app_check = Path("src/appCheck.ts").read_text()
+          assert "CustomProvider" in app_check and "FirebaseAppCheck.getToken" in app_check
+          assert "initializeAppCheck(app" in app_check
+          assert "debugToken" not in app_check
+          print("Native App Check plugin discovered; Firebase JS SDK token bridge present; no debug provider")
+          PY
       - name: Set release version directly in Gradle
         env:
-          VERSION_CODE: ${{ inputs.version_code || '17' }}
-          VERSION_NAME: ${{ inputs.version_name || '1.0.17' }}
+          VERSION_CODE: ${{ inputs.version_code || '18' }}
+          VERSION_NAME: ${{ inputs.version_name || '1.0.18' }}
         run: |
           python3 - <<'PY'
           import os
@@ -143,7 +163,7 @@ jobs:
           "$ANDROID_HOME/build-tools/$(ls "$ANDROID_HOME/build-tools" | sort -V | tail -1)/apksigner" verify --verbose "$APK"
       - uses: actions/upload-artifact@v4
         with:
-          name: Ankur-Order-Signed-Release
+          name: Ankur-Order-Signed-Release-AppCheck-v1.0.18
           path: android/app/build/outputs/apk/release/app-release.apk
           if-no-files-found: error
       - name: Cleanup key
