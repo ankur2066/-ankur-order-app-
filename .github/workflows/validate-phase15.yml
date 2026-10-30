@@ -12,6 +12,7 @@ on:
       - '.github/workflows/validate-phase15.yml'
       - '.github/workflows/android-signed-release.yml'
       - 'app-check/**'
+      - 'ui-fixes/**'
 permissions:
   contents: read
 jobs:
@@ -30,6 +31,8 @@ jobs:
           test -f PHASE15_FIX_NOTES.md
       - name: Apply Android App Check native-to-JS integration
         run: python3 app-check/apply_patch.py
+      - name: Apply monthly report and optional Ice Blue theme fixes
+        run: python3 ui-fixes/apply_patch.py
       - name: Verify and align Firebase named database (NO deployment)
         run: |
           python3 firebase-backend/align_database.py
@@ -50,7 +53,7 @@ jobs:
           node-version: '22'
           cache: npm
       - name: Pin Capacitor 7 App Check dependency in working copy
-        run: npm install @capacitor-firebase/app-check@7.5.0 --save-exact --package-lock-only --ignore-scripts --no-audit --no-fund
+        run: npm install @capacitor-firebase/app-check@7.5.0 @capacitor/filesystem@7 @capacitor/share@7 --save-exact --package-lock-only --ignore-scripts --no-audit --no-fund
       - name: Install locked dependencies
         run: npm ci --no-audit --no-fund
       - name: TypeScript check
@@ -63,6 +66,12 @@ jobs:
           grep -q 'initializeAppCheck(app' src/appCheck.ts
           grep -q 'initializeAndroidAppCheck(app)' src/main.tsx
           grep -q 'isAndroidAppCheckReady()' src/components/StaffDashboard.tsx
+      - name: Check report and Theme integrations
+        run: |
+          grep -q 'monthlyReportBusy' src/components/AdminDashboard.tsx
+          grep -q 'autoTable(pdf' src/utils/monthlyReport.ts
+          grep -q 'Filesystem.writeFile' src/utils/mobileReport.ts
+          grep -q "id: 'ice-blue'" src/theme/themes.ts
       - name: Backend security policy tests
         run: node --test firebase-functions/pickupPolicy.test.js
       - name: Backend syntax
