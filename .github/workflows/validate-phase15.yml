@@ -5,12 +5,12 @@ on:
       - feature/self-pickup-security-tests
   workflow_dispatch:
   pull_request:
+    branches:
+      - main
     paths:
       - 'Ankur_Order_App_Upload_GitHub.zip'
       - '.github/workflows/validate-phase15.yml'
-  pull_request:
-    branches:
-      - main
+      - '.github/workflows/android-signed-release.yml'
 permissions:
   contents: read
 jobs:
