@@ -11,6 +11,7 @@ on:
       - 'Ankur_Order_App_Upload_GitHub.zip'
       - '.github/workflows/validate-phase15.yml'
       - '.github/workflows/android-signed-release.yml'
+      - 'app-check/**'
 permissions:
   contents: read
 jobs:
@@ -27,6 +28,8 @@ jobs:
           test -f package-lock.json
           test -f firebase-functions/pickupPolicy.test.js
           test -f PHASE15_FIX_NOTES.md
+      - name: Apply Android App Check native-to-JS integration
+        run: python3 app-check/apply_patch.py
       - name: Verify and align Firebase named database (NO deployment)
         run: |
           python3 firebase-backend/align_database.py
@@ -46,12 +49,20 @@ jobs:
         with:
           node-version: '22'
           cache: npm
+      - name: Pin Capacitor 7 App Check dependency in working copy
+        run: npm install @capacitor-firebase/app-check@7.5.0 --save-exact --package-lock-only --ignore-scripts --no-audit --no-fund
       - name: Install locked dependencies
         run: npm ci --no-audit --no-fund
       - name: TypeScript check
         run: npm run lint
       - name: Web build
         run: npm run build
+      - name: Verify native App Check code is linked to JS Firebase SDK
+        run: |
+          grep -q 'new CustomProvider' src/appCheck.ts
+          grep -q 'initializeAppCheck(app' src/appCheck.ts
+          grep -q 'initializeAndroidAppCheck(app)' src/main.tsx
+          grep -q 'isAndroidAppCheckReady()' src/components/StaffDashboard.tsx
       - name: Backend security policy tests
         run: node --test firebase-functions/pickupPolicy.test.js
       - name: Backend syntax
