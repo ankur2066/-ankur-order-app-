@@ -27,6 +27,19 @@ jobs:
           test -f package-lock.json
           test -f firebase-functions/pickupPolicy.test.js
           test -f PHASE15_FIX_NOTES.md
+      - name: Verify and align Firebase named database (NO deployment)
+        run: |
+          python3 firebase-backend/align_database.py
+          node --check firebase-functions/index.js
+      - name: Record backend preflight artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Phase15-Prepared-Firebase-Backend
+          path: |
+            firebase-functions/index.js
+            firebase-functions/pickupPolicy.js
+            firebase-functions/package.json
+          if-no-files-found: error
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
