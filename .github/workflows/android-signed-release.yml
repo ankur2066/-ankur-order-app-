@@ -1,5 +1,12 @@
 name: Ankur Order Signed Release APK
 on:
+  push:
+    branches:
+      - feature/self-pickup-security-tests
+    paths:
+      - '.github/workflows/android-signed-release.yml'
+      - 'Ankur_Order_App_Upload_GitHub.zip'
+      - 'ci-fixes/**'
   workflow_dispatch:
     inputs:
       version_code:
@@ -97,8 +104,8 @@ jobs:
           PY
       - name: Set release version directly in Gradle
         env:
-          VERSION_CODE: ${{ inputs.version_code }}
-          VERSION_NAME: ${{ inputs.version_name }}
+          VERSION_CODE: ${{ inputs.version_code || '17' }}
+          VERSION_NAME: ${{ inputs.version_name || '1.0.17' }}
         run: |
           python3 - <<'PY'
           import os
