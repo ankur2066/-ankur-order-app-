@@ -1,0 +1,44 @@
+name: Validate Archived App Source
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'Ankur_Order_GitHub_Source_Upload.zip'
+      - '.github/workflows/validate-archived-source.yml'
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Extract repository source archive
+        run: |
+          test -s Ankur_Order_GitHub_Source_Upload.zip
+          unzip -oq Ankur_Order_GitHub_Source_Upload.zip -d .
+          test -f package-lock.json
+          test -f package.json
+          test -f android/app/build.gradle
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: TypeScript check
+        run: npm run lint
+      - name: Web build
+        run: npm run build
+      - name: Backend policy tests when present
+        run: |
+          if test -f firebase-functions/pickupPolicy.test.js; then
+            node --test firebase-functions/pickupPolicy.test.js
+          else
+            echo "::notice::Pickup policy tests absent from the repository archive; only existing source is being validated."
+          fi
+      - name: Backend syntax when present
+        run: |
+          if test -f firebase-functions/index.js; then
+            node --check firebase-functions/index.js
+          fi
