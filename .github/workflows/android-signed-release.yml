@@ -19,8 +19,8 @@ jobs:
       - uses: actions/checkout@v4
       - name: Extract app source archive
         run: |
-          test -s Ankur_Order_GitHub_Source_Upload.zip
-          unzip -oq Ankur_Order_GitHub_Source_Upload.zip -d .
+          test -s Ankur_Order_App_Upload_GitHub.zip
+          unzip -oq Ankur_Order_App_Upload_GitHub.zip -d .
           test -f package-lock.json && test -f android/app/build.gradle
       - uses: actions/setup-node@v4
         with:
