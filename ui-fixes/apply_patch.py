@@ -122,5 +122,5 @@ excluded = tsconfig.setdefault("exclude", [])
 assert isinstance(excluded, list)
 if "ui-fixes/**/*" not in excluded:
     excluded.append("ui-fixes/**/*")
-tsconfig_path.write_text(json.dumps(tsconfig, indent=2) + "\\n", encoding="utf-8")
+tsconfig_path.write_text(json.dumps(tsconfig, indent=2), encoding="utf-8")
 print("PASS: Mobile PDF share flow and optional Ice Blue theme applied; no Firestore settings changed")
