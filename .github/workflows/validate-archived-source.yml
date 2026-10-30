@@ -1,0 +1,43 @@
+name: Validate Archived App Source
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'Ankur_Order_GitHub_Source_Upload.zip'
+      - '.github/workflows/validate-archived-source.yml'
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Extract repository source archive
+        run: |
+          test -s Ankur_Order_GitHub_Source_Upload.zip
+          unzip -oq Ankur_Order_GitHub_Source_Upload.zip -d .
+          test -f package-lock.json
+          test -f package.json
+          test -f android/app/build.gradle
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: TypeScript check
+        run: npm run lint
+      - name: Web build
+        run: npm run build
+      - name: Require Phase 15 Self Pickup source
+        run: |
+          test -s firebase-functions/pickupPolicy.test.js || { echo "::error::Phase 15 pickup policy tests missing from repository source ZIP"; exit 1; }
+          test -s firebase-functions/index.js || { echo "::error::Phase 15 Firebase callable missing from repository source ZIP"; exit 1; }
+          test -s PHASE15_FIX_NOTES.md || { echo "::error::Phase 15 source not uploaded to repository"; exit 1; }
+      - name: Backend policy tests
+        run: node --test firebase-functions/pickupPolicy.test.js
+      - name: Backend syntax
+        run: |
+          node --check firebase-functions/index.js
+          node --check firebase-functions/pickupPolicy.js
