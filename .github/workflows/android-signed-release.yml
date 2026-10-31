@@ -7,6 +7,7 @@ on:
       - feature/premium-booking-v122
       - feature/blinkit-premium-ui-20261031
       - feature/customer-home-booking-v124
+      - feature/home-only-order-form-v125
     paths:
       - '.github/workflows/android-signed-release.yml'
       - 'Ankur_Order_App_Upload_GitHub.zip'
@@ -18,11 +19,11 @@ on:
       version_code:
         description: 'Android versionCode (greater than installed version)'
         required: true
-        default: '24'
+        default: '25'
       version_name:
         description: 'Release version'
         required: true
-        default: '1.0.24'
+        default: '1.0.25'
 permissions:
   contents: read
 jobs:
@@ -112,6 +113,28 @@ jobs:
           grep -q 'ANKUR PREMIUM CUSTOMER FORM v1.0.24' src/index.css
           grep -q 'bookingForm=' src/App.tsx
           grep -q 'ankur-customer-booking' src/components/customer/CustomerHome.tsx
+      - name: Remove ALL old home content and keep only the actual booking form
+        run: |
+          python3 ui-fixes/customer_home_only_v125.py
+          grep -q 'ANKUR HOME FORM ONLY v1.0.25' src/index.css
+          grep -q 'data-ui-build="1.0.25"' src/components/customer/CustomerHome.tsx
+          python3 - <<'PY'
+          from pathlib import Path
+          home=Path('src/components/customer/CustomerHome.tsx').read_text()
+          body=home.split('<main ',1)[1].split('</main>',1)[0]
+          forbidden=['aqp-spotlight','PromoCarousel','LuckyWinnerCard','ProductCard','lastOrder',
+                     'aqp-quick-tile','रीऑर्डर','बस पार्सल','आज की बुकिंग','सभी प्रोडक्ट']
+          assert all(term not in body for term in forbidden), 'Old cards/banners remain on home'
+          assert body.count('{bookingForm(selectedProduct)}')==1
+          assert 'aqp-category-strip' in home and 'aqp-search-shell' in home
+          nav=Path('src/components/customer/BottomNav.tsx').read_text()
+          assert "id: 'home'" in nav and "id: 'my-orders'" in nav
+          app=Path('src/App.tsx').read_text()
+          assert 'bookingForm={(inlineProduct)' in app
+          assert 'onOrderSuccess={handleOrderSuccess}' in app
+          assert 'onGoToTrack={handleGoToTrack}' in app
+          print('PASS: Header, search, category buttons, real order form and bottom 5-tab nav present; no old content in middle')
+          PY
       - name: Pin Capacitor 7 App Check dependency in working copy
         run: npm install @capacitor-firebase/app-check@7.5.0 @capacitor/filesystem@7 @capacitor/share@7 --save-exact --package-lock-only --ignore-scripts --no-audit --no-fund
       - name: Build web and sync
@@ -165,8 +188,8 @@ jobs:
           PY
       - name: Set release version directly in Gradle
         env:
-          VERSION_CODE: ${{ inputs.version_code || '24' }}
-          VERSION_NAME: ${{ inputs.version_name || '1.0.24' }}
+          VERSION_CODE: ${{ inputs.version_code || '25' }}
+          VERSION_NAME: ${{ inputs.version_name || '1.0.25' }}
         run: |
           python3 - <<'PY'
           import os
@@ -208,7 +231,7 @@ jobs:
           "$ANDROID_HOME/build-tools/$(ls "$ANDROID_HOME/build-tools" | sort -V | tail -1)/apksigner" verify --verbose "$APK"
       - uses: actions/upload-artifact@v4
         with:
-          name: Ankur-Order-Signed-Release-v1.0.24-Booking-Home
+          name: Ankur-Order-Signed-Release-v1.0.25-Form-Only
           path: android/app/build/outputs/apk/release/app-release.apk
           if-no-files-found: error
       - name: Cleanup key
