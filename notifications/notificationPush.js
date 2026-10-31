@@ -40,8 +40,12 @@ async function ownerDevices() {
 async function teamDevices() {
   const team = await store().collection('users').where('role', 'in', ['staff', 'delivery']).get();
   const eligible = team.docs.filter(d => {
-    const p = d.data()?.permissions || {};
-    return p.viewOrders !== false;
+    // Match hasPerm('viewOrders', true) in the existing Firestore Rules:
+    // missing legacy fields default to true; present values must be boolean true.
+    const p = d.data()?.permissions;
+    if (p === undefined) return true;
+    if (!p || typeof p !== 'object' || Array.isArray(p)) return false;
+    return !Object.hasOwn(p, 'viewOrders') || p.viewOrders === true;
   });
   const snapshots = await Promise.all(eligible.map(u =>
     store().collection('push_team_devices').doc(u.id).collection('devices').get()
@@ -54,6 +58,15 @@ async function customerDevices(trackingToken) {
   const snap = await store().collection('order_push_subscriptions')
     .doc(trackingToken).collection('devices').limit(200).get();
   return snap.docs;
+}
+
+async function pruneInvalidToken(ref, rejectedToken) {
+  // Registration may refresh while FCM is sending. Only remove the token that
+  // FCM actually rejected; a transaction also protects concurrent refreshes.
+  await store().runTransaction(async tx => {
+    const current = await tx.get(ref);
+    if (current.exists && current.data()?.token === rejectedToken) tx.delete(ref);
+  });
 }
 
 async function sendNotification(deviceDocs, title, body, data) {
@@ -85,7 +98,9 @@ async function sendNotification(deviceDocs, title, body, data) {
     const pruning = [];
     report.responses.forEach((response, index) => {
       if (!response.success && INVALID_FCM_CODES.has(response.error?.code)) {
-        for (const ref of unique.get(group[index]) || []) pruning.push(ref.delete().catch(() => null));
+        for (const ref of unique.get(group[index]) || []) {
+          pruning.push(pruneInvalidToken(ref, group[index]).catch(() => null));
+        }
       }
     });
     if (pruning.length) await Promise.all(pruning);
@@ -176,3 +191,4 @@ export const notifyAnkurSelfPickup = onDocumentUpdated(
     );
   }
 );
+

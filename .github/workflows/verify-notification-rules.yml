@@ -4,9 +4,10 @@ on:
   push:
     branches:
       - feature/notification-verification-v130
+      - codex/issue-11-notification-audit
     paths:
       - 'security-qa/**'
-      - 'notifications/rules-emulator.test.mjs'
+      - 'notifications/**'
       - '.github/workflows/verify-notification-rules.yml'
   workflow_dispatch:
 
@@ -26,6 +27,8 @@ jobs:
         with:
           distribution: temurin
           java-version: '21'
+      - name: Test FCM worker offline without Firebase credentials
+        run: node --experimental-vm-modules notifications/notificationPush.test.mjs
       - name: Prepare original app and previous verified UI patches
         run: |
           unzip -oq Ankur_Order_App_Upload_GitHub.zip -d .
@@ -53,8 +56,31 @@ jobs:
           assert 'enforceAppCheck: true' in Path('firebase-functions/index.js').read_text()
           print('PASS: Firebase named database, App Check enforcement, push rule paths present.')
           PY
-      - name: Install test-only Firestore emulator tooling (no production credentials)
-        run: npm install --no-save --no-package-lock --ignore-scripts --no-audit --no-fund firebase-tools@14 @firebase/rules-unit-testing@4
+      - name: Install build and emulator tooling (no production credentials)
+        run: npm install --no-save --no-package-lock --ignore-scripts --no-audit --no-fund @capacitor-firebase/app-check@7.5.0 @capacitor/filesystem@7 @capacitor/share@7 @capacitor/push-notifications@7 firebase-tools@14 @firebase/rules-unit-testing@4
+      - name: Compile existing Android web bundle without building or replacing an APK
+        run: |
+          npm run lint
+          npm run build
+      - name: Compile existing native Android code without packaging or signing an APK
+        run: |
+          npx cap sync android
+          cp ci-fixes/MainActivity.java android/app/src/main/java/com/ankurdryice/events/MainActivity.java
+          python3 - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          plugins = json.loads(Path('android/app/src/main/assets/capacitor.plugins.json').read_text())
+          assert any('PushNotificationsPlugin' in p.get('classpath', '') for p in plugins)
+          Path('android/local.properties').write_text('sdk.dir=' + os.environ['ANDROID_HOME'] + '\n')
+          variables = Path('android/variables.gradle')
+          text = variables.read_text()
+          if 'rgcfaIncludeGoogle' not in text:
+              variables.write_text(text.replace('ext {', 'ext {\n    rgcfaIncludeGoogle = true', 1))
+          PY
+          chmod +x android/gradlew
+          cd android
+          ./gradlew :app:compileDebugJavaWithJavac --no-daemon
       - name: Validate owner/staff/guest token permissions on local emulator
         env:
           CI: 'true'
@@ -67,3 +93,4 @@ jobs:
         run: |
           echo 'This GitHub action NEVER deploys Firebase functions, rules or customer data.'
           echo 'Passing local rules tests does NOT imply notification delivery to a real phone.'
+

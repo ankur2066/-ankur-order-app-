@@ -1,0 +1,92 @@
+# Issue #11: notification source audit
+
+This is an offline source audit of PR #9 and PR #10, based on
+`be4bd2698b0fc3bf869e42ec49cdde4f616a59d7`. It is not production
+verification or permission to deploy. No APK, signing configuration, source
+archive, business document, or deployed Firebase resource was changed.
+
+## Source evidence
+
+The original `Ankur_Order_App_Upload_GitHub.zip` blob is
+`7e790aa79f80db6bd93fdf5d04db4209772047aa`. Its configuration specifies:
+
+- Project: `ankur-dryice-app`.
+- Named database: `ai-studio-ankurdryiceorder-f4d89318-c640-47a5-a9f7-98543eff2673`.
+- Existing Android package: `com.ankurdryice.events`.
+
+These are source-derived identifiers, not an independently verified live target.
+The Firebase plugin is not connected to this Codex session. No project listing,
+live database inventory, Functions/Eventarc inventory, deployed Rules, Android
+Firebase app settings, IAM permissions, App Check configuration, FCM delivery
+logs, or current billing plan could be read.
+
+| App source | Prepared notification code | Finding |
+| --- | --- | --- |
+| OrderForm creates `orders/{orderId}` and `order_tracking/{orderId}_{sixDigitPin}` in one batch | New-order trigger watches `orders/{orderId}` | Matching paths; token matches existing 14–48 character validation |
+| AdminDashboard updates tracking `status` and `lastStatusUpdate` | Progress trigger watches `order_tracking/{trackingToken}` | Matching status values: pending, confirmed, in_packing, dispatched, delivered, cancelled |
+| AdminDashboard payment toggle writes tracking `paymentStatus` | Progress trigger checks `paymentStatus` | Matching values: pending_verification, payment_verified, cash_on_delivery |
+| Existing pickup callable updates `orders.selfPickup.status` | Pickup trigger watches `orders/{orderId}` | Matching pickup_pending / pickup_completed fields |
+| Rules `hasPerm('viewOrders', true)` accepts absent legacy field or boolean true | Worker previously accepted anything except false | Fixed: malformed permission fields/maps now fail closed; legacy missing fields retain access |
+| Native client creates `ankur_order_updates` | Worker sends with the same Android channel ID | Matching source values; runtime permission/channel receipt remains unverified |
+| Existing pickup callable enforces App Check | Firestore token registrations depend on Firestore Rules and project-level enforcement | Callable enforcement does not prove Firestore App Check or FCM authorization is configured live |
+
+## Changes in this branch
+
+1. Align staff/delivery recipient selection with the existing Rules' boolean
+   permission semantics. Re-read user roles at send time, as before.
+2. Prune invalid registrations only if the stored token still equals the FCM
+   rejected token, using a transaction. Previously a registration refreshed
+   during the send could be deleted by a stale failure response.
+3. Add offline tests of the actual worker with synthetic Firebase SDK modules;
+   expand PR #10's emulator tests for legacy/delivery roles, malformed permissions,
+   owner verification, private token paths, token validation and role revocation.
+4. Extend the existing verification workflow to run these checks and compile the
+   unchanged Android web bundle and native Java code without packaging an APK.
+   It contains no Firebase deploy command, signing
+   secret access, APK release step, or production credentials.
+
+No Firestore Rules changes are proposed in this branch. No client/APK changes are
+needed for these two backend fixes. All existing extraction/UI patch scripts are
+reused only in an isolated working copy and ephemeral CI runner.
+
+## Verification and limits
+
+Locally, the 12 offline worker tests pass. Against the original worker, the two
+new permission/refresh regressions fail and the other ten pass. Source extraction,
+the complete existing patch chain, and generated backend syntax checks pass.
+The expanded emulator suite, web and native compilation run in GitHub Actions; consult
+the PR's checks for their outcome. This sandbox cannot reach its configured
+network proxy to install the emulator/build dependencies locally.
+
+Offline tests cover named-database routing, role filtering, customer subscription
+isolation, status/payment/pickup changes, FCM token deduplication and 500-token
+batching, invalid-token cleanup, token refresh, and transport failure propagation.
+They do not prove live trigger invocation, IAM/FCM authorization, or phone receipt.
+The CI native compile does not use the production Android Firebase configuration
+or signing certificate and cannot validate them. The unchanged v1.0.29 signed Android build was
+previously successful in run `41173720110`; no new APK is produced here.
+
+Event delivery can be repeated or out of order. Existing token deduplication only
+deduplicates recipients within one invocation; it is not durable event
+idempotency. The existing foreground Firestore listener and FCM bridge can both
+surface the same update. Exactly-once delivery and no-duplicate UI behavior are
+not established. These remain explicit review/test items before production
+activation, alongside current live Rules and trigger configuration.
+
+## Production gate
+
+Before requesting deployment approval, the live audit must establish the exact
+project, named database and region; current function exports/triggers and
+codebases; the complete deployed Rules and their minimal additive diff; Android
+app/package settings; IAM/App Check; existing billing plan and expected cost.
+Do not assume the source's `pickup` codebase describes production, overwrite live
+Rules, target `(default)`, or enable Blaze.
+
+The concrete approval packet must include reviewed function/rule changes,
+cost assumptions (including the new conditional token-pruning transaction),
+saved current Rules/function revisions and a resource-specific rollback plan.
+No cost estimate or safe rollback can be claimed before the live inventory.
+After approval, use only an explicitly authorized test order and devices to
+test foreground/background/closed-app receipt, owner/staff eligibility, payment,
+pickup, token/role isolation and duplicate handling. Redact tokens and customer
+information from all evidence. Issue #11 must remain open until live completion.
