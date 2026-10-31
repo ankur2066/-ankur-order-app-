@@ -25,6 +25,8 @@ def package(root, output):
         'runtime/firebase-functions/' + name: 'firebase-functions/' + name
         for name in ('index.js', 'notificationPush.js', 'pickupPolicy.js', 'package.json', 'package-lock.json')
     }
+    inputs['runtime/firebase-functions/pushOnly.js'] = 'notifications/pushOnly.template'
+    inputs['review/stage_push.py'] = 'notifications/stage_push.py'
     inputs.update({
         'review/firestore.source-only.rules': 'firestore.rules',
         'review/firebase.source-only.json': 'firebase.json',
@@ -36,7 +38,9 @@ def package(root, output):
     })
     for name in ('LIVE-EVIDENCE.json', 'APPROVAL-HINDI.md', 'firestore.baseline.rules',
                  'firestore.candidate.rules', 'firestore.proposed.diff', 'build_candidate.py',
-                 'live-rules.test.mjs'):
+                 'live-rules.test.mjs', 'RULES-DEPLOYMENT-RECEIPT.json',
+                 'BILLING-STAGE-RECEIPT.json', 'DEPLOYMENT-STATUS-HINDI.md',
+                 'FUNCTIONS-APPROVAL-HINDI.md', 'push-iam.proposed.json'):
         inputs['review/live-review/' + name] = 'notifications/live-review/' + name
     files = {}
     for destination, relative in inputs.items():
@@ -51,6 +55,12 @@ def package(root, output):
     captured_hash = hashlib.sha256(files['review/live-review/firestore.baseline.rules']).hexdigest()
     if evidence['rules']['files'][0]['sha256'] != captured_hash:
         raise ValueError('Captured Rules do not match live evidence hash')
+    current = json.loads(files['review/live-review/BILLING-STAGE-RECEIPT.json'])
+    inventory = current.get('inventory', {})
+    inventory_complete = all(inventory.get(key, {}).get('state') == 'ok'
+                             for key in ('functionsV1', 'functionsV2'))
+    if current.get('projectId') != 'ankur-dryice-app' or not inventory_complete:
+        raise ValueError('Current function inventory must match the reviewed project')
     manifest_package = json.loads(files['runtime/firebase-functions/package.json'])
     lock = json.loads(files['runtime/firebase-functions/package-lock.json'])
     if lock.get('packages', {}).get('', {}).get('dependencies') != manifest_package.get('dependencies'):
@@ -66,19 +76,22 @@ def package(root, output):
         'Source-only Rules/configuration are labeled separately from captured live Rules.\n'
         'review/live-review/ contains the pinned named-database baseline, candidate and diff.\n'
         'No executable deployment configuration is placed at package root.\n'
-        'Only a first Rules-only release is proposed for approval; no deployment is authorized.\n'
-        'Functions inventory is blocked by disabled APIs; billing is unlinked.\n'
+        'See current FUNCTIONS-APPROVAL-HINDI.md for the pending three-trigger deployment.\n'
+        'Rules are deployed; billing is linked with an INR 500 monthly ALERT, not a cap.\n'
+        'Functions inventories are now readable and empty; Functions deployment is not approved.\n'
         'Do not deploy a whole codebase or change the existing pickup callable.\n'
         'Read APPROVAL-HINDI.md for exact targets, costs, rollback and old-APK limits.\n'
         'Real FCM receipt, pickup readiness and foreground deduplication remain unverified.\n'
         'Official MCP unintentionally enabled Cloud Billing API; it was restored DISABLED.\n'
-        'No billing account link, Blaze activation or Rules/Functions/customer-data change occurred.\n\n'
+        'That earlier unapproved API toggle was restored; later Rules and billing stages were owner approved.\n'
+        'No Functions deployment, APK change or customer-document write occurred.\n\n'
         'Source commit: ' + commit + '\n'
     ).encode()
     manifest = {
         'artifactType': 'review-only-not-deployed', 'sourceCommit': commit,
         'sourceArchiveGitBlob': blob, 'liveTargetVerified': True,
-        'liveFunctionInventoryComplete': False,
+        'liveFunctionInventoryComplete': inventory_complete,
+        'liveFunctionInventoryObservedAt': inventory['observedAt'],
         'liveEvidenceObservedAt': evidence['observedAt'],
         'deploymentApproved': False,
         'targetFromSource': {'projectId': 'ankur-dryice-app', 'databaseId': DATABASE},

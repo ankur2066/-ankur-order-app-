@@ -92,6 +92,7 @@ test('all three triggers target the existing named database and expected paths',
   for (const name of Object.keys(api)) {
     assert.equal(api[name].options.database, DATABASE_ID);
     assert.equal(api[name].options.region, 'asia-southeast1');
+    assert.equal(api[name].options.serviceAccount, 'ankur-order-push@ankur-dryice-app.iam.gserviceaccount.com');
     assert.equal(api[name].options.minInstances, 0);
     assert.equal(api[name].options.maxInstances, 1);
     assert.equal(api[name].options.concurrency, 10);

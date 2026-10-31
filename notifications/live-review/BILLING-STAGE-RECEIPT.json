@@ -1,0 +1,194 @@
+{
+  "projectId": "ankur-dryice-app",
+  "projectNumber": "928793147689",
+  "accountEnding": "F6C7AE",
+  "currency": "INR",
+  "approvedScope": "existing-account-link-500-budget-alert-required-apis-and-inventory",
+  "startedAt": "2026-10-31T21:04:59.737Z",
+  "writes": [
+    {
+      "action": "enable-api",
+      "service": "cloudbilling.googleapis.com",
+      "operation": "operations/acat.p2-928793147689-7e042b9d-5f5c-4cc7-ba2d-99c4418b3f25",
+      "at": "2026-10-31T21:05:04.322Z"
+    },
+    {
+      "action": "enable-api",
+      "service": "billingbudgets.googleapis.com",
+      "operation": "operations/acat.p2-928793147689-bff07758-66f2-4630-b1ac-af0573be36d9",
+      "at": "2026-10-31T21:05:09.209Z"
+    },
+    {
+      "action": "link-approved-billing-account",
+      "accountEnding": "F6C7AE",
+      "at": "2026-10-31T21:05:13.544Z"
+    },
+    {
+      "action": "create-budget-alert",
+      "name": "billingAccounts/[redacted]/budgets/c5c88d9c-9f1d-4ac9-a737-8a656973b2a7",
+      "at": "2026-10-31T21:06:52.478Z"
+    },
+    {
+      "action": "enable-api",
+      "service": "cloudfunctions.googleapis.com",
+      "operation": "operations/acf.p2-928793147689-43a79f02-61d8-4095-8065-5bbc4e71bfb7",
+      "at": "2026-10-31T21:06:55.270Z"
+    },
+    {
+      "action": "enable-api",
+      "service": "run.googleapis.com",
+      "operation": "operations/acf.p2-928793147689-01c66c48-6f59-4f4c-acac-e79e68fe8425",
+      "at": "2026-10-31T21:07:03.095Z"
+    },
+    {
+      "action": "enable-api",
+      "service": "eventarc.googleapis.com",
+      "operation": "operations/acat.p2-928793147689-dd11004b-8b8e-476d-83cf-7532c3b3bb3e",
+      "at": "2026-10-31T21:07:12.495Z"
+    },
+    {
+      "action": "enable-api",
+      "service": "cloudbuild.googleapis.com",
+      "operation": "operations/acf.p2-928793147689-8d48ebe1-949e-4204-94e7-21fac3aacf6f",
+      "at": "2026-10-31T21:07:17.242Z"
+    }
+  ],
+  "services": {
+    "cloudbilling.googleapis.com": {
+      "before": "DISABLED",
+      "after": "ENABLED"
+    },
+    "billingbudgets.googleapis.com": {
+      "before": "DISABLED",
+      "after": "ENABLED"
+    },
+    "cloudfunctions.googleapis.com": {
+      "before": "DISABLED",
+      "after": "ENABLED"
+    },
+    "run.googleapis.com": {
+      "before": "DISABLED",
+      "after": "ENABLED"
+    },
+    "eventarc.googleapis.com": {
+      "before": "DISABLED",
+      "after": "ENABLED"
+    },
+    "cloudbuild.googleapis.com": {
+      "before": "DISABLED",
+      "after": "ENABLED"
+    },
+    "artifactregistry.googleapis.com": {
+      "before": "ENABLED",
+      "after": "ENABLED"
+    },
+    "pubsub.googleapis.com": {
+      "before": "ENABLED",
+      "after": "ENABLED"
+    }
+  },
+  "status": "approved-billing-budget-api-stage-complete",
+  "before": {
+    "billingEnabled": false,
+    "accountLinked": false,
+    "approvedAccount": false
+  },
+  "linkAttemptedAt": "2026-10-31T21:05:11.867Z",
+  "after": {
+    "billingEnabled": true,
+    "accountLinked": true,
+    "approvedAccount": true
+  },
+  "blockedWrites": [],
+  "resumedAt": "2026-10-31T21:05:52.210Z",
+  "latestPreflight": {
+    "billingEnabled": true,
+    "accountLinked": true,
+    "approvedAccount": true
+  },
+  "budgetCreateAttemptedAt": "2026-10-31T21:06:51.699Z",
+  "resumeHistory": [
+    {
+      "at": "2026-10-31T21:06:44.655Z",
+      "previousPhase": "create-approved-budget",
+      "previousError": {
+        "httpStatus": 400,
+        "status": "INVALID_ARGUMENT",
+        "reasons": [],
+        "metadata": []
+      }
+    }
+  ],
+  "budget": {
+    "name": "billingAccounts/[redacted]/budgets/c5c88d9c-9f1d-4ac9-a737-8a656973b2a7",
+    "amount": {
+      "currencyCode": "INR",
+      "units": "500"
+    },
+    "calendarPeriod": "MONTH",
+    "projects": [
+      "projects/928793147689"
+    ],
+    "thresholdRules": [
+      {
+        "thresholdPercent": 0.5,
+        "spendBasis": "CURRENT_SPEND"
+      },
+      {
+        "thresholdPercent": 0.9,
+        "spendBasis": "CURRENT_SPEND"
+      },
+      {
+        "thresholdPercent": 1,
+        "spendBasis": "CURRENT_SPEND"
+      },
+      {
+        "thresholdPercent": 1,
+        "spendBasis": "FORECASTED_SPEND"
+      }
+    ],
+    "hardSpendingCap": false,
+    "verified": true,
+    "notificationsRule": {}
+  },
+  "inventory": {
+    "observedAt": "2026-10-31T21:07:55.969Z",
+    "functionsV1": {
+      "state": "ok",
+      "names": [],
+      "unreachable": []
+    },
+    "functionsV2": {
+      "state": "ok",
+      "names": [],
+      "unreachable": []
+    },
+    "eventarc": {
+      "state": "ok",
+      "names": [],
+      "unreachable": []
+    },
+    "cloudRunGlobal": {
+      "state": "partial",
+      "names": [],
+      "unreachable": [
+        "europe-west15",
+        "me-central2",
+        "us-central2",
+        "us-east7",
+        "us-west8"
+      ]
+    },
+    "cloudRunRegional": {
+      "asia-southeast1": {
+        "services": [],
+        "complete": true
+      },
+      "asia-south1": {
+        "services": [],
+        "complete": true
+      }
+    }
+  },
+  "completedAt": "2026-10-31T21:08:53.175Z"
+}

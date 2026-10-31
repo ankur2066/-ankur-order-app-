@@ -72,13 +72,15 @@ jobs:
               archive.extractall('.backend-review-smoke')
           PY
           npm ci --prefix .backend-review-smoke/runtime/firebase-functions --ignore-scripts --no-audit --no-fund
+          python3 notifications/stage_push.py --package .backend-review-smoke --output .push-only-stage
+          npm ci --prefix .push-only-stage/functions --ignore-scripts --no-audit --no-fund
       - name: Verify complete backend artifact with real Firebase SDKs without network
         env:
           GCLOUD_PROJECT: demo-ankur-backend-audit
           FIREBASE_CONFIG: '{"projectId":"demo-ankur-backend-audit"}'
           GOOGLE_APPLICATION_CREDENTIALS: ''
           FIREBASE_TOKEN: ''
-        run: node notifications/backend-package-smoke.mjs .backend-review-smoke
+        run: node notifications/backend-package-smoke.mjs .backend-review-smoke .push-only-stage
       - name: Validate owner/staff/guest token permissions on local emulator
         env:
           CI: 'true'

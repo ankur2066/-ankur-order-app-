@@ -13,6 +13,7 @@ const DATABASE_ID = 'ai-studio-ankurdryiceorder-f4d89318-c640-47a5-a9f7-98543eff
 // Match the independently verified Singapore database; no warm idle instances.
 const TRIGGER = {
   region: 'asia-southeast1', database: DATABASE_ID,
+  serviceAccount: 'ankur-order-push@ankur-dryice-app.iam.gserviceaccount.com',
   minInstances: 0, maxInstances: 1, concurrency: 10,
   memory: '256MiB', cpu: 1, timeoutSeconds: 60, retry: false,
 };
