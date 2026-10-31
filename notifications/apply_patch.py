@@ -93,6 +93,24 @@ s = replace_once(s, """{notifications.toast && currentTab !== 'admin' && (""",
     """{notifications.toast && (""", 'owner notification toast')
 p.write_text(s, encoding='utf-8')
 
+# Privileged owner/staff FCM tokens must be removed while Auth is still valid.
+firebase = Path('src/firebase.ts')
+f = firebase.read_text(encoding='utf-8')
+f = replace_once(f,
+    """export async function signOutUser() {
+  await signOut(auth);""",
+    """export async function signOutUser() {
+  // Revoke owner/staff push destinations BEFORE Firebase Auth is cleared.
+  try {
+    const { unregisterTeamPushBeforeSignOut } = await import('./services/orderPush');
+    await unregisterTeamPushBeforeSignOut();
+  } catch (error) {
+    console.warn('Push logout cleanup unavailable:', error);
+  }
+  await signOut(auth);""",
+    'privileged push logout cleanup')
+firebase.write_text(f, encoding='utf-8')
+
 # 3. Keep status tracking & bell untouched; add owner/staff realtime new-order alerts.
 p = Path('src/hooks/useOrderNotifications.ts')
 s = p.read_text(encoding='utf-8')
