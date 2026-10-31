@@ -1,0 +1,51 @@
+name: Audit notification wiring
+on:
+  push:
+    branches: [feature/order-push-notifications-v129]
+    paths: [.github/workflows/notification-audit.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inspect source notification and backend contracts (no live calls)
+        shell: bash
+        run: |
+          unzip -oq Ankur_Order_App_Upload_GitHub.zip -d .
+          python3 - <<'PY'
+          from pathlib import Path
+          allowed = [
+            'src/hooks/useOrderNotifications.ts',
+            'src/components/customer/CustomerHome.tsx',
+            'src/App.tsx',
+            'src/firebase.ts',
+            'src/main.tsx',
+            'firebase-functions/index.js',
+            'firebase-functions/package.json',
+            'firebase.json',
+            'android/app/src/main/AndroidManifest.xml',
+            'package.json',
+            'src/hooks/useAccess.ts'
+          ]
+          for file in allowed:
+            p=Path(file)
+            print('\n=== SOURCE',file,'===')
+            if not p.is_file():
+              print('MISSING'); continue
+            txt=p.read_text(errors='replace').splitlines()
+            if file in ['src/App.tsx','src/components/customer/CustomerHome.tsx','src/hooks/useAccess.ts']:
+              marks=['notification','Notification','unread','orderSuccess','permission','isOwner','canUpdate','useAccess','onOrderSuccess','firebase','setCurrentTab']
+              indexes=set()
+              for i,line in enumerate(txt):
+                if any(k in line for k in marks):
+                  for n in range(max(0,i-3),min(len(txt),i+5)): indexes.add(n)
+              for i in sorted(indexes):print(f'{i+1:>4}: {txt[i]}')
+            elif file=='src/firebase.ts':
+              for i,line in enumerate(txt):
+                if any(s in line.lower() for s in ['firestore','firebase','export','function','auth','appcheck']): print(f'{i+1:>4}: {line[:250]}')
+            else:
+              for i,line in enumerate(txt[:450]):print(f'{i+1:>4}: {line[:350]}')
+          PY
