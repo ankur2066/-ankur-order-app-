@@ -208,5 +208,8 @@
     "finalCodebase": "orderpush",
     "finalSourceZipBytesMatchReviewed": true,
     "noRuntimeSourceFilesChanged": true
-  }
+  },
+  "syntheticOrderTestingPerformedSeparatelyAfterDeployment": true,
+  "syntheticOrderTestReceipt": "SYNTHETIC-ORDER-TEST-RECEIPT.json",
+  "existingCustomerOrderWrites": 0
 }

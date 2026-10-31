@@ -26,7 +26,10 @@
   "inAppAlertsVisibleInUserScreenshot": true,
   "collectionGroupCountIsNotPhoneCount": true,
   "ownerReceiptTestMethod": "Direct FCM HTTP v1; user confirmed receipt. No Firestore order was created.",
-  "firestoreOrderEventPathVerified": false,
+  "firestoreOrderEventPathVerified": true,
   "sourceCodebase": "orderpush",
-  "finalFunctionsVerificationAt": "2026-10-31T22:14:30.524Z"
+  "finalFunctionsVerificationAt": "2026-10-31T22:14:30.524Z",
+  "firestoreEventRuntimeAcceptedSendCount": 5,
+  "syntheticTestCleanupComplete": true,
+  "firestoreOrderAlertsPhoneReceiptConfirmed": false
 }

@@ -1,11 +1,14 @@
 # अगली जाँच: एक नया, स्पष्ट synthetic TEST order
 
+> Update: owner ने इस योजना को मंजूर किया। पाँच runtime paths और cleanup सफल
+> हैं; [test receipt](SYNTHETIC-ORDER-TEST-RECEIPT.json) देखें। नीचे मूल योजना है।
+
 तीनों Functions live हैं। Authenticated operator से भेजे सीधे FCM TEST की
 phone receipt owner ने confirm की है। इससे device/FCM path साबित है; Firestore
 order event से runtime Function चलने और उसके status/payment/pickup alerts की
 end-to-end जाँच अभी बाकी है।
 
-इस नई जाँच की मंजूरी अभी नहीं ली गई है और कोई test order बनाया नहीं गया है।
+यह मूल pre-approval योजना थी; ऊपर के update और receipt में execution दर्ज है।
 मंजूरी मिलने पर सटीक सीमा:
 
 1. केवल **एक नया** order `TEST-FCM-20261031-98EE1A` बनाएँगे।

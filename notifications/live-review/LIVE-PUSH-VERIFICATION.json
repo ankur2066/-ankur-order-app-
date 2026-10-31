@@ -194,6 +194,17 @@
     "directOwnerFcmAccepted": true,
     "directOwnerPhoneReceiptConfirmed": true,
     "firestoreEventToDeviceVerified": false,
-    "separateCustomerOrStaffPhoneVerified": false
+    "separateCustomerOrStaffPhoneVerified": false,
+    "firestoreEventToRuntimeFcmVerified": true,
+    "runtimeEventKindsVerified": [
+      "new_order",
+      "order_status",
+      "payment_status",
+      "self_pickup_completed",
+      "self_pickup_reversed"
+    ],
+    "syntheticFixtureCleanupComplete": true,
+    "verifiedAt": "2026-10-31T22:30:20.393Z",
+    "sourceRuntimeEventReceipt": "SYNTHETIC-ORDER-TEST-RECEIPT.json"
   }
 }
