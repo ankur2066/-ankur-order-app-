@@ -5,7 +5,7 @@ import { db } from '../firebase';
 import { createNoticeGate, createSnapshotTracker, recordTime } from '../services/notificationState';
 import type { NoticeSignal, NoticeSource, SeenEvent } from '../services/notificationState';
 
-export interface AppNotice { id: string; orderId: string; title: string; body: string; at: number; read: boolean }
+export interface AppNotice { id: string; orderId: string; title: string; body: string; at: number; read: boolean; type?: string }
 const PLACED_KEY = 'ankur_dryice_placed_orders_v1';
 const LEGACY_NOTICES = 'ankur_notices_v1';
 const MAX_WATCHED = 8;
@@ -46,7 +46,7 @@ export function useOrderNotifications(currentUser: User | null, teamCanViewOrder
   }, [scope, owner]);
   const pushNotice = useCallback((signal: NoticeSignal, source: NoticeSource) => {
     if (activeScope.current !== scope || !gate.current(signal, source)) return;
-    const notice: AppNotice = { orderId: signal.orderId.slice(0,64), title: signal.title.slice(0,90), body: signal.body.slice(0,180), id: signal.orderId + '_' + Date.now() + '_' + (++sequence.current), at: Date.now(), read: false };
+    const notice: AppNotice = { type: signal.type, orderId: signal.orderId.slice(0,64), title: signal.title.slice(0,90), body: signal.body.slice(0,180), id: signal.orderId + '_' + Date.now() + '_' + (++sequence.current), at: Date.now(), read: false };
     setStored(previous => {
       const next = [notice, ...(previous.scope === scope ? previous.items : [])].slice(0,30);
       writeJson('ankur_notices_v2:' + scope, next);

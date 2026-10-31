@@ -1,4 +1,4 @@
-name: Ankur Notification v1.0.30 Private Review APK
+name: Ankur Notification v1.0.31 Private Review APK
 # Private review artifact only. No installation, hosting, Play Store or Firebase deployment.
 on:
   push:
@@ -148,14 +148,16 @@ jobs:
           node --check firebase-functions/notificationPush.js
           node --check firebase-functions/index.js
       - name: Apply notification-only client review fixes
-        run: python3 notifications/client-fixes/apply_patch.py
+        run: |
+          python3 notifications/client-fixes/apply_patch.py
+          python3 notifications/tap-fix/apply_patch.py
       - name: Pin Capacitor 7 App Check dependency in working copy
         run: npm install @capacitor-firebase/app-check@7.5.0 @capacitor/filesystem@7 @capacitor/share@7 @capacitor/push-notifications@7 --save-exact --package-lock-only --ignore-scripts --no-audit --no-fund
       - name: Build web and sync
         run: |
           npm ci
           npm install --no-save --no-package-lock --ignore-scripts --no-audit --no-fund react-test-renderer@19
-          node --experimental-vm-modules --test notifications/client-fixes/client.test.mjs
+          node --experimental-vm-modules --test notifications/client-fixes/client.test.mjs notifications/tap-fix/tap.test.mjs
           npm run lint
           npm run android:sync
       - name: Verify Android Push Notifications plugin and permission
@@ -218,8 +220,8 @@ jobs:
           PY
       - name: Set release version directly in Gradle
         env:
-          VERSION_CODE: '30'
-          VERSION_NAME: '1.0.30'
+          VERSION_CODE: '31'
+          VERSION_NAME: '1.0.31'
         run: |
           python3 - <<'PY'
           import os
@@ -227,7 +229,7 @@ jobs:
           p = Path('android/app/build.gradle')
           code = os.environ['VERSION_CODE']
           name = os.environ['VERSION_NAME']
-          assert code == '30' and name == '1.0.30'
+          assert code == '31' and name == '1.0.31'
           assert name.replace('.', '').replace('-', '').replace('_', '').isalnum()
           lines = p.read_text().splitlines()
           found_code = found_name = False
@@ -264,7 +266,7 @@ jobs:
           echo "Signature matches installed v1.0.29 certificate; private candidate only."
       - uses: actions/upload-artifact@v4
         with:
-          name: Ankur-v1.0.30-SIGNED-REVIEW-CANDIDATE-${{ github.sha }}
+          name: Ankur-v1.0.31-SIGNED-REVIEW-CANDIDATE-${{ github.sha }}
           path: |
             android/app/build/outputs/apk/release/app-release.apk
             android/app/build/outputs/apk/release/app-release.apk.sha256

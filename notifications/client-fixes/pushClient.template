@@ -59,9 +59,14 @@ async function collectOwnTrackingTokens(expected: PushIdentity) {
   } catch { /* local guest tracking remains usable */ }
 }
 function noticeDetail(msg: any) {
-  return { orderId:String(msg.data?.orderId || '').slice(0,64), type:String(msg.data?.type || '').slice(0,40),
-    status:String(msg.data?.status || '').slice(0,40), paymentStatus:String(msg.data?.paymentStatus || '').slice(0,40),
-    eventId:String(msg.data?.eventId || '').slice(0,128), title:String(msg.title || 'Order Update').slice(0,90), body:String(msg.body || '').slice(0,180) };
+  // Android's retained cold-start action contains data, but can omit title/body.
+  const data=msg?.data || {};
+  const orderId=String(data.orderId || '').slice(0,64);
+  const type=String(data.type || '').slice(0,40);
+  const labels: Record<string,string>={pending:'Order Received',confirmed:'Order Confirmed',in_packing:'Order Packing',dispatched:'Order Dispatched',delivered:'Order Delivered',cancelled:'Order Cancelled'};
+  const fallbackTitle=type==='connection_test'?'Ankur Dryice — TEST':type==='new_order'?'New Order Received':type==='payment_status'?(data.paymentStatus==='payment_verified'?'Payment Verified':'Payment Update'):type==='self_pickup'?(data.status==='pickup_completed'?'Pickup Completed':'Pickup Updated'):(labels[data.status] || 'Order Update');
+  return {orderId,type,status:String(data.status || '').slice(0,40),paymentStatus:String(data.paymentStatus || '').slice(0,40),eventId:String(data.eventId || '').slice(0,128),
+    title:String(msg?.title || fallbackTitle).slice(0,90),body:String(msg?.body || (type==='connection_test'?'यह केवल notification की जाँच है; वास्तविक order नहीं है।':orderId+' · '+fallbackTitle)).slice(0,180)};
 }
 
 /** FCM device tokens go to private Firestore collections; no customer PII in payloads. */
@@ -116,7 +121,7 @@ async function prepareListeners() {
   });
   await PushNotifications.addListener('pushNotificationActionPerformed', action => {
     window.dispatchEvent(new CustomEvent('ankur-push-arrived', {detail:noticeDetail(action.notification)}));
-    window.dispatchEvent(new CustomEvent('ankur-push-opened', {detail:{orderId:String(action.notification.data?.orderId || '')}}));
+    window.dispatchEvent(new CustomEvent('ankur-push-opened', {detail:noticeDetail(action.notification)}));
   });
   await PushNotifications.createChannel({
     id: 'ankur_order_updates',

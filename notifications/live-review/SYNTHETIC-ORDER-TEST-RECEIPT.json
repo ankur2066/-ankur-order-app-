@@ -130,5 +130,19 @@
   "separateStaffOrCustomerPhoneVerified": false,
   "finalLogAuditAt": "2026-10-31T22:32:30.098Z",
   "totalMatchingRuntimeSendSummaries": 5,
-  "duplicateLoggedEventIdsInThisTest": 0
+  "duplicateLoggedEventIdsInThisTest": 0,
+  "phoneReceiptEvidence": {
+    "newOrder": {
+      "confirmed": true,
+      "source": "User screenshot 1000985886.jpg; title New Order Received with matching synthetic order ID TEST-FCM-20261031-98EE1A",
+      "scope": "Owner phone heads-up only; not tap or installed-version proof"
+    },
+    "orderStatus": "pending",
+    "paymentStatus": "pending",
+    "pickupCompleted": "pending",
+    "pickupReversed": "pending"
+  },
+  "confirmedRuntimeMessageKindsOnOwnerPhone": [
+    "new_order"
+  ]
 }

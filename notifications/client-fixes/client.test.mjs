@@ -23,7 +23,8 @@ async function harness(initial={}) {
   // Avoid leaving toast timers alive. React timing is real; these are UI expiry timers only.
   window.setTimeout=()=>1;window.clearTimeout=()=>{};
   const localStorage={getItem:k=>storage.get(k) ?? null,setItem:(k,v)=>storage.set(k,v)};
-  const listeners=[],writes=[],deletes=[],nativeListeners={};
+  const listeners=[],writes=[],deletes=[],nativeListeners={},opened=[];
+  window.addEventListener('ankur-push-opened',e=>opened.push(e.detail));
   const auth={currentUser:owner};
   let own=[];let deferred=null;
   const fs={
@@ -52,7 +53,7 @@ async function harness(initial={}) {
   const hook=modules.get('hook').namespace, native=modules.get('native').namespace, state=modules.get('state').namespace;
   let latest,root;
   function Host({user,team}){latest=hook.useOrderNotifications(user,team);return null;}
-  return {native,state,auth,writes,deletes,nativeListeners,storage,listeners,
+  return {native,state,auth,writes,deletes,nativeListeners,storage,listeners,opened,
     tick:n=>{clock+=n;},setOwn:rows=>{own=rows;},setDeferred:cb=>{deferred=cb;},
     async mount(user=owner,team=true){await act(async()=>{root=create(React.createElement(Host,{user,team}));});},
     async update(user,team){await act(async()=>root.update(React.createElement(Host,{user,team})));},
@@ -163,4 +164,18 @@ test('revoked staff cannot register a privileged token; logout deletes registrat
  assert.ok(h.writes.some(w=>w.path.startsWith('push_team_devices/staff/')));h.writes.length=0;
  await h.native.configureOrderPush(h.auth.currentUser,'staff',false);await h.receive('registration',{value:'MOCK-FCM'});assert.equal(h.writes.length,0);
  await h.native.unregisterTeamPushBeforeSignOut();assert.ok(h.deletes.some(p=>p.startsWith('push_team_devices/staff/')));assert.equal(h.auth.currentUser.uid,'staff');
+});
+
+test('Android cold-start data-only tap reconstructs a readable notice and forwards full routing metadata',async()=>{
+ const h=await harness();await h.mount();await h.native.configureOrderPush(owner,'admin',true);
+ const data={...event(),type:'new_order'};delete data.title;delete data.body;
+ await h.receive('pushNotificationActionPerformed',{notification:{id:'mock-google-id',data}});
+ assert.equal(h.result.notices.length,1);assert.equal(h.result.notices[0].title,'New Order Received');
+ assert.ok(h.result.notices[0].body.includes(data.orderId));assert.equal(h.opened[0].eventId,data.eventId);assert.equal(h.opened[0].type,'new_order');await h.close();
+});
+test('data-only payment/pickup action titles retain their actual event meaning',async()=>{
+ const h=await harness();await h.mount();await h.native.configureOrderPush(owner,'admin',true);
+ await h.receive('pushNotificationActionPerformed',{notification:{data:{...event(),type:'payment_status',paymentStatus:'payment_verified'}}});
+ await h.receive('pushNotificationActionPerformed',{notification:{data:{...event(2),type:'self_pickup',status:'pickup_completed'}}});
+ assert.equal(h.result.notices.length,2);assert.equal(h.result.notices[0].title,'Pickup Completed');assert.equal(h.result.notices[1].title,'Payment Verified');await h.close();
 });

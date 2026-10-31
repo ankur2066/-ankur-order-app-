@@ -1,0 +1,15 @@
+/** Navigation decisions only; never trust a notification as order authorization. */
+export function isTestNotice(notice: {orderId?: string; type?: string}) {
+  return notice.type === 'connection_test' || notice.orderId === 'PUSH-TEST' || /^TEST-FCM-/.test(notice.orderId || '');
+}
+export function notificationDestination(notice: {orderId?: string; type?: string}, role: string | null, canView: boolean, placed: any[] = []) {
+  const orderId = String(notice.orderId || '');
+  if (isTestNotice(notice)) return {kind:'test' as const};
+  if (!/^[A-Za-z0-9_-]{4,64}$/.test(orderId)) return {kind:'invalid' as const};
+  if (role === 'admin') return {kind:'owner' as const, orderId};
+  if (role === 'staff' || role === 'delivery') return canView ? {kind:'staff' as const, orderId} : {kind:'denied' as const};
+  const local = placed.find(o => o?.orderId === orderId && !o.isTrash);
+  // PIN stays on the device: it is never taken from, or added to, FCM payloads.
+  const pin = typeof local?.trackingPin === 'string' && /^\d{6}$/.test(local.trackingPin) ? local.trackingPin : '';
+  return {kind:'tracking' as const, orderId, pin};
+}
