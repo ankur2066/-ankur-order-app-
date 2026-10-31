@@ -1,0 +1,69 @@
+name: Verify Push Notifications without Production Access
+
+on:
+  push:
+    branches:
+      - feature/notification-verification-v130
+    paths:
+      - 'security-qa/**'
+      - 'notifications/rules-emulator.test.mjs'
+      - '.github/workflows/verify-notification-rules.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  notification-rules-emulator:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Prepare original app and previous verified UI patches
+        run: |
+          unzip -oq Ankur_Order_App_Upload_GitHub.zip -d .
+          python3 app-check/apply_patch.py
+          python3 ui-fixes/apply_patch.py
+          python3 ui-fixes/ux_qa_patch.py
+          python3 ui-fixes/premium_booking_v122.py
+          python3 ui-fixes/blinkit_premium_v123.py
+          python3 ui-fixes/customer_home_form_v124.py
+          python3 ui-fixes/customer_home_only_v125.py
+          python3 ui-fixes/compact_customer_form_v126.py
+          python3 ui-fixes/english_booking_v127.py
+          python3 ui-fixes/readable_smooth_v128.py
+          python3 notifications/apply_patch.py
+          node --check firebase-functions/notificationPush.js
+          node --check firebase-functions/index.js
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          target = 'ai-studio-ankurdryiceorder-f4d89318-c640-47a5-a9f7-98543eff2673'
+          config = json.loads(Path('firebase.json').read_text())
+          assert config['firestore']['database'] == target
+          assert 'match /push_owner_devices/{deviceId}' in Path('firestore.rules').read_text()
+          assert 'match /order_push_subscriptions/{trackingToken}/devices/{deviceId}' in Path('firestore.rules').read_text()
+          assert 'enforceAppCheck: true' in Path('firebase-functions/index.js').read_text()
+          print('PASS: Firebase named database, App Check enforcement, push rule paths present.')
+          PY
+      - name: Install test-only Firestore emulator tooling (no production credentials)
+        run: npm install --no-save --no-package-lock --ignore-scripts --no-audit --no-fund firebase-tools@14 @firebase/rules-unit-testing@5
+      - name: Validate owner/staff/guest token permissions on local emulator
+        env:
+          CI: 'true'
+          FIREBASE_TOKEN: ''
+          GOOGLE_APPLICATION_CREDENTIALS: ''
+        run: |
+          ./node_modules/.bin/firebase emulators:exec --project demo-ankur-push-rules-test --only firestore "node --test notifications/rules-emulator.test.mjs"
+      - name: Document result scope
+        if: always()
+        run: |
+          echo 'This GitHub action NEVER deploys Firebase functions, rules or customer data.'
+          echo 'Passing local rules tests does NOT imply notification delivery to a real phone.'
