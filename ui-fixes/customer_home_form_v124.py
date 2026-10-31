@@ -52,8 +52,8 @@ s=replace_once(s,
     "{ label: 'आज की बुकिंग', Icon: Clock, action: focusBooking }",
     "quick action")
 s=replace_once(s,
-    'onClick={() => onBook(null)}',
-    'onClick={focusBooking}',
+    'className="aqp-spotlight-cta focus-ring" onClick={() => onBook(null)}',
+    'className="aqp-spotlight-cta focus-ring" onClick={focusBooking}',
     "prominent hero CTA")
 s=replace_once(s,
     '      <main className="aqp-main pt-4 space-y-5">',
