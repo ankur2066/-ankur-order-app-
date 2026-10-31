@@ -1,0 +1,178 @@
+/**
+ * Firebase Cloud Messaging delivery worker for Ankur Order App.
+ * IMPORTANT: This file is prepared only, NOT deployed to live Firebase by APK CI.
+ * Deploy with reviewed named-Firestore rules and authorized Firebase credentials.
+ */
+import { onDocumentCreated, onDocumentUpdated } from 'firebase-functions/v2/firestore';
+import { getApp } from 'firebase-admin/app';
+import { getFirestore } from 'firebase-admin/firestore';
+import { getMessaging } from 'firebase-admin/messaging';
+
+const DATABASE_ID = 'ai-studio-ankurdryiceorder-f4d89318-c640-47a5-a9f7-98543eff2673';
+const TRIGGER = { region: 'asia-south1', database: DATABASE_ID };
+const STATUS_LABELS = Object.freeze({
+  pending: 'Order Received',
+  confirmed: 'Order Confirmed',
+  in_packing: 'Packing Your Order',
+  dispatched: 'Order Dispatched',
+  delivered: 'Order Delivered',
+  cancelled: 'Order Cancelled',
+});
+const INVALID_FCM_CODES = new Set([
+  'messaging/invalid-registration-token',
+  'messaging/registration-token-not-registered',
+]);
+
+function store() {
+  // The customer app uses a named database: never send against (default).
+  return getFirestore(getApp(), DATABASE_ID);
+}
+
+function stringify(value, max = 150) {
+  return String(value ?? '').slice(0, max);
+}
+
+async function ownerDevices() {
+  const snap = await store().collection('push_owner_devices').get();
+  return snap.docs;
+}
+
+async function teamDevices() {
+  const team = await store().collection('users').where('role', 'in', ['staff', 'delivery']).get();
+  const eligible = team.docs.filter(d => {
+    const p = d.data()?.permissions || {};
+    return p.viewOrders !== false;
+  });
+  const snapshots = await Promise.all(eligible.map(u =>
+    store().collection('push_team_devices').doc(u.id).collection('devices').get()
+  ));
+  return snapshots.flatMap(s => s.docs);
+}
+
+async function customerDevices(trackingToken) {
+  if (!trackingToken || !/^[A-Za-z0-9_-]{14,48}$/.test(trackingToken)) return [];
+  const snap = await store().collection('order_push_subscriptions')
+    .doc(trackingToken).collection('devices').limit(200).get();
+  return snap.docs;
+}
+
+async function sendNotification(deviceDocs, title, body, data) {
+  // Deduplicate FCM tokens across owner/team and customer lists.
+  const unique = new Map();
+  for (const doc of deviceDocs) {
+    const token = doc.data()?.token;
+    if (typeof token === 'string' && token.length >= 30 && token.length <= 4096) {
+      if (!unique.has(token)) unique.set(token, []);
+      unique.get(token).push(doc.ref);
+    }
+  }
+  const tokens = [...unique.keys()];
+  let sent = 0;
+  let failed = 0;
+  for (let offset = 0; offset < tokens.length; offset += 500) {
+    const group = tokens.slice(offset, offset + 500);
+    const report = await getMessaging(getApp()).sendEachForMulticast({
+      tokens: group,
+      notification: { title: stringify(title, 90), body: stringify(body, 180) },
+      data: Object.fromEntries(Object.entries(data).map(([k, v]) => [k, stringify(v, 180)])),
+      android: {
+        priority: 'high',
+        notification: { channelId: 'ankur_order_updates', sound: 'default' },
+      },
+    });
+    sent += report.successCount;
+    failed += report.failureCount;
+    const pruning = [];
+    report.responses.forEach((response, index) => {
+      if (!response.success && INVALID_FCM_CODES.has(response.error?.code)) {
+        for (const ref of unique.get(group[index]) || []) pruning.push(ref.delete().catch(() => null));
+      }
+    });
+    if (pruning.length) await Promise.all(pruning);
+  }
+  console.info('Ankur push send', { kind: data.type, orderId: data.orderId, attempted: tokens.length, sent, failed });
+  return { attempted: tokens.length, sent, failed };
+}
+
+/**
+ * New customer/owner-created order -> signed-in owner and permitted team.
+ * Trigger uses the same *named Firestore database* as the Android app.
+ */
+export const notifyNewAnkurOrder = onDocumentCreated(
+  { ...TRIGGER, document: 'orders/{orderId}' },
+  async event => {
+    const order = event.data?.data();
+    if (!order || order.isTrash === true) return;
+    const orderId = stringify(order.orderId || event.params.orderId, 64);
+    const recipients = [...await ownerDevices(), ...await teamDevices()];
+    await sendNotification(
+      recipients,
+      'New Ankur Dryice Order',
+      'Order ' + orderId + ' • ' + stringify(order.quantityKg, 10) + ' KG • ' + stringify(order.city || order.district, 60),
+      { type: 'new_order', orderId }
+    );
+  }
+);
+
+/**
+ * Customer's private tracking-token subscription -> status + payment changes.
+ * Owner also receives status updates; never include tracking PIN or phone in FCM.
+ */
+export const notifyAnkurOrderProgress = onDocumentUpdated(
+  { ...TRIGGER, document: 'order_tracking/{trackingToken}' },
+  async event => {
+    const previous = event.data?.before?.data();
+    const current = event.data?.after?.data();
+    if (!previous || !current) return;
+    const statusChanged = previous.status !== current.status;
+    const paymentChanged = previous.paymentStatus !== current.paymentStatus;
+    if (!statusChanged && !paymentChanged) return;
+
+    const orderId = stringify(current.orderId, 64);
+    let title;
+    let body;
+    if (statusChanged) {
+      title = STATUS_LABELS[current.status] || 'Order Updated';
+      body = stringify(current.lastStatusUpdate || 'Your Ankur Dryice order status was updated.', 170);
+    } else {
+      title = current.paymentStatus === 'payment_verified' ? 'Payment Verified' : 'Payment Update';
+      body = current.paymentStatus === 'payment_verified'
+        ? 'Payment for order ' + orderId + ' is verified.'
+        : 'The payment status of order ' + orderId + ' has changed.';
+    }
+    const recipients = [
+      ...await customerDevices(event.params.trackingToken),
+      ...await ownerDevices(),
+    ];
+    await sendNotification(recipients, title, body, {
+      type: statusChanged ? 'order_status' : 'payment_status',
+      orderId,
+      status: current.status || '',
+      paymentStatus: current.paymentStatus || '',
+    });
+  }
+);
+
+/** The existing Self Pickup callable writes pickup status to orders, not tracking. */
+export const notifyAnkurSelfPickup = onDocumentUpdated(
+  { ...TRIGGER, document: 'orders/{orderId}' },
+  async event => {
+    const previous = event.data?.before?.data();
+    const current = event.data?.after?.data();
+    if (!previous || !current || previous.selfPickup?.status === current.selfPickup?.status ||
+        !current.selfPickup?.status) return;
+    const completed = current.selfPickup.status === 'pickup_completed';
+    if (!completed && current.selfPickup.status !== 'pickup_pending') return;
+    const orderId = stringify(current.orderId || event.params.orderId, 64);
+    const recipients = [
+      ...await customerDevices(current.trackingToken),
+      ...await ownerDevices(),
+    ];
+    await sendNotification(recipients,
+      completed ? 'Pickup Completed' : 'Pickup Updated',
+      completed ? 'Your Self Pickup order ' + orderId + ' has been handed over.'
+        : 'Pickup confirmation for order ' + orderId + ' was reversed.',
+      { type: 'self_pickup', orderId, status: current.selfPickup.status }
+    );
+  }
+);

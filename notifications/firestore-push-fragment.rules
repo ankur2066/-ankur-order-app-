@@ -1,0 +1,36 @@
+
+    // v1.0.29: private Android FCM device registration.
+    // Clients cannot read or list device tokens. Firebase Admin only reads recipients.
+    function isValidPushDevice(data) {
+      return data.keys().hasAll(['token', 'platform', 'updatedAt']) &&
+        data.keys().hasOnly(['token', 'platform', 'updatedAt']) &&
+        data.token is string && data.token.size() >= 30 && data.token.size() <= 4096 &&
+        data.platform == 'android' &&
+        data.updatedAt == request.time;
+    }
+
+    // Only the verified owner may register a device to get ALL new-order alerts.
+    match /push_owner_devices/{deviceId} {
+      allow get, list: if false;
+      allow create, update, delete: if isValidId(deviceId) && isOwner() &&
+        (request.method == 'delete' || isValidPushDevice(incoming()));
+    }
+
+    // Staff and delivery team are eligible only while allowed to view orders.
+    match /push_team_devices/{uid}/devices/{deviceId} {
+      allow get, list: if false;
+      allow create, update, delete: if isValidId(deviceId) &&
+        isSignedIn() && uid == request.auth.uid && canViewOrders() &&
+        (request.method == 'delete' || isValidPushDevice(incoming()));
+    }
+
+    // Customer/guest: possessing an exact secret tracking token grants the
+    // ability to register push for that ONE order only. No order PII exposed.
+    match /order_push_subscriptions/{trackingToken}/devices/{deviceId} {
+      allow get, list: if false;
+      allow create, update: if isValidId(deviceId) &&
+        isValidTrackingToken(trackingToken) &&
+        exists(/databases/$(database)/documents/order_tracking/$(trackingToken)) &&
+        isValidPushDevice(incoming());
+      allow delete: if false; // invalid/expired tokens are cleaned server-side
+    }

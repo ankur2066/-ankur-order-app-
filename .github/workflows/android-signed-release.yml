@@ -11,22 +11,24 @@ on:
       - feature/compact-customer-form-v126
       - feature/english-booking-home-v127
       - feature/readable-smooth-booking-v128
+      - feature/order-notifications-v129
     paths:
       - '.github/workflows/android-signed-release.yml'
       - 'Ankur_Order_App_Upload_GitHub.zip'
       - 'ci-fixes/**'
       - 'app-check/**'
       - 'ui-fixes/**'
+      - 'notifications/**'
   workflow_dispatch:
     inputs:
       version_code:
         description: 'Android versionCode (greater than installed version)'
         required: true
-        default: '28'
+        default: '29'
       version_name:
         description: 'Release version'
         required: true
-        default: '1.0.28'
+        default: '1.0.29'
 permissions:
   contents: read
 jobs:
@@ -160,12 +162,45 @@ jobs:
           grep -q 'data-ui-build="1.0.28"' src/components/customer/CustomerHome.tsx
           grep -q 'apb-extra-amount-input' src/components/OrderForm.tsx
           grep -q 'onOrderSuccess={handleOrderSuccess}' src/App.tsx
+      - name: Wire original order notifications to Android FCM without changing booking logic
+        run: |
+          python3 notifications/apply_patch.py
+          test -s src/services/orderPush.ts
+          grep -q 'notifyNewAnkurOrder' firebase-functions/index.js
+          grep -q 'push_owner_devices' firestore.rules
+          node --check firebase-functions/notificationPush.js
+          node --check firebase-functions/index.js
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Ankur-Prepared-Firebase-Push-Backend-v1.0.29-NOT-DEPLOYED
+          path: |
+            firebase-functions/index.js
+            firebase-functions/notificationPush.js
+            firebase-functions/package.json
+            firestore.rules
+            firebase.json
+          retention-days: 7
+          if-no-files-found: error
       - name: Pin Capacitor 7 App Check dependency in working copy
-        run: npm install @capacitor-firebase/app-check@7.5.0 @capacitor/filesystem@7 @capacitor/share@7 --save-exact --package-lock-only --ignore-scripts --no-audit --no-fund
+        run: npm install @capacitor-firebase/app-check@7.5.0 @capacitor/filesystem@7 @capacitor/share@7 @capacitor/push-notifications@7 --save-exact --package-lock-only --ignore-scripts --no-audit --no-fund
       - name: Build web and sync
         run: |
           npm ci
+          npm run lint
           npm run android:sync
+      - name: Verify Android Push Notifications plugin and permission
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          plugins=json.loads(Path('android/app/src/main/assets/capacitor.plugins.json').read_text())
+          assert any('PushNotificationsPlugin' in p.get('classpath','') for p in plugins), 'Native push plugin not registered'
+          manifest=Path('android/app/src/main/AndroidManifest.xml').read_text()
+          assert 'android.permission.POST_NOTIFICATIONS' in manifest
+          assert 'android.permission.INTERNET' in manifest
+          assert 'order_push_subscriptions' in Path('firestore.rules').read_text()
+          print('Native FCM plugin discovered; Android 13 notification permission present; scoped registration rules prepared')
+          PY
       - name: Register native Firebase Auth plugin
         run: |
           cp ci-fixes/MainActivity.java android/app/src/main/java/com/ankurdryice/events/MainActivity.java
@@ -213,8 +248,8 @@ jobs:
           PY
       - name: Set release version directly in Gradle
         env:
-          VERSION_CODE: ${{ inputs.version_code || '28' }}
-          VERSION_NAME: ${{ inputs.version_name || '1.0.28' }}
+          VERSION_CODE: ${{ inputs.version_code || '29' }}
+          VERSION_NAME: ${{ inputs.version_name || '1.0.29' }}
         run: |
           python3 - <<'PY'
           import os
@@ -256,7 +291,7 @@ jobs:
           "$ANDROID_HOME/build-tools/$(ls "$ANDROID_HOME/build-tools" | sort -V | tail -1)/apksigner" verify --verbose "$APK"
       - uses: actions/upload-artifact@v4
         with:
-          name: Ankur-Order-Signed-Release-v1.0.28-Readable-Smooth-Booking
+          name: Ankur-Order-Signed-Release-v1.0.29-Push-Notifications
           path: android/app/build/outputs/apk/release/app-release.apk
           if-no-files-found: error
       - name: Cleanup key
