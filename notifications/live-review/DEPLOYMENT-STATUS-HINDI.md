@@ -36,11 +36,13 @@ commit verify किया गया। उसी artifact का isolated three
 network रोके हुए SDK smoke फिर पास हुआ। पुराने APK के native resources में भी
 सही Android Firebase app ID, sender ID और project ID मिले; APK बदली नहीं गई।
 
-21:21 UTC की सिर्फ aggregate counts वाली जाँच में owner registrations 0 और
-`devices` collection-group registrations 0 मिले। कोई raw device token, customer
-name/phone/order document नहीं पढ़ा गया। Phone पर मौजूदा APK खोलकर notification
-bell दबाने से registration फिर हो सकती है; reinstall की जरूरत नहीं है।
-[Readiness evidence](PUSH-READINESS.json)।
+21:47:59 UTC की नई aggregate-only जाँच में owner push registrations **1** और
+`devices` collection-group registrations **8** मिले। ये आठ entries आठ phones का
+प्रमाण नहीं हैं; एक फोन कई orders की subscriptions रख सकता है। User के screenshot
+में owner panel और in-app alerts दिखे। Device registration अब सफल है, लेकिन इस
+screenshot या registration से closed-app FCM delivery साबित नहीं होती। कोई raw
+token या customer/order document नहीं पढ़ा गया। पुरानी APK बदलने की जरूरत इस
+registration के लिए नहीं पड़ी। [Readiness evidence](PUSH-READINESS.json)।
 
 Production Functions/IAM की अलग मंजूरी का विकल्प owner को भेज दिया गया है।
 मंजूरी अभी प्राप्त नहीं हुई; कोई नया runtime account/role/binding या Function
