@@ -132,17 +132,12 @@
   "totalMatchingRuntimeSendSummaries": 5,
   "duplicateLoggedEventIdsInThisTest": 0,
   "phoneReceiptEvidence": {
-    "newOrder": {
+    "visibleInAppTestAlert": {
+      "source": "User screenshot 1000985886.jpg; matching synthetic order ID TEST-FCM-20261031-98EE1A",
       "confirmed": true,
-      "source": "User screenshot 1000985886.jpg; title New Order Received with matching synthetic order ID TEST-FCM-20261031-98EE1A",
-      "scope": "Owner phone heads-up only; not tap or installed-version proof"
+      "transportVerified": false,
+      "reason": "Screenshot matches the existing in-app Firestore toast (New Order Received, middle-dot body). The deployed FCM new-order title is New Ankur Dryice Order. The screenshot is not a separate FCM receipt, tap or installed-version proof."
     },
-    "orderStatus": "pending",
-    "paymentStatus": "pending",
-    "pickupCompleted": "pending",
-    "pickupReversed": "pending"
-  },
-  "confirmedRuntimeMessageKindsOnOwnerPhone": [
-    "new_order"
-  ]
+    "separateFcmReceiptForFiveRuntimeMessages": "pending"
+  }
 }

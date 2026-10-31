@@ -1,0 +1,19 @@
+import React from 'react';
+import {BellRing,X} from 'lucide-react';
+import type {AppNotice} from '../../hooks/useOrderNotifications';
+
+interface Props {notice: AppNotice; onOpenNotice: (notice: AppNotice) => void; onDismiss: () => void; team?: boolean}
+export function NotificationToast({notice,onOpenNotice,onDismiss,team=false}: Props) {
+  if (team) return <button type="button" role="status" onClick={()=>onOpenNotice(notice)}
+    className="fixed top-2 inset-x-3 z-[70] bg-sky-50 border border-sky-300 rounded-xl p-3 text-left shadow-lg">
+    <strong className="block text-sm">{notice.title}</strong><span className="text-xs">{notice.body}</span>
+  </button>;
+  return <div className="fixed inset-x-3 z-[70] max-w-lg mx-auto c-card border b-line rounded-2xl p-3 shadow-lg flex items-start gap-3"
+    style={{top:'calc(env(safe-area-inset-top, 0px) + 8px)'}} role="status">
+    <button type="button" className="min-w-0 flex-1 flex items-start gap-3 text-left cursor-pointer" aria-label="अपडेट खोलें" onClick={()=>onOpenNotice(notice)}>
+      <BellRing className="w-5 h-5 t-brand shrink-0 mt-0.5" />
+      <span className="min-w-0 flex-1"><span className="block text-sm font-extrabold t-main">{notice.title}</span><span className="block text-xs t-sub truncate">{notice.body}</span></span>
+    </button>
+    <button type="button" onClick={onDismiss} aria-label="बंद करें" className="shrink-0 cursor-pointer"><X className="w-4 h-4 t-sub" /></button>
+  </div>;
+}

@@ -17,17 +17,18 @@ async function harness(placed=[]) {
   const synthetic=(name,values)=>{const m=new vm.SyntheticModule(Object.keys(values),function(){for(const [k,v] of Object.entries(values))this.setExport(k,v);},{context,identifier:name});modules.set(name,m);};
   synthetic('react',{...React,default:React});synthetic('react/jsx-runtime',require('react/jsx-runtime'));
   synthetic('lucide-react',{BellRing:()=>null,X:()=>null});synthetic('./useOrderNotifications',{readPlacedOrders:()=>placed});
-  for(const [key,file] of Object.entries({destination:'notificationDestination.template',opening:'useNotificationOpening.template',sheet:'NotificationSheet.template'})) {
+  for(const [key,file] of Object.entries({destination:'notificationDestination.template',opening:'useNotificationOpening.template',sheet:'NotificationSheet.template',toast:'NotificationToast.template'})) {
     const raw=readFileSync(new URL(file,import.meta.url),'utf8');
-    const code=key==='sheet'?transformSync(raw,{loader:'tsx',jsx:'automatic',format:'esm'}).code:stripTypeScriptTypes(raw);
+    const code=(key==='sheet'||key==='toast')?transformSync(raw,{loader:'tsx',jsx:'automatic',format:'esm'}).code:stripTypeScriptTypes(raw);
     modules.set(key,new vm.SourceTextModule(code,{context,identifier:key}));
   }
   const link=specifier=>modules.get(specifier.endsWith('notificationDestination')?'destination':specifier) || (()=>{throw Error('Unmocked boundary '+specifier);})();
   await modules.get('opening').link(link);await modules.get('opening').evaluate();
   await modules.get('sheet').link(link);await modules.get('sheet').evaluate();
+  await modules.get('toast').link(link);await modules.get('toast').evaluate();
   const destinations=[],events=[];let open,root;
   function Host({ready,role,canView}){open=modules.get('opening').namespace.useNotificationOpening(ready,role,canView,(d,n)=>{destinations.push(d);events.push(n);});return null;}
-  return {destinations,events,destination:modules.get('destination').namespace.notificationDestination,Sheet:modules.get('sheet').namespace.NotificationSheet,
+  return {destinations,events,destination:modules.get('destination').namespace.notificationDestination,Sheet:modules.get('sheet').namespace.NotificationSheet,Toast:modules.get('toast').namespace.NotificationToast,
     async mount(ready=true,role='admin',canView=true){await act(async()=>{root=create(React.createElement(Host,{ready,role,canView}));});},
     async update(ready,role,canView){await act(async()=>root.update(React.createElement(Host,{ready,role,canView})));},
     async select(notice){await act(async()=>open(notice));},
@@ -76,4 +77,21 @@ test('TEST message stays readable in the sheet, explicitly labeled without claim
  const h=await harness();let root;
  await act(async()=>{root=create(React.createElement(h.Sheet,{open:true,notices:[{id:'t',orderId:'TEST-FCM-20261031-98EE1A',title:'TEST',body:'Test only',at:1,read:false}],message:'यह TEST है।',onClose:()=>{},onMarkAllRead:()=>{},onOpenNotice:()=>{}}));});
  assert.ok(root.root.findByProps({'aria-label':'TEST संदेश देखें'}));assert.equal(root.root.findByProps({role:'status'}).children[0],'यह TEST है।');await act(async()=>root.unmount());
+});
+
+test('the screenshot-style owner/customer toast opens its selected message directly; X only dismisses',async()=>{
+ const h=await harness();let root,dismissed=0;const selected=[];const notice={id:'toast',orderId:id,title:'New Order Received',body:'Updated',at:1,read:false};
+ await act(async()=>{root=create(React.createElement(h.Toast,{notice,onOpenNotice:n=>selected.push(n),onDismiss:()=>dismissed++}));});
+ await act(async()=>root.root.findByProps({'aria-label':'अपडेट खोलें'}).props.onClick());assert.equal(selected[0],notice);
+ await act(async()=>root.root.findByProps({'aria-label':'बंद करें'}).props.onClick());assert.equal(dismissed,1);assert.equal(selected.length,1);await act(async()=>root.unmount());
+});
+test('staff toast uses the same direct opening callback and keeps its existing presentation',async()=>{
+ const h=await harness();let root;const selected=[];const notice={id:'staff',orderId:id,title:'Update',body:'Changed',at:1,read:false};
+ await act(async()=>{root=create(React.createElement(h.Toast,{team:true,notice,onOpenNotice:n=>selected.push(n),onDismiss:()=>{}}));});
+ await act(async()=>root.root.findByType('button').props.onClick());assert.equal(selected[0],notice);await act(async()=>root.unmount());
+});
+test('clicking the exact screenshot TEST toast resolves an explanation rather than a removed-order route',async()=>{
+ const h=await harness();let root,destination;const notice={id:'test',orderId:'TEST-FCM-20261031-98EE1A',title:'New Order Received',body:'1 KG · TEST ONLY',at:1,read:false};
+ await act(async()=>{root=create(React.createElement(h.Toast,{notice,onOpenNotice:n=>{destination=h.destination(n,'admin',true);},onDismiss:()=>{}}));});
+ await act(async()=>root.root.findByProps({'aria-label':'अपडेट खोलें'}).props.onClick());assert.equal(destination.kind,'test');await act(async()=>root.unmount());
 });

@@ -1,4 +1,5 @@
 name: Ankur Notification v1.0.31 Private Review APK
+# Includes direct opening from the screenshot-style in-app toast.
 # Private review artifact only. No installation, hosting, Play Store or Firebase deployment.
 on:
   push:

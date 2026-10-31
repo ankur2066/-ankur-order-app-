@@ -2,7 +2,7 @@
 from pathlib import Path
 import shutil
 root=Path('notifications/tap-fix')
-for source,target in [('notificationDestination.template','src/services/notificationDestination.ts'),('useNotificationOpening.template','src/hooks/useNotificationOpening.ts'),('NotificationSheet.template','src/components/customer/NotificationSheet.tsx')]:
+for source,target in [('notificationDestination.template','src/services/notificationDestination.ts'),('useNotificationOpening.template','src/hooks/useNotificationOpening.ts'),('NotificationSheet.template','src/components/customer/NotificationSheet.tsx'),('NotificationToast.template','src/components/customer/NotificationToast.tsx')]:
     shutil.copyfile(root/source,target)
 def replace(path,a,b):
     p=Path(path);s=p.read_text();assert s.count(a)==1,(path,a[:80],s.count(a));p.write_text(s.replace(a,b,1))
@@ -12,6 +12,7 @@ replace(app,'  const [noticesOpen, setNoticesOpen] = useState(false);','''  cons
   const [notificationMessage, setNotificationMessage] = useState('');
   const [notificationTarget, setNotificationTarget] = useState<{orderId:string} | null>(null);''')
 replace(app,"  // Add Android background push;",'''  const openNotification = useNotificationOpening(ready,role,access.permissions.viewOrders,(destination) => {
+    notifications.clearToast();
     if (destination.kind === 'test') {
       setNotificationMessage('यह जाँच वाला TEST संदेश है। परीक्षण order साफ किया गया है या कोई वास्तविक order बनाया ही नहीं गया था।');
       setNoticesOpen(true);
@@ -64,3 +65,10 @@ replace(staff,"  const [districtFilter, setDistrictFilter] = useState<string>('a
     setSearchQuery(notificationTarget.orderId); setStatusFilter('all'); setSlotFilter('all'); setDistrictFilter('all');
   }, [notificationTarget]);''')
 print('Notification card/native tap routing applied; no business fields, Rules or backend changed.')
+
+replace(app,"import { NotificationSheet } from './components/customer/NotificationSheet';","import { NotificationSheet } from './components/customer/NotificationSheet';\nimport { NotificationToast } from './components/customer/NotificationToast';")
+p=Path(app);s=p.read_text()
+start=s.index('        {notifications.toast && (');end=s.index('        <Header currentTab="staff-dashboard"',start)
+s=s[:start]+'        {notifications.toast && <NotificationToast team notice={notifications.toast} onOpenNotice={openNotification} onDismiss={notifications.clearToast} />}\n'+s[end:]
+start=s.index('      {notifications.toast && (');end=s.index("      {currentTab === 'home'",start)
+s=s[:start]+'      {notifications.toast && <NotificationToast notice={notifications.toast} onOpenNotice={openNotification} onDismiss={notifications.clearToast} />}\n\n'+s[end:];p.write_text(s)
