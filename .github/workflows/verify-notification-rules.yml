@@ -86,6 +86,17 @@ jobs:
           text = variables.read_text()
           if 'rgcfaIncludeGoogle' not in text:
               variables.write_text(text.replace('ext {', 'ext {\n    rgcfaIncludeGoogle = true', 1))
+          # Reuse the existing release workflow's direct version assignment.
+          # The archived Groovy expression calls toInteger() on versionCode's
+          # return value. Keep v1.0.29; this job never packages an APK.
+          gradle = Path('android/app/build.gradle')
+          lines = gradle.read_text().splitlines()
+          for index, line in enumerate(lines):
+              if line.strip().startswith('versionCode '):
+                  lines[index] = '        versionCode 29'
+              if line.strip().startswith('versionName '):
+                  lines[index] = '        versionName "1.0.29"'
+          gradle.write_text('\n'.join(lines) + '\n')
           PY
           chmod +x android/gradlew
           cd android
