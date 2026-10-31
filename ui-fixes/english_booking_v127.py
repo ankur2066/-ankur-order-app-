@@ -118,8 +118,8 @@ for old, new in [
 anchor = re.search(r'(?m)^(\s*)const currentQuantityKg\b', s)
 assert anchor, 'OrderForm quantity computed value not found'
 indent = anchor.group(1)
-insert = (indent + "const [extraAmountText, setExtraAmountText] = React.useState('');\n" +
-          indent + "const [extraAmountReason, setExtraAmountReason] = React.useState('');\n" +
+insert = (indent + "const [extraAmountText, setExtraAmountText] = useState('');\n" +
+          indent + "const [extraAmountReason, setExtraAmountReason] = useState('');\n" +
           indent + "const approvedAmount = (base: number) => {\n" +
           indent + "  const request = Number(extraAmountText);\n" +
           indent + "  return extraAmountText.trim() !== '' && Number.isFinite(request) && request >= base && request <= 99000\n" +
