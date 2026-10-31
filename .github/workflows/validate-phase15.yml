@@ -4,6 +4,7 @@ on:
     branches:
       - feature/self-pickup-security-tests
       - feature/ux-qa-2026-10-31
+      - feature/premium-booking-v122
   workflow_dispatch:
   pull_request:
     branches:
@@ -41,6 +42,8 @@ jobs:
           test -s ui-fixes/premium-native-v120.css
           cat ui-fixes/premium-native-v120.css >> src/index.css
           grep -q 'Premium Native v1.0.20' src/index.css
+      - name: Apply premium Booking Page redesign
+        run: python3 ui-fixes/premium_booking_v122.py
       - name: Verify and align Firebase named database (NO deployment)
         run: |
           python3 firebase-backend/align_database.py
@@ -74,6 +77,13 @@ jobs:
           grep -q 'initializeAppCheck(app' src/appCheck.ts
           grep -q 'initializeAndroidAppCheck(app)' src/main.tsx
           grep -q 'isAndroidAppCheckReady()' src/components/StaffDashboard.tsx
+      - name: Verify premium booking layout and QR asset
+        run: |
+          test -s public/assets/aistudio/google_pay_qr.png
+          grep -q 'apb-total-card' src/components/OrderForm.tsx
+          grep -q 'apb-rate-hero' src/components/OrderForm.tsx
+          grep -q '₹{currentUnitRate}/kg ऑल-इन' src/components/OrderForm.tsx
+          grep -q 'ANKUR BOOKING PREMIUM V1.0.22' src/index.css
       - name: Check report and Theme integrations
         run: |
           grep -q 'monthlyReportBusy' src/components/AdminDashboard.tsx
