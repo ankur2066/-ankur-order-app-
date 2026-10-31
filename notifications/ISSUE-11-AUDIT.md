@@ -64,6 +64,15 @@ read-only requests, target mismatch, named Rules selection, partial results and
 authentication failures. The helper has not been executed against live Firebase;
 it neither connects the Firebase plugin nor completes the outstanding live audit.
 
+The older signed-build artifact list omitted `pickupPolicy.js`, even though the
+backend entry point imports it. The artifact list now includes that dependency.
+The verification workflow also produces a separate **backend review** ZIP with
+all three runtime modules, package.json, a dependency lock, review-only source
+Rules/configuration and a SHA-256 manifest. An extracted copy is loaded with real
+Firebase SDK packages while network access is blocked and no handlers are invoked.
+Only a fully passing workflow uploads the review ZIP. No APK or production
+deployment is produced. See [release status](RELEASE-STATUS-HINDI.md).
+
 ## Verification and limits
 
 Locally, the 17 offline worker tests pass. The initial permission/refresh

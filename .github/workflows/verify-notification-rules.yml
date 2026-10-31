@@ -62,6 +62,23 @@ jobs:
         run: |
           npm install --save-exact --package-lock-only --ignore-scripts --no-audit --no-fund @capacitor-firebase/app-check@7.5.0 @capacitor/filesystem@7 @capacitor/share@7 @capacitor/push-notifications@7
           npm install --no-save --no-package-lock --ignore-scripts --no-audit --no-fund firebase-tools@14 @firebase/rules-unit-testing@4
+      - name: Prepare locked backend review package
+        run: |
+          npm install --prefix firebase-functions --package-lock-only --ignore-scripts --no-audit --no-fund
+          python3 notifications/package_backend_review.py --output backend-review/Ankur-Issue11-Backend-Review-NOT-DEPLOYED.zip
+          python3 - <<'PY'
+          from zipfile import ZipFile
+          with ZipFile('backend-review/Ankur-Issue11-Backend-Review-NOT-DEPLOYED.zip') as archive:
+              archive.extractall('.backend-review-smoke')
+          PY
+          npm ci --prefix .backend-review-smoke/runtime/firebase-functions --ignore-scripts --no-audit --no-fund
+      - name: Verify complete backend artifact with real Firebase SDKs without network
+        env:
+          GCLOUD_PROJECT: demo-ankur-backend-audit
+          FIREBASE_CONFIG: '{"projectId":"demo-ankur-backend-audit"}'
+          GOOGLE_APPLICATION_CREDENTIALS: ''
+          FIREBASE_TOKEN: ''
+        run: node notifications/backend-package-smoke.mjs .backend-review-smoke
       - name: Validate owner/staff/guest token permissions on local emulator
         env:
           CI: 'true'
@@ -103,6 +120,13 @@ jobs:
           chmod +x android/gradlew
           cd android
           ./gradlew :app:compileDebugJavaWithJavac --no-daemon
+      - name: Save tested backend review package without deploying
+        uses: actions/upload-artifact@v4
+        with:
+          name: Ankur-Issue11-Backend-Review-NOT-DEPLOYED-${{ github.sha }}
+          path: backend-review/Ankur-Issue11-Backend-Review-NOT-DEPLOYED.zip
+          retention-days: 7
+          if-no-files-found: error
       - name: Document result scope
         if: always()
         run: |
