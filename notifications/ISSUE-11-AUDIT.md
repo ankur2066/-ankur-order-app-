@@ -1,9 +1,10 @@
 # Issue #11: notification source audit
 
-> Update 2026-10-31 21:10 UTC: Rules are live; the separately owner-approved
-> billing/API stage is complete with an INR 500 alert. v1/v2 Functions inventories
-> are empty. Three Functions and runtime IAM are staged for separate approval.
-> See [current deployment status](live-review/DEPLOYMENT-STATUS-HINDI.md).
+> Update 2026-10-31 22:14 UTC: all three approved notification Functions are
+> ACTIVE in orderpush; live source/runtime/trigger/IAM verified. Owner explicitly
+> confirmed the direct FCM TEST on the registered phone. Firestore-order end-to-end
+> and separate customer/staff phone tests remain pending. See
+> [current deployment status](live-review/DEPLOYMENT-STATUS-HINDI.md).
 
 Source audit of PR #9/#10 plus an authenticated live metadata audit on
 2026-10-31. No APK, original source archive, customer document, deployed Rules or

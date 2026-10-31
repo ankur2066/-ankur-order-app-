@@ -1,0 +1,18 @@
+{
+  "projectId": "ankur-dryice-app",
+  "databaseId": "ai-studio-ankurdryiceorder-f4d89318-c640-47a5-a9f7-98543eff2673",
+  "startedAt": "2026-10-31T22:05:51.426Z",
+  "target": "sole-registered-owner-device",
+  "businessDocumentWrites": 0,
+  "rawTokensLogged": false,
+  "deviceReceiptVerified": true,
+  "validationPassed": true,
+  "sendAttemptedAt": "2026-10-31T22:05:55.291Z",
+  "fcmAccepted": true,
+  "fcmMessageName": "projects/ankur-dryice-app/messages/0:1793484355777888%d40cd639d40cd639",
+  "status": "fcm-accepted-device-receipt-pending",
+  "completedAt": "2026-10-31T22:05:55.889Z",
+  "deviceReceiptEvidence": "User explicitly confirmed TEST notification received on registered owner phone.",
+  "confirmationRecordedAt": "2026-10-31T22:13:34.772126+00:00",
+  "testMethod": "Direct FCM HTTP v1 using authenticated operator; not a Function invocation or Firestore-order test."
+}

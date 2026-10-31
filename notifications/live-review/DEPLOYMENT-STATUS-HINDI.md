@@ -1,55 +1,55 @@
 # Issue #11: वर्तमान live स्थिति
 
-31 अक्टूबर 2026:
+31 अक्टूबर 2026, अंतिम read-back 22:14 UTC:
 
-- **Rules लागू:** 20:38:30 UTC पर owner-approved security/registration candidate
-  exact named database में live किया और SHA-256 read-back verify किया।
-  [Rules receipt](RULES-DEPLOYMENT-RECEIPT.json)।
-- **Billing चरण पूरा:** अगली मंजूरी के बाद existing INR account (अंत F6C7AE) से
-  Blaze link हुआ। Project-filtered **₹500 monthly budget alert**, actual
-  50/90/100% और forecast 100% thresholds और recipients verify हैं। यह hard
-  spending cap नहीं है। [Billing/API receipt](BILLING-STAGE-RECEIPT.json)।
-- **APIs सक्रिय:** Cloud Functions, Run, Eventarc, Build, Artifact Registry और
-  Pub/Sub उपलब्ध हैं। Cloud Functions v1/v2 और Eventarc global inventories
-  सफल और खाली हैं। Singapore/Mumbai Cloud Run lists पूरी और खाली हैं। Global
-  Run list के पाँच अन्य regions unreachable हैं; उस सीमा को receipt में दर्ज किया है।
-- **Functions अभी deploy नहीं:** केवल तीन reviewed notification exports वाला
-  अलग `orderpush` stage तैयार है। Old pickup callable export नहीं होगा।
-  Runtime keyless identity और named-database IAM प्रस्ताव भी साथ है।
-  [तीन Functions की मंजूरी, लागत और rollback](FUNCTIONS-APPROVAL-HINDI.md)।
+- Owner-approved security/registration **Rules live** हैं।
+- मंजूर existing INR account से **Blaze linked** है और **₹500 monthly budget
+  alert** सत्यापित है। यह खर्च रोकने की सीमा नहीं है।
+- मंजूर तीन notification Functions अब Singapore में **ACTIVE** हैं:
+  `notifyNewAnkurOrder`, `notifyAnkurOrderProgress`, `notifyAnkurSelfPickup`।
+  Codebase **orderpush**, Node.js 22, minInstances 0, maxInstances 1, concurrency
+  10, 256 MiB, CPU 1 और 60s timeout read-back verify हैं।
+- हर Eventarc trigger सही **named database** और reviewed document pattern पर है।
+  Public Run invoker नहीं है। Runtime keyless account को named-database-conditioned
+  custom data role, single-permission FCM sender role और आवश्यक event delivery
+  roles मिले हैं; Owner/Editor role नहीं दिया गया। Existing IAM सुरक्षित है।
+- तीनों deployed source ZIPs के Cloud Storage MD5 hashes reviewed CI source ZIP
+  से मेल खाते हैं। Deployment codebase label सुधारते समय Google ने नई revisions
+  बनाईं; अंतिम source bytes समान verify हुईं।
+- मालिक के **1 Android push registration** की पुष्टि है। सीधे FCM से भेजे
+  **Ankur Dryice — TEST** को server ने स्वीकार किया और owner ने फोन पर मिलना
+  स्पष्ट रूप से confirm किया। यह वास्तविक device delivery है।
 
-सही लक्ष्य project `ankur-dryice-app`, number `928793147689`, database
-`ai-studio-ankurdryiceorder-f4d89318-c640-47a5-a9f7-98543eff2673`, Singapore है।
-Live Rules hash `53d1a6a73915269ccea759a835e5b39c87d216e589094e532c474e331f2a17fb` है।
+लक्ष्य: `ankur-dryice-app` (`928793147689`), database
+`ai-studio-ankurdryiceorder-f4d89318-c640-47a5-a9f7-98543eff2673`, region
+`asia-southeast1`। `(default)` Rules release और named Rules का reviewed hash नहीं
+बदला। पुरानी APK, signing और original source ZIP नहीं बदले। कोई existing
+customer/order record और कोई synthetic order नहीं लिखा गया है।
 
-पुरानी signed v1.0.29 APK, certificate और मूल source ZIP नहीं बदले। कोई customer/
-order record लिखा, हटाया या migrate नहीं हुआ। Pricing validator/order form,
-`(default)` Rules और App Check enforcement नहीं बदले। Actual phone receipt अभी
-सत्यापित नहीं है; नया test order या test push नहीं भेजा गया।
+प्रमाण:
+
+- [Functions deployment receipt](FUNCTIONS-DEPLOYMENT-RECEIPT.json)
+- [Final runtime/trigger/IAM/source verification](LIVE-PUSH-VERIFICATION.json)
+- [Owner phone FCM test receipt](OWNER-PUSH-TEST-RECEIPT.json)
+- [Rules receipt](RULES-DEPLOYMENT-RECEIPT.json)
+- [Billing/API receipt](BILLING-STAGE-RECEIPT.json)
 
 75 checks, दोनों real-SDK package/stage smoke checks, web build और native Android
-compilation commit `ef141cabf47fc23fe5557c24ee01ce8a1029ccfa` पर सफल हैं:
+compilation source commit `ef141cabf47fc23fe5557c24ee01ce8a1029ccfa` पर पास हैं:
 https://github.com/ankur2066/-ankur-order-app-/actions/runs/41242545373
 
-Tested artifact ID `13057948288` डाउनलोड करके archive digest और manifest source
-commit verify किया गया। उसी artifact का isolated three-trigger stage बनाया और
-network रोके हुए SDK smoke फिर पास हुआ। पुराने APK के native resources में भी
-सही Android Firebase app ID, sender ID और project ID मिले; APK बदली नहीं गई।
+## शेष जाँच और सीमाएँ
 
-21:47:59 UTC की नई aggregate-only जाँच में owner push registrations **1** और
-`devices` collection-group registrations **8** मिले। ये आठ entries आठ phones का
-प्रमाण नहीं हैं; एक फोन कई orders की subscriptions रख सकता है। User के screenshot
-में owner panel और in-app alerts दिखे। Device registration अब सफल है, लेकिन इस
-screenshot या registration से closed-app FCM delivery साबित नहीं होती। कोई raw
-token या customer/order document नहीं पढ़ा गया। पुरानी APK बदलने की जरूरत इस
-registration के लिए नहीं पड़ी। [Readiness evidence](PUSH-READINESS.json)।
+सीधे FCM TEST की phone receipt, Firestore order → Function → FCM परीक्षण से
+अलग प्रमाण है। वास्तविक order event, status/payment और pickup observer के
+runtime alerts की जाँच अभी नहीं हुई। [एक नए synthetic TEST order की सीमित
+योजना](TEST-ORDER-PLAN-HINDI.md) तैयार है; उस data write की अलग अनुमति अभी बाकी है।
+अलग staff/customer फोन की physical receipt भी अभी नहीं जाँची गई है।
 
-Production Functions/IAM की अलग मंजूरी का विकल्प owner को भेज दिया गया है।
-मंजूरी अभी प्राप्त नहीं हुई; कोई नया runtime account/role/binding या Function
-create नहीं किया गया है।
-
-अभी शेष: अलग Functions/IAM production approval, deployment read-back और अधिकृत
-phones/test order पर वास्तविक receipt। पुराने APK की foreground duplicate
-सीमा, pickup callable/schema readiness और transport-total mismatch unresolved
-हैं। उनकी सीमा दूर हुए बिना पूरा duplicate-free release या Issue #11 पूरा नहीं
-कहा जाएगा। Rollback के exact resource guards अगले approval packet में हैं।
+पुरानी APK में foreground Firestore+FCM duplicate व्यवहार, transport-total
+mismatch और pickup callable/schema readiness की सीमाएँ बनी हैं।
+`changeSelfPickup` callable इस तीन-trigger rollout में deploy नहीं हुआ है।
+इसलिए पूरा duplicate-free release या Issue #11 पूरा होने का दावा नहीं है।
+केवल अपने नए तीन Function resources का resource-specific rollback deployment
+receipt से किया जा सकता है; पुराने customer data, shared IAM, Rules या billing
+को automatic rollback में नहीं हटाना है।

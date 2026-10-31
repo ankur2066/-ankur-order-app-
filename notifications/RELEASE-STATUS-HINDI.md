@@ -1,8 +1,10 @@
 # Issue #11: रिलीज़ से पहले की स्थिति
 
-> Update 2026-10-31 21:10 UTC: Rules और मंजूर billing/API चरण पूरा है।
-> ₹500 monthly alert सत्यापित है। तीन Functions और IAM की deployment बाकी है।
-> [वर्तमान स्थिति](live-review/DEPLOYMENT-STATUS-HINDI.md) देखें।
+> Update 2026-10-31 22:14 UTC: all three approved notification Functions are
+> ACTIVE in orderpush; live source/runtime/trigger/IAM verified. Owner explicitly
+> confirmed the direct FCM TEST on the registered phone. Firestore-order end-to-end
+> and separate customer/staff phone tests remain pending. See
+> [current deployment status](live-review/DEPLOYMENT-STATUS-HINDI.md).
 
 इस branch का deliverable **backend review package** है। यह नया Android APK,
 production deployment नहीं है। मौजूदा v1.0.29 APK,

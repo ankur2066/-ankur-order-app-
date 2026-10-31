@@ -11,8 +11,8 @@
     "state": "ok",
     "count": "8"
   },
-  "ownerDeviceReceiptVerified": false,
-  "notificationFunctionsDeployed": false,
+  "ownerDeviceReceiptVerified": true,
+  "notificationFunctionsDeployed": true,
   "nativeApkConfiguration": {
     "appIdFound": "1:928793147689:android:c9a6a1f649b5f89e929f38",
     "expectedSenderIdPresent": true,
@@ -24,5 +24,9 @@
   "testedArtifactId": 13057948288,
   "ownerPanelVisibleInUserScreenshot": true,
   "inAppAlertsVisibleInUserScreenshot": true,
-  "collectionGroupCountIsNotPhoneCount": true
+  "collectionGroupCountIsNotPhoneCount": true,
+  "ownerReceiptTestMethod": "Direct FCM HTTP v1; user confirmed receipt. No Firestore order was created.",
+  "firestoreOrderEventPathVerified": false,
+  "sourceCodebase": "orderpush",
+  "finalFunctionsVerificationAt": "2026-10-31T22:14:30.524Z"
 }
