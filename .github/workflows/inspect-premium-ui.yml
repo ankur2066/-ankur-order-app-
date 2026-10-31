@@ -14,27 +14,23 @@ jobs:
       - uses: actions/checkout@v4
       - name: Extract app source
         run: unzip -oq Ankur_Order_App_Upload_GitHub.zip -d .
-      - name: Inspect only customer UI (never config, credentials, or data)
+      - name: Inspect customer storefront and catalog UI only
         run: |
           python3 - <<'PY'
           from pathlib import Path
-          selected = {
-            'src/components/Header.tsx': (1, 245),
-            'src/App.tsx': (85, 172),
-            'src/components/OrderForm.tsx': (1, 165),
-          }
-          for name,(lo,hi) in selected.items():
+          print("## CUSTOMER COMPONENT FILES")
+          for p in sorted(Path("src/components/customer").rglob("*.tsx")): print(p)
+          print("## APP LAYOUT")
+          names=["src/App.tsx","src/data/catalog.ts","src/components/customer/StorefrontHome.tsx","src/components/customer/CustomerBottomNav.tsx","src/components/customer/CustomerHome.tsx"]
+          names += [str(p) for p in sorted(Path("src/components/customer").glob("*.tsx")) if "Home" in p.name or "Nav" in p.name or "Product" in p.name or "Category" in p.name]
+          for name in dict.fromkeys(names):
               p=Path(name)
-              print(f'\n### SAFE UI SOURCE {name} ({lo}..{hi})')
-              if not p.is_file(): print('MISSING'); continue
-              ls=p.read_text().splitlines()
-              for i in range(lo-1,min(hi,len(ls))):
-                  print(f'{i+1:04}: {ls[i][:240]}')
-              if name.endswith('OrderForm.tsx'):
-                  for i,line in enumerate(ls):
-                      if 'return (' in line and i > 90:
-                          print(f'\n### ORDERFORM RETURN {i+1}')
-                          for j in range(i,min(i+110,len(ls))):
-                              print(f'{j+1:04}: {ls[j][:240]}')
-                          break
+              if not p.exists():continue
+              lines=p.read_text(encoding="utf-8").splitlines()
+              print(f"\n### SOURCE {name} : {len(lines)} LINES")
+              for i,line in enumerate(lines[:260]): print(f"{i+1:04}: {line[:260]}")
+          print("## CURRENT CSS COMPONENT SCOPE")
+          css=Path("src/index.css").read_text()
+          for word in ["c-home","c-hero","c-product","c-nav","c-search","storefront","bottom-nav"]:
+              print(f"CSS {word}: {css.count(word)}")
           PY
