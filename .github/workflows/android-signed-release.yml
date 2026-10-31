@@ -18,6 +18,7 @@ on:
       - 'ci-fixes/**'
       - 'app-check/**'
       - 'ui-fixes/**'
+      - 'notifications/**'
   workflow_dispatch:
     inputs:
       version_code:
