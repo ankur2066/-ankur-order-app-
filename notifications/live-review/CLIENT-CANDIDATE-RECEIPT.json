@@ -1,0 +1,66 @@
+{
+  "observedAt": "2026-10-31T23:04:38.190953+00:00",
+  "sourceCommit": "3b8fdc9b54dbbe7fb4b9691e055705f5acd7189d",
+  "status": "private-signed-review-candidate-verified-not-installed-or-published",
+  "verificationRun": 41250393668,
+  "verificationRunConclusion": "success",
+  "automatedChecks": {
+    "existingBackendRulesAndSafeguards": 75,
+    "clientIntegration": 15,
+    "total": 90,
+    "fullAndStagedRealSdkSmoke": "passed",
+    "webCompilation": "passed",
+    "nativeCompilation": "passed"
+  },
+  "candidateBuildRun": 41250393968,
+  "candidateBuildConclusion": "success",
+  "artifactId": 13061042404,
+  "artifactZipSha256": "e83121c9c3af2a0260596e0aec4f5c62501004648999dd6fce2c78eafc0f3b55",
+  "downloadedZipMatchesGitHubArtifactDigest": true,
+  "apkMatchesCiSha256File": true,
+  "signatureCryptographicallyVerifiedByCiApksigner": true,
+  "ciSignatureVerificationStepConclusion": "success",
+  "candidateApk": {
+    "apk": "app-release.apk",
+    "bytes": 5585509,
+    "sha256": "ca3487390af9e1ed8d507d65d51dc7957357fe719a83db10cb5b92b6baa65d85",
+    "manifest": {
+      "package": "com.ankurdryice.events",
+      "versionCode": 30,
+      "versionName": "1.0.30"
+    },
+    "certificateSha256": "ebb60e0b13f7b5bfa814a619d5e4acc0ee65f0e12835ad5a282c072bc9976a6e",
+    "nativePushPluginPresent": true,
+    "notificationPermission": true,
+    "clientFixMarkersPresent": true,
+    "expectedFirebaseProjectSenderAppResourcesPresent": true
+  },
+  "oldApkAfter": {
+    "apk": "original.apk",
+    "bytes": 5583783,
+    "sha256": "8dfee1388083016dca29a280cf0f1e2bd484e53fc9c2f9ddca994d919999587f",
+    "manifest": {
+      "package": "com.ankurdryice.events",
+      "versionCode": 29,
+      "versionName": "1.0.29"
+    },
+    "certificateSha256": "ebb60e0b13f7b5bfa814a619d5e4acc0ee65f0e12835ad5a282c072bc9976a6e",
+    "nativePushPluginPresent": true,
+    "notificationPermission": true,
+    "clientFixMarkersPresent": false,
+    "expectedFirebaseProjectSenderAppResourcesPresent": true
+  },
+  "oldApkChanged": false,
+  "samePackageAndSigningCertificate": true,
+  "sourceArchiveGitBlobAfter": "7e790aa79f80db6bd93fdf5d04db4209772047aa",
+  "artifactExpiresAt": "2026-11-14T23:03:19Z",
+  "apkInstalledByThisWork": false,
+  "apkPublished": false,
+  "newProductionDeployment": false,
+  "billingChangedDuringClientWork": false,
+  "existingCustomerOrderWritesDuringClientWork": 0,
+  "physicalCandidateForegroundBackgroundClosedChecks": "pending",
+  "separateStaffCustomerPhoneReceipt": "pending",
+  "fiveSyntheticEventPhoneReceipt": "pending",
+  "liveBackendImplementationCommit": "ef141cabf47fc23fe5557c24ee01ce8a1029ccfa"
+}

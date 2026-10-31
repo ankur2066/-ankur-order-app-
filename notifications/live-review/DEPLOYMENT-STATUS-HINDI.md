@@ -57,3 +57,11 @@ guarantee नहीं है। Issue #11 अभी खुला है।
 केवल अपने बनाए तीन Functions/resources का rollback receipt से किया जा सकता है;
 shared IAM, पुराने customer data, Rules और billing को automatic rollback में
 नहीं हटाना है। इस समय rollback नहीं किया गया है।
+
+## अलग client review work
+
+Firestore/FCM duplicates, initial snapshot, newest-eight subscription, cache
+isolation और staff bell के client सुधार अलग v1.0.30 review build के लिए तैयार
+किए गए हैं। इस client work ने ऊपर के live backend, installed v1.0.29 APK या
+customer data को नहीं बदला। अंतिम build/checks और बची physical gates के लिए
+[एकत्र रिपोर्ट](../FINAL-REPORT-HINDI.md) देखें।

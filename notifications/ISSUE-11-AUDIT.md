@@ -6,6 +6,8 @@
 > cleanup. Order-event phone acknowledgement and separate-device tests remain
 > pending. See [current status](live-review/DEPLOYMENT-STATUS-HINDI.md).
 
+> The audit sections below are the historical pre-approval snapshot. Later owner-approved Rules, billing and Function deployment and synthetic tests are recorded in the receipts. For the final client/build state use [the consolidated report](FINAL-REPORT-HINDI.md). Statements below such as "unlinked", "not authorized" or "no new APK" describe that earlier phase.
+
 Source audit of PR #9/#10 plus an authenticated live metadata audit on
 2026-10-31. No APK, original source archive, customer document, deployed Rules or
 Functions was changed. The official MCP unexpectedly enabled Cloud Billing API;

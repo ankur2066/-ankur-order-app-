@@ -10,7 +10,7 @@
   "sendAttemptedAt": "2026-10-31T22:05:55.291Z",
   "fcmAccepted": true,
   "fcmMessageName": "projects/ankur-dryice-app/messages/0:1793484355777888%d40cd639d40cd639",
-  "status": "fcm-accepted-device-receipt-pending",
+  "status": "fcm-accepted-device-receipt-confirmed",
   "completedAt": "2026-10-31T22:05:55.889Z",
   "deviceReceiptEvidence": "User explicitly confirmed TEST notification received on registered owner phone.",
   "confirmationRecordedAt": "2026-10-31T22:13:34.772126+00:00",

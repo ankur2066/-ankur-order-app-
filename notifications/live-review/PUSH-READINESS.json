@@ -31,5 +31,19 @@
   "finalFunctionsVerificationAt": "2026-10-31T22:14:30.524Z",
   "firestoreEventRuntimeAcceptedSendCount": 5,
   "syntheticTestCleanupComplete": true,
-  "firestoreOrderAlertsPhoneReceiptConfirmed": false
+  "firestoreOrderAlertsPhoneReceiptConfirmed": false,
+  "clientCandidate": {
+    "version": "1.0.30",
+    "sourceCommit": "3b8fdc9b54dbbe7fb4b9691e055705f5acd7189d",
+    "buildRun": 41250393968,
+    "verificationRun": 41250393668,
+    "automatedChecksPassed": 90,
+    "artifactId": 13061042404,
+    "sameSigningCertificateAsOldApk": true,
+    "originalApkPreserved": true,
+    "installed": false,
+    "published": false,
+    "physicalValidationPending": true,
+    "receipt": "CLIENT-CANDIDATE-RECEIPT.json"
+  }
 }
