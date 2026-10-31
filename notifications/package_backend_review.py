@@ -40,7 +40,9 @@ def package(root, output):
                  'firestore.candidate.rules', 'firestore.proposed.diff', 'build_candidate.py',
                  'live-rules.test.mjs', 'RULES-DEPLOYMENT-RECEIPT.json',
                  'BILLING-STAGE-RECEIPT.json', 'DEPLOYMENT-STATUS-HINDI.md',
-                 'FUNCTIONS-APPROVAL-HINDI.md', 'push-iam.proposed.json'):
+                 'FUNCTIONS-APPROVAL-HINDI.md', 'push-iam.proposed.json',
+                 'FUNCTIONS-DEPLOYMENT-RECEIPT.json', 'LIVE-PUSH-VERIFICATION.json',
+                 'OWNER-PUSH-TEST-RECEIPT.json', 'SYNTHETIC-ORDER-TEST-RECEIPT.json'):
         inputs['review/live-review/' + name] = 'notifications/live-review/' + name
     files = {}
     for destination, relative in inputs.items():
@@ -76,15 +78,15 @@ def package(root, output):
         'Source-only Rules/configuration are labeled separately from captured live Rules.\n'
         'review/live-review/ contains the pinned named-database baseline, candidate and diff.\n'
         'No executable deployment configuration is placed at package root.\n'
-        'See current FUNCTIONS-APPROVAL-HINDI.md for the pending three-trigger deployment.\n'
-        'Rules are deployed; billing is linked with an INR 500 monthly ALERT, not a cap.\n'
-        'Functions inventories are now readable and empty; Functions deployment is not approved.\n'
+        'Deployment receipts describe previously owner-approved live Rules, billing and three Functions.\n'
+        'This newly built review artifact is not itself deployed or approved for another deployment.\n'
+        'Billing has an INR 500 monthly ALERT, not a cap. Pre-deployment inventory is historical.\n'
+        'Five synthetic event paths each logged sent=1, failed=0; temporary records were cleaned.\n'
+        'The owner confirmed the direct TEST on the phone; five event-specific phone receipts remain pending.\n'
         'Do not deploy a whole codebase or change the existing pickup callable.\n'
-        'Read APPROVAL-HINDI.md for exact targets, costs, rollback and old-APK limits.\n'
-        'Real FCM receipt, pickup readiness and foreground deduplication remain unverified.\n'
-        'Official MCP unintentionally enabled Cloud Billing API; it was restored DISABLED.\n'
-        'That earlier unapproved API toggle was restored; later Rules and billing stages were owner approved.\n'
-        'No Functions deployment, APK change or customer-document write occurred.\n\n'
+        'Read the deployment receipts for exact targets and rollback. Old APK/customer records are preserved.\n'
+        'Physical customer/staff devices and candidate foreground behavior require device validation.\n'
+        'An earlier unintended Cloud Billing API toggle was restored; later billing was explicitly approved.\n\n'
         'Source commit: ' + commit + '\n'
     ).encode()
     manifest = {

@@ -1,0 +1,91 @@
+/** Notification-only client state. No network calls or order/customer writes. */
+export type NoticeSource = 'firestore' | 'fcm';
+export interface NoticeSignal {
+  orderId: string;
+  type?: string;
+  status?: string;
+  paymentStatus?: string;
+  eventId?: string;
+  title: string;
+  body: string;
+}
+export interface SeenEvent { id: string; at: number }
+const DAY = 24 * 60 * 60 * 1000;
+
+export function createNoticeGate(now: () => number, initial: SeenEvent[] = [], persist: (events: SeenEvent[]) => void = () => {}) {
+  const seen = new Map<string, number>();
+  let pending: Array<{ key: string; source: NoticeSource; at: number }> = [];
+  for (const e of Array.isArray(initial) ? initial : []) {
+    if (e && /^[a-f0-9]{64}$/.test(e.id) && Number.isFinite(e.at) && Math.abs(now() - e.at) <= DAY) seen.set(e.id, e.at);
+  }
+  return (n: NoticeSignal, source: NoticeSource): boolean => {
+    const time = now();
+    for (const [id, at] of seen) if (Math.abs(time - at) > DAY) seen.delete(id);
+    pending = pending.filter(p => time >= p.at && time - p.at <= 120_000);
+    const eventId = source === 'fcm' && /^[a-f0-9]{64}$/.test(n.eventId || '') ? n.eventId : undefined;
+    if (eventId && seen.has(eventId)) return false;
+    if (eventId) {
+      seen.set(eventId, time);
+      while (seen.size > 300) seen.delete(seen.keys().next().value!);
+      persist([...seen].map(([id, at]) => ({ id, at })));
+    }
+    const detail = n.type === 'new_order' ? ''
+      : n.type === 'order_status' && n.status ? n.status
+      : n.type === 'payment_status' && n.paymentStatus ? n.paymentStatus
+      : n.type === 'self_pickup' && n.status ? n.status
+      : [n.title, n.body];
+    const key = JSON.stringify([n.orderId, n.type || 'generic', detail]);
+    const match = pending.findIndex(p => p.source !== source && p.key === key);
+    if (match >= 0) { pending.splice(match, 1); return false; }
+    pending.push({ key, source, at: time });
+    if (pending.length > 300) pending = pending.slice(-300);
+    return true;
+  };
+}
+
+export function recordTime(o: any): number {
+  if (Number.isFinite(o?.createdAtMs)) return o.createdAtMs;
+  if (typeof o?.createdAt?.toMillis === 'function') return o.createdAt.toMillis();
+  if (Number.isFinite(o?.createdAt?.seconds)) return o.createdAt.seconds * 1000;
+  return 0;
+}
+export function rememberTrackingToken(tokens: Map<string, number>, token: unknown, at = 0, limit = 8) {
+  if (typeof token !== 'string' || !/^[A-Za-z0-9_-]{14,48}$/.test(token)) return;
+  tokens.set(token, Math.max(tokens.get(token) ?? -Infinity, Number.isFinite(at) ? at : 0));
+  const recent = orderedTrackingTokens(tokens, limit);
+  for (const key of tokens.keys()) if (!recent.includes(key)) tokens.delete(key);
+}
+export function orderedTrackingTokens(tokens: Map<string, number>, limit = 8): string[] {
+  return [...tokens].map(([key, time], index) => ({ key, time, index }))
+    .sort((a, b) => b.time - a.time || b.index - a.index).slice(0, limit).map(x => x.key);
+}
+
+interface OrderState { status: string; paymentStatus: string; pickup: string; trash: boolean }
+export function createSnapshotTracker() {
+  let ready = false;
+  let prior = new Map<string, OrderState>();
+  return (rows: Array<{ id: string; data: any }>, metadata: { fromCache?: boolean; hasPendingWrites?: boolean }, owner: boolean) => {
+    // Cache and local optimistic writes cannot establish the server baseline.
+    if (metadata.fromCache || metadata.hasPendingWrites) return [] as Array<{ type: string; orderId: string; data: any }>;
+    const next = new Map<string, OrderState>();
+    const events: Array<{ type: string; orderId: string; data: any }> = [];
+    for (const row of rows) {
+      const data = row.data;
+      const id = String(data.orderId || row.id);
+      const state = { status: String(data.status || ''), paymentStatus: String(data.paymentStatus || ''), pickup: String(data.selfPickup?.status || ''), trash: data.isTrash === true };
+      const old = prior.get(id);
+      if (ready && !state.trash) {
+        if (!old) events.push({ type: 'new_order', orderId: id, data });
+        else if (!old.trash) {
+          if (old.status !== state.status) events.push({ type: 'order_status', orderId: id, data });
+          else if (owner && old.paymentStatus !== state.paymentStatus) events.push({ type: 'payment_status', orderId: id, data });
+          if (owner && old.pickup !== state.pickup && state.pickup) events.push({ type: 'self_pickup', orderId: id, data });
+        }
+      }
+      next.set(id, state);
+    }
+    prior = next;
+    ready = true;
+    return events;
+  };
+}

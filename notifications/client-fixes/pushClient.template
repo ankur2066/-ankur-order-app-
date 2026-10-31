@@ -1,0 +1,201 @@
+/**
+ * Ankur Dryice Android push registration.
+ * Existing Firestore in-app tracking continues unchanged. Android FCM is additive.
+ * Push delivery requires separately deployed named-DB rules/functions.
+ */
+import { Capacitor } from '@capacitor/core';
+import { PushNotifications } from '@capacitor/push-notifications';
+import { collection, deleteDoc, doc, getDocs, query, serverTimestamp, setDoc, where } from 'firebase/firestore';
+import type { User } from 'firebase/auth';
+import { auth, db } from '../firebase';
+import { readPlacedOrders } from '../hooks/useOrderNotifications';
+import { rememberTrackingToken, orderedTrackingTokens, recordTime } from './notificationState';
+
+type TeamRole = 'admin' | 'staff' | 'delivery' | null;
+type PushIdentity = { uid: string | null; role: TeamRole; canView: boolean };
+type PushState = 'unsupported' | 'permission_denied' | 'registered' | 'registering' | 'registration_failed';
+
+const DEVICE_KEY = 'ankur_push_device_id_v1';
+const MAX_ORDER_SUBSCRIPTIONS = 8;
+let identity: PushIdentity = { uid: null, role: null, canView: false };
+let currentFcmToken = '';
+let initialising: Promise<void> | null = null;
+let listenersReady = false;
+let state: PushState = 'unsupported';
+const trackingTokens = new Map<string, number>();
+
+function setStatus(next: PushState) {
+  state = next;
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('ankur-push-status', { detail: next }));
+  }
+}
+
+export function pushRegistrationStatus(): PushState { return state; }
+
+function deviceId(): string {
+  const old = localStorage.getItem(DEVICE_KEY);
+  if (old && /^[A-Za-z0-9_-]{12,64}$/.test(old)) return old;
+  const bytes = new Uint8Array(16);
+  crypto.getRandomValues(bytes);
+  const id = Array.from(bytes, x => x.toString(16).padStart(2, '0')).join('');
+  localStorage.setItem(DEVICE_KEY, id);
+  return id;
+}
+
+function collectPlacedTrackingTokens() {
+  const recent = readPlacedOrders().slice(0, MAX_ORDER_SUBSCRIPTIONS);
+  recent.slice().reverse().forEach((order, index) =>
+    rememberTrackingToken(trackingTokens, order?.trackingToken, recordTime(order) || index, MAX_ORDER_SUBSCRIPTIONS));
+}
+async function collectOwnTrackingTokens(expected: PushIdentity) {
+  if (!expected.uid || expected.role !== null) return;
+  try {
+    const own = await getDocs(query(collection(db, 'orders'), where('userId', '==', expected.uid)));
+    if (identity !== expected || auth.currentUser?.uid !== expected.uid) return;
+    own.docs.map(snap => snap.data()).filter(order => !order.isTrash)
+      .sort((a,b) => recordTime(b)-recordTime(a)).slice(0,MAX_ORDER_SUBSCRIPTIONS).reverse()
+      .forEach(order => rememberTrackingToken(trackingTokens,order.trackingToken,recordTime(order),MAX_ORDER_SUBSCRIPTIONS));
+  } catch { /* local guest tracking remains usable */ }
+}
+function noticeDetail(msg: any) {
+  return { orderId:String(msg.data?.orderId || '').slice(0,64), type:String(msg.data?.type || '').slice(0,40),
+    status:String(msg.data?.status || '').slice(0,40), paymentStatus:String(msg.data?.paymentStatus || '').slice(0,40),
+    eventId:String(msg.data?.eventId || '').slice(0,128), title:String(msg.title || 'Order Update').slice(0,90), body:String(msg.body || '').slice(0,180) };
+}
+
+/** FCM device tokens go to private Firestore collections; no customer PII in payloads. */
+async function syncToken(): Promise<void> {
+  if (!currentFcmToken || !Capacitor.isNativePlatform()) return;
+  const expected = identity;
+  const tokenAtStart = currentFcmToken;
+  collectPlacedTrackingTokens();
+  await collectOwnTrackingTokens(expected);
+  if (identity !== expected || currentFcmToken !== tokenAtStart) return;
+  const id = deviceId();
+  const tokenPayload = {
+    token: currentFcmToken,
+    platform: 'android',
+    updatedAt: serverTimestamp(),
+  };
+  const writes: Array<Promise<unknown>> = [];
+
+  if (identity.uid && auth.currentUser?.uid === identity.uid && identity.role === 'admin') {
+    writes.push(setDoc(doc(db, 'push_owner_devices', id), tokenPayload));
+  } else if (identity.uid && auth.currentUser?.uid === identity.uid &&
+    (identity.role === 'staff' || identity.role === 'delivery') && identity.canView) {
+    writes.push(setDoc(doc(db, 'push_team_devices', identity.uid, 'devices', id), tokenPayload));
+  }
+
+  for (const trackingToken of orderedTrackingTokens(trackingTokens,MAX_ORDER_SUBSCRIPTIONS)) {
+    writes.push(setDoc(doc(db, 'order_push_subscriptions', trackingToken, 'devices', id), tokenPayload));
+  }
+  if (!writes.length) return;
+  const results = await Promise.allSettled(writes);
+  const failed = results.filter(r => r.status === 'rejected');
+  if (failed.length) {
+    console.warn('Some push token subscriptions are not active. Server rules may be pending:', failed.length);
+    setStatus('registration_failed');
+  } else {
+    setStatus('registered');
+  }
+}
+
+async function prepareListeners() {
+  if (listenersReady) return;
+  await PushNotifications.addListener('registration', token => {
+    currentFcmToken = token.value;
+    void syncToken();
+  });
+  await PushNotifications.addListener('registrationError', error => {
+    console.warn('Android FCM registration failed', error);
+    setStatus('registration_failed');
+  });
+  await PushNotifications.addListener('pushNotificationReceived', msg => {
+    window.dispatchEvent(new CustomEvent('ankur-push-arrived', {detail:noticeDetail(msg)}));
+  });
+  await PushNotifications.addListener('pushNotificationActionPerformed', action => {
+    window.dispatchEvent(new CustomEvent('ankur-push-arrived', {detail:noticeDetail(action.notification)}));
+    window.dispatchEvent(new CustomEvent('ankur-push-opened', {detail:{orderId:String(action.notification.data?.orderId || '')}}));
+  });
+  await PushNotifications.createChannel({
+    id: 'ankur_order_updates',
+    name: 'Ankur Order Updates',
+    description: 'New orders, packing, dispatch and payment updates',
+    importance: 5,
+    visibility: 1,
+  });
+  listenersReady = true;
+}
+
+async function startNativePush(askPermission: boolean) {
+  if (!Capacitor.isNativePlatform()) { setStatus('unsupported'); return; }
+  if (initialising) return initialising;
+  initialising = (async () => {
+    try {
+      await prepareListeners();
+      let permissions = await PushNotifications.checkPermissions();
+      if (permissions.receive !== 'granted' && askPermission) {
+        permissions = await PushNotifications.requestPermissions();
+      }
+      if (permissions.receive !== 'granted') {
+        setStatus('permission_denied');
+        return;
+      }
+      setStatus('registering');
+      await PushNotifications.register();
+      if (currentFcmToken) await syncToken();
+    } catch (error) {
+      console.warn('Unable to register Android push notifications:', error);
+      setStatus('registration_failed');
+    }
+  })().finally(() => { initialising = null; });
+  await initialising;
+}
+
+/** Called on sign-in, role change, and app start. No prompt for casual visitors. */
+export async function configureOrderPush(user: User | null, role: TeamRole, canView: boolean) {
+  if (identity.uid !== (user?.uid ?? null)) trackingTokens.clear();
+  identity = { uid: user?.uid ?? null, role, canView };
+  collectPlacedTrackingTokens();
+  if (Capacitor.isNativePlatform()) await collectOwnTrackingTokens(identity);
+  if (role === 'admin' || ((role === 'staff' || role === 'delivery') && canView) ||
+      trackingTokens.size > 0) {
+    await startNativePush(true);
+    if (currentFcmToken) await syncToken();
+  }
+}
+
+/** Called only after the customer's Firestore order was committed. */
+export async function subscribeNewOrderPush(orderId: string, trackingPin: string) {
+  const trackingToken = orderId + '_' + trackingPin;
+  if (!/^[A-Za-z0-9_-]{14,48}$/.test(trackingToken)) return;
+  rememberTrackingToken(trackingTokens,trackingToken,Date.now(),MAX_ORDER_SUBSCRIPTIONS);
+  window.dispatchEvent(new CustomEvent('ankur-orders-changed'));
+  await startNativePush(true);
+  if (currentFcmToken) await syncToken();
+}
+
+/** Called when customer taps the existing bell icon. */
+export async function enableOrderPush() {
+  await startNativePush(true);
+  if (currentFcmToken) await syncToken();
+}
+
+/** Remove privileged tokens before signout, to prevent alerts on shared phones. */
+export async function unregisterTeamPushBeforeSignOut() {
+  if (!Capacitor.isNativePlatform() || !currentFcmToken || !identity.uid) return;
+  try {
+    const id = deviceId();
+    if (identity.role === 'admin') {
+      await deleteDoc(doc(db, 'push_owner_devices', id));
+    } else if (identity.role === 'staff' || identity.role === 'delivery') {
+      await deleteDoc(doc(db, 'push_team_devices', identity.uid, 'devices', id));
+    }
+  } catch (error) {
+    console.warn('Could not deregister push token on signout:', error);
+  } finally {
+    identity = { uid: null, role: null, canView: false };
+  }
+}
+

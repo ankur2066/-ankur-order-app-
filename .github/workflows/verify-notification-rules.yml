@@ -45,6 +45,7 @@ jobs:
           python3 ui-fixes/english_booking_v127.py
           python3 ui-fixes/readable_smooth_v128.py
           python3 notifications/apply_patch.py
+          python3 notifications/client-fixes/apply_patch.py
           node --check firebase-functions/notificationPush.js
           node --check firebase-functions/index.js
           python3 - <<'PY'
@@ -61,7 +62,9 @@ jobs:
       - name: Install build and emulator tooling (no production credentials)
         run: |
           npm install --save-exact --package-lock-only --ignore-scripts --no-audit --no-fund @capacitor-firebase/app-check@7.5.0 @capacitor/filesystem@7 @capacitor/share@7 @capacitor/push-notifications@7
-          npm install --no-save --no-package-lock --ignore-scripts --no-audit --no-fund firebase-tools@14 @firebase/rules-unit-testing@4
+          npm install --no-save --no-package-lock --ignore-scripts --no-audit --no-fund firebase-tools@14 @firebase/rules-unit-testing@4 react-test-renderer@19
+      - name: Test notification hooks and native bridge with real React (offline)
+        run: node --experimental-vm-modules --test notifications/client-fixes/client.test.mjs
       - name: Prepare locked backend review package
         run: |
           npm install --prefix firebase-functions --package-lock-only --ignore-scripts --no-audit --no-fund
