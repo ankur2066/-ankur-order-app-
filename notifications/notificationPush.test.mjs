@@ -239,10 +239,17 @@ test('FCM response for an old token cannot delete a refreshed registration', asy
   assert.deepEqual(w.deletions, []);
 });
 
-test('FCM transport errors propagate and do not prune registrations', async () => {
+test('FCM transport failures propagate safely without private SDK details or pruning', async () => {
   const w = await worker({ records: { 'push_owner_devices/phone': device(fcm('owner')) },
-    send: async () => { throw new Error('transport unavailable'); } });
-  await assert.rejects(w.api.notifyNewAnkurOrder(created(order)), /transport unavailable/);
+    send: async () => { throw Object.assign(new Error('private ' + TRACKING_TOKEN), { code: 'unsafe/' + fcm('secret'), details: TRACKING_TOKEN }); } });
+  await assert.rejects(w.api.notifyNewAnkurOrder(created(order)), error => {
+    assert.equal(error.message, 'FCM transport failed: unknown');
+    assert.equal(error.code, 'unknown');
+    assert.equal(error.cause, undefined);
+    assert.equal(error.details, undefined);
+    assert.ok(!error.stack.includes(TRACKING_TOKEN));
+    return true;
+  });
   assert.deepEqual(w.deletions, []);
   assert.equal(w.logs[0][1].requestError, 'unknown');
   assert.equal(w.logs[0][1].unconfirmed, 1);
@@ -310,7 +317,11 @@ test('failure in a later batch reports confirmed sends separately from unconfirm
     return { successCount: message.tokens.length, failureCount: 0,
       responses: message.tokens.map(() => ({ success: true })) };
   } });
-  await assert.rejects(w.api.notifyNewAnkurOrder(created(order)), /private transport details/);
+  await assert.rejects(w.api.notifyNewAnkurOrder(created(order)), error => {
+    assert.equal(error.message, 'FCM transport failed: messaging/server-unavailable');
+    assert.ok(!error.stack.includes('private transport details'));
+    return true;
+  });
   const summary = w.logs[0][1];
   assert.equal(summary.sent, 500);
   assert.equal(summary.failed, 0);

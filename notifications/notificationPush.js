@@ -136,7 +136,11 @@ async function sendNotification(deviceDocs, title, body, data, event) {
       // A transport error does not prove FCM rejected every token in this batch.
       logSummary({ attempted: offset + group.length, unconfirmed: group.length,
         pending: tokens.length - offset - group.length, requestError: errorCode(error) });
-      throw error;
+      // Uncaught exceptions may be logged by the Functions platform too. Never
+      // let SDK messages/details (which can contain a token) cross that boundary.
+      throw Object.assign(new Error('FCM transport failed: ' + errorCode(error)), {
+        code: errorCode(error),
+      });
     }
     sent += report.successCount;
     failed += report.failureCount;

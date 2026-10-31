@@ -47,7 +47,8 @@ minimal Rules, deterministic diff and emulator comparisons are in `live-review/`
 4. Record fixed, allowlisted SDK error categories and failed cleanup counts in
    the worker's send summary without raw error details or device tokens. Whole
    request errors distinguish previously confirmed sends from the unconfirmed
-   batch and tokens not yet attempted, then propagate the original exception.
+   batch and tokens not yet attempted, then propagate a sanitized failure without raw SDK details, including at the
+   platform uncaught-exception logging boundary.
 5. Add offline tests of the actual worker with synthetic Firebase SDK modules;
    expand PR #10's emulator tests for legacy/delivery roles, malformed permissions,
    owner verification, private token paths, token validation and role revocation.
