@@ -57,6 +57,13 @@ No Firestore Rules changes are proposed in this branch. No client/APK changes ar
 needed for these backend changes. All existing extraction/UI patch scripts are
 reused only in an isolated working copy and ephemeral CI runner.
 
+An optional [Cloud Shell metadata helper](CLOUD-SHELL-HINDI.md) can collect initial
+control-plane evidence in the owner's authenticated browser session without a
+Codex desktop app. Eight offline safeguard tests cover scope, token redaction,
+read-only requests, target mismatch, named Rules selection, partial results and
+authentication failures. The helper has not been executed against live Firebase;
+it neither connects the Firebase plugin nor completes the outstanding live audit.
+
 ## Verification and limits
 
 Locally, the 17 offline worker tests pass. The initial permission/refresh

@@ -29,6 +29,8 @@ jobs:
           java-version: '21'
       - name: Test FCM worker offline without Firebase credentials
         run: node --experimental-vm-modules notifications/notificationPush.test.mjs
+      - name: Test read-only Cloud Shell audit safeguards offline
+        run: python3 -B -m unittest discover -s notifications -p 'test_live_readonly_audit.py' -v
       - name: Prepare original app and previous verified UI patches
         run: |
           unzip -oq Ankur_Order_App_Upload_GitHub.zip -d .
