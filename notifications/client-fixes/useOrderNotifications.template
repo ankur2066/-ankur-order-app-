@@ -1,0 +1,131 @@
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { collection, doc, getDocs, onSnapshot, query, where } from 'firebase/firestore';
+import type { User } from 'firebase/auth';
+import { db } from '../firebase';
+import { createNoticeGate, createSnapshotTracker, recordTime } from '../services/notificationState';
+import type { NoticeSignal, NoticeSource, SeenEvent } from '../services/notificationState';
+
+export interface AppNotice { id: string; orderId: string; title: string; body: string; at: number; read: boolean; type?: string }
+const PLACED_KEY = 'ankur_dryice_placed_orders_v1';
+const LEGACY_NOTICES = 'ankur_notices_v1';
+const MAX_WATCHED = 8;
+const OWNER_EMAIL = 'ankurdryicewholesalers@gmail.com';
+const STATUS_TEXT: Record<string, string> = { pending: 'ऑर्डर प्राप्त हुआ', confirmed: 'ऑर्डर कन्फर्म हो गया', in_packing: 'आपका ऑर्डर पैक हो रहा है', dispatched: 'आपका ऑर्डर डिस्पैच हो गया', delivered: 'ऑर्डर डिलीवर हो गया', cancelled: 'ऑर्डर रद्द किया गया' };
+function readJson<T>(key: string, fallback: T): T { try { const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback; } catch { return fallback; } }
+function writeJson(key: string, value: unknown) { try { localStorage.setItem(key, JSON.stringify(value)); } catch { /* optional local cache */ } }
+export function readPlacedOrders(): any[] { const rows = readJson<any[]>(PLACED_KEY, []); return Array.isArray(rows) ? rows : []; }
+function validNotices(value: unknown): AppNotice[] {
+  return Array.isArray(value) ? value.filter(n => n && typeof n.id === 'string' && typeof n.orderId === 'string' && typeof n.title === 'string' && typeof n.body === 'string' && Number.isFinite(n.at)).slice(0, 30) : [];
+}
+function initialNotices(scope: string, owner: boolean): AppNotice[] {
+  const stored = readJson<unknown>('ankur_notices_v2:' + scope, null);
+  if (stored !== null) return validNotices(stored);
+  const owned = new Set(readPlacedOrders().map(o => o?.orderId));
+  // Preserve legacy cache on disk. Privileged legacy messages never migrate to a different account.
+  return validNotices(readJson(LEGACY_NOTICES, [])).filter(n => owner || owned.has(n.orderId));
+}
+
+export function useOrderNotifications(currentUser: User | null, teamCanViewOrders = false) {
+  const owner = currentUser?.email === OWNER_EMAIL && currentUser.emailVerified === true;
+  const scope = (currentUser?.uid || 'guest') + ':' + (teamCanViewOrders ? 'team' : 'self');
+  const [stored, setStored] = useState(() => ({ scope, items: initialNotices(scope, owner) }));
+  const [toastState, setToast] = useState<{ scope: string; notice: AppNotice } | null>(null);
+  const [watchVersion, setWatchVersion] = useState(0);
+  const timer = useRef<number | undefined>(undefined);
+  const activeScope = useRef(scope);
+  const sequence = useRef(0);
+  const gate = useRef(createNoticeGate(Date.now));
+  useEffect(() => {
+    activeScope.current = scope;
+    const items = initialNotices(scope, owner);
+    setStored({ scope, items });
+    setToast(null);
+    writeJson('ankur_notices_v2:' + scope, items);
+    gate.current = createNoticeGate(Date.now, readJson<SeenEvent[]>('ankur_notice_events_v1:' + scope, []), events => writeJson('ankur_notice_events_v1:' + scope, events));
+    return () => window.clearTimeout(timer.current);
+  }, [scope, owner]);
+  const pushNotice = useCallback((signal: NoticeSignal, source: NoticeSource) => {
+    if (activeScope.current !== scope || !gate.current(signal, source)) return;
+    const notice: AppNotice = { type: signal.type, orderId: signal.orderId.slice(0,64), title: signal.title.slice(0,90), body: signal.body.slice(0,180), id: signal.orderId + '_' + Date.now() + '_' + (++sequence.current), at: Date.now(), read: false };
+    setStored(previous => {
+      const next = [notice, ...(previous.scope === scope ? previous.items : [])].slice(0,30);
+      writeJson('ankur_notices_v2:' + scope, next);
+      return { scope, items: next };
+    });
+    setToast({ scope, notice });
+    window.clearTimeout(timer.current);
+    timer.current = window.setTimeout(() => setToast(null), 6000);
+  }, [scope]);
+  useEffect(() => {
+    const refresh = () => setWatchVersion(n => n + 1);
+    window.addEventListener('ankur-orders-changed', refresh);
+    return () => window.removeEventListener('ankur-orders-changed', refresh);
+  }, []);
+
+  useEffect(() => {
+    // The team listener already covers these private orders; avoid a second Firestore source.
+    if (teamCanViewOrders) return;
+    let cancelled = false;
+    const unsubs: Array<() => void> = [];
+    async function start() {
+      const records = [...readPlacedOrders()];
+      if (currentUser) {
+        try { const own = await getDocs(query(collection(db, 'orders'), where('userId', '==', currentUser.uid))); records.push(...own.docs.map(d => d.data())); }
+        catch { /* guest/local tracking remains available */ }
+      }
+      if (cancelled) return;
+      const tokens = new Map<string, string>();
+      records.filter(o => !o?.isTrash && /^[A-Za-z0-9_-]{14,48}$/.test(o?.trackingToken || '') && o?.orderId)
+        .sort((a,b) => recordTime(b)-recordTime(a)).forEach(o => { if (tokens.size < MAX_WATCHED) tokens.set(o.trackingToken, o.orderId); });
+      const stateKey = 'ankur_order_state_v2:' + scope;
+      const states = readJson<Record<string, {status:string;paymentStatus?:string}>>(stateKey, {});
+      const legacy = readJson<Record<string,string>>('ankur_order_status_v1', {});
+      for (const [token, orderId] of tokens) {
+        const unsub = onSnapshot(doc(db,'order_tracking',token), {includeMetadataChanges:true}, snapshot => {
+          if (cancelled || !snapshot.exists() || snapshot.metadata?.fromCache || snapshot.metadata?.hasPendingWrites) return;
+          const data = snapshot.data();
+          const old = states[orderId] || (legacy[orderId] ? {status:legacy[orderId]} : undefined);
+          if (old && old.status !== data.status) pushNotice({orderId,type:'order_status',status:data.status,title:STATUS_TEXT[data.status] || 'ऑर्डर अपडेट',body:data.lastStatusUpdate || 'Order status changed.'},'firestore');
+          else if (old?.paymentStatus && old.paymentStatus !== data.paymentStatus) pushNotice({orderId,type:'payment_status',paymentStatus:data.paymentStatus,title:data.paymentStatus==='payment_verified'?'Payment Verified':'Payment Update',body:'Payment status of order '+orderId+' changed.'},'firestore');
+          states[orderId] = {status:data.status,paymentStatus:data.paymentStatus};
+          writeJson(stateKey,states);
+        }, () => {});
+        unsubs.push(unsub);
+      }
+    }
+    void start();
+    return () => { cancelled = true; unsubs.forEach(u => u()); };
+  }, [currentUser?.uid, teamCanViewOrders, scope, watchVersion, pushNotice]);
+
+  useEffect(() => {
+    if (!currentUser || !teamCanViewOrders) return;
+    const track = createSnapshotTracker();
+    return onSnapshot(collection(db,'orders'), {includeMetadataChanges:true}, snapshot => {
+      for (const event of track(snapshot.docs.map(d => ({id:d.id,data:d.data()})),snapshot.metadata || {},owner)) {
+        const data = event.data;
+        const title = event.type==='new_order'?'New Order Received':event.type==='order_status'?(STATUS_TEXT[data.status] || 'Order Update'):event.type==='payment_status'?(data.paymentStatus==='payment_verified'?'Payment Verified':'Payment Update'):(data.selfPickup?.status==='pickup_completed'?'Pickup Completed':'Pickup Updated');
+        pushNotice({orderId:event.orderId,type:event.type,status:event.type==='self_pickup'?data.selfPickup?.status:data.status,paymentStatus:data.paymentStatus,title,body:event.type==='new_order'?event.orderId+' · '+String(data.quantityKg || '')+' KG · '+String(data.city || data.district || ''):event.orderId+' updated.'},'firestore');
+      }
+    }, () => {});
+  }, [currentUser?.uid, teamCanViewOrders, owner, pushNotice]);
+
+  useEffect(() => {
+    const receive = (event: Event) => {
+      const data = (event as CustomEvent).detail || {};
+      if (data.type==='new_order' && !teamCanViewOrders) return;
+      const orderId=String(data.orderId || '').slice(0,64);
+      if (!orderId) return;
+      pushNotice({orderId,type:data.type,status:data.status,paymentStatus:data.paymentStatus,eventId:data.eventId,title:String(data.title || 'Order Update'),body:String(data.body || '')},'fcm');
+    };
+    window.addEventListener('ankur-push-arrived',receive);
+    return () => window.removeEventListener('ankur-push-arrived',receive);
+  }, [pushNotice,teamCanViewOrders]);
+  const markAllRead = useCallback(() => setStored(previous => {
+    if (previous.scope !== scope) return previous;
+    const items=previous.items.map(n => ({...n,read:true}));
+    writeJson('ankur_notices_v2:'+scope,items);
+    return {scope,items};
+  }),[scope]);
+  const notices=stored.scope===scope?stored.items:[];
+  return {notices,unreadCount:notices.filter(n=>!n.read).length,toast:toastState?.scope===scope?toastState.notice:null,clearToast:useCallback(()=>setToast(null),[]),markAllRead};
+}

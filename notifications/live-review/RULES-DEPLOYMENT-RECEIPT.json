@@ -1,0 +1,40 @@
+{
+  "projectId": "ankur-dryice-app",
+  "databaseId": "ai-studio-ankurdryiceorder-f4d89318-c640-47a5-a9f7-98543eff2673",
+  "approvedScope": "rules-only-security-and-token-registration",
+  "approvedCandidateSha256": "53d1a6a73915269ccea759a835e5b39c87d216e589094e532c474e331f2a17fb",
+  "previousRuleset": "projects/ankur-dryice-app/rulesets/c4fec604-0258-43e8-b41e-0f54de9dcbc3",
+  "mode": "approved-apply",
+  "startedAt": "2026-10-31T20:38:18.935Z",
+  "before": {
+    "ruleset": "projects/ankur-dryice-app/rulesets/c4fec604-0258-43e8-b41e-0f54de9dcbc3",
+    "sha256": "51a3dba894b2fb4e7c27c893e4dcf0044e48af97fd091d127895c323350006b4",
+    "updateTime": "2026-10-22T18:54:21.131434Z"
+  },
+  "unchangedBefore": {
+    "defaultRuleset": "projects/ankur-dryice-app/rulesets/4c0a4604-e5fb-4982-88cd-c6258342066c",
+    "defaultReleaseUpdateTime": "2026-10-18T16:16:37.377116Z",
+    "billingEnabled": false,
+    "billingAccountLinked": false,
+    "cloudBillingApi": "DISABLED",
+    "cloudFunctionsApi": "DISABLED"
+  },
+  "compileIssues": [],
+  "createdRuleset": "projects/ankur-dryice-app/rulesets/bfab829a-4bb0-4ec7-886d-c43546621092",
+  "releaseAttemptedAt": "2026-10-31T20:38:29.542Z",
+  "after": {
+    "ruleset": "projects/ankur-dryice-app/rulesets/bfab829a-4bb0-4ec7-886d-c43546621092",
+    "sha256": "53d1a6a73915269ccea759a835e5b39c87d216e589094e532c474e331f2a17fb",
+    "updateTime": "2026-10-31T20:38:30.347918Z"
+  },
+  "unchangedAfter": {
+    "defaultRuleset": "projects/ankur-dryice-app/rulesets/4c0a4604-e5fb-4982-88cd-c6258342066c",
+    "defaultReleaseUpdateTime": "2026-10-18T16:16:37.377116Z",
+    "billingEnabled": false,
+    "billingAccountLinked": false,
+    "cloudBillingApi": "DISABLED",
+    "cloudFunctionsApi": "DISABLED"
+  },
+  "status": "deployed-and-readback-verified",
+  "completedAt": "2026-10-31T20:38:32.334Z"
+}

@@ -1,0 +1,4 @@
+/** Separate notification-only codebase. Never exports the pickup callable. */
+import { getApps, initializeApp } from 'firebase-admin/app';
+if (getApps().length === 0) initializeApp();
+export { notifyNewAnkurOrder, notifyAnkurOrderProgress, notifyAnkurSelfPickup } from './notificationPush.js';

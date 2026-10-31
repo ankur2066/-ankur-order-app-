@@ -1,0 +1,51 @@
+{
+  "observedAt": "2026-10-31T21:47:59.083Z",
+  "onlyAggregateCounts": true,
+  "rawTokensRead": false,
+  "businessRecordsReadOrChanged": false,
+  "owner": {
+    "state": "ok",
+    "count": "1"
+  },
+  "allDevicesCollectionGroup": {
+    "state": "ok",
+    "count": "8"
+  },
+  "ownerDeviceReceiptVerified": true,
+  "notificationFunctionsDeployed": true,
+  "nativeApkConfiguration": {
+    "appIdFound": "1:928793147689:android:c9a6a1f649b5f89e929f38",
+    "expectedSenderIdPresent": true,
+    "expectedProjectIdPresent": true,
+    "apkModified": false
+  },
+  "testedImplementationCommit": "ef141cabf47fc23fe5557c24ee01ce8a1029ccfa",
+  "successfulCiRun": 41242545373,
+  "testedArtifactId": 13057948288,
+  "ownerPanelVisibleInUserScreenshot": true,
+  "inAppAlertsVisibleInUserScreenshot": true,
+  "collectionGroupCountIsNotPhoneCount": true,
+  "ownerReceiptTestMethod": "Direct FCM HTTP v1; user confirmed receipt. No Firestore order was created.",
+  "firestoreOrderEventPathVerified": true,
+  "sourceCodebase": "orderpush",
+  "finalFunctionsVerificationAt": "2026-10-31T22:14:30.524Z",
+  "firestoreEventRuntimeAcceptedSendCount": 5,
+  "syntheticTestCleanupComplete": true,
+  "firestoreOrderAlertsPhoneReceiptConfirmed": false,
+  "clientCandidate": {
+    "version": "1.0.32",
+    "sourceCommit": "d901dac4c37ca6272041d779068ae1777c040e16",
+    "buildRun": 41253033578,
+    "verificationRun": 41253033616,
+    "automatedChecksPassed": 104,
+    "artifactId": 13062067880,
+    "sameSigningCertificateAsOldApk": true,
+    "originalApkPreserved": true,
+    "installed": false,
+    "published": false,
+    "physicalValidationPending": true,
+    "receipt": "UI-CANDIDATE-RECEIPT.json"
+  },
+  "screenshotVisibleInAppTestAlert": true,
+  "screenshotProvesExtraFcmReceipt": false
+}

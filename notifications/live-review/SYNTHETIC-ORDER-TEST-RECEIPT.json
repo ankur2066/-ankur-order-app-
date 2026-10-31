@@ -1,0 +1,143 @@
+{
+  "projectId": "ankur-dryice-app",
+  "databaseId": "ai-studio-ankurdryiceorder-f4d89318-c640-47a5-a9f7-98543eff2673",
+  "orderId": "TEST-FCM-20261031-98EE1A",
+  "ownerApproved": true,
+  "startedAt": "2026-10-31T22:22:37.573Z",
+  "completedAt": "2026-10-31T22:30:20.393Z",
+  "status": "all-five-runtime-event-paths-and-cleanup-verified",
+  "existingCustomerOrderWrites": 0,
+  "existingRecordsDeleted": 0,
+  "rawTokensLogged": false,
+  "logicalTestOrderIds": 1,
+  "fixtureCreateCycles": 2,
+  "temporaryDocumentCreates": 6,
+  "temporaryDocumentDeletes": 6,
+  "recovery": "A quota error interrupted test bookkeeping after pickup confirmation had sent. Logs were recovered with an explicit quota-project header and slower polling. Only pickup undo was resumed using the same fixture marked trash, suppressing another new-order alert.",
+  "steps": [
+    {
+      "name": "new-order",
+      "kind": "new_order",
+      "commitTime": "2026-10-31T22:22:52.660287Z",
+      "matchingSummaries": 1,
+      "summaries": [
+        {
+          "timestamp": "2026-10-31T22:22:54.080477Z",
+          "kind": "new_order",
+          "attempted": 1,
+          "sent": 1,
+          "failed": 0,
+          "pruneFailed": 0,
+          "eventId": "4a62b81f9fa6556920cac58b77f1fad8b642748429a5d80ae3f8ad88e56326b2"
+        }
+      ],
+      "verified": true
+    },
+    {
+      "name": "status",
+      "kind": "order_status",
+      "commitTime": "2026-10-31T22:23:13.956367Z",
+      "matchingSummaries": 1,
+      "summaries": [
+        {
+          "timestamp": "2026-10-31T22:23:15.184087Z",
+          "kind": "order_status",
+          "attempted": 1,
+          "sent": 1,
+          "failed": 0,
+          "pruneFailed": 0,
+          "eventId": "3a9238b22c62b8d40c389570169ea4a6b86a8bb3d7ce0bf35232dfefe9968d34"
+        }
+      ],
+      "verified": true
+    },
+    {
+      "name": "payment",
+      "kind": "payment_status",
+      "commitTime": "2026-10-31T22:23:31.378927Z",
+      "matchingSummaries": 1,
+      "summaries": [
+        {
+          "timestamp": "2026-10-31T22:23:32.139424Z",
+          "kind": "payment_status",
+          "attempted": 1,
+          "sent": 1,
+          "failed": 0,
+          "pruneFailed": 0,
+          "eventId": "d2fa4575fc28b9759fc20482d72f92d697622d7d7f3eccebebecc2265bbe0008"
+        }
+      ],
+      "verified": true
+    },
+    {
+      "name": "pickup-confirm",
+      "kind": "self_pickup",
+      "matchingSummaries": 1,
+      "summaries": [
+        {
+          "timestamp": "2026-10-31T22:23:53.790446Z",
+          "kind": "self_pickup",
+          "attempted": 1,
+          "sent": 1,
+          "failed": 0,
+          "pruneFailed": 0,
+          "eventId": "0770dc578790340dd86ee6cd813ab83729e1fba3590083f156bc96994764a871"
+        }
+      ],
+      "verified": true,
+      "recoveredFromLogsAfterQuotaError": true
+    },
+    {
+      "name": "pickup-undo",
+      "kind": "self_pickup",
+      "commitTime": "2026-10-31T22:29:47.713871Z",
+      "matchingSummaries": 1,
+      "summaries": [
+        {
+          "timestamp": "2026-10-31T22:29:48.633184Z",
+          "kind": "self_pickup",
+          "attempted": 1,
+          "sent": 1,
+          "failed": 0,
+          "pruneFailed": 0,
+          "eventId": "3c19d6ca90af6e2c500ea61d98650c7b47e945d18610d2114d312154a0cea4f0"
+        }
+      ],
+      "verified": true
+    }
+  ],
+  "cleanup": {
+    "complete": true,
+    "testOrderAbsent": true,
+    "trackingAbsent": true,
+    "temporarySubscriptionAbsent": true,
+    "firstCycle": {
+      "complete": true,
+      "deletedDocuments": 3,
+      "verifiedAbsent": true,
+      "existingRecordsDeleted": 0
+    },
+    "secondCycle": {
+      "complete": true,
+      "deletedDocuments": 3,
+      "verifiedAbsent": true,
+      "existingRecordsDeleted": 0
+    }
+  },
+  "fcmAcceptedSendCount": 5,
+  "uniqueLoggedEventIds": 5,
+  "phoneReceiptForTheseFiveConfirmed": false,
+  "separateStaffOrCustomerPhoneVerified": false,
+  "finalLogAuditAt": "2026-10-31T22:32:30.098Z",
+  "totalMatchingRuntimeSendSummaries": 5,
+  "duplicateLoggedEventIdsInThisTest": 0,
+  "phoneReceiptEvidence": {
+    "visibleInAppTestAlert": {
+      "source": "User screenshot 1000985886.jpg; matching synthetic order ID TEST-FCM-20261031-98EE1A",
+      "confirmed": true,
+      "transportVerified": false,
+      "reason": "Screenshot matches the existing in-app Firestore toast (New Order Received, middle-dot body). The deployed FCM new-order title is New Ankur Dryice Order. The screenshot is not a separate FCM receipt, tap or installed-version proof."
+    },
+    "separateFcmReceiptForFiveRuntimeMessages": "pending"
+  }
+}

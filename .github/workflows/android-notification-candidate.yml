@@ -1,0 +1,280 @@
+name: Ankur UI v1.0.32 Private Review APK
+# Includes direct opening from the screenshot-style in-app toast.
+# Private review artifact only. No installation, hosting, Play Store or Firebase deployment.
+on:
+  push:
+    branches: [codex/issue-11-notification-audit]
+    paths: ['.github/workflows/android-notification-candidate.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  signed-review-candidate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Extract app source archive
+        run: |
+          test -s Ankur_Order_App_Upload_GitHub.zip
+          unzip -oq Ankur_Order_App_Upload_GitHub.zip -d .
+          test -f package-lock.json && test -f android/app/build.gradle
+      - name: Apply Android App Check native-to-JS bridge
+        run: python3 app-check/apply_patch.py
+      - name: Apply report fix and optional Ice Blue theme
+        run: python3 ui-fixes/apply_patch.py
+      - name: Apply safe Hindi dispatch and order ID display UX patch
+        run: python3 ui-fixes/ux_qa_patch.py
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Use runner Android SDK
+        run: test -d "$ANDROID_HOME"
+      - name: Check signing configuration
+        env:
+          KEYSTORE_B64: ${{ secrets.ANKUR_RELEASE_KEYSTORE_BASE64 }}
+          STORE_PASSWORD: ${{ secrets.ANKUR_RELEASE_STORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANKUR_RELEASE_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.ANKUR_RELEASE_KEY_PASSWORD }}
+        run: |
+          test -n "$KEYSTORE_B64" && test -n "$STORE_PASSWORD" && test -n "$KEY_ALIAS" && test -n "$KEY_PASSWORD"
+          printf '%s' "$KEYSTORE_B64" | base64 --decode > "$RUNNER_TEMP/ankur-release.jks"
+      - name: Configure Android Firebase Google Sign-In
+        env:
+          GOOGLE_SERVICES_B64: ${{ secrets.ANKUR_GOOGLE_SERVICES_JSON_BASE64 }}
+        run: |
+          test -n "$GOOGLE_SERVICES_B64" || { echo "::error::Set ANKUR_GOOGLE_SERVICES_JSON_BASE64 GitHub secret from the existing Firebase Android app"; exit 1; }
+          printf '%s' "$GOOGLE_SERVICES_B64" | base64 --decode > android/app/google-services.json
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          config = json.loads(Path("android/app/google-services.json").read_text())
+          pkgs = [c.get("client_info", {}).get("android_client_info", {}).get("package_name") for c in config.get("client", [])]
+          assert "com.ankurdryice.events" in pkgs, "Firebase JSON does not contain Android package com.ankurdryice.events"
+          p = Path("android/variables.gradle")
+          s = p.read_text()
+          if "rgcfaIncludeGoogle" not in s:
+              s = s.replace("ext {", "ext {\n    rgcfaIncludeGoogle = true", 1)
+              p.write_text(s)
+          assert "rgcfaIncludeGoogle = true" in p.read_text()
+          p = Path("android/app/build.gradle")
+          s = p.read_text()
+          idx = s.find("\ntry {\n    def servicesJSON = file('google-services.json')")
+          assert idx != -1, "Cannot locate optional Google Services Gradle block"
+          s = s[:idx] + "\ndef servicesJSON = file('google-services.json')\nif (!servicesJSON.exists() || servicesJSON.length() == 0) {\n    throw new GradleException('Firebase Android google-services.json missing')\n}\napply plugin: 'com.google.gms.google-services'\n"
+          p.write_text(s)
+          print("Firebase Android package verified; Google SDK enabled; Google Services made mandatory")
+          PY
+      - name: Apply mobile dashboard readability fixes
+        run: |
+          test -s ci-fixes/mobile-readability.css
+          test -f src/index.css
+          cat ci-fixes/mobile-readability.css >> src/index.css
+          grep -q 'Ankur mobile readability pass' src/index.css
+      - name: Add premium native styling overlay
+        run: |
+          test -s ui-fixes/premium-native-v120.css
+          cat ui-fixes/premium-native-v120.css >> src/index.css
+          grep -q 'Premium Native v1.0.20' src/index.css
+      - name: Apply premium Booking Page redesign
+        run: python3 ui-fixes/premium_booking_v122.py
+      - name: Apply Blinkit-inspired Ice Blue UI (no Firestore or order changes)
+        run: |
+          python3 ui-fixes/blinkit_premium_v123.py
+          grep -q 'ANKUR PREMIUM QUICK-COMMERCE V1.0.23' src/index.css
+          grep -q 'aqp-header' src/components/customer/CustomerHome.tsx
+          grep -q 'aqp-product-card' src/components/customer/ProductCard.tsx
+          grep -q 'aqp-bottom-nav' src/components/customer/BottomNav.tsx
+      - name: Put original real customer booking form first on Home
+        run: |
+          python3 ui-fixes/customer_home_form_v124.py
+          grep -q 'ANKUR PREMIUM CUSTOMER FORM v1.0.24' src/index.css
+          grep -q 'bookingForm=' src/App.tsx
+          grep -q 'ankur-customer-booking' src/components/customer/CustomerHome.tsx
+      - name: Remove ALL old home content and keep only the actual booking form
+        run: |
+          python3 ui-fixes/customer_home_only_v125.py
+          grep -q 'ANKUR HOME FORM ONLY v1.0.25' src/index.css
+          grep -q 'data-ui-build="1.0.25"' src/components/customer/CustomerHome.tsx
+          python3 - <<'PY'
+          from pathlib import Path
+          home=Path('src/components/customer/CustomerHome.tsx').read_text()
+          body=home.split('<main ',1)[1].split('</main>',1)[0]
+          forbidden=['aqp-spotlight','PromoCarousel','LuckyWinnerCard','ProductCard','lastOrder',
+                     'aqp-quick-tile','रीऑर्डर','बस पार्सल','आज की बुकिंग','सभी प्रोडक्ट']
+          assert all(term not in body for term in forbidden), 'Old cards/banners remain on home'
+          assert body.count('{bookingForm(selectedProduct)}')==1
+          assert 'aqp-category-strip' in home and 'aqp-search-shell' in home
+          nav=Path('src/components/customer/BottomNav.tsx').read_text()
+          assert "id: 'home'" in nav and "id: 'my-orders'" in nav
+          app=Path('src/App.tsx').read_text()
+          assert 'bookingForm={(inlineProduct)' in app
+          assert 'onOrderSuccess={handleOrderSuccess}' in app
+          assert 'onGoToTrack={handleGoToTrack}' in app
+          print('PASS: Header, search, category buttons, real order form and bottom 5-tab nav present; no old content in middle')
+          PY
+      - name: Compact the real form, retaining rates and booking controls
+        run: |
+          python3 ui-fixes/compact_customer_form_v126.py
+          grep -q 'ANKUR CUSTOMER COMPACT FORM v1.0.26' src/index.css
+          grep -q 'data-ui-build="1.0.26"' src/components/customer/CustomerHome.tsx
+          grep -q 'apb-rate-breakdown' src/components/OrderForm.tsx
+          grep -q 'onOrderSuccess={handleOrderSuccess}' src/App.tsx
+      - name: Apply English booking-only home and customer extras
+        run: |
+          python3 ui-fixes/english_booking_v127.py
+          grep -q 'ANKUR ENGLISH BOOKING V1.0.27' src/index.css
+          grep -q 'data-ui-build="1.0.27"' src/components/customer/CustomerHome.tsx
+          grep -q 'approvedAmount(' src/components/OrderForm.tsx
+          grep -q 'extraPriceNote(' src/components/OrderForm.tsx
+          grep -q 'onOpenProducts' src/App.tsx
+      - name: Make booking boxes tighter and text larger; remove expensive touch effects
+        run: |
+          python3 ui-fixes/readable_smooth_v128.py
+          grep -q 'ANKUR READABLE + SMOOTH BOOKING v1.0.28' src/index.css
+          grep -q 'data-ui-build="1.0.28"' src/components/customer/CustomerHome.tsx
+          grep -q 'apb-extra-amount-input' src/components/OrderForm.tsx
+          grep -q 'onOrderSuccess={handleOrderSuccess}' src/App.tsx
+      - name: Wire original order notifications to Android FCM without changing booking logic
+        run: |
+          python3 notifications/apply_patch.py
+          test -s src/services/orderPush.ts
+          grep -q 'notifyNewAnkurOrder' firebase-functions/index.js
+          grep -q 'push_owner_devices' firestore.rules
+          node --check firebase-functions/notificationPush.js
+          node --check firebase-functions/index.js
+      - name: Apply notification-only client review fixes
+        run: |
+          python3 notifications/client-fixes/apply_patch.py
+          python3 notifications/tap-fix/apply_patch.py
+          python3 ui-fixes/declutter_v132.py
+      - name: Pin Capacitor 7 App Check dependency in working copy
+        run: npm install @capacitor-firebase/app-check@7.5.0 @capacitor/filesystem@7 @capacitor/share@7 @capacitor/push-notifications@7 --save-exact --package-lock-only --ignore-scripts --no-audit --no-fund
+      - name: Build web and sync
+        run: |
+          npm ci
+          npm install --no-save --no-package-lock --ignore-scripts --no-audit --no-fund react-test-renderer@19
+          node --experimental-vm-modules --test notifications/client-fixes/client.test.mjs notifications/tap-fix/tap.test.mjs
+          npm run lint
+          npm run android:sync
+      - name: Verify Android Push Notifications plugin and permission
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          plugins=json.loads(Path('android/app/src/main/assets/capacitor.plugins.json').read_text())
+          assert any('PushNotificationsPlugin' in p.get('classpath','') for p in plugins), 'Native push plugin not registered'
+          manifest=Path('android/app/src/main/AndroidManifest.xml').read_text()
+          assert 'android.permission.POST_NOTIFICATIONS' in manifest
+          assert 'android.permission.INTERNET' in manifest
+          assert 'order_push_subscriptions' in Path('firestore.rules').read_text()
+          print('Native FCM plugin discovered; Android 13 notification permission present; scoped registration rules prepared')
+          PY
+      - name: Register native Firebase Auth plugin
+        run: |
+          cp ci-fixes/MainActivity.java android/app/src/main/java/com/ankurdryice/events/MainActivity.java
+          grep -q FirebaseAuthenticationPlugin android/app/src/main/java/com/ankurdryice/events/MainActivity.java
+      - name: Verify Firebase plugin discovery and Android integration
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          plugins = json.loads(Path("android/app/src/main/assets/capacitor.plugins.json").read_text())
+          expected = "io.capawesome.capacitorjs.plugins.firebase.authentication.FirebaseAuthenticationPlugin"
+          assert any(p.get("classpath") == expected for p in plugins), f"FirebaseAuthentication missing from Capacitor discovery: {plugins}"
+          main = Path("android/app/src/main/java/com/ankurdryice/events/MainActivity.java").read_text()
+          assert "registerPlugin(FirebaseAuthenticationPlugin.class)" in main
+          gradle = Path("android/app/capacitor.build.gradle").read_text()
+          assert "project(':capacitor-firebase-authentication')" in gradle
+          print("FirebaseAuthentication discovery, Java registration and Gradle dependency present")
+          PY
+      - name: Verify Capacitor Android App Check native plugin and JS bridge
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          plugins = json.loads(Path("android/app/src/main/assets/capacitor.plugins.json").read_text())
+          assert any("FirebaseAppCheckPlugin" in p.get("classpath", "") for p in plugins), f"Native Firebase App Check missing from Capacitor plugin discovery: {plugins}"
+          gradle = Path("android/app/capacitor.build.gradle").read_text()
+          assert "capacitor-firebase-app-check" in gradle, "Capacitor Android App Check Gradle dependency missing"
+          app_check = Path("src/appCheck.ts").read_text()
+          assert "CustomProvider" in app_check and "FirebaseAppCheck.getToken" in app_check
+          assert "initializeAppCheck(app" in app_check
+          assert "debugToken" not in app_check
+          print("Native App Check plugin discovered; Firebase JS SDK token bridge present; no debug provider")
+          PY
+      - name: Verify Android PDF export plugins
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          plugins = json.loads(Path('android/app/src/main/assets/capacitor.plugins.json').read_text())
+          names = ' '.join(p.get('classpath', '') for p in plugins)
+          assert 'FilesystemPlugin' in names, 'Filesystem native plugin missing'
+          assert 'SharePlugin' in names, 'Share native plugin missing'
+          assert Path('src/utils/mobileReport.ts').exists()
+          print('Native file saving and Android share plugin discovered')
+          PY
+      - name: Set release version directly in Gradle
+        env:
+          VERSION_CODE: '32'
+          VERSION_NAME: '1.0.32'
+        run: |
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+          p = Path('android/app/build.gradle')
+          code = os.environ['VERSION_CODE']
+          name = os.environ['VERSION_NAME']
+          assert code == '32' and name == '1.0.32'
+          assert name.replace('.', '').replace('-', '').replace('_', '').isalnum()
+          lines = p.read_text().splitlines()
+          found_code = found_name = False
+          for i, line in enumerate(lines):
+              if line.strip().startswith('versionCode '):
+                  lines[i] = '        versionCode ' + str(int(code))
+                  found_code = True
+              if line.strip().startswith('versionName '):
+                  lines[i] = '        versionName "' + name + '"'
+                  found_name = True
+          assert found_code and found_name
+          p.write_text('\n'.join(lines) + '\n')
+          PY
+      - name: Check premium booking asset and source
+        run: |
+          test -s public/assets/aistudio/google_pay_qr.png
+          grep -q 'ANKUR BOOKING PREMIUM V1.0.22' src/index.css
+      - name: Build signed private review candidate
+        working-directory: android
+        env:
+          STORE_PASSWORD: ${{ secrets.ANKUR_RELEASE_STORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANKUR_RELEASE_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.ANKUR_RELEASE_KEY_PASSWORD }}
+        run: |
+          chmod +x ./gradlew
+          bash ./gradlew assembleRelease --no-daemon --stacktrace -PankurKeystorePath="$RUNNER_TEMP/ankur-release.jks" -PankurStorePassword="$STORE_PASSWORD" -PankurKeyAlias="$KEY_ALIAS" -PankurKeyPassword="$KEY_PASSWORD"
+      - name: Verify signed APK
+        run: |
+          APK=android/app/build/outputs/apk/release/app-release.apk
+          test -s "$APK"
+          "$ANDROID_HOME/build-tools/$(ls "$ANDROID_HOME/build-tools" | sort -V | tail -1)/apksigner" verify --verbose --print-certs "$APK" > "$RUNNER_TEMP/ankur-apk-verification.txt"
+          grep -q "ebb60e0b13f7b5bfa814a619d5e4acc0ee65f0e12835ad5a282c072bc9976a6e" "$RUNNER_TEMP/ankur-apk-verification.txt"
+          sha256sum "$APK" > android/app/build/outputs/apk/release/app-release.apk.sha256
+          echo "Signature matches installed v1.0.29 certificate; private candidate only."
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Ankur-v1.0.32-SIGNED-REVIEW-CANDIDATE-${{ github.sha }}
+          path: |
+            android/app/build/outputs/apk/release/app-release.apk
+            android/app/build/outputs/apk/release/app-release.apk.sha256
+          retention-days: 14
+          if-no-files-found: error
+      - name: Cleanup key
+        if: always()
+        run: rm -f "$RUNNER_TEMP/ankur-release.jks" android/app/google-services.json
+

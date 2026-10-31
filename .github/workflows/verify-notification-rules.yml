@@ -4,9 +4,11 @@ on:
   push:
     branches:
       - feature/notification-verification-v130
+      - codex/issue-11-notification-audit
     paths:
       - 'security-qa/**'
-      - 'notifications/rules-emulator.test.mjs'
+      - 'notifications/**'
+      - 'ui-fixes/declutter_v132.py'
       - '.github/workflows/verify-notification-rules.yml'
   workflow_dispatch:
 
@@ -26,6 +28,10 @@ jobs:
         with:
           distribution: temurin
           java-version: '21'
+      - name: Test FCM worker offline without Firebase credentials
+        run: node --experimental-vm-modules notifications/notificationPush.test.mjs
+      - name: Test read-only Cloud Shell audit safeguards offline
+        run: python3 -B -m unittest discover -s notifications -p 'test_live_readonly_audit.py' -v
       - name: Prepare original app and previous verified UI patches
         run: |
           unzip -oq Ankur_Order_App_Upload_GitHub.zip -d .
@@ -40,6 +46,9 @@ jobs:
           python3 ui-fixes/english_booking_v127.py
           python3 ui-fixes/readable_smooth_v128.py
           python3 notifications/apply_patch.py
+          python3 notifications/client-fixes/apply_patch.py
+          python3 notifications/tap-fix/apply_patch.py
+          python3 ui-fixes/declutter_v132.py
           node --check firebase-functions/notificationPush.js
           node --check firebase-functions/index.js
           python3 - <<'PY'
@@ -53,8 +62,31 @@ jobs:
           assert 'enforceAppCheck: true' in Path('firebase-functions/index.js').read_text()
           print('PASS: Firebase named database, App Check enforcement, push rule paths present.')
           PY
-      - name: Install test-only Firestore emulator tooling (no production credentials)
-        run: npm install --no-save --no-package-lock --ignore-scripts --no-audit --no-fund firebase-tools@14 @firebase/rules-unit-testing@4
+      - name: Install build and emulator tooling (no production credentials)
+        run: |
+          npm install --save-exact --package-lock-only --ignore-scripts --no-audit --no-fund @capacitor-firebase/app-check@7.5.0 @capacitor/filesystem@7 @capacitor/share@7 @capacitor/push-notifications@7
+          npm install --no-save --no-package-lock --ignore-scripts --no-audit --no-fund firebase-tools@14 @firebase/rules-unit-testing@4 react-test-renderer@19
+      - name: Test notification hooks and native bridge with real React (offline)
+        run: node --experimental-vm-modules --test notifications/client-fixes/client.test.mjs notifications/tap-fix/tap.test.mjs
+      - name: Prepare locked backend review package
+        run: |
+          npm install --prefix firebase-functions --package-lock-only --ignore-scripts --no-audit --no-fund
+          python3 notifications/package_backend_review.py --output backend-review/Ankur-Issue11-Backend-Review-NOT-DEPLOYED.zip
+          python3 - <<'PY'
+          from zipfile import ZipFile
+          with ZipFile('backend-review/Ankur-Issue11-Backend-Review-NOT-DEPLOYED.zip') as archive:
+              archive.extractall('.backend-review-smoke')
+          PY
+          npm ci --prefix .backend-review-smoke/runtime/firebase-functions --ignore-scripts --no-audit --no-fund
+          python3 notifications/stage_push.py --package .backend-review-smoke --output .push-only-stage
+          npm ci --prefix .push-only-stage/functions --ignore-scripts --no-audit --no-fund
+      - name: Verify complete backend artifact with real Firebase SDKs without network
+        env:
+          GCLOUD_PROJECT: demo-ankur-backend-audit
+          FIREBASE_CONFIG: '{"projectId":"demo-ankur-backend-audit"}'
+          GOOGLE_APPLICATION_CREDENTIALS: ''
+          FIREBASE_TOKEN: ''
+        run: node notifications/backend-package-smoke.mjs .backend-review-smoke .push-only-stage
       - name: Validate owner/staff/guest token permissions on local emulator
         env:
           CI: 'true'
@@ -62,8 +94,59 @@ jobs:
           GOOGLE_APPLICATION_CREDENTIALS: ''
         run: |
           ./node_modules/.bin/firebase emulators:exec --project demo-ankur-push-rules-test --only firestore "node --test notifications/rules-emulator.test.mjs"
+      - name: Verify captured live baseline and minimal Rules candidate offline
+        env:
+          CI: 'true'
+          FIREBASE_TOKEN: ''
+          GOOGLE_APPLICATION_CREDENTIALS: ''
+        run: |
+          python3 notifications/live-review/build_candidate.py
+          git diff --exit-code -- notifications/live-review/firestore.candidate.rules notifications/live-review/firestore.proposed.diff
+          ./node_modules/.bin/firebase emulators:exec --project demo-ankur-push-rules-test --only firestore "ANKUR_RULES_BASELINE=1 node --test notifications/live-review/live-rules.test.mjs && node --test notifications/live-review/live-rules.test.mjs && ANKUR_RULES_PATH=notifications/live-review/firestore.candidate.rules node --test notifications/rules-emulator.test.mjs"
+      - name: Compile existing Android web bundle without building or replacing an APK
+        run: |
+          npm run lint
+          npm run build
+      - name: Compile existing native Android code without packaging or signing an APK
+        run: |
+          npx cap sync android
+          cp ci-fixes/MainActivity.java android/app/src/main/java/com/ankurdryice/events/MainActivity.java
+          python3 - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          plugins = json.loads(Path('android/app/src/main/assets/capacitor.plugins.json').read_text())
+          assert any('PushNotificationsPlugin' in p.get('classpath', '') for p in plugins)
+          Path('android/local.properties').write_text('sdk.dir=' + os.environ['ANDROID_HOME'] + '\n')
+          variables = Path('android/variables.gradle')
+          text = variables.read_text()
+          if 'rgcfaIncludeGoogle' not in text:
+              variables.write_text(text.replace('ext {', 'ext {\n    rgcfaIncludeGoogle = true', 1))
+          # Reuse the existing release workflow's direct version assignment.
+          # The archived Groovy expression calls toInteger() on versionCode's
+          # return value. Keep v1.0.29; this job never packages an APK.
+          gradle = Path('android/app/build.gradle')
+          lines = gradle.read_text().splitlines()
+          for index, line in enumerate(lines):
+              if line.strip().startswith('versionCode '):
+                  lines[index] = '        versionCode 29'
+              if line.strip().startswith('versionName '):
+                  lines[index] = '        versionName "1.0.29"'
+          gradle.write_text('\n'.join(lines) + '\n')
+          PY
+          chmod +x android/gradlew
+          cd android
+          ./gradlew :app:compileDebugJavaWithJavac --no-daemon
+      - name: Save tested backend review package without deploying
+        uses: actions/upload-artifact@v4
+        with:
+          name: Ankur-Issue11-Backend-Review-NOT-DEPLOYED-${{ github.sha }}
+          path: backend-review/Ankur-Issue11-Backend-Review-NOT-DEPLOYED.zip
+          retention-days: 7
+          if-no-files-found: error
       - name: Document result scope
         if: always()
         run: |
           echo 'This GitHub action NEVER deploys Firebase functions, rules or customer data.'
           echo 'Passing local rules tests does NOT imply notification delivery to a real phone.'
+

@@ -176,6 +176,7 @@ jobs:
           path: |
             firebase-functions/index.js
             firebase-functions/notificationPush.js
+            firebase-functions/pickupPolicy.js
             firebase-functions/package.json
             firestore.rules
             firebase.json
@@ -297,3 +298,4 @@ jobs:
       - name: Cleanup key
         if: always()
         run: rm -f "$RUNNER_TEMP/ankur-release.jks" android/app/google-services.json
+

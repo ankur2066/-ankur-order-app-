@@ -1,0 +1,210 @@
+{
+  "observedAt": "2026-10-31T22:14:30.524Z",
+  "projectId": "ankur-dryice-app",
+  "databaseId": "ai-studio-ankurdryiceorder-f4d89318-c640-47a5-a9f7-98543eff2673",
+  "region": "asia-southeast1",
+  "functions": {
+    "notifyNewAnkurOrder": {
+      "sourceZipBytesMatchReviewed": true,
+      "sourceZipMd5": "ep2jur9BoYHLbrU6ZRRPFQ==",
+      "sourceStorage": {
+        "bucket": "gcf-v2-sources-928793147689-asia-southeast1",
+        "object": "notifyNewAnkurOrder/function-source.zip",
+        "generation": "1793484668939994"
+      },
+      "state": "ACTIVE",
+      "runtime": "nodejs22",
+      "entryPoint": "notifyNewAnkurOrder",
+      "codebase": "orderpush",
+      "updateTime": "2026-10-31T22:11:43.612445916Z",
+      "serviceAccount": "ankur-order-push@ankur-dryice-app.iam.gserviceaccount.com",
+      "availableMemory": "256Mi",
+      "cpu": "1",
+      "minInstances": 0,
+      "maxInstances": 1,
+      "concurrency": 10,
+      "timeoutSeconds": 60,
+      "service": "projects/ankur-dryice-app/locations/asia-southeast1/services/notifynewankurorder",
+      "serviceUri": "https://notifynewankurorder-6ktxi64rpq-as.a.run.app",
+      "serviceRevision": "projects/ankur-dryice-app/locations/asia-southeast1/services/notifynewankurorder/revisions/notifynewankurorder-00002-won",
+      "eventarcTrigger": "projects/ankur-dryice-app/locations/asia-southeast1/triggers/notifynewankurorder-105120",
+      "triggerFilters": [
+        {
+          "attribute": "database",
+          "value": "ai-studio-ankurdryiceorder-f4d89318-c640-47a5-a9f7-98543eff2673"
+        },
+        {
+          "attribute": "namespace",
+          "value": "(default)"
+        },
+        {
+          "attribute": "document",
+          "value": "orders/{orderId}",
+          "operator": "match-path-pattern"
+        },
+        {
+          "attribute": "type",
+          "value": "google.cloud.firestore.document.v1.created"
+        }
+      ],
+      "eventarcServiceAccount": "ankur-order-push@ankur-dryice-app.iam.gserviceaccount.com",
+      "serviceIam": {
+        "state": "verified",
+        "publicInvoker": false
+      },
+      "verified": true
+    },
+    "notifyAnkurOrderProgress": {
+      "sourceZipBytesMatchReviewed": true,
+      "sourceZipMd5": "ep2jur9BoYHLbrU6ZRRPFQ==",
+      "sourceStorage": {
+        "bucket": "gcf-v2-sources-928793147689-asia-southeast1",
+        "object": "notifyAnkurOrderProgress/function-source.zip",
+        "generation": "1793484717831422"
+      },
+      "state": "ACTIVE",
+      "runtime": "nodejs22",
+      "entryPoint": "notifyAnkurOrderProgress",
+      "codebase": "orderpush",
+      "updateTime": "2026-10-31T22:12:30.299593722Z",
+      "serviceAccount": "ankur-order-push@ankur-dryice-app.iam.gserviceaccount.com",
+      "availableMemory": "256Mi",
+      "cpu": "1",
+      "minInstances": 0,
+      "maxInstances": 1,
+      "concurrency": 10,
+      "timeoutSeconds": 60,
+      "service": "projects/ankur-dryice-app/locations/asia-southeast1/services/notifyankurorderprogress",
+      "serviceUri": "https://notifyankurorderprogress-6ktxi64rpq-as.a.run.app",
+      "serviceRevision": "projects/ankur-dryice-app/locations/asia-southeast1/services/notifyankurorderprogress/revisions/notifyankurorderprogress-00002-kuh",
+      "eventarcTrigger": "projects/ankur-dryice-app/locations/asia-southeast1/triggers/notifyankurorderprogress-074818",
+      "triggerFilters": [
+        {
+          "attribute": "namespace",
+          "value": "(default)"
+        },
+        {
+          "attribute": "document",
+          "value": "order_tracking/{trackingToken}",
+          "operator": "match-path-pattern"
+        },
+        {
+          "attribute": "type",
+          "value": "google.cloud.firestore.document.v1.updated"
+        },
+        {
+          "attribute": "database",
+          "value": "ai-studio-ankurdryiceorder-f4d89318-c640-47a5-a9f7-98543eff2673"
+        }
+      ],
+      "eventarcServiceAccount": "ankur-order-push@ankur-dryice-app.iam.gserviceaccount.com",
+      "serviceIam": {
+        "state": "verified",
+        "publicInvoker": false
+      },
+      "verified": true
+    },
+    "notifyAnkurSelfPickup": {
+      "sourceZipBytesMatchReviewed": true,
+      "sourceZipMd5": "ep2jur9BoYHLbrU6ZRRPFQ==",
+      "sourceStorage": {
+        "bucket": "gcf-v2-sources-928793147689-asia-southeast1",
+        "object": "notifyAnkurSelfPickup/function-source.zip",
+        "generation": "1793484765116288"
+      },
+      "state": "ACTIVE",
+      "runtime": "nodejs22",
+      "entryPoint": "notifyAnkurSelfPickup",
+      "codebase": "orderpush",
+      "updateTime": "2026-10-31T22:13:28.473811079Z",
+      "serviceAccount": "ankur-order-push@ankur-dryice-app.iam.gserviceaccount.com",
+      "availableMemory": "256Mi",
+      "cpu": "1",
+      "minInstances": 0,
+      "maxInstances": 1,
+      "concurrency": 10,
+      "timeoutSeconds": 60,
+      "service": "projects/ankur-dryice-app/locations/asia-southeast1/services/notifyankurselfpickup",
+      "serviceUri": "https://notifyankurselfpickup-6ktxi64rpq-as.a.run.app",
+      "serviceRevision": "projects/ankur-dryice-app/locations/asia-southeast1/services/notifyankurselfpickup/revisions/notifyankurselfpickup-00002-ciy",
+      "eventarcTrigger": "projects/ankur-dryice-app/locations/asia-southeast1/triggers/notifyankurselfpickup-812462",
+      "triggerFilters": [
+        {
+          "attribute": "database",
+          "value": "ai-studio-ankurdryiceorder-f4d89318-c640-47a5-a9f7-98543eff2673"
+        },
+        {
+          "attribute": "namespace",
+          "value": "(default)"
+        },
+        {
+          "attribute": "document",
+          "value": "orders/{orderId}",
+          "operator": "match-path-pattern"
+        },
+        {
+          "attribute": "type",
+          "value": "google.cloud.firestore.document.v1.updated"
+        }
+      ],
+      "eventarcServiceAccount": "ankur-order-push@ankur-dryice-app.iam.gserviceaccount.com",
+      "serviceIam": {
+        "state": "verified",
+        "publicInvoker": false
+      },
+      "verified": true
+    }
+  },
+  "runtimeIam": {
+    "bindings": [
+      {
+        "role": "projects/ankur-dryice-app/roles/ankurOrderPushData",
+        "condition": {
+          "expression": "resource.name == 'projects/ankur-dryice-app/databases/ai-studio-ankurdryiceorder-f4d89318-c640-47a5-a9f7-98543eff2673'",
+          "title": "AnkurOrderPushNamedDatabase"
+        }
+      },
+      {
+        "role": "projects/ankur-dryice-app/roles/ankurOrderPushSender",
+        "condition": null
+      },
+      {
+        "role": "roles/eventarc.eventReceiver",
+        "condition": null
+      },
+      {
+        "role": "roles/run.invoker",
+        "condition": null
+      }
+    ],
+    "ownerOrEditor": false,
+    "verified": true
+  },
+  "existingIamPreserved": true,
+  "rules": {
+    "namedRuleset": "projects/ankur-dryice-app/rulesets/bfab829a-4bb0-4ec7-886d-c43546621092",
+    "sha256": "53d1a6a73915269ccea759a835e5b39c87d216e589094e532c474e331f2a17fb",
+    "defaultReleaseUnchanged": true,
+    "verified": true
+  },
+  "customerOrderWrites": 0,
+  "apkChanged": false,
+  "status": "live-runtime-triggers-iam-and-rules-verified",
+  "tests": {
+    "directOwnerFcmAccepted": true,
+    "directOwnerPhoneReceiptConfirmed": true,
+    "firestoreEventToDeviceVerified": false,
+    "separateCustomerOrStaffPhoneVerified": false,
+    "firestoreEventToRuntimeFcmVerified": true,
+    "runtimeEventKindsVerified": [
+      "new_order",
+      "order_status",
+      "payment_status",
+      "self_pickup_completed",
+      "self_pickup_reversed"
+    ],
+    "syntheticFixtureCleanupComplete": true,
+    "verifiedAt": "2026-10-31T22:30:20.393Z",
+    "sourceRuntimeEventReceipt": "SYNTHETIC-ORDER-TEST-RECEIPT.json"
+  }
+}

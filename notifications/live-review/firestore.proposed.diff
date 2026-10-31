@@ -1,0 +1,165 @@
+--- captured-live.rules
++++ proposed-review-only.rules
+@@ -10,25 +10,28 @@
+       return request.auth != null;
+     }
+ 
+-    // Admin privileges strictly restricted to verified owner email: ankurdryicewholesalers@gmail.com
+-    function isAdmin() {
++    // Verified owner only. A profile role may never grant owner authority.
++    function isOwner() {
+       return isSignedIn() &&
+-             (request.auth.token.email == 'ankurdryicewholesalers@gmail.com' ||
+-              (exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+-               get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin'));
+-    }
+-
+-    function isStaff() {
++        request.auth.token.email == 'ankurdryicewholesalers@gmail.com' &&
++        request.auth.token.email_verified == true;
++    }
++    function isAdmin() { return isOwner(); }
++    function teamData() {
++      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
++    }
++    function isFieldTeam() {
+       return isSignedIn() &&
+-             exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+-             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'staff';
+-    }
+-
+-    function isDelivery() {
+-      return isSignedIn() &&
+-             exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+-             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'delivery';
+-    }
++        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
++        teamData().get('role', '') in ['staff', 'delivery'];
++    }
++    // Missing maps/keys preserve legacy staff access; malformed values fail closed.
++    function teamPermission(name) {
++      return isFieldTeam() && teamData().get('permissions', {}) is map &&
++        teamData().get('permissions', {}).get(name, true) == true;
++    }
++    function canViewOrders() { return teamPermission('viewOrders'); }
++    function canUpdateStatus() { return teamPermission('updateStatus'); }
+ 
+     function incoming() {
+       return request.resource.data;
+@@ -175,12 +178,12 @@
+     match /orders/{orderId} {
+       // Single order read: authenticated buyer, admin, staff, or delivery
+       allow get: if isValidId(orderId) && (
+-        isAdmin() || isStaff() || isDelivery() ||
++        isAdmin() || canViewOrders() ||
+         (isSignedIn() && resource.data.userId == request.auth.uid)
+       );
+ 
+       // List orders: admin, staff, or delivery can list all, or authenticated buyer can list their own
+-      allow list: if isAdmin() || isStaff() || isDelivery() || (isSignedIn() && resource.data.userId == request.auth.uid);
++      allow list: if isAdmin() || canViewOrders() || (isSignedIn() && resource.data.userId == request.auth.uid);
+ 
+       // Customer order creation: strict schema validation, server timestamp, initial pending state,
+       // and atomicity check ensuring protected tracking projection is generated in the same batch.
+@@ -189,6 +192,7 @@
+         isValidOrder(incoming()) &&
+         incoming().orderId == orderId &&
+         incoming().status == 'pending' &&
++        (isAdmin() || incoming().paymentStatus == 'pending_verification') &&
+         incoming().createdAt == request.time &&
+         incoming().updatedAt == request.time &&
+         (isAdmin() || !isSignedIn() || incoming().userId == request.auth.uid || incoming().userId == 'guest' || incoming().userId == 'owner_manual_entry') &&
+@@ -204,7 +208,7 @@
+          incoming().createdAt == existing().createdAt &&
+          incoming().userId == existing().userId &&
+          incoming().updatedAt == request.time) ||
+-        ((isStaff() || isDelivery()) &&
++        (canUpdateStatus() &&
+          incoming().diff(existing()).affectedKeys().hasOnly(['status', 'updatedAt']) &&
+          incoming().status in ['pending', 'confirmed', 'in_packing', 'dispatched', 'delivered', 'cancelled'] &&
+          incoming().updatedAt == request.time)
+@@ -228,6 +232,7 @@
+         isValidOrderTracking(incoming()) &&
+         incoming().trackingToken == trackingToken &&
+         incoming().status == 'pending' &&
++        (isAdmin() || incoming().paymentStatus == 'pending_verification') &&
+         incoming().createdAt == request.time &&
+         incoming().updatedAt == request.time &&
+         (isAdmin() || existsAfter(/databases/$(database)/documents/orders/$(incoming().orderId)));
+@@ -240,7 +245,7 @@
+          incoming().trackingToken == existing().trackingToken &&
+          incoming().createdAt == existing().createdAt &&
+          incoming().updatedAt == request.time) ||
+-        ((isStaff() || isDelivery()) &&
++        (canUpdateStatus() &&
+          incoming().diff(existing()).affectedKeys().hasOnly(['status', 'lastStatusUpdate', 'updatedAt']) &&
+          incoming().status in ['pending', 'confirmed', 'in_packing', 'dispatched', 'delivered', 'cancelled'] &&
+          incoming().lastStatusUpdate is string && incoming().lastStatusUpdate.size() <= 200 &&
+@@ -265,8 +270,22 @@
+     }
+ 
+     // 5b. Customer Profiles collection (Users can only read/write their own profile, Admin can manage all)
++    function validCustomerProfile(data) {
++      return (!('customerName' in data) || (data.customerName is string && data.customerName.size() <= 100)) &&
++        (!('customerPhone' in data) || (data.customerPhone is string && data.customerPhone.size() <= 20)) &&
++        (!('city' in data) || (data.city is string && data.city.size() <= 100)) &&
++        (!('updatedAt' in data) || data.updatedAt == request.time);
++    }
+     match /users/{userId} {
+-      allow read, write: if isSignedIn() && (request.auth.uid == userId || isAdmin());
++      allow get: if isSignedIn() && (request.auth.uid == userId || isAdmin());
++      allow list: if isAdmin();
++      allow create: if isSignedIn() && request.auth.uid == userId &&
++        incoming().keys().hasOnly(['customerName', 'customerPhone', 'city', 'updatedAt']) &&
++        validCustomerProfile(incoming());
++      allow update: if isSignedIn() && request.auth.uid == userId &&
++        incoming().diff(existing()).affectedKeys().hasOnly(['customerName', 'customerPhone', 'city', 'updatedAt']) &&
++        validCustomerProfile(incoming());
++      allow create, update, delete: if isAdmin();
+     }
+ 
+     // 6. Expenses collection (Admin only)
+@@ -278,5 +297,43 @@
+     match /admins/{adminId} {
+       allow read, write: if false;
+     }
++
++
++    // v1.0.29: private Android FCM device registration.
++    // Clients cannot read or list device tokens. Firebase Admin only reads recipients.
++    function isValidPushDevice(data) {
++      return data.keys().hasAll(['token', 'platform', 'updatedAt']) &&
++        data.keys().hasOnly(['token', 'platform', 'updatedAt']) &&
++        data.token is string && data.token.size() >= 30 && data.token.size() <= 4096 &&
++        data.platform == 'android' &&
++        data.updatedAt == request.time;
++    }
++
++    // Only the verified owner may register a device to get ALL new-order alerts.
++    match /push_owner_devices/{deviceId} {
++      allow get, list: if false;
++      allow create, update, delete: if isValidId(deviceId) && isOwner() &&
++        (request.method == 'delete' || isValidPushDevice(incoming()));
++    }
++
++    // Staff and delivery team are eligible only while allowed to view orders.
++    match /push_team_devices/{uid}/devices/{deviceId} {
++      allow get, list: if false;
++      allow create, update, delete: if isValidId(deviceId) &&
++        isSignedIn() && uid == request.auth.uid && canViewOrders() &&
++        (request.method == 'delete' || isValidPushDevice(incoming()));
++    }
++
++    // Customer/guest: possessing an exact secret tracking token grants the
++    // ability to register push for that ONE order only. No order PII exposed.
++    match /order_push_subscriptions/{trackingToken}/devices/{deviceId} {
++      allow get, list: if false;
++      allow create, update: if isValidId(deviceId) &&
++        isValidTrackingToken(trackingToken) &&
++        exists(/databases/$(database)/documents/order_tracking/$(trackingToken)) &&
++        isValidPushDevice(incoming());
++      allow delete: if false; // invalid/expired tokens are cleaned server-side
++    }
++
+   }
+ }

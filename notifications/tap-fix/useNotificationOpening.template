@@ -1,0 +1,22 @@
+import {useCallback, useEffect, useRef} from 'react';
+import {readPlacedOrders} from './useOrderNotifications';
+import type {AppNotice} from './useOrderNotifications';
+import {notificationDestination} from '../services/notificationDestination';
+
+export function useNotificationOpening(ready: boolean, role: string | null, canView: boolean,
+  onDestination: (destination: ReturnType<typeof notificationDestination>, notice: Partial<AppNotice>) => void) {
+  const pending = useRef<Partial<AppNotice> | null>(null);
+  const callback = useRef(onDestination);
+  callback.current = onDestination;
+  const openNotice = useCallback((notice: Partial<AppNotice>) => {
+    if (!ready) {pending.current = notice; return;}
+    callback.current(notificationDestination(notice, role, canView, readPlacedOrders()), notice);
+  }, [ready,role,canView]);
+  useEffect(() => {
+    const receive = (event: Event) => openNotice((event as CustomEvent).detail || {});
+    window.addEventListener('ankur-push-opened',receive);
+    if (ready && pending.current) {const notice=pending.current;pending.current=null;openNotice(notice);}
+    return () => window.removeEventListener('ankur-push-opened',receive);
+  }, [ready,openNotice]);
+  return openNotice;
+}

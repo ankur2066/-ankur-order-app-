@@ -20,13 +20,17 @@ before(async () => {
     projectId: PROJECT_ID,
     firestore: {
       host: '127.0.0.1', port: 8080,
-      rules: readFileSync('firestore.rules', 'utf8')
+      rules: readFileSync(process.env.ANKUR_RULES_PATH || 'firestore.rules', 'utf8')
     }
   });
   await env.withSecurityRulesDisabled(async ctx => {
     const db = ctx.firestore(DATABASE_ID);
     await setDoc(doc(db, 'order_tracking', TRACKING_TOKEN), {
-      orderId:'ADI-20261031-ABCD', status:'pending'
+      orderId: 'ADI-20261031-ABCD', trackingToken: TRACKING_TOKEN,
+      status: 'pending', paymentStatus: 'pending_verification',
+      productName: 'Dry Ice', quantityKg: 10, district: 'Test district',
+      dispatchTiming: 'Test slot', lastStatusUpdate: 'Order received',
+      createdAt: serverTimestamp(), updatedAt: serverTimestamp(),
     });
     await setDoc(doc(db, 'users', 'permitted-staff'), {
       role:'staff', permissions: { viewOrders:true }
@@ -34,6 +38,18 @@ before(async () => {
     await setDoc(doc(db, 'users', 'blocked-staff'), {
       role:'staff', permissions: { viewOrders:false }
     });
+    for (const [uid, profile] of Object.entries({
+      'legacy-staff': { role: 'staff' },
+      'partial-staff': { role: 'staff', permissions: { updateStatus: false } },
+      'permitted-delivery': { role: 'delivery', permissions: { viewOrders: true } },
+      'impostor-admin': { role: 'admin', permissions: { viewOrders: true } },
+    })) await setDoc(doc(db, 'users', uid), profile);
+    for (const [index, viewOrders] of [null, 0, 1, 'true', 'false', {}, []].entries()) {
+      await setDoc(doc(db, 'users', 'malformed' + index), { role: 'staff', permissions: { viewOrders } });
+    }
+    for (const [index, permissions] of [null, 'bad', false, []].entries()) {
+      await setDoc(doc(db, 'users', 'badmap' + index), { role: 'delivery', permissions });
+    }
   });
 });
 
@@ -99,3 +115,70 @@ test('invalid platform and forged clock are rejected', async () => {
 test('customer still cannot list private orders', async () => {
   await assertFails(getDocs(collection(guestDb(), 'orders')));
 });
+
+test('unverified owner email and a stored admin role do not grant owner push access', async () => {
+  const unverified = env.authenticatedContext('unverified-owner', {
+    email: OWNER_EMAIL, email_verified: false,
+  }).firestore(DATABASE_ID);
+  await assertFails(entry(unverified, 'push_owner_devices/unverifiedPhone'));
+  await assertFails(entry(staffDb('impostor-admin'), 'push_owner_devices/impostorPhone'));
+  await assertFails(entry(staffDb('impostor-admin'), 'push_team_devices/impostor-admin/devices/phoneDevice1'));
+});
+
+test('legacy staff defaults and permitted delivery remain eligible', async () => {
+  for (const uid of ['legacy-staff', 'partial-staff', 'permitted-delivery']) {
+    await assertSucceeds(entry(staffDb(uid), 'push_team_devices/' + uid + '/devices/phoneDevice1'));
+  }
+});
+
+test('malformed permission values and maps deny registration, matching the worker', async () => {
+  for (let index = 0; index < 7; index++) {
+    const uid = 'malformed' + index;
+    await assertFails(entry(staffDb(uid), 'push_team_devices/' + uid + '/devices/phoneDevice1'));
+  }
+  for (let index = 0; index < 4; index++) {
+    const uid = 'badmap' + index;
+    await assertFails(entry(staffDb(uid), 'push_team_devices/' + uid + '/devices/phoneDevice1'));
+  }
+});
+
+test('staff and customer registrations cannot be read or listed even by the owner', async () => {
+  for (const db of [ownerDb(), staffDb('permitted-staff'), guestDb()]) {
+    for (const path of [
+      'push_team_devices/permitted-staff/devices',
+      'order_push_subscriptions/' + TRACKING_TOKEN + '/devices',
+    ]) {
+      await assertFails(getDocs(collection(db, path)));
+      await assertFails(getDoc(doc(db, path, 'phoneDevice1')));
+    }
+  }
+});
+
+test('token length bounds and extra fields are rejected on every registration path', async () => {
+  for (const path of [
+    'push_owner_devices/boundaryPhone',
+    'push_team_devices/permitted-staff/devices/boundaryPhone',
+    'order_push_subscriptions/' + TRACKING_TOKEN + '/devices/boundaryPhone',
+  ]) {
+    const db = path.startsWith('push_owner') ? ownerDb() : staffDb('permitted-staff');
+    for (const value of ['x'.repeat(29), 'x'.repeat(4097)]) await assertFails(entry(db, path, value));
+    await assertFails(setDoc(doc(db, path), {
+      token, platform: 'android', updatedAt: serverTimestamp(), customerPhone: 'not-allowed',
+    }));
+  }
+});
+
+test('revoking a role blocks further registrations without exposing another device', async () => {
+  const uid = 'revoked-for-test';
+  await env.withSecurityRulesDisabled(async ctx => {
+    await setDoc(doc(ctx.firestore(DATABASE_ID), 'users', uid), { role: 'staff', permissions: { viewOrders: true } });
+  });
+  const db = staffDb(uid);
+  await assertSucceeds(entry(db, 'push_team_devices/' + uid + '/devices/phoneDevice1'));
+  await env.withSecurityRulesDisabled(async ctx => {
+    await setDoc(doc(ctx.firestore(DATABASE_ID), 'users', uid), { role: 'staff', permissions: { viewOrders: false } });
+  });
+  await assertFails(entry(db, 'push_team_devices/' + uid + '/devices/phoneDevice2'));
+  await assertFails(deleteDoc(doc(staffDb('permitted-staff'), 'push_team_devices/' + uid + '/devices/phoneDevice1')));
+});
+

@@ -1,0 +1,215 @@
+{
+  "projectId": "ankur-dryice-app",
+  "projectNumber": "928793147689",
+  "databaseId": "ai-studio-ankurdryiceorder-f4d89318-c640-47a5-a9f7-98543eff2673",
+  "region": "asia-southeast1",
+  "sourceCommit": "ef141cabf47fc23fe5557c24ee01ce8a1029ccfa",
+  "sourceZipSha256": "1dff9e16adaa5b896e586a818edd61f12b2812cf7ed4ffb85405b8928bf6e954",
+  "approvedFunctions": [
+    "notifyNewAnkurOrder",
+    "notifyAnkurOrderProgress",
+    "notifyAnkurSelfPickup"
+  ],
+  "runtimeServiceAccount": "ankur-order-push@ankur-dryice-app.iam.gserviceaccount.com",
+  "startedAt": "2026-10-31T21:54:56.713Z",
+  "status": "three-functions-orderpush-source-runtime-triggers-iam-verified",
+  "completedAt": "2026-10-31T22:05:08.662Z",
+  "iamVerified": true,
+  "ownerApproval": "User replied haan to deploying the three notification Functions and proposed IAM.",
+  "functions": {
+    "notifyNewAnkurOrder": {
+      "sourceZipBytesMatchReviewed": true,
+      "sourceZipMd5": "ep2jur9BoYHLbrU6ZRRPFQ==",
+      "sourceStorage": {
+        "bucket": "gcf-v2-sources-928793147689-asia-southeast1",
+        "object": "notifyNewAnkurOrder/function-source.zip",
+        "generation": "1793484668939994"
+      },
+      "state": "ACTIVE",
+      "runtime": "nodejs22",
+      "entryPoint": "notifyNewAnkurOrder",
+      "codebase": "orderpush",
+      "updateTime": "2026-10-31T22:11:43.612445916Z",
+      "serviceAccount": "ankur-order-push@ankur-dryice-app.iam.gserviceaccount.com",
+      "availableMemory": "256Mi",
+      "cpu": "1",
+      "minInstances": 0,
+      "maxInstances": 1,
+      "concurrency": 10,
+      "timeoutSeconds": 60,
+      "service": "projects/ankur-dryice-app/locations/asia-southeast1/services/notifynewankurorder",
+      "serviceUri": "https://notifynewankurorder-6ktxi64rpq-as.a.run.app",
+      "serviceRevision": "projects/ankur-dryice-app/locations/asia-southeast1/services/notifynewankurorder/revisions/notifynewankurorder-00002-won",
+      "eventarcTrigger": "projects/ankur-dryice-app/locations/asia-southeast1/triggers/notifynewankurorder-105120",
+      "triggerFilters": [
+        {
+          "attribute": "database",
+          "value": "ai-studio-ankurdryiceorder-f4d89318-c640-47a5-a9f7-98543eff2673"
+        },
+        {
+          "attribute": "namespace",
+          "value": "(default)"
+        },
+        {
+          "attribute": "document",
+          "value": "orders/{orderId}",
+          "operator": "match-path-pattern"
+        },
+        {
+          "attribute": "type",
+          "value": "google.cloud.firestore.document.v1.created"
+        }
+      ],
+      "eventarcServiceAccount": "ankur-order-push@ankur-dryice-app.iam.gserviceaccount.com",
+      "serviceIam": {
+        "state": "verified",
+        "publicInvoker": false
+      },
+      "verified": true
+    },
+    "notifyAnkurOrderProgress": {
+      "sourceZipBytesMatchReviewed": true,
+      "sourceZipMd5": "ep2jur9BoYHLbrU6ZRRPFQ==",
+      "sourceStorage": {
+        "bucket": "gcf-v2-sources-928793147689-asia-southeast1",
+        "object": "notifyAnkurOrderProgress/function-source.zip",
+        "generation": "1793484717831422"
+      },
+      "state": "ACTIVE",
+      "runtime": "nodejs22",
+      "entryPoint": "notifyAnkurOrderProgress",
+      "codebase": "orderpush",
+      "updateTime": "2026-10-31T22:12:30.299593722Z",
+      "serviceAccount": "ankur-order-push@ankur-dryice-app.iam.gserviceaccount.com",
+      "availableMemory": "256Mi",
+      "cpu": "1",
+      "minInstances": 0,
+      "maxInstances": 1,
+      "concurrency": 10,
+      "timeoutSeconds": 60,
+      "service": "projects/ankur-dryice-app/locations/asia-southeast1/services/notifyankurorderprogress",
+      "serviceUri": "https://notifyankurorderprogress-6ktxi64rpq-as.a.run.app",
+      "serviceRevision": "projects/ankur-dryice-app/locations/asia-southeast1/services/notifyankurorderprogress/revisions/notifyankurorderprogress-00002-kuh",
+      "eventarcTrigger": "projects/ankur-dryice-app/locations/asia-southeast1/triggers/notifyankurorderprogress-074818",
+      "triggerFilters": [
+        {
+          "attribute": "namespace",
+          "value": "(default)"
+        },
+        {
+          "attribute": "document",
+          "value": "order_tracking/{trackingToken}",
+          "operator": "match-path-pattern"
+        },
+        {
+          "attribute": "type",
+          "value": "google.cloud.firestore.document.v1.updated"
+        },
+        {
+          "attribute": "database",
+          "value": "ai-studio-ankurdryiceorder-f4d89318-c640-47a5-a9f7-98543eff2673"
+        }
+      ],
+      "eventarcServiceAccount": "ankur-order-push@ankur-dryice-app.iam.gserviceaccount.com",
+      "serviceIam": {
+        "state": "verified",
+        "publicInvoker": false
+      },
+      "verified": true
+    },
+    "notifyAnkurSelfPickup": {
+      "sourceZipBytesMatchReviewed": true,
+      "sourceZipMd5": "ep2jur9BoYHLbrU6ZRRPFQ==",
+      "sourceStorage": {
+        "bucket": "gcf-v2-sources-928793147689-asia-southeast1",
+        "object": "notifyAnkurSelfPickup/function-source.zip",
+        "generation": "1793484765116288"
+      },
+      "state": "ACTIVE",
+      "runtime": "nodejs22",
+      "entryPoint": "notifyAnkurSelfPickup",
+      "codebase": "orderpush",
+      "updateTime": "2026-10-31T22:13:28.473811079Z",
+      "serviceAccount": "ankur-order-push@ankur-dryice-app.iam.gserviceaccount.com",
+      "availableMemory": "256Mi",
+      "cpu": "1",
+      "minInstances": 0,
+      "maxInstances": 1,
+      "concurrency": 10,
+      "timeoutSeconds": 60,
+      "service": "projects/ankur-dryice-app/locations/asia-southeast1/services/notifyankurselfpickup",
+      "serviceUri": "https://notifyankurselfpickup-6ktxi64rpq-as.a.run.app",
+      "serviceRevision": "projects/ankur-dryice-app/locations/asia-southeast1/services/notifyankurselfpickup/revisions/notifyankurselfpickup-00002-ciy",
+      "eventarcTrigger": "projects/ankur-dryice-app/locations/asia-southeast1/triggers/notifyankurselfpickup-812462",
+      "triggerFilters": [
+        {
+          "attribute": "database",
+          "value": "ai-studio-ankurdryiceorder-f4d89318-c640-47a5-a9f7-98543eff2673"
+        },
+        {
+          "attribute": "namespace",
+          "value": "(default)"
+        },
+        {
+          "attribute": "document",
+          "value": "orders/{orderId}",
+          "operator": "match-path-pattern"
+        },
+        {
+          "attribute": "type",
+          "value": "google.cloud.firestore.document.v1.updated"
+        }
+      ],
+      "eventarcServiceAccount": "ankur-order-push@ankur-dryice-app.iam.gserviceaccount.com",
+      "serviceIam": {
+        "state": "verified",
+        "publicInvoker": false
+      },
+      "verified": true
+    }
+  },
+  "customerOrderWrites": 0,
+  "apkChanged": false,
+  "deploymentMethod": "Official Firebase SDK Functions v2 helpers using isolated reviewed source ZIP; metadata/IAM REST requests restricted by local allowlist.",
+  "initialSetupNotes": [
+    "IAM read-back comparison corrected for JSON condition key ordering.",
+    "Initial Eventarc service-agent propagation error retried only after verifying role and absence of a created function."
+  ],
+  "finalVerifiedAt": "2026-10-31T22:14:30.524Z",
+  "runtimeIam": {
+    "bindings": [
+      {
+        "role": "projects/ankur-dryice-app/roles/ankurOrderPushData",
+        "condition": {
+          "expression": "resource.name == 'projects/ankur-dryice-app/databases/ai-studio-ankurdryiceorder-f4d89318-c640-47a5-a9f7-98543eff2673'",
+          "title": "AnkurOrderPushNamedDatabase"
+        }
+      },
+      {
+        "role": "projects/ankur-dryice-app/roles/ankurOrderPushSender",
+        "condition": null
+      },
+      {
+        "role": "roles/eventarc.eventReceiver",
+        "condition": null
+      },
+      {
+        "role": "roles/run.invoker",
+        "condition": null
+      }
+    ],
+    "ownerOrEditor": false,
+    "verified": true
+  },
+  "existingIamPreserved": true,
+  "metadataCorrection": {
+    "reason": "SDK endpoint codebase was initially omitted; codebase labels were corrected on the three owned Functions.",
+    "googleGeneratedNewRevisions": true,
+    "finalCodebase": "orderpush",
+    "finalSourceZipBytesMatchReviewed": true,
+    "noRuntimeSourceFilesChanged": true
+  },
+  "syntheticOrderTestingPerformedSeparatelyAfterDeployment": true,
+  "syntheticOrderTestReceipt": "SYNTHETIC-ORDER-TEST-RECEIPT.json",
+  "existingCustomerOrderWrites": 0
+}

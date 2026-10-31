@@ -1,0 +1,101 @@
+{
+  "observedAt": "2026-10-31T23:41:53.728395+00:00",
+  "status": "signed-private-ui-review-candidate-verified-not-installed-or-published",
+  "sourceCommit": "d901dac4c37ca6272041d779068ae1777c040e16",
+  "buildRun": 41253033578,
+  "verificationRun": 41253033616,
+  "bothRunsConclusion": "success",
+  "existingAutomatedChecksPassed": 104,
+  "webAndNativeCompilation": "passed",
+  "artifactId": 13062067880,
+  "artifactZipSha256": "8142915636a493773c8440b2314ebf16de9d87892e07bc2be5fe4c51c3c9cd91",
+  "artifactExpiresAt": "2026-11-14T23:39:38Z",
+  "downloadedArtifactMatchesGitHubDigest": true,
+  "apkMatchesCiChecksum": true,
+  "ciApksignerSignatureVerification": "passed",
+  "candidateApk": {
+    "apk": "app-release.apk",
+    "bytes": 5586131,
+    "sha256": "04db0cb28ef3013a5b0df164650258f0c339db8be8ee3468fb0773578d607c56",
+    "manifest": {
+      "package": "com.ankurdryice.events",
+      "versionCode": 32,
+      "versionName": "1.0.32"
+    },
+    "certificateSha256": "ebb60e0b13f7b5bfa814a619d5e4acc0ee65f0e12835ad5a282c072bc9976a6e",
+    "nativePushPluginPresent": true,
+    "notificationPermission": true,
+    "clientFixMarkersPresent": true,
+    "expectedFirebaseProjectSenderAppResourcesPresent": true,
+    "declutterUiMarkersPresent": true,
+    "notificationTapUiMarkersPresent": true
+  },
+  "samePackageAndSigningCertificate": true,
+  "originalV129ApkSha256After": "8dfee1388083016dca29a280cf0f1e2bd484e53fc9c2f9ddca994d919999587f",
+  "previousV131ApkSha256After": "66b94e8ba69489b02a7be1e293fb591de52ec2e25d4ce53f8424fcdd5e153276",
+  "originalSourceZipGitBlobAfter": "7e790aa79f80db6bd93fdf5d04db4209772047aa",
+  "protectedSourceFilesByteIdentical": {
+    "src/components/OrderForm.tsx": true,
+    "src/data/rates.ts": true,
+    "src/data/catalog.ts": true,
+    "src/firebase.ts": true,
+    "src/services/orderPush.ts": true,
+    "src/hooks/useOrderNotifications.ts": true,
+    "src/services/notificationDestination.ts": true,
+    "src/hooks/useNotificationOpening.ts": true,
+    "firebase-functions/notificationPush.js": true,
+    "firestore.rules": true
+  },
+  "uiPreview": {
+    "viewport": {
+      "width": 393,
+      "height": 852
+    },
+    "pages": 8,
+    "themes": [
+      "ice-blue",
+      "dark"
+    ],
+    "realComponents": true,
+    "stylesheetFromFinalApk": true,
+    "firebaseBoundary": "local fixtures; writes disabled; external browser requests blocked",
+    "javascriptErrors": [],
+    "horizontalOverflowFound": false,
+    "observations": {
+      "homeShortcutStrips": 0,
+      "homeProfileButtons": 0,
+      "bookingForms": 1,
+      "bellCallback": "bell",
+      "selectedProductLabel": [
+        "चुना गया प्रोडक्ट: ड्राई आइस पेलेट्स"
+      ],
+      "displayedTotalFor35Kg": "2100",
+      "initialProductCards": 3,
+      "pelletsProductCards": 1,
+      "categoryBookingSelection": [
+        "चुना गया प्रोडक्ट: ड्राई आइस पेलेट्स"
+      ],
+      "orderCardCount": 2,
+      "trackingCallback": "track",
+      "profileOrdersButtons": 0,
+      "logoutButtons": 1,
+      "ownerCallback": "owner",
+      "logoutCallback": "logout"
+    },
+    "physicalDeviceProof": false
+  },
+  "changes": [
+    "Home: remove duplicate Products/AI strip, reserved empty slot and profile shortcut",
+    "My Orders: retain title/refresh; account/logout stay in Profile and booking stays reachable through Home",
+    "Profile: remove duplicate My Orders entry; Rules stay in owner dashboard",
+    "Product placeholders: distinct existing category icons; all three variants retained"
+  ],
+  "existingCustomerOrderChanges": 0,
+  "productRecordChanges": 0,
+  "liveFirebaseWritesDuringUiWork": 0,
+  "productionDeployment": false,
+  "billingChanged": false,
+  "apkInstalled": false,
+  "apkPublished": false,
+  "physicalUiValidation": "pending"
+}

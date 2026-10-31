@@ -1,0 +1,77 @@
+import React, { useEffect } from 'react';
+import { BellRing, X } from 'lucide-react';
+import { isTestNotice } from '../../services/notificationDestination';
+import type { AppNotice } from '../../hooks/useOrderNotifications';
+
+interface NotificationSheetProps {
+  open: boolean;
+  notices: AppNotice[];
+  onClose: () => void;
+  onMarkAllRead: () => void;
+  onOpenNotice?: (notice: AppNotice) => void;
+  message?: string;
+}
+
+function timeLabel(ms: number): string {
+  try {
+    return new Date(ms).toLocaleString('hi-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+  } catch {
+    return '';
+  }
+}
+
+export const NotificationSheet: React.FC<NotificationSheetProps> = ({ open, notices, onClose, onMarkAllRead, onOpenNotice, message }) => {
+  useEffect(() => {
+    if (open) onMarkAllRead();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
+
+  if (!open) return null;
+
+  return (
+    <div className="fixed inset-0 z-[60] flex items-end bg-black/45" onClick={onClose} role="presentation">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label="ऑर्डर अपडेट"
+        className="w-full max-w-lg mx-auto c-card rounded-t-3xl p-4 max-h-[72vh] overflow-y-auto bottom-nav-safe"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-base font-black t-main flex items-center gap-2">
+            <BellRing className="w-5 h-5 t-brand" />
+            ऑर्डर अपडेट
+          </h2>
+          <button type="button" onClick={onClose} className="focus-ring w-9 h-9 rounded-full c-soft t-brand flex items-center justify-center cursor-pointer" aria-label="बंद करें">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        {message && <p role="status" className="rounded-xl c-soft t-main p-3 text-sm mb-3">{message}</p>}
+        {notices.length === 0 ? (
+          <p className="text-sm t-sub leading-relaxed py-6 text-center">
+            अभी कोई अपडेट नहीं है। ऐप खुला रहने पर ऑर्डर की स्थिति बदलते ही यहाँ दिखेगी।
+            फोन पर Push Notifications के लिए अनुमति और सर्वर का सक्रिय होना जरूरी है।
+          </p>
+        ) : (
+          <ul className="space-y-2">
+            {notices.map((n) => (
+              <li key={n.id}>
+                <button type="button" onClick={() => onOpenNotice?.(n)} className="focus-ring w-full text-left rounded-xl border b-line p-3 cursor-pointer" aria-label={isTestNotice(n) ? "TEST संदेश देखें" : "ऑर्डर " + n.orderId + " खोलें"}>
+                <div className="text-sm font-extrabold t-main">{n.title}</div>
+                <div className="text-xs t-sub mt-0.5 leading-relaxed">{n.body}</div>
+                <div className="text-[11px] t-sub mt-1">
+                  ऑर्डर {n.orderId} · {timeLabel(n.at)}
+                </div>
+                <span className="block text-xs font-bold t-brand mt-2">{isTestNotice(n) ? "TEST संदेश · वास्तविक order नहीं" : "ऑर्डर खोलें →"}</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default NotificationSheet;
