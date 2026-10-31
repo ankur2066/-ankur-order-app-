@@ -150,5 +150,5 @@ assert css.is_file() and css.stat().st_size > 1000
 sheet=Path('src/index.css')
 current=sheet.read_text(encoding='utf-8')
 assert 'ANKUR PREMIUM QUICK-COMMERCE V1.0.23' not in current, 'Patch already applied'
-sheet.write_text(current + '\\n' + css.read_text(encoding='utf-8'),encoding='utf-8')
+sheet.write_text(current + '\n' + css.read_text(encoding='utf-8'),encoding='utf-8')
 print('PASS: premium storefront UI applied to existing dynamic React app; no booking, Firestore, payment or roles changed')
