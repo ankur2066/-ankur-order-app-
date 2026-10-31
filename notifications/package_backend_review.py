@@ -34,12 +34,23 @@ def package(root, output):
         'review/CLOUD-SHELL-HINDI.md': 'notifications/CLOUD-SHELL-HINDI.md',
         'review/RELEASE-STATUS-HINDI.md': 'notifications/RELEASE-STATUS-HINDI.md',
     })
+    for name in ('LIVE-EVIDENCE.json', 'APPROVAL-HINDI.md', 'firestore.baseline.rules',
+                 'firestore.candidate.rules', 'firestore.proposed.diff', 'build_candidate.py',
+                 'live-rules.test.mjs'):
+        inputs['review/live-review/' + name] = 'notifications/live-review/' + name
     files = {}
     for destination, relative in inputs.items():
         path = root / relative
         if path.is_symlink() or not path.resolve().is_relative_to(root) or not path.is_file():
             raise ValueError('Required regular package input missing: ' + relative)
         files[destination] = path.read_bytes()
+    evidence = json.loads(files['review/live-review/LIVE-EVIDENCE.json'])
+    if (evidence['project']['projectId'] != 'ankur-dryice-app' or
+            evidence['database']['name'].split('/databases/')[-1] != DATABASE):
+        raise ValueError('Captured live target does not match the reviewed source target')
+    captured_hash = hashlib.sha256(files['review/live-review/firestore.baseline.rules']).hexdigest()
+    if evidence['rules']['files'][0]['sha256'] != captured_hash:
+        raise ValueError('Captured Rules do not match live evidence hash')
     manifest_package = json.loads(files['runtime/firebase-functions/package.json'])
     lock = json.loads(files['runtime/firebase-functions/package-lock.json'])
     if lock.get('packages', {}).get('', {}).get('dependencies') != manifest_package.get('dependencies'):
@@ -52,19 +63,23 @@ def package(root, output):
         'This is not an Android APK or an approved production release.\n'
         'The runtime includes index.js, notificationPush.js, pickupPolicy.js and a dependency lock.\n'
         'No credentials, node_modules, signing keys or business documents are packaged.\n\n'
-        'The review/ Rules and Firebase configuration are generated from the source archive,\n'
-        'not captured from production. Do not overwrite live Rules or deploy an entire codebase\n'
-        'from these files. No executable deployment configuration is placed at package root.\n'
-        'The runtime also exports the existing changeSelfPickup callable; its deployed version\n'
-        'and database must be inventoried before selecting any deployment changes.\n\n'
-        'Required before owner approval: authenticated live project/named-database inventory,\n'
-        'current Rules/functions diff, billing plan and expected cost, exact resource rollback,\n'
-        'and an authorized test order/devices. Live FCM receipt remains unverified.\n\n'
+        'Source-only Rules/configuration are labeled separately from captured live Rules.\n'
+        'review/live-review/ contains the pinned named-database baseline, candidate and diff.\n'
+        'No executable deployment configuration is placed at package root.\n'
+        'Only a first Rules-only release is proposed for approval; no deployment is authorized.\n'
+        'Functions inventory is blocked by disabled APIs; billing is unlinked.\n'
+        'Do not deploy a whole codebase or change the existing pickup callable.\n'
+        'Read APPROVAL-HINDI.md for exact targets, costs, rollback and old-APK limits.\n'
+        'Real FCM receipt, pickup readiness and foreground deduplication remain unverified.\n'
+        'Official MCP unintentionally enabled Cloud Billing API; it was restored DISABLED.\n'
+        'No billing account link, Blaze activation or Rules/Functions/customer-data change occurred.\n\n'
         'Source commit: ' + commit + '\n'
     ).encode()
     manifest = {
         'artifactType': 'review-only-not-deployed', 'sourceCommit': commit,
-        'sourceArchiveGitBlob': blob, 'liveTargetVerified': False,
+        'sourceArchiveGitBlob': blob, 'liveTargetVerified': True,
+        'liveFunctionInventoryComplete': False,
+        'liveEvidenceObservedAt': evidence['observedAt'],
         'deploymentApproved': False,
         'targetFromSource': {'projectId': 'ankur-dryice-app', 'databaseId': DATABASE},
         'files': {name: {'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest()}

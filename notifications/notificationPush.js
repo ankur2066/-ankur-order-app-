@@ -10,7 +10,12 @@ import { getMessaging } from 'firebase-admin/messaging';
 import { createHash } from 'node:crypto';
 
 const DATABASE_ID = 'ai-studio-ankurdryiceorder-f4d89318-c640-47a5-a9f7-98543eff2673';
-const TRIGGER = { region: 'asia-south1', database: DATABASE_ID };
+// Match the independently verified Singapore database; no warm idle instances.
+const TRIGGER = {
+  region: 'asia-southeast1', database: DATABASE_ID,
+  minInstances: 0, maxInstances: 1, concurrency: 10,
+  memory: '256MiB', cpu: 1, timeoutSeconds: 60, retry: false,
+};
 const STATUS_LABELS = Object.freeze({
   pending: 'Order Received',
   confirmed: 'Order Confirmed',

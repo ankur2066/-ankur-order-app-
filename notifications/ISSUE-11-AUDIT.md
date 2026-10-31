@@ -1,9 +1,10 @@
 # Issue #11: notification source audit
 
-This is an offline source audit of PR #9 and PR #10, based on
-`be4bd2698b0fc3bf869e42ec49cdde4f616a59d7`. It is not production
-verification or permission to deploy. No APK, signing configuration, source
-archive, business document, or deployed Firebase resource was changed.
+Source audit of PR #9/#10 plus an authenticated live metadata audit on
+2026-10-31. No APK, original source archive, customer document, deployed Rules or
+Functions was changed. The official MCP unexpectedly enabled Cloud Billing API;
+it was restored to DISABLED, with no billing account linked or Blaze activated.
+See [live evidence and staged approval](live-review/APPROVAL-HINDI.md).
 
 ## Source evidence
 
@@ -14,11 +15,13 @@ The original `Ankur_Order_App_Upload_GitHub.zip` blob is
 - Named database: `ai-studio-ankurdryiceorder-f4d89318-c640-47a5-a9f7-98543eff2673`.
 - Existing Android package: `com.ankurdryice.events`.
 
-These are source-derived identifiers, not an independently verified live target.
-The Firebase plugin is not connected to this Codex session. No project listing,
-live database inventory, Functions/Eventarc inventory, deployed Rules, Android
-Firebase app settings, IAM permissions, App Check configuration, FCM delivery
-logs, or current billing plan could be read.
+These identifiers now match live project/database/Android metadata. The database
+is in asia-southeast1. The signed v1.0.29 artifact certificate hashes match live
+registration. FCM is enabled, but Functions/Run/Eventarc APIs are disabled, so
+function/trigger inventory remains unavailable, not proven empty. Billing is
+unlinked. Current Rules differ materially from source Rules: they deny token
+registrations and allow profile role escalation. Captured baseline, proposed
+minimal Rules, deterministic diff and emulator comparisons are in `live-review/`.
 
 | App source | Prepared notification code | Finding |
 | --- | --- | --- |
@@ -53,8 +56,9 @@ logs, or current billing plan could be read.
    It contains no Firebase deploy command, signing
    secret access, APK release step, or production credentials.
 
-No Firestore Rules changes are proposed in this branch. No client/APK changes are
-needed for these backend changes. All existing extraction/UI patch scripts are
+A minimal live-baseline Rules candidate is now proposed for separate approval.
+The old APK remains unchanged; no-duplicate foreground behavior cannot be
+guaranteed by this backend change alone. All existing extraction/UI patch scripts are
 reused only in an isolated working copy and ephemeral CI runner.
 
 An optional [Cloud Shell metadata helper](CLOUD-SHELL-HINDI.md) can collect initial
@@ -79,8 +83,8 @@ Locally, the 17 offline worker tests pass. The initial permission/refresh
 regressions both failed against the original worker. Source extraction,
 the complete existing patch chain, and generated backend syntax checks pass.
 The expanded emulator suite, web and native compilation run in GitHub Actions; consult
-the PR's checks for their outcome. This sandbox cannot reach its configured
-network proxy to install the emulator/build dependencies locally.
+the PR's checks for their outcome. Local emulator dependencies are now available; the captured baseline and
+candidate suites also pass locally.
 
 Offline tests cover named-database routing, role filtering, customer subscription
 isolation, status/payment/pickup changes, FCM token deduplication and 500-token
@@ -104,18 +108,20 @@ activation, alongside current live Rules and trigger configuration.
 
 ## Production gate
 
-Before requesting deployment approval, the live audit must establish the exact
-project, named database and region; current function exports/triggers and
-codebases; the complete deployed Rules and their minimal additive diff; Android
-app/package settings; IAM/App Check; existing billing plan and expected cost.
-Do not assume the source's `pickup` codebase describes production, overwrite live
-Rules, target `(default)`, or enable Blaze.
+The [approval packet](live-review/APPROVAL-HINDI.md) specifies a first Rules-only
+release with no billing-plan change, its exact baseline/candidate hashes and named
+release rollback. No deployment has been authorized. The Functions phase remains
+blocked on explicit billing/API authorization, refreshed inventories, runtime IAM
+and old-APK limitations. Existing source Rules are review-only and must never be
+substituted for the captured live Rules. No `(default)` target is permitted.
 
-The concrete approval packet must include reviewed function/rule changes,
-cost assumptions (including the new conditional token-pruning transaction),
-saved current Rules/function revisions and a resource-specific rollback plan.
-No cost estimate or safe rollback can be claimed before the live inventory.
-After approval, use only an explicitly authorized test order and devices to
-test foreground/background/closed-app receipt, owner/staff eligibility, payment,
-pickup, token/role isolation and duplicate handling. Redact tokens and customer
-information from all evidence. Issue #11 must remain open until live completion.
+The worker's three notification triggers now propose asia-southeast1 to match the
+live database, with minInstances 0, maxInstances 1, concurrency 10, 256MiB, CPU 1,
+60s timeout and retry false. The existing callable's region is unchanged. These
+limits do not cap billing or guarantee exactly-once delivery.
+
+The new CI adds 10 captured-baseline comparisons, 10 candidate comparisons and 15
+candidate token tests to the previous 40 checks (75 total). These use demo emulator
+data only. Business/customer documents were not read or modified during the live
+audit; only users role/permission fields and the owner's verification state were
+read. Real phone receipt and pickup readiness remain unverified; Issue #11 stays open.

@@ -13,7 +13,8 @@ const root = resolve(process.argv[2]);
 const manifest = JSON.parse(readFileSync(resolve(root, 'manifest.json'), 'utf8'));
 assert.equal(manifest.artifactType, 'review-only-not-deployed');
 assert.equal(manifest.deploymentApproved, false);
-assert.equal(manifest.liveTargetVerified, false);
+assert.equal(manifest.liveTargetVerified, true);
+assert.equal(manifest.liveFunctionInventoryComplete, false);
 for (const [name, expected] of Object.entries(manifest.files)) {
   assert.ok(!name.split('/').includes('..'));
   const bytes = readFileSync(resolve(root, name));

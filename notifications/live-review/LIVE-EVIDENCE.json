@@ -1,0 +1,177 @@
+{
+  "observedAt": "2026-10-31T17:23:27.343Z",
+  "project": {
+    "projectId": "ankur-dryice-app",
+    "projectNumber": "928793147689",
+    "state": "ACTIVE"
+  },
+  "auditMode": "metadata-read-only-after-restored-mcp-side-effect",
+  "database": {
+    "state": "ok",
+    "name": "projects/ankur-dryice-app/databases/ai-studio-ankurdryiceorder-f4d89318-c640-47a5-a9f7-98543eff2673",
+    "locationId": "asia-southeast1",
+    "type": "FIRESTORE_NATIVE",
+    "concurrencyMode": "OPTIMISTIC"
+  },
+  "functionsV1": {
+    "state": "unavailable",
+    "httpStatus": 403,
+    "status": "PERMISSION_DENIED",
+    "reasons": [
+      "SERVICE_DISABLED"
+    ],
+    "readOnlyBlocked": false
+  },
+  "functionsV2": {
+    "state": "unavailable",
+    "httpStatus": 403,
+    "status": "PERMISSION_DENIED",
+    "reasons": [
+      "SERVICE_DISABLED"
+    ],
+    "readOnlyBlocked": false
+  },
+  "billing": {
+    "state": "ok",
+    "billingEnabled": false,
+    "billingAccountLinked": false
+  },
+  "services": {
+    "cloudbilling.googleapis.com": {
+      "state": "ok",
+      "serviceState": "DISABLED"
+    },
+    "cloudfunctions.googleapis.com": {
+      "state": "ok",
+      "serviceState": "DISABLED"
+    },
+    "run.googleapis.com": {
+      "state": "ok",
+      "serviceState": "DISABLED"
+    },
+    "eventarc.googleapis.com": {
+      "state": "ok",
+      "serviceState": "DISABLED"
+    },
+    "cloudbuild.googleapis.com": {
+      "state": "ok",
+      "serviceState": "DISABLED"
+    },
+    "artifactregistry.googleapis.com": {
+      "state": "ok",
+      "serviceState": "DISABLED"
+    },
+    "fcm.googleapis.com": {
+      "state": "ok",
+      "serviceState": "ENABLED"
+    },
+    "firebaseappcheck.googleapis.com": {
+      "state": "ok",
+      "serviceState": "ENABLED"
+    },
+    "logging.googleapis.com": {
+      "state": "ok",
+      "serviceState": "ENABLED"
+    }
+  },
+  "permissionsForAuthenticatedCaller": {
+    "state": "ok",
+    "permissions": [
+      "cloudfunctions.functions.create",
+      "cloudfunctions.functions.list",
+      "cloudfunctions.functions.update",
+      "cloudmessaging.messages.create",
+      "datastore.databases.get",
+      "firebaserules.releases.get",
+      "firebaserules.releases.list",
+      "firebaserules.rulesets.get",
+      "iam.serviceAccounts.actAs",
+      "resourcemanager.projects.getIamPolicy",
+      "serviceusage.services.enable"
+    ]
+  },
+  "androidApps": {
+    "state": "ok",
+    "unreachable": [],
+    "apps": [
+      {
+        "appId": "1:928793147689:android:c9a6a1f649b5f89e929f38",
+        "packageName": "com.ankurdryice.events",
+        "state": "ACTIVE",
+        "name": "projects/ankur-dryice-app/androidApps/1:928793147689:android:c9a6a1f649b5f89e929f38"
+      }
+    ]
+  },
+  "appCheckServices": {
+    "state": "ok",
+    "unreachable": [],
+    "services": [
+      {
+        "name": "projects/928793147689/services/firestore.googleapis.com",
+        "enforcementMode": "UNENFORCED"
+      },
+      {
+        "name": "projects/928793147689/services/identitytoolkit.googleapis.com",
+        "enforcementMode": "UNENFORCED"
+      }
+    ]
+  },
+  "rules": {
+    "state": "ok",
+    "unreachable": [],
+    "releaseFound": true,
+    "firestoreReleaseNames": [
+      "projects/ankur-dryice-app/releases/cloud.firestore",
+      "projects/ankur-dryice-app/releases/cloud.firestore/ai-studio-ankurdryiceorder-f4d89318-c640-47a5-a9f7-98543eff2673"
+    ],
+    "sourceRead": {
+      "state": "ok"
+    },
+    "rulesetName": "projects/ankur-dryice-app/rulesets/c4fec604-0258-43e8-b41e-0f54de9dcbc3",
+    "releaseUpdateTime": "2026-10-22T18:54:21.131434Z",
+    "files": [
+      {
+        "name": "firestore.rules",
+        "bytes": 14520,
+        "sha256": "51a3dba894b2fb4e7c27c893e4dcf0044e48af97fd091d127895c323350006b4"
+      }
+    ]
+  },
+  "blockedWriteAttempts": [],
+  "additionalObservedAt": "2026-10-31T17:31:15.388Z",
+  "playIntegrity": {
+    "state": "ok",
+    "configured": true,
+    "tokenTtl": "3600s",
+    "deviceIntegrity": {
+      "minDeviceRecognitionLevel": "MEETS_DEVICE_INTEGRITY"
+    }
+  },
+  "ownerEmailVerified": true,
+  "existingStaff": {
+    "roleProjectionOnly": true,
+    "staffCount": 2,
+    "legacyPermissionsMissing": 2,
+    "customerNamesOrContactRead": false
+  },
+  "functionInventoryComplete": false,
+  "deviceReceiptVerified": false,
+  "originalSignedApk": {
+    "workflowRun": 41173720110,
+    "artifactId": 13032073208,
+    "apkSha256": "8dfee1388083016dca29a280cf0f1e2bd484e53fc9c2f9ddca994d919999587f",
+    "package": "com.ankurdryice.events",
+    "certificateSha1": "ab1eddeaae6477c0d7f9c7ee465c83e0ac03f8dc",
+    "certificateSha256": "ebb60e0b13f7b5bfa814a619d5e4acc0ee65f0e12835ad5a282c072bc9976a6e",
+    "bothCertificateHashesRegisteredLive": true,
+    "apkModified": false
+  },
+  "billingApiIncident": {
+    "unintentionallyEnabledByOfficialMcp": true,
+    "enabledAt": "2026-10-31T17:07:17Z",
+    "restoredDisabledAt": "2026-10-31T17:20:54Z",
+    "billingAccountLinked": false,
+    "blazeActivated": false,
+    "rulesFunctionsOrBusinessDataChanged": false
+  }
+}

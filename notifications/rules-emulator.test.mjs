@@ -20,7 +20,7 @@ before(async () => {
     projectId: PROJECT_ID,
     firestore: {
       host: '127.0.0.1', port: 8080,
-      rules: readFileSync('firestore.rules', 'utf8')
+      rules: readFileSync(process.env.ANKUR_RULES_PATH || 'firestore.rules', 'utf8')
     }
   });
   await env.withSecurityRulesDisabled(async ctx => {

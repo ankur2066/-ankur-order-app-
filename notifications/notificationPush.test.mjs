@@ -91,7 +91,11 @@ test('all three triggers target the existing named database and expected paths',
   const { api } = await worker();
   for (const name of Object.keys(api)) {
     assert.equal(api[name].options.database, DATABASE_ID);
-    assert.equal(api[name].options.region, 'asia-south1');
+    assert.equal(api[name].options.region, 'asia-southeast1');
+    assert.equal(api[name].options.minInstances, 0);
+    assert.equal(api[name].options.maxInstances, 1);
+    assert.equal(api[name].options.concurrency, 10);
+    assert.equal(api[name].options.retry, false);
   }
   assert.equal(api.notifyNewAnkurOrder.options.document, 'orders/{orderId}');
   assert.equal(api.notifyAnkurSelfPickup.options.document, 'orders/{orderId}');
