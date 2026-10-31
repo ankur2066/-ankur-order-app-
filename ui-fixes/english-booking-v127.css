@@ -1,0 +1,97 @@
+/* ANKUR ENGLISH BOOKING V1.0.27
+   Mobile-first customer booking, single picker and concise price line. */
+.aqp-form-only-home .aqp-header {padding-bottom:7px !important;}
+.aqp-form-only-home .aqp-topbar {padding:8px 12px 7px !important;}
+.aqp-form-only-home .aqp-brand-symbol {width:38px !important;height:38px !important;}
+.aqp-form-only-home .aqp-brand-name {font-size:17px !important;}
+.aqp-form-only-home .aqp-brand-rate {
+  font:700 10px/1.3 system-ui,sans-serif; color:#38677e; margin-top:4px;
+  max-width:235px; overflow-wrap:anywhere;
+}
+.aqp-form-only-home .aqp-brand-rate strong {color:#075c8e;white-space:nowrap;}
+.aqp-top-product-picker {display:flex;align-items:center;gap:8px;padding:0 12px !important;}
+.aqp-top-product-picker > label {font-size:12px;font-weight:800;color:#224a63;white-space:nowrap;}
+.aqp-top-product-picker .aqp-booking-product-select {
+  flex:1;min-width:0;width:auto!important;min-height:43px!important;
+  padding:7px 9px!important;font-size:13px!important;
+}
+.aqp-booking-shortcuts {display:grid !important;grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:5px!important;margin-top:7px!important;padding:0 12px!important;overflow:visible!important;}
+.aqp-booking-shortcuts .aqp-category {
+  display:flex;min-width:0;min-height:35px!important;flex:initial!important;
+  padding:5px 3px!important;font-size:10.5px!important;white-space:normal!important;
+  text-align:center;line-height:1.15;border-radius:9px!important;
+}
+.aqp-booking-shortcuts .aqp-category-reserved {
+  border:1px dashed #cbdbe5;background:transparent!important;min-height:35px;
+}
+.aqp-form-only-main {padding-top:5px!important;}
+.aqp-form-only-main .aqp-booking-heading {min-height:40px!important;padding:7px 10px!important;}
+.aqp-form-only-main .aqp-booking-heading h1 {font-size:17px!important;}
+.aqp-form-only-main .aqp-booking-icon {display:none!important;}
+.aqp-form-only-main .aqp-booking-form {padding:0!important;}
+.aqp-form-only-main .ankur-premium-booking {padding:5px 6px 11px!important;}
+/* Header already gives the fully dynamic owner rate; avoid the duplicate large banner. */
+.aqp-form-only-main .ankur-premium-booking .apb-rate-hero {display:none!important;}
+/* Customer info and the logout button go beneath the booking form. */
+.aqp-form-only-main .ankur-premium-booking > .space-y-3 {
+  display:flex!important;flex-direction:column;gap:8px;
+}
+.aqp-form-only-main .ankur-premium-booking .apb-account-card {order:99;margin-top:9px!important;}
+.aqp-form-only-main .ankur-premium-booking .apb-form-panel {order:0;}
+.aqp-form-only-main .ankur-premium-booking .apb-login-gate {order:0;}
+/* Force two inputs side by side even on mobile; original v122 broke to a single column. */
+.aqp-form-only-main .ankur-premium-booking .apb-fields-grid {
+  display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:8px!important;
+}
+.aqp-form-only-main .ankur-premium-booking .apb-field-label {
+  font-size:11px!important;white-space:normal!important;line-height:1.25!important;
+}
+.aqp-form-only-main .ankur-premium-booking .apb-input {
+  box-sizing:border-box!important;width:100%;min-width:0!important;min-height:43px!important;
+  font-size:14px!important;padding-top:8px!important;padding-bottom:8px!important;
+}
+.aqp-form-only-main .ankur-premium-booking .apb-fields-grid .apb-input[style] {max-width:100%;}
+.aqp-form-only-main .ankur-premium-booking .apb-input-icon {left:8px!important;top:11px!important;width:15px!important;}
+.aqp-form-only-main .ankur-premium-booking input.apb-input.pl-10 {padding-left:29px!important;padding-right:5px!important;}
+.aqp-form-only-main .ankur-premium-booking .apb-slot-grid {gap:5px!important;}
+.aqp-form-only-main .ankur-premium-booking .apb-slot {
+  min-height:62px!important;padding:6px 8px!important;border-radius:10px!important;
+}
+.aqp-form-only-main .ankur-premium-booking .apb-slot-title {font-size:11px!important;}
+.aqp-form-only-main .ankur-premium-booking .apb-slot-time {font-size:10px!important;line-height:1.3!important;margin-top:2px!important;}
+.aqp-form-only-main .ankur-premium-booking .apb-helper {font-size:10px!important;margin-top:5px!important;}
+.aqp-form-only-main .ankur-premium-booking .apb-total-card {padding:10px!important;border-radius:12px!important;}
+.aqp-form-only-main .ankur-premium-booking .apb-total-row {font-size:11px!important;line-height:1.35!important;}
+.aqp-form-only-main .ankur-premium-booking .apb-total-grand {padding-top:8px!important;margin-top:8px!important;}
+.aqp-form-only-main .ankur-premium-booking .apb-payment-note {display:none!important;}
+.aqp-form-only-main .ankur-premium-booking .apb-amount-editor {
+  display:flex;align-items:center;gap:3px;justify-content:flex-end;
+  color:#8cffe5;font-size:20px;font-weight:900;
+}
+.aqp-form-only-main .ankur-premium-booking .apb-extra-amount-input {
+  display:block;width:125px;min-height:41px;padding:5px 8px;border-radius:9px;
+  color:#123b55!important;background:#fff!important;border:1.5px solid #a0cadb!important;
+  font-size:18px;font-weight:800;text-align:right;
+}
+.aqp-form-only-main .ankur-premium-booking .apb-special-request {padding:9px 10px;background:#f1faff;border-radius:11px;border:1px solid #d2e5f2;}
+.aqp-form-only-main .ankur-premium-booking .apb-special-request > label {
+  display:block;font-size:12px;font-weight:800;margin-bottom:5px;color:#18445f;
+}
+.aqp-form-only-main .ankur-premium-booking .apb-extra-reason-input {
+  display:block;width:100%;min-height:49px;resize:vertical;box-sizing:border-box;
+  border:1px solid #bad3e3;background:#fff;color:#173b53;font-size:14px;
+  padding:8px;border-radius:9px;
+}
+.aqp-form-only-main .ankur-premium-booking .apb-special-request p {
+  font-size:10px;color:#587386;margin-top:4px;
+}
+@media(max-width:365px){
+  .aqp-form-only-home .aqp-brand-name {font-size:15px!important;}
+  .aqp-form-only-home .aqp-brand-rate {font-size:9px!important;max-width:190px;}
+  .aqp-booking-shortcuts .aqp-category {font-size:9.5px!important;}
+  .aqp-top-product-picker > label {font-size:11px;}
+  .aqp-form-only-main .ankur-premium-booking .apb-fields-grid {gap:5px!important;}
+  .aqp-form-only-main .ankur-premium-booking .apb-field-label {font-size:10px!important;}
+}
