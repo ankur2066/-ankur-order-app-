@@ -1,0 +1,40 @@
+name: Inspect Ankur customer UI (read-only)
+on:
+  push:
+    branches:
+      - feature/blinkit-premium-ui-20261031
+    paths:
+      - .github/workflows/inspect-premium-ui.yml
+permissions:
+  contents: read
+jobs:
+  inspect-ui:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Extract app source
+        run: unzip -oq Ankur_Order_App_Upload_GitHub.zip -d .
+      - name: Inspect only customer UI (never config, credentials, or data)
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          selected = {
+            'src/components/Header.tsx': (1, 245),
+            'src/App.tsx': (85, 172),
+            'src/components/OrderForm.tsx': (1, 165),
+          }
+          for name,(lo,hi) in selected.items():
+              p=Path(name)
+              print(f'\n### SAFE UI SOURCE {name} ({lo}..{hi})')
+              if not p.is_file(): print('MISSING'); continue
+              ls=p.read_text().splitlines()
+              for i in range(lo-1,min(hi,len(ls))):
+                  print(f'{i+1:04}: {ls[i][:240]}')
+              if name.endswith('OrderForm.tsx'):
+                  for i,line in enumerate(ls):
+                      if 'return (' in line and i > 90:
+                          print(f'\n### ORDERFORM RETURN {i+1}')
+                          for j in range(i,min(i+110,len(ls))):
+                              print(f'{j+1:04}: {ls[j][:240]}')
+                          break
+          PY
