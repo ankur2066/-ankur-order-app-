@@ -8,6 +8,7 @@ on:
     paths:
       - 'security-qa/**'
       - 'notifications/**'
+      - 'ui-fixes/declutter_v132.py'
       - '.github/workflows/verify-notification-rules.yml'
   workflow_dispatch:
 
@@ -47,6 +48,7 @@ jobs:
           python3 notifications/apply_patch.py
           python3 notifications/client-fixes/apply_patch.py
           python3 notifications/tap-fix/apply_patch.py
+          python3 ui-fixes/declutter_v132.py
           node --check firebase-functions/notificationPush.js
           node --check firebase-functions/index.js
           python3 - <<'PY'
