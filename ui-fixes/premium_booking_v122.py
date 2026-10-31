@@ -102,6 +102,8 @@ s=s[:start]+s[end:]
 replace_once('alt="पेमेंट बारकोड / QR कोड - Ankur Pratap Singh"','alt="UPI भुगतान QR — 8896332066@paytm; भुगतान से पहले नाम जांचें"','QR alt')
 replace_once('GPay, PhonePe, Paytm या किसी भी UPI ऐप से स्कैन करके पेमेंट करें','स्कैन करने पर UPI ID और प्राप्तकर्ता का नाम जाँचें; फिर कुल देय राशि भरें।','QR help')
 
+# Duplicate protection searches the previous 3 hours; display the same real window.
+replace_once('पिछले 24 घंटों में आपका एक मिलता-जुलता ऑर्डर पहले से दर्ज है', 'पिछले 3 घंटों में आपका एक मिलता-जुलता ऑर्डर पहले से दर्ज है', 'duplicate-warning wording')
 order.write_text(s,encoding='utf-8')
 # Write CSS overlay after all prior theme overrides, including dark theme !important rules.
 css = r'''
