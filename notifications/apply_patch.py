@@ -16,7 +16,7 @@ def replace_once(src, old, new, label):
 destination = Path('src/services/orderPush.ts')
 destination.parent.mkdir(parents=True, exist_ok=True)
 assert not destination.exists()
-shutil.copyfile('notifications/pushClient.ts', destination)
+shutil.copyfile('notifications/pushClient.template', destination)
 
 # 2. App-wide push lifecycle, existing in-app bell/notification panel preserved.
 p = Path('src/App.tsx')
