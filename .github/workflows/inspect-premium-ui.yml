@@ -1,10 +1,8 @@
-name: Inspect Ankur customer UI (read-only)
+name: Inspect Ankur booking UI layout
 on:
   push:
-    branches:
-      - feature/blinkit-premium-ui-20261031
-    paths:
-      - .github/workflows/inspect-premium-ui.yml
+    branches: [feature/customer-home-booking-v124]
+    paths: [.github/workflows/inspect-premium-ui.yml]
 permissions:
   contents: read
 jobs:
@@ -12,25 +10,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Extract app source
-        run: unzip -oq Ankur_Order_App_Upload_GitHub.zip -d .
-      - name: Inspect customer storefront and catalog UI only
+      - name: Inspect customer booking UI source without production access
         run: |
+          unzip -oq Ankur_Order_App_Upload_GitHub.zip -d .
           python3 - <<'PY'
           from pathlib import Path
-          print("## CUSTOMER COMPONENT FILES")
-          for p in sorted(Path("src/components/customer").rglob("*.tsx")): print(p)
-          print("## APP LAYOUT")
-          names=["src/App.tsx","src/data/catalog.ts","src/components/customer/StorefrontHome.tsx","src/components/customer/CustomerBottomNav.tsx","src/components/customer/CustomerHome.tsx"]
-          names += [str(p) for p in sorted(Path("src/components/customer").glob("*.tsx")) if "Home" in p.name or "Nav" in p.name or "Product" in p.name or "Category" in p.name]
-          for name in dict.fromkeys(names):
-              p=Path(name)
-              if not p.exists():continue
-              lines=p.read_text(encoding="utf-8").splitlines()
-              print(f"\n### SOURCE {name} : {len(lines)} LINES")
-              for i,line in enumerate(lines[:260]): print(f"{i+1:04}: {line[:260]}")
-          print("## CURRENT CSS COMPONENT SCOPE")
-          css=Path("src/index.css").read_text()
-          for word in ["c-home","c-hero","c-product","c-nav","c-search","storefront","bottom-nav"]:
-              print(f"CSS {word}: {css.count(word)}")
+          sections = [
+            ('src/App.tsx', (185, 263)),
+            ('src/components/customer/CustomerHome.tsx', (1, 100)),
+            ('src/components/customer/CustomerHome.tsx', (180, 305)),
+            ('src/components/OrderForm.tsx', (735, 970)),
+          ]
+          for name, (a,b) in sections:
+              path=Path(name); lines=path.read_text(encoding='utf-8').splitlines()
+              print(f'#### {name}: {a}-{b} of {len(lines)}')
+              for i in range(a-1,min(b,len(lines))):
+                  if 'firebaseConfig' in lines[i] or 'private' in lines[i].lower(): continue
+                  print(str(i+1)+': '+lines[i][:230])
           PY
