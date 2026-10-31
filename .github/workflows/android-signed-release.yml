@@ -5,6 +5,7 @@ on:
       - feature/self-pickup-security-tests
       - feature/ux-qa-2026-10-31
       - feature/premium-booking-v122
+      - feature/blinkit-premium-ui-20261031
     paths:
       - '.github/workflows/android-signed-release.yml'
       - 'Ankur_Order_App_Upload_GitHub.zip'
@@ -16,11 +17,11 @@ on:
       version_code:
         description: 'Android versionCode (greater than installed version)'
         required: true
-        default: '22'
+        default: '23'
       version_name:
         description: 'Release version'
         required: true
-        default: '1.0.22'
+        default: '1.0.23'
 permissions:
   contents: read
 jobs:
@@ -97,6 +98,13 @@ jobs:
           grep -q 'Premium Native v1.0.20' src/index.css
       - name: Apply premium Booking Page redesign
         run: python3 ui-fixes/premium_booking_v122.py
+      - name: Apply Blinkit-inspired Ice Blue UI (no Firestore or order changes)
+        run: |
+          python3 ui-fixes/blinkit_premium_v123.py
+          grep -q 'ANKUR PREMIUM QUICK-COMMERCE V1.0.23' src/index.css
+          grep -q 'aqp-header' src/components/customer/CustomerHome.tsx
+          grep -q 'aqp-product-card' src/components/customer/ProductCard.tsx
+          grep -q 'aqp-bottom-nav' src/components/customer/BottomNav.tsx
       - name: Pin Capacitor 7 App Check dependency in working copy
         run: npm install @capacitor-firebase/app-check@7.5.0 @capacitor/filesystem@7 @capacitor/share@7 --save-exact --package-lock-only --ignore-scripts --no-audit --no-fund
       - name: Build web and sync
@@ -150,8 +158,8 @@ jobs:
           PY
       - name: Set release version directly in Gradle
         env:
-          VERSION_CODE: ${{ inputs.version_code || '22' }}
-          VERSION_NAME: ${{ inputs.version_name || '1.0.22' }}
+          VERSION_CODE: ${{ inputs.version_code || '23' }}
+          VERSION_NAME: ${{ inputs.version_name || '1.0.23' }}
         run: |
           python3 - <<'PY'
           import os
@@ -193,7 +201,7 @@ jobs:
           "$ANDROID_HOME/build-tools/$(ls "$ANDROID_HOME/build-tools" | sort -V | tail -1)/apksigner" verify --verbose "$APK"
       - uses: actions/upload-artifact@v4
         with:
-          name: Ankur-Order-Signed-Release-v1.0.22-Premium-Booking
+          name: Ankur-Order-Signed-Release-v1.0.23-Premium-UI
           path: android/app/build/outputs/apk/release/app-release.apk
           if-no-files-found: error
       - name: Cleanup key
