@@ -1,0 +1,24 @@
+name: Review Ankur Order source archive
+on:
+  push:
+    branches: [feature/ux-qa-2026-10-31]
+    paths:
+      - '.github/workflows/review-source.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify source ZIP exists
+        run: |
+          test -s Ankur_Order_App_Upload_GitHub.zip
+          unzip -t Ankur_Order_App_Upload_GitHub.zip | tail -1
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Ankur-Phase15-Source-Review
+          path: Ankur_Order_App_Upload_GitHub.zip
+          retention-days: 3
+          if-no-files-found: error
