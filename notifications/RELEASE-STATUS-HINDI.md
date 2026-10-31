@@ -1,34 +1,26 @@
-# Issue #11: notification backend की live स्थिति
+# Issue #11: वर्तमान notification स्थिति
 
-मौजूदा signed **v1.0.29 APK** के लिए notification backend अब live है। पुरानी
-APK, signing और मूल source ZIP नहीं बदले गए हैं; कोई नया APK install करना
-इस rollout के लिए आवश्यक नहीं पड़ा।
+पुराने signed **v1.0.29 APK** के लिए approved notification backend live है।
+तीनों Functions Singapore के `orderpush` codebase में ACTIVE हैं। Named database
+के Rules, limited IAM/source/trigger verification और approved Blaze link/₹500
+monthly alert के प्रमाण [deployment status](live-review/DEPLOYMENT-STATUS-HINDI.md)
+में हैं। Alert hard cap नहीं है।
 
-- Security/registration Rules लागू और named database पर verify हैं।
-- मंजूर Blaze account link और ₹500 monthly alert live हैं; alert hard cap नहीं है।
-- तीनों notification Functions `orderpush` में ACTIVE हैं। Runtime/source,
-  Eventarc filters और सीमित IAM verify हैं।
-- Owner ने सीधे भेजा गया **Ankur Dryice — TEST** फोन पर मिलने की पुष्टि की।
-- अलग मंजूर TEST order से **पाँच runtime paths** ने FCM को message भेजा:
-  नया order, status, payment, pickup completion और reversal। हर बार **sent 1,
-  failed 0**; पाँच अलग event IDs मिले। Temporary test records साफ और absent verify हैं।
-- 75 automated checks, real-SDK package/stage smoke, web और native compilation
-  source `ef141cabf47fc23fe5557c24ee01ce8a1029ccfa` पर पास हैं।
+सीधा FCM TEST owner ने फोन पर मिलने की पुष्टि की। एक अलग approved synthetic
+order ने पाँच real runtime event paths में हर बार sent 1 / failed 0 दिया और
+उसके temporary records साफ/absent verify हैं। पाँच event-specific FCM phone
+receipts अभी अलग से confirm नहीं हैं। Screenshot `1000985886.jpg` में दिखा
+`New Order Received` toast existing Firestore in-app alert से मेल खाता है;
+उसे अलग FCM receipt या successful tap का प्रमाण नहीं माना गया है।
 
-[एकत्र रिपोर्ट और नई client review build](FINAL-REPORT-HINDI.md) तथा
-[backend का वर्तमान status/प्रमाण](live-review/DEPLOYMENT-STATUS-HINDI.md) देखें।
-पुराने review artifact का NOT-DEPLOYED label उसकी build-time snapshot था;
-वर्तमान live स्थिति के लिए नए deployment/test receipts authoritative हैं।
+Latest client follow-up **v1.0.31 review candidate** में screenshot-style toast,
+notification sheet और native action से order खोलने का एक रास्ता, TEST explanation,
+readable Android data-only tap, earlier deduplication/cache/newest-order fixes हैं।
+[एकत्र रिपोर्ट, latest build/download और प्रमाण](FINAL-REPORT-HINDI.md) देखें।
+Older v1.0.30 candidate receipt एक historical build record है।
 
-अभी पाँच order-event alerts की अलग phone confirmation माँगी गई है। Separate
-staff/customer फोन की physical receipt भी बाकी है। पुरानी APK के foreground
-Firestore+FCM duplicates के सुधार अलग v1.0.30 review candidate में हैं; पुरानी
-installed APK नहीं बदली है। Pickup callable/schema और transport-total mismatch की
-सीमाएँ notification rollout में नहीं बदली गई हैं। Pickup observer के सफल test का मतलब `changeSelfPickup` callable
-live होना नहीं है। इसलिए पूरे app की हर feature ready या Issue #11 पूरा होने
-का दावा अभी नहीं है। कोई existing customer/order record नहीं बदला या हटाया गया।
-
-अलग signed **v1.0.30 review APK** का build सफल है; 90/90 checks, web/native
-compilation और actual APK/package/certificate/Firebase resource verification
-सफल हैं। [एकत्र रिपोर्ट, download और बाकी device gates](FINAL-REPORT-HINDI.md)
-देखें। नई APK installed/published नहीं है; original v1.0.29 सुरक्षित है।
+Installed app और original APK/source ZIP सुरक्षित हैं; candidate अपने-आप install,
+publish या deploy नहीं होता। Separate customer/staff physical phones और candidate
+foreground/background/closed-app/tap validation बाकी है। Pickup observer test,
+`changeSelfPickup` callable के live होने का प्रमाण नहीं है। Existing transport-total
+और pickup/schema readiness notification scope में नहीं बदली गई है।

@@ -43,8 +43,8 @@ https://github.com/ankur2066/-ankur-order-app-/actions/runs/41242545373
 ## अभी बाकी प्रमाण/सीमाएँ
 
 FCM accepted/sent count, phone receipt से अलग प्रमाण है। सीधे TEST का owner
-phone receipt confirmed है; पाँच order-event alerts का अलग phone confirmation
-अभी माँगा गया है। Customer test subscription का physical destination उसी owner
+phone receipt confirmed है; Screenshot में in-app TEST toast दिखा है; पाँच runtime alerts की अलग FCM
+phone receipt अभी बाकी है। Customer test subscription का physical destination उसी owner
 phone का token था; इसे अलग customer या staff phone पर physical verification
 नहीं कहा जाएगा। Those separate-device checks remain pending.
 
@@ -61,7 +61,12 @@ shared IAM, पुराने customer data, Rules और billing को automa
 ## अलग client review work
 
 Firestore/FCM duplicates, initial snapshot, newest-eight subscription, cache
-isolation और staff bell के client सुधार अलग v1.0.30 review build के लिए तैयार
+isolation और staff bell के client सुधार अलग v1.0.31 review build के लिए तैयार
 किए गए हैं। इस client work ने ऊपर के live backend, installed v1.0.29 APK या
 customer data को नहीं बदला। अंतिम build/checks और बची physical gates के लिए
 [एकत्र रिपोर्ट](../FINAL-REPORT-HINDI.md) देखें।
+
+Latest v1.0.31 tap review candidate के 104 checks, web/native compilation और signed
+APK verification सफल हैं। Screenshot वाले toast, sheet cards और native actions
+अब एक opening route लेते हैं; device validation pending है।
+[TAP candidate receipt](TAP-CANDIDATE-RECEIPT.json) और [एकत्र रिपोर्ट](../FINAL-REPORT-HINDI.md) देखें।

@@ -21,3 +21,7 @@ node --experimental-vm-modules --test notifications/client-fixes/client.test.mjs
 The separate `android-notification-candidate.yml` builds a private signed v1.0.30 artifact. It enforces versionCode 30 and the existing v1.0.29 signing certificate. It never installs, publishes, merges or deploys. The original release workflow and APK remain unchanged. The Firebase verification workflow separately runs the existing backend/Rules suite and compiles web/native code.
 
 Device validation still needs real foreground/background/closed-app behavior and separate permitted staff/customer phones. The five live synthetic backend events used the owner's one token; they do not establish those physical-device results. The existing production self-pickup callable was not deployed by this work.
+
+The later [tap follow-up](../tap-fix/README.md) extends these tests to 17 native/client
+cases plus 12 routing/toast/sheet cases, and builds the latest v1.0.31 candidate.
+The original v1.0.30 build and its 15-test description above are historical.

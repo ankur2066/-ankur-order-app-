@@ -1,0 +1,77 @@
+{
+  "observedAt": "2026-10-31T23:27:32.309464+00:00",
+  "sourceCommit": "aec3981247079d229013f81c8cb2322c9db6df1e",
+  "status": "private-signed-tap-review-candidate-verified-not-installed-or-published",
+  "verificationRun": 41252061091,
+  "verificationRunConclusion": "success",
+  "automatedChecks": {
+    "existingBackendRulesAndSafeguards": 75,
+    "clientNative": 17,
+    "tapRoutingSheetToast": 12,
+    "total": 104,
+    "fullAndStagedRealSdkSmoke": "passed",
+    "webCompilation": "passed",
+    "nativeCompilation": "passed"
+  },
+  "candidateBuildRun": 41252060978,
+  "candidateBuildConclusion": "success",
+  "artifactId": 13061284861,
+  "artifactZipSha256": "b8eeb44bae8b41b630f8a944c486baf81ce93ebe548a425bc86dae9fe2d72984",
+  "downloadedZipMatchesGitHubArtifactDigest": true,
+  "apkMatchesCiSha256File": true,
+  "signatureCryptographicallyVerifiedByCiApksigner": true,
+  "ciSignatureVerificationStepConclusion": "success",
+  "candidateApk": {
+    "apk": "app-release.apk",
+    "bytes": 5586614,
+    "sha256": "66b94e8ba69489b02a7be1e293fb591de52ec2e25d4ce53f8424fcdd5e153276",
+    "manifest": {
+      "package": "com.ankurdryice.events",
+      "versionCode": 31,
+      "versionName": "1.0.31"
+    },
+    "certificateSha256": "ebb60e0b13f7b5bfa814a619d5e4acc0ee65f0e12835ad5a282c072bc9976a6e",
+    "nativePushPluginPresent": true,
+    "notificationPermission": true,
+    "clientFixMarkersPresent": true,
+    "expectedFirebaseProjectSenderAppResourcesPresent": true,
+    "notificationTapUiMarkersPresent": true
+  },
+  "oldApkAfter": {
+    "apk": "original.apk",
+    "bytes": 5583783,
+    "sha256": "8dfee1388083016dca29a280cf0f1e2bd484e53fc9c2f9ddca994d919999587f",
+    "manifest": {
+      "package": "com.ankurdryice.events",
+      "versionCode": 29,
+      "versionName": "1.0.29"
+    },
+    "certificateSha256": "ebb60e0b13f7b5bfa814a619d5e4acc0ee65f0e12835ad5a282c072bc9976a6e",
+    "nativePushPluginPresent": true,
+    "notificationPermission": true,
+    "clientFixMarkersPresent": false,
+    "expectedFirebaseProjectSenderAppResourcesPresent": true,
+    "notificationTapUiMarkersPresent": false
+  },
+  "previousV130ApkAfterSha256": "ca3487390af9e1ed8d507d65d51dc7957357fe719a83db10cb5b92b6baa65d85",
+  "oldApkChanged": false,
+  "samePackageAndSigningCertificate": true,
+  "sourceArchiveGitBlobAfter": "7e790aa79f80db6bd93fdf5d04db4209772047aa",
+  "artifactExpiresAt": "2026-11-14T23:26:14Z",
+  "apkInstalledByThisWork": false,
+  "apkPublished": false,
+  "newProductionDeployment": false,
+  "billingChangedDuringTapWork": false,
+  "existingCustomerOrderWritesDuringTapWork": 0,
+  "physicalCandidateTapForegroundBackgroundClosedChecks": "pending",
+  "separateStaffCustomerPhoneReceipt": "pending",
+  "fiveSyntheticEventFcmPhoneReceipts": "pending",
+  "screenshotEvidence": {
+    "filename": "1000985886.jpg",
+    "visibleInAppTestToastConfirmed": true,
+    "extraFcmReceiptProven": false,
+    "reason": "Existing Firestore toast title/body match; deployed FCM new-order title differs. Screenshot is not proof of installed version or action result.",
+    "screenshotUploadedToGitHub": false
+  },
+  "liveBackendImplementationCommit": "ef141cabf47fc23fe5557c24ee01ce8a1029ccfa"
+}
