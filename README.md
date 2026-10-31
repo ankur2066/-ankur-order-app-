@@ -1,15 +1,20 @@
-# Ankur Order App — Signed Release
+# Ankur Order App — Phase 15 (Working branch)
 
-**Status: Source upload pending; APK not built yet.**
+**Signed Android APK v1.0.17 built successfully. Firebase Self Pickup backend is NOT yet production-ready.**
 
-- Build signed Android release APK only (assembleRelease).
-- Preserve applicationId com.ankurdryice.events and original signing key for updates.
-- Never commit .jks/.keystore, passwords, .env secrets, or customer data.
+## Verified
+- Phase 15 source: `Ankur_Order_App_Upload_GitHub.zip`.
+- Source validation: https://github.com/ankur2066/-ankur-order-app-/actions/runs/41081319555 (success).
+- Signed release: https://github.com/ankur2066/-ankur-order-app-/actions/runs/41082078178 (success).
+- APK from GitHub Actions artifact `Ankur-Order-Signed-Release`, signed and verified by GitHub runner.
+- `main` branch and production Firebase have not been changed by this branch.
 
-## Prerequisites
-1. Upload extracted full source, retaining src/, android/, package.json and package-lock.json. Uploading ZIP alone does not make source available to CI.
-2. Verify Android release signing config and versionCode.
-3. Configure Actions Secrets: ANKUR_RELEASE_KEYSTORE_BASE64, ANKUR_RELEASE_STORE_PASSWORD, ANKUR_RELEASE_KEY_ALIAS, ANKUR_RELEASE_KEY_PASSWORD.
-4. Run signed release workflow and verify signature and update compatibility.
+## Before rollout
+- Correct callable backend to use the same named Firestore database as the app (see `firebase-backend/align_database.py`). Do **not** deploy the original default-database backend.
+- Configure Android App Check tokens while retaining callable's `enforceAppCheck: true`.
+- Verify deployed callable, rules, and handover receipt with test accounts.
+- Notification outbox currently only queues records; delivery is not verified.
+- Confirm on-phone in-place APK update. Do not uninstall old app.
+- Firebase Functions deployment may require billing; do not enable/charge without owner authorization.
 
-Current workflow setup is not proof of a successful build.
+See [ANKUR_FILE_MAP.md](ANKUR_FILE_MAP.md) for file locations and current blockers.

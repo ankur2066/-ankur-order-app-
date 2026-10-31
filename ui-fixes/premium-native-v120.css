@@ -1,0 +1,107 @@
+/* Premium Native v1.0.20 — an additive UI pass for the Ankur Order app.
+   Scoped to the existing dark theme; light themes retain their own branding.
+   This does not change Firebase, order logic, or stored theme selections. */
+:root { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+html, body, #root { min-height: 100%; }
+html { -webkit-tap-highlight-color: transparent; }
+body { margin: 0; overflow-x: hidden; }
+button, [role="button"], a, input, select, textarea {
+  -webkit-tap-highlight-color: transparent;
+}
+button, [role="button"], a { touch-action: manipulation; }
+button, input, select, textarea { font-family: inherit; }
+input, select, textarea { min-width: 0; max-width: 100%; }
+@media (max-width: 640px) {
+  /* Keep Android form focus from unexpectedly reflowing tiny text. */
+  input:not([type="checkbox"]):not([type="radio"]), select, textarea {
+    font-size: 16px;
+  }
+  .text-\[10px\] { font-size: 12px; }
+  .text-\[11px\] { font-size: 12.5px; }
+  .text-xs { font-size: 13px; }
+  .page-with-bottom-nav { padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px)); }
+}
+html[data-theme='dark'] { color-scheme: dark; }
+html[data-theme='dark'] body {
+  background: #090c11 !important;
+  color: #f4f6f8;
+}
+html[data-theme='dark'] .c-app,
+html[data-theme='dark'] .page-with-bottom-nav {
+  background-color: #090c11;
+  color: #f4f6f8;
+}
+/* Replace saturated navy/orange blocks with calmer charcoal surfaces. */
+html[data-theme='dark'] .bg-slate-950,
+html[data-theme='dark'] .bg-slate-900,
+html[data-theme='dark'] .bg-slate-800 { background-color: #12171e !important; }
+html[data-theme='dark'] .bg-slate-700 { background-color: #1b222c !important; }
+html[data-theme='dark'] .bg-slate-50,
+html[data-theme='dark'] .bg-slate-100,
+html[data-theme='dark'] .bg-slate-200,
+html[data-theme='dark'] .bg-white,
+html[data-theme='dark'] .bg-white\/70,
+html[data-theme='dark'] .bg-white\/80,
+html[data-theme='dark'] .bg-slate-50\/70,
+html[data-theme='dark'] .bg-slate-50\/80,
+html[data-theme='dark'] .bg-slate-50\/50 {
+  background-color: #171c24 !important;
+}
+html[data-theme='dark'] .border-slate-100,
+html[data-theme='dark'] .border-slate-200,
+html[data-theme='dark'] .border-slate-300,
+html[data-theme='dark'] .border-slate-200\/70,
+html[data-theme='dark'] .border-slate-200\/50 {
+  border-color: #303943 !important;
+}
+html[data-theme='dark'] .text-slate-900,
+html[data-theme='dark'] .text-slate-800,
+html[data-theme='dark'] .text-slate-700,
+html[data-theme='dark'] .text-slate-600 { color: #f1f4f7 !important; }
+html[data-theme='dark'] .text-slate-500,
+html[data-theme='dark'] .text-slate-400 { color: #b9c4ce !important; }
+html[data-theme='dark'] .text-orange-500,
+html[data-theme='dark'] .text-orange-600,
+html[data-theme='dark'] .text-sky-700 { color: #7fd3e5 !important; }
+html[data-theme='dark'] .bg-orange-500,
+html[data-theme='dark'] .bg-orange-600,
+html[data-theme='dark'] .bg-slate-900.text-white {
+  background-color: #197d99 !important;
+  color: #ffffff !important;
+}
+html[data-theme='dark'] .border-orange-500 { border-color: #258fa8 !important; }
+html[data-theme='dark'] input,
+html[data-theme='dark'] select,
+html[data-theme='dark'] textarea {
+  background-color: #11161d;
+  color: #f5f7f8;
+  border-color: #3b4652;
+  border-radius: 13px;
+}
+html[data-theme='dark'] input::placeholder,
+html[data-theme='dark'] textarea::placeholder { color: #aebbc7; }
+html[data-theme='dark'] button:focus-visible,
+html[data-theme='dark'] a:focus-visible,
+html[data-theme='dark'] input:focus-visible,
+html[data-theme='dark'] textarea:focus-visible {
+  outline: 2px solid #6bd3e8;
+  outline-offset: 2px;
+}
+html[data-theme='dark'] .rounded-xl,
+html[data-theme='dark'] .rounded-2xl { border-radius: 16px; }
+html[data-theme='dark'] .shadow,
+html[data-theme='dark'] .shadow-md,
+html[data-theme='dark'] .shadow-lg,
+html[data-theme='dark'] .shadow-xl {
+  box-shadow: 0 6px 20px rgba(0,0,0,.22);
+}
+html[data-theme='dark'] button:disabled { opacity: .58; }
+@media (max-width: 640px) {
+  html[data-theme='dark'] .c-app button,
+  html[data-theme='dark'] .page-with-bottom-nav button {
+    min-height: 38px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; }
+}

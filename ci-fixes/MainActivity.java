@@ -13,6 +13,9 @@ public class MainActivity extends BridgeActivity {
         Log.i("AnkurAuth", "Registering FirebaseAuthenticationPlugin before bridge initialization");
         super.onCreate(savedInstanceState);
         if (getBridge() != null) {
+            getBridge().getWebView().getSettings().setSupportZoom(false);
+            getBridge().getWebView().getSettings().setBuiltInZoomControls(false);
+            getBridge().getWebView().getSettings().setDisplayZoomControls(false);
             Log.i("AnkurAuth", "Capacitor bridge initialized");
         } else {
             Log.e("AnkurAuth", "Capacitor bridge is null after onCreate");

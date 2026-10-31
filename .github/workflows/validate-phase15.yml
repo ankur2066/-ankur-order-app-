@@ -1,0 +1,85 @@
+name: Validate Phase 15 Self Pickup
+on:
+  push:
+    branches:
+      - feature/self-pickup-security-tests
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'Ankur_Order_App_Upload_GitHub.zip'
+      - '.github/workflows/validate-phase15.yml'
+      - '.github/workflows/android-signed-release.yml'
+      - 'app-check/**'
+      - 'ui-fixes/**'
+permissions:
+  contents: read
+jobs:
+  phase15:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Extract Phase 15 source
+        run: |
+          test -s Ankur_Order_App_Upload_GitHub.zip
+          unzip -oq Ankur_Order_App_Upload_GitHub.zip -d .
+          test -f package.json
+          test -f package-lock.json
+          test -f firebase-functions/pickupPolicy.test.js
+          test -f PHASE15_FIX_NOTES.md
+      - name: Apply Android App Check native-to-JS integration
+        run: python3 app-check/apply_patch.py
+      - name: Apply monthly report and optional Ice Blue theme fixes
+        run: python3 ui-fixes/apply_patch.py
+      - name: Apply premium Android typography and surface styling
+        run: |
+          test -s ui-fixes/premium-native-v120.css
+          cat ui-fixes/premium-native-v120.css >> src/index.css
+          grep -q 'Premium Native v1.0.20' src/index.css
+      - name: Verify and align Firebase named database (NO deployment)
+        run: |
+          python3 firebase-backend/align_database.py
+          node --check firebase-functions/index.js
+      - name: Record backend preflight artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Phase15-Prepared-Firebase-Backend
+          path: |
+            firebase-functions/index.js
+            firebase-functions/pickupPolicy.js
+            firebase-functions/package.json
+            firebase.json
+            firestore.rules
+          if-no-files-found: error
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Pin Capacitor 7 App Check dependency in working copy
+        run: npm install @capacitor-firebase/app-check@7.5.0 @capacitor/filesystem@7 @capacitor/share@7 --save-exact --package-lock-only --ignore-scripts --no-audit --no-fund
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: TypeScript check
+        run: npm run lint
+      - name: Web build
+        run: npm run build
+      - name: Verify native App Check code is linked to JS Firebase SDK
+        run: |
+          grep -q 'new CustomProvider' src/appCheck.ts
+          grep -q 'initializeAppCheck(app' src/appCheck.ts
+          grep -q 'initializeAndroidAppCheck(app)' src/main.tsx
+          grep -q 'isAndroidAppCheckReady()' src/components/StaffDashboard.tsx
+      - name: Check report and Theme integrations
+        run: |
+          grep -q 'monthlyReportBusy' src/components/AdminDashboard.tsx
+          grep -q 'autoTable(pdf' src/utils/monthlyReport.ts
+          grep -q 'Filesystem.writeFile' src/utils/mobileReport.ts
+          grep -q "id: 'ice-blue'" src/theme/themes.ts
+      - name: Backend security policy tests
+        run: node --test firebase-functions/pickupPolicy.test.js
+      - name: Backend syntax
+        run: |
+          node --check firebase-functions/index.js
+          node --check firebase-functions/pickupPolicy.js

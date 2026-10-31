@@ -1,0 +1,20 @@
+name: Self Pickup Policy Tests
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feature/self-pickup-security-tests
+permissions:
+  contents: read
+jobs:
+  policy-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify policy syntax
+        run: node --check self-pickup-tests/pickupPolicy.js
+      - name: Run 11 security policy tests
+        run: node --test self-pickup-tests/pickupPolicy.test.js

@@ -1,15 +1,24 @@
 name: Ankur Order Signed Release APK
 on:
+  push:
+    branches:
+      - feature/self-pickup-security-tests
+    paths:
+      - '.github/workflows/android-signed-release.yml'
+      - 'Ankur_Order_App_Upload_GitHub.zip'
+      - 'ci-fixes/**'
+      - 'app-check/**'
+      - 'ui-fixes/**'
   workflow_dispatch:
     inputs:
       version_code:
         description: 'Android versionCode (greater than installed version)'
         required: true
-        default: '17'
+        default: '20'
       version_name:
         description: 'Release version'
         required: true
-        default: '1.0.17'
+        default: '1.0.20'
 permissions:
   contents: read
 jobs:
@@ -19,9 +28,13 @@ jobs:
       - uses: actions/checkout@v4
       - name: Extract app source archive
         run: |
-          test -s Ankur_Order_GitHub_Source_Upload.zip
-          unzip -oq Ankur_Order_GitHub_Source_Upload.zip -d .
+          test -s Ankur_Order_App_Upload_GitHub.zip
+          unzip -oq Ankur_Order_App_Upload_GitHub.zip -d .
           test -f package-lock.json && test -f android/app/build.gradle
+      - name: Apply Android App Check native-to-JS bridge
+        run: python3 app-check/apply_patch.py
+      - name: Apply report fix and optional Ice Blue theme
+        run: python3 ui-fixes/apply_patch.py
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -73,6 +86,13 @@ jobs:
           test -f src/index.css
           cat ci-fixes/mobile-readability.css >> src/index.css
           grep -q 'Ankur mobile readability pass' src/index.css
+      - name: Add premium native styling overlay
+        run: |
+          test -s ui-fixes/premium-native-v120.css
+          cat ui-fixes/premium-native-v120.css >> src/index.css
+          grep -q 'Premium Native v1.0.20' src/index.css
+      - name: Pin Capacitor 7 App Check dependency in working copy
+        run: npm install @capacitor-firebase/app-check@7.5.0 @capacitor/filesystem@7 @capacitor/share@7 --save-exact --package-lock-only --ignore-scripts --no-audit --no-fund
       - name: Build web and sync
         run: |
           npm ci
@@ -95,10 +115,37 @@ jobs:
           assert "project(':capacitor-firebase-authentication')" in gradle
           print("FirebaseAuthentication discovery, Java registration and Gradle dependency present")
           PY
+      - name: Verify Capacitor Android App Check native plugin and JS bridge
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          plugins = json.loads(Path("android/app/src/main/assets/capacitor.plugins.json").read_text())
+          assert any("FirebaseAppCheckPlugin" in p.get("classpath", "") for p in plugins), f"Native Firebase App Check missing from Capacitor plugin discovery: {plugins}"
+          gradle = Path("android/app/capacitor.build.gradle").read_text()
+          assert "capacitor-firebase-app-check" in gradle, "Capacitor Android App Check Gradle dependency missing"
+          app_check = Path("src/appCheck.ts").read_text()
+          assert "CustomProvider" in app_check and "FirebaseAppCheck.getToken" in app_check
+          assert "initializeAppCheck(app" in app_check
+          assert "debugToken" not in app_check
+          print("Native App Check plugin discovered; Firebase JS SDK token bridge present; no debug provider")
+          PY
+      - name: Verify Android PDF export plugins
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          plugins = json.loads(Path('android/app/src/main/assets/capacitor.plugins.json').read_text())
+          names = ' '.join(p.get('classpath', '') for p in plugins)
+          assert 'FilesystemPlugin' in names, 'Filesystem native plugin missing'
+          assert 'SharePlugin' in names, 'Share native plugin missing'
+          assert Path('src/utils/mobileReport.ts').exists()
+          print('Native file saving and Android share plugin discovered')
+          PY
       - name: Set release version directly in Gradle
         env:
-          VERSION_CODE: ${{ inputs.version_code }}
-          VERSION_NAME: ${{ inputs.version_name }}
+          VERSION_CODE: ${{ inputs.version_code || '20' }}
+          VERSION_NAME: ${{ inputs.version_name || '1.0.20' }}
         run: |
           python3 - <<'PY'
           import os
@@ -136,7 +183,7 @@ jobs:
           "$ANDROID_HOME/build-tools/$(ls "$ANDROID_HOME/build-tools" | sort -V | tail -1)/apksigner" verify --verbose "$APK"
       - uses: actions/upload-artifact@v4
         with:
-          name: Ankur-Order-Signed-Release
+          name: Ankur-Order-Signed-Release-v1.0.20-Premium-UI
           path: android/app/build/outputs/apk/release/app-release.apk
           if-no-files-found: error
       - name: Cleanup key
