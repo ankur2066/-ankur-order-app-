@@ -7,6 +7,7 @@ import { onDocumentCreated, onDocumentUpdated } from 'firebase-functions/v2/fire
 import { getApp } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 import { getMessaging } from 'firebase-admin/messaging';
+import { createHash } from 'node:crypto';
 
 const DATABASE_ID = 'ai-studio-ankurdryiceorder-f4d89318-c640-47a5-a9f7-98543eff2673';
 const TRIGGER = { region: 'asia-south1', database: DATABASE_ID };
@@ -22,6 +23,24 @@ const INVALID_FCM_CODES = new Set([
   'messaging/invalid-registration-token',
   'messaging/registration-token-not-registered',
 ]);
+// Only fixed SDK categories enter logs; never forward error messages or tokens.
+const SAFE_ERROR_CODES = new Set([
+  ...INVALID_FCM_CODES,
+  'messaging/invalid-argument', 'messaging/invalid-payload',
+  'messaging/mismatched-credential', 'messaging/authentication-error',
+  'messaging/message-rate-exceeded', 'messaging/device-message-rate-exceeded',
+  'messaging/server-unavailable', 'messaging/internal-error', 'messaging/unknown-error',
+  'app/invalid-credential', 'app/no-app',
+]);
+
+function errorCode(error) {
+  return SAFE_ERROR_CODES.has(error?.code) ? error.code : 'unknown';
+}
+
+function eventIdentifier(event, kind) {
+  if (typeof event?.id !== 'string' || !event.id) return undefined;
+  return createHash('sha256').update(JSON.stringify([event.source || '', event.id, kind])).digest('hex');
+}
 
 function store() {
   // The customer app uses a named database: never send against (default).
@@ -69,7 +88,9 @@ async function pruneInvalidToken(ref, rejectedToken) {
   });
 }
 
-async function sendNotification(deviceDocs, title, body, data) {
+async function sendNotification(deviceDocs, title, body, data, event) {
+  const eventId = eventIdentifier(event, data.type);
+  const payloadData = eventId ? { ...data, eventId } : data;
   // Deduplicate FCM tokens across owner/team and customer lists.
   const unique = new Map();
   for (const doc of deviceDocs) {
@@ -82,30 +103,53 @@ async function sendNotification(deviceDocs, title, body, data) {
   const tokens = [...unique.keys()];
   let sent = 0;
   let failed = 0;
+  let pruneFailed = 0;
+  const errorsByCode = {};
+  const logSummary = extra => console.info('Ankur push send', {
+    kind: data.type, orderId: data.orderId, ...(eventId ? { eventId } : {}),
+    attempted: tokens.length, sent, failed, errorsByCode, pruneFailed, ...extra,
+  });
   for (let offset = 0; offset < tokens.length; offset += 500) {
     const group = tokens.slice(offset, offset + 500);
-    const report = await getMessaging(getApp()).sendEachForMulticast({
-      tokens: group,
-      notification: { title: stringify(title, 90), body: stringify(body, 180) },
-      data: Object.fromEntries(Object.entries(data).map(([k, v]) => [k, stringify(v, 180)])),
-      android: {
-        priority: 'high',
-        notification: { channelId: 'ankur_order_updates', sound: 'default' },
-      },
-    });
+    let report;
+    try {
+      report = await getMessaging(getApp()).sendEachForMulticast({
+        tokens: group,
+        notification: { title: stringify(title, 90), body: stringify(body, 180) },
+        data: Object.fromEntries(Object.entries(payloadData).map(([k, v]) => [k, stringify(v, 180)])),
+        android: {
+          priority: 'high',
+          notification: {
+            channelId: 'ankur_order_updates', sound: 'default',
+            // Same event replaces its current Android tray entry. This does not
+            // guarantee exactly-once delivery, sound, or foreground deduplication.
+            ...(eventId ? { tag: 'ankur_' + eventId } : {}),
+          },
+        },
+      });
+    } catch (error) {
+      // A transport error does not prove FCM rejected every token in this batch.
+      logSummary({ attempted: offset + group.length, unconfirmed: group.length,
+        pending: tokens.length - offset - group.length, requestError: errorCode(error) });
+      throw error;
+    }
     sent += report.successCount;
     failed += report.failureCount;
     const pruning = [];
     report.responses.forEach((response, index) => {
+      if (!response.success) {
+        const code = errorCode(response.error);
+        errorsByCode[code] = (errorsByCode[code] || 0) + 1;
+      }
       if (!response.success && INVALID_FCM_CODES.has(response.error?.code)) {
         for (const ref of unique.get(group[index]) || []) {
-          pruning.push(pruneInvalidToken(ref, group[index]).catch(() => null));
+          pruning.push(pruneInvalidToken(ref, group[index]).catch(() => { pruneFailed++; }));
         }
       }
     });
     if (pruning.length) await Promise.all(pruning);
   }
-  console.info('Ankur push send', { kind: data.type, orderId: data.orderId, attempted: tokens.length, sent, failed });
+  logSummary({});
   return { attempted: tokens.length, sent, failed };
 }
 
@@ -124,7 +168,7 @@ export const notifyNewAnkurOrder = onDocumentCreated(
       recipients,
       'New Ankur Dryice Order',
       'Order ' + orderId + ' • ' + stringify(order.quantityKg, 10) + ' KG • ' + stringify(order.city || order.district, 60),
-      { type: 'new_order', orderId }
+      { type: 'new_order', orderId }, event
     );
   }
 );
@@ -164,7 +208,7 @@ export const notifyAnkurOrderProgress = onDocumentUpdated(
       orderId,
       status: current.status || '',
       paymentStatus: current.paymentStatus || '',
-    });
+    }, event);
   }
 );
 
@@ -187,7 +231,7 @@ export const notifyAnkurSelfPickup = onDocumentUpdated(
       completed ? 'Pickup Completed' : 'Pickup Updated',
       completed ? 'Your Self Pickup order ' + orderId + ' has been handed over.'
         : 'Pickup confirmation for order ' + orderId + ' was reversed.',
-      { type: 'self_pickup', orderId, status: current.selfPickup.status }
+      { type: 'self_pickup', orderId, status: current.selfPickup.status }, event
     );
   }
 );

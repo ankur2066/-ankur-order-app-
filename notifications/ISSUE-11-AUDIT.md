@@ -37,22 +37,30 @@ logs, or current billing plan could be read.
 2. Prune invalid registrations only if the stored token still equals the FCM
    rejected token, using a transaction. Previously a registration refreshed
    during the send could be deleted by a stale failure response.
-3. Add offline tests of the actual worker with synthetic Firebase SDK modules;
+3. Hash CloudEvent source/ID and notification kind into a stable Android tray
+   tag and data `eventId`. Repeated delivery of the same event replaces its
+   current tray entry. Independent events/kinds use different tags; missing
+   event IDs do not silently collapse unrelated notifications.
+4. Record fixed, allowlisted SDK error categories and failed cleanup counts in
+   the worker's send summary without raw error details or device tokens. Whole
+   request errors distinguish previously confirmed sends from the unconfirmed
+   batch and tokens not yet attempted, then propagate the original exception.
+5. Add offline tests of the actual worker with synthetic Firebase SDK modules;
    expand PR #10's emulator tests for legacy/delivery roles, malformed permissions,
    owner verification, private token paths, token validation and role revocation.
-4. Extend the existing verification workflow to run these checks and compile the
+6. Extend the existing verification workflow to run these checks and compile the
    unchanged Android web bundle and native Java code without packaging an APK.
    It contains no Firebase deploy command, signing
    secret access, APK release step, or production credentials.
 
 No Firestore Rules changes are proposed in this branch. No client/APK changes are
-needed for these two backend fixes. All existing extraction/UI patch scripts are
+needed for these backend changes. All existing extraction/UI patch scripts are
 reused only in an isolated working copy and ephemeral CI runner.
 
 ## Verification and limits
 
-Locally, the 12 offline worker tests pass. Against the original worker, the two
-new permission/refresh regressions fail and the other ten pass. Source extraction,
+Locally, the 17 offline worker tests pass. The initial permission/refresh
+regressions both failed against the original worker. Source extraction,
 the complete existing patch chain, and generated backend syntax checks pass.
 The expanded emulator suite, web and native compilation run in GitHub Actions; consult
 the PR's checks for their outcome. This sandbox cannot reach its configured
@@ -60,16 +68,21 @@ network proxy to install the emulator/build dependencies locally.
 
 Offline tests cover named-database routing, role filtering, customer subscription
 isolation, status/payment/pickup changes, FCM token deduplication and 500-token
-batching, invalid-token cleanup, token refresh, and transport failure propagation.
+batching, invalid-token cleanup, token refresh, repeated-event tag isolation,
+redacted send summaries and transport failure propagation.
 They do not prove live trigger invocation, IAM/FCM authorization, or phone receipt.
 The CI native compile does not use the production Android Firebase configuration
 or signing certificate and cannot validate them. The unchanged v1.0.29 signed Android build was
 previously successful in run `41173720110`; no new APK is produced here.
 
-Event delivery can be repeated or out of order. Existing token deduplication only
-deduplicates recipients within one invocation; it is not durable event
-idempotency. The existing foreground Firestore listener and FCM bridge can both
-surface the same update. Exactly-once delivery and no-duplicate UI behavior are
+Event delivery can be repeated or out of order. Token deduplication only
+deduplicates recipients within one invocation; stable Android tags only replace
+a notification that is still in the tray. As documented by the
+[Firebase Admin SDK](https://firebase.google.com/docs/reference/admin/node/firebase-admin.messaging.androidnotification#androidnotificationtag),
+tags identify existing tray notifications for replacement. They do not suppress
+FCM requests or sounds, prevent reappearance after dismissal, order events, or
+provide durable event idempotency. The existing foreground Firestore listener
+and FCM bridge can both surface the same update. Exactly-once delivery and no-duplicate UI behavior are
 not established. These remain explicit review/test items before production
 activation, alongside current live Rules and trigger configuration.
 

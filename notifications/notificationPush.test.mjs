@@ -2,6 +2,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 import { createContext, SourceTextModule, SyntheticModule } from 'node:vm';
 
 const DATABASE_ID = 'ai-studio-ankurdryiceorder-f4d89318-c640-47a5-a9f7-98543eff2673';
@@ -10,7 +11,7 @@ const TRACKING_TOKEN = ORDER_ID + '_123456';
 const fcm = suffix => 'test_fcm_' + suffix.padEnd(40, 'x');
 const copy = value => JSON.parse(JSON.stringify(value));
 
-async function worker({ records = {}, send } = {}) {
+async function worker({ records = {}, send, transactionError } = {}) {
   const documents = new Map(Object.entries(records));
   const messages = [];
   const logs = [];
@@ -40,12 +41,16 @@ async function worker({ records = {}, send } = {}) {
   }
   const db = {
     collection,
-    runTransaction: async operation => operation({
-      get: async reference => snapshot(reference.path),
-      delete: reference => { documents.delete(reference.path); deletions.push(reference.path); },
-    }),
+    runTransaction: async operation => {
+      if (transactionError) throw transactionError;
+      return operation({
+        get: async reference => snapshot(reference.path),
+        delete: reference => { documents.delete(reference.path); deletions.push(reference.path); },
+      });
+    },
   };
   const sdk = {
+    'node:crypto': { createHash },
     'firebase-functions/v2/firestore': {
       onDocumentCreated: (options, handler) => Object.assign(handler, { options }),
       onDocumentUpdated: (options, handler) => Object.assign(handler, { options }),
@@ -209,6 +214,10 @@ test('invalid tokens are pruned from every duplicate path, transient failures ar
   assert.deepEqual(w.deletions.sort(), ['push_owner_devices/duplicate', 'push_owner_devices/stale']);
   assert.ok(w.documents.has('push_owner_devices/transient'));
   assert.equal(w.logs[0][1].failed, 2);
+  assert.deepEqual(w.logs[0][1].errorsByCode, {
+    'messaging/registration-token-not-registered': 1,
+    'messaging/server-unavailable': 1,
+  });
   assert.ok(!JSON.stringify(w.logs).includes(stale));
 });
 
@@ -231,4 +240,78 @@ test('FCM transport errors propagate and do not prune registrations', async () =
     send: async () => { throw new Error('transport unavailable'); } });
   await assert.rejects(w.api.notifyNewAnkurOrder(created(order)), /transport unavailable/);
   assert.deepEqual(w.deletions, []);
+  assert.equal(w.logs[0][1].requestError, 'unknown');
+  assert.equal(w.logs[0][1].unconfirmed, 1);
+  assert.equal(w.logs[0][1].sent, 0);
+});
+
+test('repeated CloudEvent uses the same Android tray tag without claiming send deduplication', async () => {
+  const w = await worker({ records: { 'push_owner_devices/phone': device(fcm('owner')) } });
+  const event = { ...created(order), id: 'event-1', source: 'test-source' };
+  await w.api.notifyNewAnkurOrder(event);
+  await w.api.notifyNewAnkurOrder(event);
+  assert.equal(w.messages.length, 2, 'tray replacement does not suppress FCM requests');
+  assert.match(w.messages[0].android.notification.tag, /^ankur_[a-f0-9]{64}$/);
+  assert.equal(w.messages[0].android.notification.tag, w.messages[1].android.notification.tag);
+  assert.equal(w.messages[0].data.eventId, w.messages[1].data.eventId);
+});
+
+test('separate events, sources and trigger kinds get independent tags; missing IDs do not collapse', async () => {
+  const w = await worker({ records: { 'push_owner_devices/phone': device(fcm('owner')) } });
+  for (const [id, source] of [['event-1', 'source-1'], ['event-2', 'source-1'], ['event-1', 'source-2']]) {
+    await w.api.notifyNewAnkurOrder({ ...created(order), id, source });
+  }
+  await w.api.notifyAnkurOrderProgress({
+    ...updated(tracking, { ...tracking, status: 'confirmed' }), id: 'event-1', source: 'source-1',
+  });
+  await w.api.notifyAnkurSelfPickup({
+    ...updated({ ...order, selfPickup: { status: 'pickup_pending' } },
+      { ...order, selfPickup: { status: 'pickup_completed' } }), id: 'event-1', source: 'source-1',
+  });
+  assert.equal(new Set(w.messages.map(message => message.android.notification.tag)).size, 5);
+  await w.api.notifyNewAnkurOrder(created(order));
+  assert.equal(w.messages[5].android.notification.tag, undefined);
+  assert.equal(w.messages[5].data.eventId, undefined);
+});
+
+test('event identifiers are hashed; token errors log categories without raw details', async () => {
+  const secretToken = fcm('private');
+  const rawEventId = 'private-event/' + TRACKING_TOKEN;
+  const w = await worker({ records: { 'push_owner_devices/phone': device(secretToken) },
+    send: async () => ({ successCount: 0, failureCount: 1, responses: [{ success: false,
+      error: { code: 'unsafe/' + secretToken, message: secretToken + ' ' + TRACKING_TOKEN } }] }) });
+  await w.api.notifyNewAnkurOrder({ ...created(order), id: rawEventId, source: TRACKING_TOKEN });
+  assert.deepEqual(w.logs[0][1].errorsByCode, { unknown: 1 });
+  const visible = JSON.stringify({ logs: w.logs, data: w.messages[0].data, android: w.messages[0].android });
+  for (const secret of [secretToken, TRACKING_TOKEN, rawEventId]) assert.ok(!visible.includes(secret));
+});
+
+test('failed invalid-token cleanup is counted without failing an acknowledged FCM send', async () => {
+  const w = await worker({ records: { 'push_owner_devices/phone': device(fcm('invalid')) },
+    transactionError: new Error('private transaction details'),
+    send: async () => ({ successCount: 0, failureCount: 1, responses: [{ success: false,
+      error: { code: 'messaging/registration-token-not-registered' } }] }) });
+  await w.api.notifyNewAnkurOrder(created(order));
+  assert.equal(w.logs[0][1].pruneFailed, 1);
+  assert.equal(w.documents.size, 1);
+  assert.ok(!JSON.stringify(w.logs).includes('private transaction details'));
+});
+
+test('failure in a later batch reports confirmed sends separately from unconfirmed and pending tokens', async () => {
+  const records = {};
+  for (let i = 0; i < 1001; i++) records['push_owner_devices/phone' + i] = device(fcm(String(i)));
+  let calls = 0;
+  const w = await worker({ records, send: async message => {
+    if (++calls === 2) throw Object.assign(new Error('private transport details'), { code: 'messaging/server-unavailable' });
+    return { successCount: message.tokens.length, failureCount: 0,
+      responses: message.tokens.map(() => ({ success: true })) };
+  } });
+  await assert.rejects(w.api.notifyNewAnkurOrder(created(order)), /private transport details/);
+  const summary = w.logs[0][1];
+  assert.equal(summary.sent, 500);
+  assert.equal(summary.failed, 0);
+  assert.equal(summary.unconfirmed, 500);
+  assert.equal(summary.pending, 1);
+  assert.equal(summary.requestError, 'messaging/server-unavailable');
+  assert.ok(!JSON.stringify(w.logs).includes('private transport details'));
 });
