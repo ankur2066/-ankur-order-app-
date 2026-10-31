@@ -60,7 +60,8 @@ new = '''    function validCustomerProfile(data) {
     }'''
 assert s.count(old) == 1
 s = s.replace(old, new)
-fragment = (ROOT.parent / 'firestore-push-fragment.rules').read_text()
+# Normalize the fragment's optional trailing blank line across source checkouts.
+fragment = (ROOT.parent / 'firestore-push-fragment.rules').read_text().rstrip() + '\n\n'
 assert s.endswith('  }\n}\n')
 s = s[:-6] + '\n' + fragment + '  }\n}\n'
 (ROOT / 'firestore.candidate.rules').write_text(s)
