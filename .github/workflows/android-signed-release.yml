@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - feature/self-pickup-security-tests
+      - feature/ux-qa-2026-10-31
     paths:
       - '.github/workflows/android-signed-release.yml'
       - 'Ankur_Order_App_Upload_GitHub.zip'
@@ -14,11 +15,11 @@ on:
       version_code:
         description: 'Android versionCode (greater than installed version)'
         required: true
-        default: '20'
+        default: '21'
       version_name:
         description: 'Release version'
         required: true
-        default: '1.0.20'
+        default: '1.0.21'
 permissions:
   contents: read
 jobs:
@@ -35,6 +36,8 @@ jobs:
         run: python3 app-check/apply_patch.py
       - name: Apply report fix and optional Ice Blue theme
         run: python3 ui-fixes/apply_patch.py
+      - name: Apply safe Hindi dispatch and order ID display UX patch
+        run: python3 ui-fixes/ux_qa_patch.py
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -144,8 +147,8 @@ jobs:
           PY
       - name: Set release version directly in Gradle
         env:
-          VERSION_CODE: ${{ inputs.version_code || '20' }}
-          VERSION_NAME: ${{ inputs.version_name || '1.0.20' }}
+          VERSION_CODE: ${{ inputs.version_code || '21' }}
+          VERSION_NAME: ${{ inputs.version_name || '1.0.21' }}
         run: |
           python3 - <<'PY'
           import os
@@ -183,7 +186,7 @@ jobs:
           "$ANDROID_HOME/build-tools/$(ls "$ANDROID_HOME/build-tools" | sort -V | tail -1)/apksigner" verify --verbose "$APK"
       - uses: actions/upload-artifact@v4
         with:
-          name: Ankur-Order-Signed-Release-v1.0.20-Premium-UI
+          name: Ankur-Order-Signed-Release-v1.0.21-UX-QA
           path: android/app/build/outputs/apk/release/app-release.apk
           if-no-files-found: error
       - name: Cleanup key
