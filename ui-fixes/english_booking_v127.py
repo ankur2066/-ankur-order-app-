@@ -134,7 +134,7 @@ s = s[:anchor.start()] + insert + s[anchor.start():]
 
 # The customer requests only additional products/services, never self-applies a lower base price.
 # Keep the existing Firestore order as pending_verification with owner approval.
-amount = re.compile(r'<span className="apb-payable-amount[^"]*">₹\{totalAmount\}</span>')
+amount = re.compile(r'<span\s+className="apb-payable-amount[^"]*"[^>]*>[\s\S]*?</span>')
 assert len(amount.findall(s)) == 1, 'Payable amount JSX not found'
 s = amount.sub('''<label className="apb-amount-editor" aria-label="Requested total amount">
                     <span>₹</span>
