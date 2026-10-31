@@ -48,7 +48,9 @@ repetition फिर भी संभव है। कोई scheduled job य�
 `ankur-order-push@ankur-dryice-app.iam.gserviceaccount.com` के लिए दो custom roles।
 पहले में Firestore read/list और invalid-token pruning के लिए transaction/delete
 permissions हैं, **सिर्फ exact named database** की IAM condition के साथ। दूसरे
-में सिर्फ `cloudmessaging.messages.create` है, target project पर। Runtime को
+में सिर्फ `cloudmessaging.messages.create` है, target project पर। Firebase CLI
+इसी explicit identity को Eventarc delivery में भी इस्तेमाल करती है; इसलिए इसे
+project पर eventarc.eventReceiver और run.invoker भी चाहिए। Runtime को
 Owner/Editor और order create/update permissions नहीं दिए जाएँगे। IAM database
 condition document collection तक सीमित नहीं होती; code के pruning paths अलग
 worker tests से जाँचे गए हैं। कोई service-account key नहीं बनेगी।
@@ -57,8 +59,11 @@ Firebase-managed agents की standard service roles तथा default compute 
 को eventarc.eventReceiver/run.invoker, और जरूरत हो तो run.builder, लग सकते हैं।
 Pub/Sub managed agent को token-creator binding Firebase CLI लगा सकती है। ये
 managed delivery/build permissions प्रस्ताव का हिस्सा हैं; existing unrelated
-members/bindings नहीं हटेंगे। Default compute identity को Firestore/FCM runtime
-roles नहीं दिए जाएँगे। नए IAM changes के पहले policy/etag snapshot होगा।
+members/bindings नहीं हटेंगे। Live policy में default compute और appspot identities को पहले से
+Editor role मिला है; उसे यह rollout हटाएगा नहीं। Dedicated notification runtime
+को उस basic role से अलग रखा गया है। नए IAM changes के पहले policy/etag snapshot होगा।
+Custom roles की सभी छह permissions को live IAM ने GA/SUPPORTED बताया है और
+operator के account-create/custom-role-create/policy-update अधिकार verified हैं।
 
 ## लागत और सीमाएँ
 

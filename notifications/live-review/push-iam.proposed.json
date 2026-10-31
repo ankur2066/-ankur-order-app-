@@ -5,30 +5,59 @@
   "customRoles": [
     {
       "roleId": "ankurOrderPushData",
-      "includedPermissions": ["datastore.databases.get", "datastore.databases.getMetadata", "datastore.entities.get", "datastore.entities.list", "datastore.entities.delete"],
+      "includedPermissions": [
+        "datastore.databases.get",
+        "datastore.databases.getMetadata",
+        "datastore.entities.get",
+        "datastore.entities.list",
+        "datastore.entities.delete"
+      ],
       "condition": "resource.name == 'projects/ankur-dryice-app/databases/ai-studio-ankurdryiceorder-f4d89318-c640-47a5-a9f7-98543eff2673'"
     },
     {
       "roleId": "ankurOrderPushSender",
-      "includedPermissions": ["cloudmessaging.messages.create"],
+      "includedPermissions": [
+        "cloudmessaging.messages.create"
+      ],
       "scope": "project:ankur-dryice-app"
     }
   ],
   "managedEventDelivery": {
     "identity": "928793147689-compute@developer.gserviceaccount.com",
-    "projectRoles": ["roles/eventarc.eventReceiver", "roles/run.invoker"],
-    "note": "Firebase CLI standard event delivery bindings; no datastore or FCM role for this identity."
+    "projectRoles": [
+      "roles/eventarc.eventReceiver",
+      "roles/run.invoker"
+    ],
+    "note": "Firebase CLI also adds its standard default-compute bindings. Explicit runtime service account is used for both function execution and Eventarc delivery."
   },
   "managedPubSubDelivery": {
     "identity": "service-928793147689@gcp-sa-pubsub.iam.gserviceaccount.com",
-    "projectRoles": ["roles/iam.serviceAccountTokenCreator"]
+    "projectRoles": [
+      "roles/iam.serviceAccountTokenCreator"
+    ]
   },
   "buildIdentity": {
     "identity": "928793147689-compute@developer.gserviceaccount.com",
-    "projectRolesIfRequired": ["roles/run.builder"],
+    "projectRolesIfRequired": [
+      "roles/run.builder"
+    ],
     "note": "Only for building these three Functions; verify the actual selected build identity first."
   },
   "ownerOrEditorRuntimeGrant": false,
   "serviceAccountKeyCreation": false,
-  "deploymentApproved": false
+  "deploymentApproved": false,
+  "runtimeProjectRoles": [
+    "roles/eventarc.eventReceiver",
+    "roles/run.invoker"
+  ],
+  "runtimeAlsoReceivesEventarcEvents": true,
+  "existingBasicRolesObserved": {
+    "928793147689-compute@developer.gserviceaccount.com": [
+      "roles/editor"
+    ],
+    "ankur-dryice-app@appspot.gserviceaccount.com": [
+      "roles/editor"
+    ]
+  },
+  "removeExistingBasicRoles": false
 }
