@@ -57,7 +57,16 @@ jobs:
           print('PASS: Firebase named database, App Check enforcement, push rule paths present.')
           PY
       - name: Install build and emulator tooling (no production credentials)
-        run: npm install --no-save --no-package-lock --ignore-scripts --no-audit --no-fund @capacitor-firebase/app-check@7.5.0 @capacitor/filesystem@7 @capacitor/share@7 @capacitor/push-notifications@7 firebase-tools@14 @firebase/rules-unit-testing@4
+        run: |
+          npm install --save-exact --package-lock-only --ignore-scripts --no-audit --no-fund @capacitor-firebase/app-check@7.5.0 @capacitor/filesystem@7 @capacitor/share@7 @capacitor/push-notifications@7
+          npm install --no-save --no-package-lock --ignore-scripts --no-audit --no-fund firebase-tools@14 @firebase/rules-unit-testing@4
+      - name: Validate owner/staff/guest token permissions on local emulator
+        env:
+          CI: 'true'
+          FIREBASE_TOKEN: ''
+          GOOGLE_APPLICATION_CREDENTIALS: ''
+        run: |
+          ./node_modules/.bin/firebase emulators:exec --project demo-ankur-push-rules-test --only firestore "node --test notifications/rules-emulator.test.mjs"
       - name: Compile existing Android web bundle without building or replacing an APK
         run: |
           npm run lint
@@ -81,13 +90,6 @@ jobs:
           chmod +x android/gradlew
           cd android
           ./gradlew :app:compileDebugJavaWithJavac --no-daemon
-      - name: Validate owner/staff/guest token permissions on local emulator
-        env:
-          CI: 'true'
-          FIREBASE_TOKEN: ''
-          GOOGLE_APPLICATION_CREDENTIALS: ''
-        run: |
-          ./node_modules/.bin/firebase emulators:exec --project demo-ankur-push-rules-test --only firestore "node --test notifications/rules-emulator.test.mjs"
       - name: Document result scope
         if: always()
         run: |
