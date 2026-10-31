@@ -9,6 +9,7 @@ on:
       - feature/customer-home-booking-v124
       - feature/home-only-order-form-v125
       - feature/compact-customer-form-v126
+      - feature/english-booking-home-v127
     paths:
       - '.github/workflows/android-signed-release.yml'
       - 'Ankur_Order_App_Upload_GitHub.zip'
@@ -20,11 +21,11 @@ on:
       version_code:
         description: 'Android versionCode (greater than installed version)'
         required: true
-        default: '26'
+        default: '27'
       version_name:
         description: 'Release version'
         required: true
-        default: '1.0.26'
+        default: '1.0.27'
 permissions:
   contents: read
 jobs:
@@ -143,6 +144,14 @@ jobs:
           grep -q 'data-ui-build="1.0.26"' src/components/customer/CustomerHome.tsx
           grep -q 'apb-rate-breakdown' src/components/OrderForm.tsx
           grep -q 'onOrderSuccess={handleOrderSuccess}' src/App.tsx
+      - name: Apply English booking-only home and customer extras
+        run: |
+          python3 ui-fixes/english_booking_v127.py
+          grep -q 'ANKUR ENGLISH BOOKING V1.0.27' src/index.css
+          grep -q 'data-ui-build="1.0.27"' src/components/customer/CustomerHome.tsx
+          grep -q 'approvedAmount(' src/components/OrderForm.tsx
+          grep -q 'extraPriceNote(' src/components/OrderForm.tsx
+          grep -q 'onOpenProducts' src/App.tsx
       - name: Pin Capacitor 7 App Check dependency in working copy
         run: npm install @capacitor-firebase/app-check@7.5.0 @capacitor/filesystem@7 @capacitor/share@7 --save-exact --package-lock-only --ignore-scripts --no-audit --no-fund
       - name: Build web and sync
@@ -196,8 +205,8 @@ jobs:
           PY
       - name: Set release version directly in Gradle
         env:
-          VERSION_CODE: ${{ inputs.version_code || '26' }}
-          VERSION_NAME: ${{ inputs.version_name || '1.0.26' }}
+          VERSION_CODE: ${{ inputs.version_code || '27' }}
+          VERSION_NAME: ${{ inputs.version_name || '1.0.27' }}
         run: |
           python3 - <<'PY'
           import os
@@ -239,7 +248,7 @@ jobs:
           "$ANDROID_HOME/build-tools/$(ls "$ANDROID_HOME/build-tools" | sort -V | tail -1)/apksigner" verify --verbose "$APK"
       - uses: actions/upload-artifact@v4
         with:
-          name: Ankur-Order-Signed-Release-v1.0.26-Compact-Form
+          name: Ankur-Order-Signed-Release-v1.0.27-English-Booking
           path: android/app/build/outputs/apk/release/app-release.apk
           if-no-files-found: error
       - name: Cleanup key
