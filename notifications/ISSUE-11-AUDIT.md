@@ -1,5 +1,9 @@
 # Issue #11: notification source audit
 
+> Update 2026-10-31 20:38 UTC: owner-approved Rules-only release is now live and
+> read-back verified. Backend Functions remain NOT DEPLOYED; billing is unlinked.
+> See [current deployment status](live-review/DEPLOYMENT-STATUS-HINDI.md).
+
 Source audit of PR #9/#10 plus an authenticated live metadata audit on
 2026-10-31. No APK, original source archive, customer document, deployed Rules or
 Functions was changed. The official MCP unexpectedly enabled Cloud Billing API;

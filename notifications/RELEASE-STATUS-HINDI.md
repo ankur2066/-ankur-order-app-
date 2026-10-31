@@ -1,5 +1,9 @@
 # Issue #11: रिलीज़ से पहले की स्थिति
 
+> Update 2026-10-31 20:38 UTC: owner-approved Rules-only release is now live and
+> read-back verified. Backend Functions remain NOT DEPLOYED; billing is unlinked.
+> See [current deployment status](live-review/DEPLOYMENT-STATUS-HINDI.md).
+
 इस branch का deliverable **backend review package** है। यह नया Android APK,
 production deployment नहीं है। मौजूदा v1.0.29 APK,
 उसका package/signing और source ZIP नहीं बदले गए हैं।
