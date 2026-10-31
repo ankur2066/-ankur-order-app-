@@ -54,7 +54,7 @@ jobs:
           print('PASS: Firebase named database, App Check enforcement, push rule paths present.')
           PY
       - name: Install test-only Firestore emulator tooling (no production credentials)
-        run: npm install --no-save --no-package-lock --ignore-scripts --no-audit --no-fund firebase-tools@14 @firebase/rules-unit-testing@5
+        run: npm install --no-save --no-package-lock --ignore-scripts --no-audit --no-fund firebase-tools@14 @firebase/rules-unit-testing@4
       - name: Validate owner/staff/guest token permissions on local emulator
         env:
           CI: 'true'
