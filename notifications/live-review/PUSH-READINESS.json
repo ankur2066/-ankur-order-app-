@@ -1,0 +1,25 @@
+{
+  "observedAt": "2026-10-31T21:21:03.785Z",
+  "onlyAggregateCounts": true,
+  "rawTokensRead": false,
+  "businessRecordsReadOrChanged": false,
+  "owner": {
+    "state": "ok",
+    "count": "0"
+  },
+  "allDevicesCollectionGroup": {
+    "state": "ok",
+    "count": "0"
+  },
+  "ownerDeviceReceiptVerified": false,
+  "notificationFunctionsDeployed": false,
+  "nativeApkConfiguration": {
+    "appIdFound": "1:928793147689:android:c9a6a1f649b5f89e929f38",
+    "expectedSenderIdPresent": true,
+    "expectedProjectIdPresent": true,
+    "apkModified": false
+  },
+  "testedImplementationCommit": "ef141cabf47fc23fe5557c24ee01ce8a1029ccfa",
+  "successfulCiRun": 41242545373,
+  "testedArtifactId": 13057948288
+}

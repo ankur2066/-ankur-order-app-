@@ -27,10 +27,24 @@ order record लिखा, हटाया या migrate नहीं हुआ
 `(default)` Rules और App Check enforcement नहीं बदले। Actual phone receipt अभी
 सत्यापित नहीं है; नया test order या test push नहीं भेजा गया।
 
-75 checks वाले पहले backend source पर CI सफल थी। अब explicit runtime identity
-और isolated three-export stage की expanded smoke verification के साथ वही पूरी
-CI फिर चलेगी; PR #12 के current checks देखें। Stage generation/dependency loading
-स्थानीय तौर पर network रोके हुए सफल है; इससे phone delivery साबित नहीं होती।
+75 checks, दोनों real-SDK package/stage smoke checks, web build और native Android
+compilation commit `ef141cabf47fc23fe5557c24ee01ce8a1029ccfa` पर सफल हैं:
+https://github.com/ankur2066/-ankur-order-app-/actions/runs/41242545373
+
+Tested artifact ID `13057948288` डाउनलोड करके archive digest और manifest source
+commit verify किया गया। उसी artifact का isolated three-trigger stage बनाया और
+network रोके हुए SDK smoke फिर पास हुआ। पुराने APK के native resources में भी
+सही Android Firebase app ID, sender ID और project ID मिले; APK बदली नहीं गई।
+
+21:21 UTC की सिर्फ aggregate counts वाली जाँच में owner registrations 0 और
+`devices` collection-group registrations 0 मिले। कोई raw device token, customer
+name/phone/order document नहीं पढ़ा गया। Phone पर मौजूदा APK खोलकर notification
+bell दबाने से registration फिर हो सकती है; reinstall की जरूरत नहीं है।
+[Readiness evidence](PUSH-READINESS.json)।
+
+Production Functions/IAM की अलग मंजूरी का विकल्प owner को भेज दिया गया है।
+मंजूरी अभी प्राप्त नहीं हुई; कोई नया runtime account/role/binding या Function
+create नहीं किया गया है।
 
 अभी शेष: अलग Functions/IAM production approval, deployment read-back और अधिकृत
 phones/test order पर वास्तविक receipt। पुराने APK की foreground duplicate
