@@ -220,6 +220,15 @@ position = s.rfind(ending)
 s = s[:position] + '\n' + Path('notifications/firestore-push-fragment.rules').read_text(encoding='utf-8') + s[position:]
 rules.write_text(s, encoding='utf-8')
 
+# 8. Firebase CLI rules deployment must NEVER silently target (default).
+import json
+cli_path = Path('firebase.json')
+cli = json.loads(cli_path.read_text(encoding='utf-8'))
+assert cli.get('firestore') == {'rules': 'firestore.rules'}, 'Unexpected Firebase CLI rules configuration'
+cli['firestore']['database'] = 'ai-studio-ankurdryiceorder-f4d89318-c640-47a5-a9f7-98543eff2673'
+cli_path.write_text(json.dumps(cli, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+assert cli['firestore']['database'] in backend.read_text(encoding='utf-8')
+
 # Core order save logic, payment maths and existing Firestore listeners must remain intact.
 app = Path('src/App.tsx').read_text(encoding='utf-8')
 form = Path('src/components/OrderForm.tsx').read_text(encoding='utf-8')
