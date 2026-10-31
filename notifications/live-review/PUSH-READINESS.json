@@ -33,18 +33,18 @@
   "syntheticTestCleanupComplete": true,
   "firestoreOrderAlertsPhoneReceiptConfirmed": false,
   "clientCandidate": {
-    "version": "1.0.31",
-    "sourceCommit": "aec3981247079d229013f81c8cb2322c9db6df1e",
-    "buildRun": 41252060978,
-    "verificationRun": 41252061091,
+    "version": "1.0.32",
+    "sourceCommit": "d901dac4c37ca6272041d779068ae1777c040e16",
+    "buildRun": 41253033578,
+    "verificationRun": 41253033616,
     "automatedChecksPassed": 104,
-    "artifactId": 13061284861,
+    "artifactId": 13062067880,
     "sameSigningCertificateAsOldApk": true,
     "originalApkPreserved": true,
     "installed": false,
     "published": false,
     "physicalValidationPending": true,
-    "receipt": "TAP-CANDIDATE-RECEIPT.json"
+    "receipt": "UI-CANDIDATE-RECEIPT.json"
   },
   "screenshotVisibleInAppTestAlert": true,
   "screenshotProvesExtraFcmReceipt": false

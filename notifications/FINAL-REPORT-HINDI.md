@@ -1,6 +1,6 @@
 # Issue #11 — Ankur Dryice notification काम की एकत्र रिपोर्ट
 
-मौजूदा Ankur Dryice Android app पर PR #9/#10 का notification code आगे बढ़ाया गया है। पुराने signed v1.0.29 APK को बदले बिना approved Firebase backend live है। Client की अलग समस्याओं और notification tap के सुधार v1.0.31 के private review candidate में हैं; installed app को अपने-आप update नहीं किया गया है।
+मौजूदा Ankur Dryice Android app पर PR #9/#10 का notification code आगे बढ़ाया गया है। पुराने signed v1.0.29 APK को बदले बिना approved Firebase backend live है। Client के notification fixes और दोहराए navigation controls की सफाई latest v1.0.32 private review candidate में हैं; installed app को अपने-आप update नहीं किया गया है।
 
 ## Live backend और वास्तविक test
 
@@ -31,14 +31,15 @@ Runtime tests में एक logical TEST order ID था। Logging quota int
 
 [Client details](client-fixes/README.md) और [tap follow-up/test details](tap-fix/README.md)। सुधार app source की disposable extraction पर लागू हैं। Forms, pricing, business workflow, source ZIP और live backend में इन client fixes से बदलाव नहीं होता।
 
-## Build और release प्रमाण
+## Latest UI और build
 
-- **104/104 checks पास:** existing backend/Rules/safeguards 75 + actual client/native 17 + routing/hook/real-sheet/toast 12। Real Firebase SDK package/stage smoke, web और Android native compilation सफल। [Verification run](https://github.com/ankur2066/-ankur-order-app-/actions/runs/41252061091)।
-- **v1.0.31 / versionCode 31 signed review APK तैयार।** [Signed build](https://github.com/ankur2066/-ankur-order-app-/actions/runs/41252060978) और [private APK ZIP download](https://github.com/ankur2066/-ankur-order-app-/actions/runs/41252060978/artifacts/13061284861)। ZIP में APK और checksum हैं; GitHub login आवश्यक हो सकता है। Artifact expiry: `2026-11-14T23:26:14Z`।
-- Downloaded ZIP का digest GitHub artifact से और APK का SHA-256 CI checksum से मेल खाता है। वास्तविक APK में सही package/version, पुराना certificate, Push plugin/permission, Firebase project/sender/app resources और tap UI markers verify हैं। CI `apksigner` signature verification सफल है।
-- APK SHA-256: `66b94e8ba69489b02a7be1e293fb591de52ec2e25d4ce53f8424fcdd5e153276`। Source `aec3981247079d229013f81c8cb2322c9db6df1e`; [tap candidate receipt](live-review/TAP-CANDIDATE-RECEIPT.json)। पुराना v1.0.29 और पहले वाला v1.0.30 artifact सुरक्षित हैं।
-- यह अपने-आप फोन पर install/update या publish नहीं हुआ है। नई APK उसी package/certificate का update है; पुराना ऐप uninstall करने की जरूरत नहीं है। पुराने TEST alert को bell/list से खोलकर explanation जाँची जा सकती है; कोई नया live TEST order इस follow-up में नहीं बनाया गया।
-- [Draft PR #12](https://github.com/ankur2066/-ankur-order-app-/pull/12) में code और प्रमाण हैं; merge नहीं हुआ।
+Customer UI में दोहराए controls साफ किए गए हैं। [UI बदलाव और प्रमाण](../ui-fixes/DECLUTTER-v132-HINDI.md) देखें। पुरानी notification/tap fixes इस build में शामिल हैं।
+
+- **104 checks, real-SDK smoke, web/native compilation सफल:** [verification](https://github.com/ankur2066/-ankur-order-app-/actions/runs/41253033616)।
+- **Signed v1.0.32 / versionCode 32 review APK:** [build](https://github.com/ankur2066/-ankur-order-app-/actions/runs/41253033578) · [latest APK ZIP download](https://github.com/ankur2066/-ankur-order-app-/actions/runs/41253033578/artifacts/13062067880)।
+- Actual APK package/certificate/Firebase resources और notification/UI markers verify; artifact digest और APK checksum CI से मेल खाते हैं। APK SHA-256 `04db0cb28ef3013a5b0df164650258f0c339db8be8ee3468fb0773578d607c56`।
+- Source `d901dac4c37ca6272041d779068ae1777c040e16`; [latest candidate receipt](live-review/UI-CANDIDATE-RECEIPT.json)। UI preview चार screens/dो themes पर, वास्तविक components तथा final APK stylesheet और local fixtures से किया गया; physical phone proof नहीं।
+- Original v1.0.29 और पिछले candidates सुरक्षित हैं। Installed app अपने-आप नहीं बदला। Private candidate publish/deploy नहीं हुआ। [Draft PR #12](https://github.com/ankur2066/-ankur-order-app-/pull/12) खुला है।
 
 ## जो physical/release प्रमाण अभी बाकी हैं
 
