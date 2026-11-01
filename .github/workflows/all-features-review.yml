@@ -37,12 +37,13 @@ jobs:
           python3 notifications/tap-fix/apply_patch.py
           python3 ui-fixes/declutter_v132.py
           python3 phase-a/apply_patch.py
-          sha256sum src/components/OrderForm.tsx src/components/OrderTrackingView.tsx src/hooks/useOrderNotifications.ts src/data/rates.ts firestore.rules > /tmp/protected.before
+          python3 all-features/protected_audit.py record /tmp/protected.json
       - name: Apply private review overlay
         run: |
+          python3 billing/apply_patch.py
           ANKUR_APP_DIR=$PWD python3 all-features/apply_patch.py
-          sha256sum src/components/OrderForm.tsx src/components/OrderTrackingView.tsx src/hooks/useOrderNotifications.ts src/data/rates.ts firestore.rules > /tmp/protected.after
-          diff -u /tmp/protected.before /tmp/protected.after
+          python3 all-features/wire_additions.py
+          python3 all-features/protected_audit.py check /tmp/protected.json
       - name: Unit and regression contracts
         run: |
           node --test all-features/feature-contract.test.mjs all-features/backend/trustedOperations.test.mjs
@@ -53,6 +54,10 @@ jobs:
           npm ci --ignore-scripts --no-audit --no-fund
           npm run lint
           npm run build
+      - name: Actual React client and tap regressions
+        run: |
+          npm install --no-save --ignore-scripts react-test-renderer@19
+          ANKUR_COMBINED_SOURCE=$PWD ANKUR_CLIENT_QA=$PWD ANKUR_CLIENT_APP=$PWD node --experimental-vm-modules --test notifications/client-fixes/client.test.mjs notifications/tap-fix/tap.test.mjs notifications/notificationPush.test.mjs all-features/language.test.mjs billing/checkout.test.mjs
       - name: Safety boundary
         run: |
           test -f dist/index.html

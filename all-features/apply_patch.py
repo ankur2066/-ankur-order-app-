@@ -22,6 +22,8 @@ def replace_once(path: Path, old: str, new: str):
 (SRC / 'context').mkdir(exist_ok=True)
 shutil.copy2(TEMPLATES / 'LanguageContext.template', SRC / 'context' / 'LanguageContext.tsx')
 shutil.copy2(TEMPLATES / 'FeatureHub.template', SRC / 'components' / 'customer' / 'FeatureHub.tsx')
+shutil.copy2(TEMPLATES / 'FeatureDataPanels.template', SRC / 'components' / 'customer' / 'FeatureDataPanels.tsx')
+shutil.copy2(TEMPLATES / 'dryIceCalc.template', SRC / 'utils' / 'dryIceCalc.ts')
 
 app = SRC / 'App.tsx'
 replace_once(app, "import { ThemeProvider } from './context/ThemeContext';", "import { ThemeProvider } from './context/ThemeContext';\nimport { LanguageProvider, useLanguage } from './context/LanguageContext';")

@@ -34,7 +34,9 @@ jobs:
           python3 notifications/tap-fix/apply_patch.py
           python3 ui-fixes/declutter_v132.py
           python3 phase-a/apply_patch.py
+          python3 billing/apply_patch.py
           ANKUR_APP_DIR=$PWD python3 all-features/apply_patch.py
+          python3 all-features/wire_additions.py
       - name: Configure existing Android Firebase app and signing
         env:
           KEYSTORE_B64: ${{ secrets.ANKUR_RELEASE_KEYSTORE_BASE64 }}
@@ -74,8 +76,8 @@ jobs:
           from pathlib import Path
           p=Path('android/app/build.gradle'); lines=p.read_text().splitlines()
           for i,x in enumerate(lines):
-            if x.strip().startswith('versionCode '): lines[i]='        versionCode 33'
-            if x.strip().startswith('versionName '): lines[i]='        versionName "1.0.33-test"'
+            if x.strip().startswith('versionCode '): lines[i]='        versionCode 34'
+            if x.strip().startswith('versionName '): lines[i]='        versionName "1.0.34-combined-test"'
           p.write_text('\n'.join(lines)+'\n')
           PY
           cd android
@@ -89,7 +91,7 @@ jobs:
           sha256sum "$APK" > apk-sha256.txt
       - uses: actions/upload-artifact@v4
         with:
-          name: Ankur-Dryice-v1.0.33-PRIVATE-TEST
+          name: Ankur-Dryice-v1.0.34-COMBINED-PRIVATE-TEST
           path: |
             android/app/build/outputs/apk/release/app-release.apk
             apk-sha256.txt

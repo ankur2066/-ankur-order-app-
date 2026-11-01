@@ -26,9 +26,9 @@ type LanguageValue = { language: AppLanguage; setLanguage: (value: AppLanguage) 
 const LanguageContext = createContext<LanguageValue | null>(null);
 
 export const LanguageProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
-  const [language, setLanguageState] = useState<AppLanguage>(() => localStorage.getItem(STORAGE_KEY) === 'hi' ? 'hi' : 'en');
+  const [language, setLanguageState] = useState<AppLanguage>(() => {try{return localStorage.getItem(STORAGE_KEY) === 'hi' ? 'hi' : 'en';}catch{return 'en';}});
   const setLanguage = (value: AppLanguage) => {
-    localStorage.setItem(STORAGE_KEY, value);
+    try{localStorage.setItem(STORAGE_KEY, value);}catch{/* Storage may be unavailable; session switching still works. */}
     setLanguageState(value);
   };
   useEffect(() => {

@@ -1,0 +1,105 @@
+// Dry ice quantity estimator for events (fog for entry / stage).
+// Pure functions only: no React, no Firebase. All numbers live in CALC_CONFIG.
+
+export type EventMode = 'entry' | 'stage' | 'both';
+
+export interface CalcConfig {
+  /** Owner's real figure: 1 kg of dry ice in one matka / machine gives about this many minutes of fog. */
+  minutesPerKgPerUnit: number;
+  /** Fraction of dry ice lost per hour between delivery and the event (sublimation in the box). ESTIMATE. */
+  transitLossPerHour: number;
+  /** Extra safety margin on top of the estimate, in percent. ESTIMATE. */
+  cushionPercent: number;
+  minOrderKg: number;
+  maxOrderKg: number;
+  maxHoursBefore: number;
+  maxUnits: number;
+}
+
+export const CALC_CONFIG: CalcConfig = {
+  minutesPerKgPerUnit: 3,
+  transitLossPerHour: 0.02,
+  cushionPercent: 10,
+  minOrderKg: 10, // same minimum as OrderForm
+  maxOrderKg: 5000, // same maximum as OrderForm
+  maxHoursBefore: 12,
+  maxUnits: 20,
+};
+
+export interface CalcInput {
+  mode: EventMode;
+  entryMinutes: number;
+  /** Number of matke / machines used for the entry. */
+  entryUnits: number;
+  stageMinutes: number;
+  /** Number of matke / machines used on the stage. */
+  stageUnits: number;
+  /** Hours between delivery and the moment the fog is needed. */
+  hoursBeforeEvent: number;
+}
+
+export interface CalcRates {
+  dryIceRate: number;
+  thermocolRate: number;
+  /** Per-kg transport add-on from the owner's rate settings (0 when unused). */
+  transportRate?: number;
+}
+
+export interface CalcResult {
+  /** Raw estimate before loss and cushion. */
+  neededKg: number;
+  /** Rounded-up whole kg including transit loss and cushion. 0 when nothing to fog. */
+  recommendedKg: number;
+  /** What to put in the booking form: recommended, raised to the minimum order, capped at the maximum. 0 when nothing to fog. */
+  bookKg: number;
+  belowMinimum: boolean;
+  aboveMaximum: boolean;
+  pricePerKg: number;
+  estimatedTotal: number;
+}
+
+const clamp = (n: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, n));
+const safe = (n: number) => (Number.isFinite(n) ? n : 0);
+
+export function calculateDryIce(
+  input: CalcInput,
+  rates: CalcRates,
+  config: CalcConfig = CALC_CONFIG,
+): CalcResult {
+  const part = (minutes: number, units: number) =>
+    (Math.max(0, safe(minutes)) * clamp(Math.round(safe(units)), 0, config.maxUnits)) / config.minutesPerKgPerUnit;
+
+  const entryKg = input.mode === 'stage' ? 0 : part(input.entryMinutes, input.entryUnits);
+  const stageKg = input.mode === 'entry' ? 0 : part(input.stageMinutes, input.stageUnits);
+  const hours = clamp(safe(input.hoursBeforeEvent), 0, config.maxHoursBefore);
+
+  const neededKg = entryKg + stageKg;
+  const withLoss = neededKg * (1 + config.transitLossPerHour * hours);
+  const withCushion = withLoss * (1 + config.cushionPercent / 100);
+  const recommendedKg = neededKg > 0 ? Math.ceil(withCushion - 1e-9) : 0;
+
+  let bookKg = recommendedKg;
+  let belowMinimum = false;
+  let aboveMaximum = false;
+  if (recommendedKg > 0) {
+    if (recommendedKg < config.minOrderKg) {
+      bookKg = config.minOrderKg;
+      belowMinimum = true;
+    }
+    if (recommendedKg > config.maxOrderKg) {
+      bookKg = config.maxOrderKg;
+      aboveMaximum = true;
+    }
+  }
+
+  const pricePerKg = safe(rates.dryIceRate) + safe(rates.thermocolRate) + safe(rates.transportRate ?? 0);
+  return {
+    neededKg: Math.round(neededKg * 100) / 100,
+    recommendedKg,
+    bookKg,
+    belowMinimum,
+    aboveMaximum,
+    pricePerKg,
+    estimatedTotal: Math.round(bookKg * pricePerKg),
+  };
+}

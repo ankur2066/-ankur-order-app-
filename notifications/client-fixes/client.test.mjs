@@ -30,8 +30,9 @@ async function harness(initial={}) {
   const fs={
     collection:(_db,...parts)=>({path:parts.join('/')}),doc:(_db,...parts)=>({path:parts.join('/')}),
     where:(...args)=>args, query:(ref,...where)=>({...ref,where}),serverTimestamp:()=>({server:true}),
+    getDoc:async()=>({exists:()=>false}),
     getDocs:async ref=> deferred ? await deferred(ref) : {docs:own.map(data=>({data:()=>data}))},
-    onSnapshot:(ref,options,callback)=>{const l={ref,callback,active:true};listeners.push(l);return ()=>{l.active=false;};},
+    onSnapshot:(ref,options,callback)=>{const next=typeof options==='function'?options:callback;const l={ref,callback:next,active:true};listeners.push(l);if(ref.path==='settings/unitBilling')Promise.resolve().then(()=>{if(l.active)next({exists:()=>false});});return ()=>{l.active=false;};},
     setDoc:async(ref,data)=>{writes.push({path:ref.path,data});},deleteDoc:async ref=>{deletes.push(ref.path);}
   };
   const PushNotifications={addListener:async(name,cb)=>{nativeListeners[name]=cb;},createChannel:async()=>{},checkPermissions:async()=>({receive:'granted'}),requestPermissions:async()=>({receive:'granted'}),register:async()=>{}};
@@ -42,10 +43,13 @@ async function harness(initial={}) {
   synthetic('@capacitor/core',{Capacitor:{isNativePlatform:()=>true}});synthetic('@capacitor/push-notifications',{PushNotifications});
   const sources={state:'notificationState.template',hook:'useOrderNotifications.template',native:'pushClient.template'};
   for(const [key,file] of Object.entries(sources)) {
-    modules.set(key,new vm.SourceTextModule(stripTypeScriptTypes(readFileSync(new URL(file,import.meta.url),'utf8')),{context,identifier:key}));
+    const actual=process.env.ANKUR_COMBINED_SOURCE;
+    const path=actual?resolve(actual,{state:'src/services/notificationState.ts',hook:'src/hooks/useOrderNotifications.ts',native:'src/services/orderPush.ts'}[key]):new URL(file,import.meta.url);
+    modules.set(key,new vm.SourceTextModule(stripTypeScriptTypes(readFileSync(path,'utf8')),{context,identifier:key}));
   }
+  if(process.env.ANKUR_COMBINED_SOURCE)for(const [key,path]of Object.entries({unitBilling:'src/billing/unitBilling.ts',productOrders:'src/services/productOrders.ts'}))modules.set(key,new vm.SourceTextModule(stripTypeScriptTypes(readFileSync(resolve(process.env.ANKUR_COMBINED_SOURCE,path),'utf8')),{context,identifier:key}));
   const linker=specifier=>{
-    const key=specifier.endsWith('notificationState')?'state':specifier.endsWith('useOrderNotifications')?'hook':specifier;
+    const key=specifier.endsWith('notificationState')?'state':specifier.endsWith('useOrderNotifications')?'hook':specifier.endsWith('productOrders')?'productOrders':specifier.endsWith('unitBilling')?'unitBilling':specifier;
     if(!modules.has(key))throw Error('Unmocked boundary: '+specifier);
     return modules.get(key);
   };
