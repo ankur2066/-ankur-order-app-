@@ -5,7 +5,7 @@ import {onDocumentUpdated} from 'firebase-functions/v2/firestore';
 import {createFeatureService} from './featureService.mjs';
 initializeApp();
 const DATABASE='ai-studio-ankurdryiceorder-f4d89318-c640-47a5-a9f7-98543eff2673';
-const options={region:'asia-southeast1',minInstances:0,maxInstances:1,memory:'256MiB',timeoutSeconds:60};
+const options={region:'asia-southeast1',serviceAccount:'ankur-feature-suite@ankur-dryice-app.iam.gserviceaccount.com',minInstances:0,maxInstances:1,memory:'256MiB',timeoutSeconds:60};
 const db=getFirestore(getApp(),DATABASE);
 const service=createFeatureService({db,timestamp:()=>FieldValue.serverTimestamp()});
 export const ankurFeatureAction=onCall({...options,enforceAppCheck:true},async request=>{
