@@ -1,4 +1,37 @@
     // Optional feature suite: trusted backend owns all mutations and counters.
+    function validFeatureStatus(d) {
+      return d.status in ['pending','confirmed','in_packing','dispatched','delivered','cancelled'] &&
+        d.paymentStatus in ['pending_verification','payment_verified','cash_on_delivery'];
+    }
+    // Only the trusted server can introduce these fields: legacy create schemas forbid them.
+    // Keep those snapshots immutable while permitting normal operational status/payment batches.
+    match /orders/{id} {
+      allow update: if isValidId(id) && isOwner() &&
+        (resource.data.get('promoCode','') != '' || resource.data.get('etaSource','') == 'manual') &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status','paymentStatus','paymentMethod','paymentNotes','isTrash','trashedAt','updatedAt']) &&
+        request.resource.data.updatedAt == request.time && validFeatureStatus(request.resource.data) &&
+        request.resource.data.paymentMethod in ['paytm_business_upi','manual_verification','cash_on_delivery'] &&
+        (!('paymentNotes' in request.resource.data) || (request.resource.data.paymentNotes is string && request.resource.data.paymentNotes.size() <= 200)) &&
+        (!('isTrash' in request.resource.data) || request.resource.data.isTrash is bool) &&
+        (!('trashedAt' in request.resource.data) || request.resource.data.trashedAt is timestamp || request.resource.data.trashedAt == null) &&
+        getAfter(/databases/$(database)/documents/order_tracking/$(resource.data.trackingToken)).data.status == request.resource.data.status &&
+        getAfter(/databases/$(database)/documents/order_tracking/$(resource.data.trackingToken)).data.paymentStatus == request.resource.data.paymentStatus;
+    }
+    function featureTrackingUpdate(privatePath) {
+      return resource.data.get('etaSource','') == 'manual' &&
+        (isOwner() || canUpdateStatus()) &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(isOwner()?['status','paymentStatus','lastStatusUpdate','updatedAt']:['status','lastStatusUpdate','updatedAt']) &&
+        request.resource.data.updatedAt == request.time && validFeatureStatus(request.resource.data) &&
+        request.resource.data.lastStatusUpdate is string && request.resource.data.lastStatusUpdate.size() <= 200 &&
+        getAfter(privatePath).data.status == request.resource.data.status &&
+        getAfter(privatePath).data.paymentStatus == request.resource.data.paymentStatus;
+    }
+    match /order_tracking/{token} {
+      allow update: if isValidTrackingToken(token) && featureTrackingUpdate(/databases/$(database)/documents/orders/$(resource.data.orderId));
+    }
+    match /product_order_tracking/{token} {
+      allow update: if isValidTrackingToken(token) && featureTrackingUpdate(/databases/$(database)/documents/product_orders/$(resource.data.orderId));
+    }
     match /userPrefs/{uid} {
       allow get: if isSignedIn() && request.auth.uid == uid;
       allow list, write: if false;
