@@ -74,15 +74,15 @@ snippet = '''      {/* PHASE A: read-only 30-day owner overview. No extra Firest
 
 '''
 s = s.replace(anchor, snippet + anchor, 1)
-anchor = '''            मासिक रिपोर्ट डाउनलोड करें
-          </button>
-'''
-assert s.count(anchor) == 1
-s = s.replace(anchor, anchor + '''          <button type="button" onClick={() => downloadOrdersCsv(activeOrders)} disabled={loading || !!errorMsg || activeOrders.length === 0}
+# Use the existing PDF click handler as a stable anchor; labels can vary by UI version.
+pdf_click = 'onClick={() => generateMonthlyPDF(activeOrders, expenses)}'
+assert s.count(pdf_click) == 1, 'Existing insights PDF button not found'
+end_button = s.index('</button>', s.index(pdf_click)) + len('</button>')
+s = s[:end_button] + '''
+          <button type="button" onClick={() => downloadOrdersCsv(activeOrders)} disabled={loading || !!errorMsg || activeOrders.length === 0}
             className="ml-2 bg-sky-700 text-white p-2 rounded disabled:opacity-50">
             ऑर्डर CSV (Excel / Sheets)
-          </button>
-''', 1)
+          </button>''' + s[end_button:]
 path.write_text(s)
 
 # A3: preserve existing owner-only expenses writes and add monthly view.
