@@ -1,0 +1,95 @@
+import type { Order } from '../types';
+
+/** Date adapters for existing Firestore Timestamp, ISO strings and legacy order IDs. */
+export function orderCreatedMs(order: Order): number | null {
+  const input = order.createdAt;
+  let date: Date | null = null;
+  if (input && typeof input.toDate === 'function') date = input.toDate();
+  else if (input && typeof input.seconds === 'number') date = new Date(input.seconds * 1000);
+  else if (input instanceof Date) date = input;
+  else if (typeof input === 'string' || typeof input === 'number') date = new Date(input);
+  if (date instanceof Date && Number.isFinite(date.getTime())) return date.getTime();
+
+  // Legacy orders can have an order-ID date instead of createdAt.
+  const match = (order.orderId || '').match(/ADI-(\d{4})(\d{2})(\d{2})-/);
+  if (!match) return null;
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+  const fallback = new Date(Date.UTC(year, month - 1, day));
+  if (fallback.getUTCFullYear() !== year || fallback.getUTCMonth() + 1 !== month || fallback.getUTCDate() !== day) return null;
+  return fallback.getTime();
+}
+
+function safeNonnegative(value: unknown): number {
+  const n = Number(value);
+  return Number.isFinite(n) && n >= 0 ? n : 0;
+}
+
+export interface OwnerOverview {
+  recentOrders: number;
+  pendingOrders: number;
+  dispatchedOrders: number;
+  estimatedOrderValue: number;
+  undatedOrders: number;
+}
+
+/** Read-only, order-value estimate; it is not revenue received or GST sales. */
+export function calculateOwnerOverview(orders: Order[], nowMs = Date.now()): OwnerOverview {
+  const sinceMs = nowMs - 30 * 24 * 60 * 60 * 1000;
+  const summary: OwnerOverview = { recentOrders: 0, pendingOrders: 0, dispatchedOrders: 0, estimatedOrderValue: 0, undatedOrders: 0 };
+  for (const order of orders) {
+    if (order.isTrash) continue;
+    const when = orderCreatedMs(order);
+    if (when === null) { summary.undatedOrders += 1; continue; }
+    if (when < sinceMs || when > nowMs) continue;
+    summary.recentOrders += 1;
+    if (order.status === 'pending') summary.pendingOrders += 1;
+    if (order.status === 'dispatched') summary.dispatchedOrders += 1;
+    if (order.status !== 'cancelled') summary.estimatedOrderValue += safeNonnegative(order.totalAmount);
+  }
+  summary.estimatedOrderValue = Math.round(summary.estimatedOrderValue * 100) / 100;
+  return summary;
+}
+
+/** Escape CSV control characters and neutralize spreadsheet formula injection. */
+function csvText(value: unknown): string {
+  let s = String(value ?? '');
+  if (/^\s*[=+\-@]/.test(s) || /^[\t\r]/.test(s)) s = "'" + s;
+  return '"' + s.replace(/"/g, '""') + '"';
+}
+
+function excelDate(ms: number | null): string {
+  if (ms === null) return '';
+  return new Date(ms).toLocaleString('en-GB', {
+    timeZone: 'Asia/Kolkata', year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit', hourCycle: 'h23',
+  });
+}
+
+export function ordersToCsv(orders: Order[]): string {
+  const header = 'orderId,date,customerName,district,quantityKg,totalAmount,status';
+  const rows = orders.filter((o) => !o.isTrash).map((o) => [
+    csvText(o.orderId),
+    csvText(excelDate(orderCreatedMs(o))),
+    csvText(o.customerName),
+    csvText(o.district || o.city || ''),
+    safeNonnegative(o.quantityKg).toString(),
+    safeNonnegative(o.totalAmount).toFixed(2),
+    csvText(o.status),
+  ].join(','));
+  return [header, ...rows].join('\r\n') + '\r\n';
+}
+
+export function downloadOrdersCsv(orders: Order[]): void {
+  const blob = new Blob(['\uFEFF', ordersToCsv(orders)], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `ankur-orders-${new Date().toISOString().slice(0, 10)}.csv`;
+  a.style.display = 'none';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
