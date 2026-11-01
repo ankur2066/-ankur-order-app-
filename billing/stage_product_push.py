@@ -10,7 +10,7 @@ def stage(output):
     worker=(ROOT/'notifications/notificationPush.js').read_text()
     marker='/**\n * New customer/owner-created order'
     assert worker.count(marker)==1, 'Audited worker helper boundary changed; review required'
-    common=worker.split(marker)[0]+ '\nexport {TRIGGER,ownerDevices,teamDevices,customerDevices,sendNotification};\n'
+    common=worker.split(marker)[0]+ '\nexport {TRIGGER,ownerDevices,teamDevices,customerDevices,sendNotification,store};\n'
     output.mkdir(parents=True,exist_ok=False)
     runtime=output/'functions';runtime.mkdir()
     files={'deliveryCommon.mjs':common,'productPush.mjs':(ROOT/'billing/productPush.mjs').read_text(),
