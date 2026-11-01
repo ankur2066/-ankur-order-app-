@@ -74,15 +74,18 @@ snippet = '''      {/* PHASE A: read-only 30-day owner overview. No extra Firest
 
 '''
 s = s.replace(anchor, snippet + anchor, 1)
-# Use the existing PDF click handler as a stable anchor; labels can vary by UI version.
-pdf_click = 'onClick={() => generateMonthlyPDF(activeOrders, expenses)}'
-assert s.count(pdf_click) == 1, 'Existing insights PDF button not found'
-end_button = s.index('</button>', s.index(pdf_click)) + len('</button>')
-s = s[:end_button] + '''
+# Insights may have a different PDF/export action between archived versions.
+# Anchor to the existing Insights section rather than a particular button label.
+insights = "activeSection === 'insights' && ("
+assert s.count(insights) == 1, 'Owner Insights section missing'
+insights_pos = s.index(insights)
+container_pos = s.index('<div className="space-y-4">', insights_pos)
+end_container = container_pos + len('<div className="space-y-4">')
+s = s[:end_container] + '''
           <button type="button" onClick={() => downloadOrdersCsv(activeOrders)} disabled={loading || !!errorMsg || activeOrders.length === 0}
-            className="ml-2 bg-sky-700 text-white p-2 rounded disabled:opacity-50">
+            className="bg-sky-700 text-white p-2 rounded disabled:opacity-50">
             ऑर्डर CSV (Excel / Sheets)
-          </button>''' + s[end_button:]
+          </button>''' + s[end_container:]
 path.write_text(s)
 
 # A3: preserve existing owner-only expenses writes and add monthly view.
