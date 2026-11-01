@@ -1,0 +1,32 @@
+# Codex: ONE assignment for ALL 14 features + Phase A/B/C — handoff
+
+**Owner's latest request (2026-11-01):** Upload the single file `Ankur_Dryice_Codex_FINAL_14_Features_Phases_A_B_C.zip`; ask the owner **ONE** consolidated setup question covering all 14 placements and business decisions, then implement ALL 14 and the remaining B/C backend in one task, without interrupting for every phase. One draft PR, one private review APK (when signing available), one comprehensive status report listing all incomplete features with reasons. Do not pretend source packages are already merged.
+
+**ZIP is NOT uploaded to this GitHub branch**: obtain it from the owner's Codex task attachment. Read `00_START_HERE_HINDI.md`, `02_CODEX_ONE_SHOT_MASTER_TASK.md`, `03_MERGE_PLAN_B_C_AND_14.md`, `04_VERIFIED_RISKS_AND_REQUIRED_FIXES.md`, `05_ACCEPTANCE_AND_TESTS.md`, `06_FINAL_REPORT_TEMPLATE.md` in that archive. Run `python3 tools/verify_bundle.py` after extraction.
+
+**Real repo base**: `codex/phase-a-owner-reports-expenses` at previously verified head `68d12b6a36a350e598653d7f323b942d6c436e54`, PR #14, successful test run https://github.com/ankur2066/-ankur-order-app-/actions/runs/41267098325. Verify branch head and CI before branching. It composes the v1.0.32 private review client + existing live notification routes + finished Phase A owner overview/CSV + 15–14 month Expenses. Original app is archived as `Ankur_Order_App_Upload_GitHub.zip` and reconstructed using CI patch chain. DO NOT use main or overwrite original archived source.
+
+**Supplied source archives in task ZIP**:
+- `SOURCE_ARCHIVES/feature-packages-original.zip`: 14 UI features/components
+- `SOURCE_ARCHIVES/phase-a-grok-original.zip`: alternate old Phase A — reference ONLY, verified Phase A already done
+- `SOURCE_ARCHIVES/phase-b-grok-original.zip`: B1 promos, B2 invoices, B3 referrals, B4 notification prefs — reference, UNVERIFIED on current branch
+- `SOURCE_ARCHIVES/phase-c-grok-original.zip`: C1 stock, C2 subscriptions, C3 bulk, C4 ETA — reference, UNVERIFIED on current branch
+
+**Never directly run the Grok apply bash scripts or `firebase deploy --only firestore:rules`**. Their full-file `cp` overwrites verified `AdminDashboard.tsx`, `OrderForm.tsx`, `ProfileTab.tsx`, `App.tsx`, `OrderTrackingView.tsx`, `types.ts`, `ExpensesView.tsx`, and entire live `firestore.rules`. The supplied B/C Rules lack the existing push token paths (`push_owner_devices`, `push_team_devices`, `order_push_subscriptions`). Preserve original live owner/staff/customer notification behavior and `orderpush` functions, exact named DB `ai-studio-ankurdryiceorder-f4d89318-c640-47a5-a9f7-98543eff2673` in `ankur-dryice-app` Singapore. Do not target (default).
+
+**Mandatory corrections**:
+- Grok promo commits discounted order/tracking then increments `promos.usageCount` separately; implement trusted atomic transaction/callable and validated usage limits without breaking **guest bookings**. Never let clients forge discounts. Keep baseline quantity×approved dry-ice/thermocol pricing unchanged, discount separate.
+- Grok invoice admin download generates `.txt`, not PDF; delivered invoice creation is client best-effort, not idempotent; fix server processing, secure owner access, no fabricated GST.
+- Grok Phase C dispatch transaction checks stale `ord.stockDecremented` outside transaction, debits `stock/pellets` regardless of SKU and may double-debit. Use server-side atomic ledger and true opening balances; remove fake seed (300 pellets/50 blocks/15 boxes).
+- Grok subscription `runDue` creates orders with **hardcoded ₹50+₹10**, dummy `0000000000` phone/`0000` pin, `_sub` tracking token with no order_tracking doc, unsorted first 50, separate schedule writes; reject. Use existing order factory, approved rates/tracking, owner consent, idempotent period ledger and calendar cadence, no auto-charge.
+- Grok Bulk page creates orders for ANY signed-in customer at guessed `qty×55`, and Rules let the customer update own status/price; require owner-approved partner role and field allowlists.
+- C customer `SubscriptionsLivePage` and `PartnerBulkLivePage` are NOT linked into App; explicitly wire each into existing five-tab navigation, not a sixth tab.
+- Original 14 patchers assume old Profile buttons removed in v1.0.32; two had invalid regex replacements. Modernize router/components and test final TSX. Demo inventory/promos/loyalty/quotes must not appear as real.
+
+**Where**: Home calculator/rate; Categories application catalog; My Orders regular supply; AI Video prompt ideas; Profile help/FAQ/service area/support, rewards/referrals/promos/loyalty, wholesale partner; owner dashboard reports, expenses, stock, promo admin, invoices, subscription review, partner approvals, manual ETA. Keep original five bottom tabs.
+
+**Code workflow**: After the ONE owner kickoff answer, develop all 14 without further routine approvals, but internally apply/test/commit in batches. Run `npm run lint && npm run build` after EVERY integration batch; emulator rules tests for guest/customer A/B/staff/owner, idempotent invoice/promo/stock/subscriptions and legacy FCM token registration. Finish with new draft PR against Phase A base and a privately signed review APK only if original signing keys are available. One consolidated final 14-row report with separate CODE_BUILT/TESTED_IN_CI/DEVICE_TESTED/LIVE_DEPLOYED/BLOCKED and explicit reason when missing.
+
+**Default scope** `सब मंजूर`: private code/tests/APK only. NEVER deploy Functions/Rules, change billing, manipulate real customer data, seed fake inventory, activate public discount, publish APK or change current live app without separate explicit owner approval. New backend features may be review-ready but not live until authorized rollout.
+
+This docs-only handoff branch does NOT imply any Phase B/C/14 source code has been integrated or tested. The actual implementation belongs on a NEW work branch.
