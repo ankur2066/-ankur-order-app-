@@ -40,6 +40,10 @@ export function createFeatureService({db,now=()=>Date.now(),timestamp=()=>new Da
     const orders=[...legacy.docs,...products.docs];if(orders.length!==1||orders[0].data().status!=='delivered')throw Error('First delivered order required');
     tx.create(ref,{userId:auth.uid,referrerId,orderId:orders[0].id,status:'pending_owner_review',creditPaise:0,createdAt:timestamp()});return{ok:true};});
   }
+  if(action==='referralReview'){
+   requireOwner(auth);const userId=code(data.userId);if(!['verified','rejected'].includes(data.status))throw Error('Invalid review');
+   await db.doc('referrals/'+userId).update({status:data.status,reviewedBy:auth.uid,reviewedAt:timestamp()});return{ok:true};
+  }
   if(action==='partnerApply'){
    const value=publicRequest(auth,data);const ref=db.doc('partnerApplications/'+auth.uid);
    await db.runTransaction(async tx=>{const old=await tx.get(ref);if(old.exists)throw Error('Application already submitted');tx.create(ref,{...value,status:'pending',createdAt:timestamp()});});return{ok:true};

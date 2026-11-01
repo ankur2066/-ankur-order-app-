@@ -13,13 +13,14 @@ effect="""  useEffect(() => {
   useEffect(()=>{const ref=new URLSearchParams(location.search).get('ref');if(ref&&/^[A-Za-z0-9_-]{3,128}$/.test(ref))localStorage.setItem('ankur.referrer',ref);},[]);
 """
 assert s.count(anchor)==1;s=s.replace(anchor,effect+anchor)
-s=s.replace("{currentTab === 'ai-video' && <AIVideoStudio currentUser={currentUser} />}","{currentTab === 'ai-video' && <><FeatureHub currentUser={currentUser} role={role} initial=\"video\"/><AIVideoStudio currentUser={currentUser} /></>}")
-anchor='          <AdminDashboard\n';assert s.count(anchor)==1;s=s.replace(anchor,'          <FeatureHub currentUser={currentUser} role={role} />\n'+anchor,1)
+s=s.replace("{currentTab === 'ai-video' && <AIVideoStudio currentUser={currentUser} />}","{currentTab === 'ai-video' && <><FeatureHub currentUser={currentUser} role={role} initial=\"video\" allowed={['video']}/><AIVideoStudio currentUser={currentUser} /></>}")
+anchor='          <AdminDashboard\n';assert s.count(anchor)==1;s=s.replace(anchor,'          <FeatureHub currentUser={currentUser} role={role} allowed={["inventory","reports","partner","subscriptions","promotions","referral"]}/>\n'+anchor,1)
 anchor='          <StaffDashboard ';assert s.count(anchor)==1;s=s.replace(anchor,'          {access.permissions.updateStatus && <DataFeaturePanel id="eta" user={currentUser} role={role}/>}\n'+anchor,1)
-anchor='          <CustomerOrders\n';assert s.count(anchor)==1;s=s.replace(anchor,'          <FeatureHub currentUser={currentUser} role={role} initial="subscriptions" />\n'+anchor,1)
+anchor='          <CustomerOrders\n';assert s.count(anchor)==1;s=s.replace(anchor,'          <details><summary>Regular Supply</summary><FeatureHub currentUser={currentUser} role={role} initial="subscriptions" allowed={["subscriptions"]}/></details>\n'+anchor,1)
+anchor="      {currentTab === 'categories' && (";assert s.count(anchor)==1;s=s.replace(anchor,"      {currentTab === 'categories' && <details><summary>Application Catalogue</summary><FeatureHub currentUser={currentUser} role={role} initial=\"catalog\" allowed={['catalog']}/></details>}\n"+anchor,1)
 p.write_text(s)
 p=Path('src/data/products.ts');s=p.read_text().replace("BUSINESS_CALL_HREF = 'tel:+918896332066'","BUSINESS_CALL_HREF = 'tel:+919580882066'");p.write_text(s)
-p=Path('src/components/customer/ProfileTab.tsx');s=p.read_text();s="import { DataFeaturePanel } from './FeatureDataPanels';\n"+s;s=s.replace('        <LanguageSettings />','        <LanguageSettings />\n        {currentUser && <details><summary>Notification preferences</summary><DataFeaturePanel id="preferences" user={currentUser} role={role}/></details>}',1);p.write_text(s)
+p=Path('src/components/customer/ProfileTab.tsx');s=p.read_text();s="import { DataFeaturePanel } from './FeatureDataPanels';\n"+s;s=s.replace('<FeatureHub currentUser={currentUser} role={role} />','<FeatureHub currentUser={currentUser} role={role} allowed={["loyalty","partner","subscriptions","promotions","faq","support","service-area","referral"]}/>');s=s.replace('        <LanguageSettings />','        <LanguageSettings />\n        {currentUser && <details><summary>Notification preferences</summary><DataFeaturePanel id="preferences" user={currentUser} role={role}/></details>}',1);p.write_text(s)
 p=Path('src/data/upDistricts.ts');s=p.read_text();s+='\nfor(const district of ["अमरोहा (Amroha)","बदायूँ (Budaun)","भदोही (Bhadohi)","बिजनौर (Bijnor)","एटा (Etah)","फर्रुखाबाद (Farrukhabad)","महाराजगंज (Maharajganj)"])if(!UP_DISTRICTS.includes(district))UP_DISTRICTS.push(district);\n';p.write_text(s)
 p=Path('src/utils/ownerReports.ts');s=p.read_text();s=s.replace("  const header = 'orderId,date,customerName,district,quantityKg,totalAmount,status';","  const mixed=orders.some(o=>o.billingVersion===2);\n  const header = 'orderId,date,customerName,district,quantityKg,totalAmount,status'+(mixed?',quantity,unit':'');")
 s=s.replace("    csvText(o.status),","    csvText(o.status),\n    ...(mixed?[String(o.billingVersion===2&&o.billing?o.billing.quantityUnits/(o.billing.unit==='kg'?1000:1):o.quantityKg||0),csvText(o.billingVersion===2?o.billing?.unit:'kg')]:[]),")
@@ -31,7 +32,7 @@ effect="""  useEffect(()=>{const fill=(e:Event)=>{const qty=(e as CustomEvent<nu
 """
 assert s.count(anchor)==1;s=s.replace(anchor,effect+anchor);p.write_text(s)
 p=Path('src/components/customer/CustomerHome.tsx');s=p.read_text();s="import { FeatureHub } from './FeatureHub';\n"+s
-s=s.replace('      <main className="aqp-main aqp-form-only-main">','      <main className="aqp-main aqp-form-only-main">\n        <details className="mx-4 mb-3"><summary className="font-bold p-3">Ice calculator and rate card</summary><FeatureHub currentUser={null} role={null}/></details>',1);p.write_text(s)
+s=s.replace('      <main className="aqp-main aqp-form-only-main">','      <main className="aqp-main aqp-form-only-main">\n        <details className="mx-4 mb-3"><summary className="font-bold p-3">Ice calculator and rate card</summary><FeatureHub currentUser={null} role={null} allowed={["calculator","rates"]}/></details>',1);p.write_text(s)
 p=Path('src/components/OrderTrackingView.tsx');s=p.read_text();anchor='{trackingData.quantityKg}'
 # Tracking projection carries only manual ETA metadata; absent fields remain hidden.
 needle='      {trackingData && ('

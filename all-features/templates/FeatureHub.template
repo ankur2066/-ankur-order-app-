@@ -46,10 +46,10 @@ const SafePanel: React.FC<{id:FeatureId; state?:string; user:User|null;role:stri
   return <div className="rounded-xl c-soft p-4 text-sm font-bold">{state || 'This feature uses verified account and order data.'}</div>;
 };
 
-export const FeatureHub: React.FC<{currentUser:User|null; role:string|null; initial?:FeatureId|null; onClose?:()=>void}> = ({currentUser,role,initial=null,onClose}) => {
+export const FeatureHub: React.FC<{currentUser:User|null; role:string|null; initial?:FeatureId|null; onClose?:()=>void;allowed?:FeatureId[]}> = ({currentUser,role,initial=null,onClose,allowed}) => {
   const {language,t}=useLanguage(); const [active,setActive]=useState<FeatureId|null>(initial);
-  const visible=useMemo(()=>FEATURES.filter(f=>!f.owner||role==='admin'),[role]);
-  const selected=FEATURES.find(f=>f.id===active);
+  const visible=useMemo(()=>FEATURES.filter(f=>(!f.owner||role==='admin')&&(!allowed||allowed.includes(f.id))),[role,allowed]);
+  const selected=visible.find(f=>f.id===active);
   if(selected) return <div className="c-app min-h-screen page-with-bottom-nav"><header className="c-card border-b b-line px-3 py-3 flex items-center gap-2"><button aria-label={t('back')} onClick={()=>setActive(null)} className="w-11 h-11 rounded-full flex items-center justify-center"><ArrowLeft className="w-5 h-5"/></button><h1 className="font-black">{language==='hi'?selected.hi:selected.en}</h1></header><main className="p-4 max-w-lg mx-auto"><SafePanel id={selected.id} state={selected.state} user={currentUser} role={role}/>{selected.auth&&!currentUser&&<p className="mt-3 text-sm text-amber-700">Sign in is required to use account actions.</p>}</main></div>;
   return <section className="c-card border b-line rounded-2xl p-4"><div className="flex items-center justify-between"><h2 className="text-sm font-black">{t('features')}</h2>{onClose&&<button onClick={onClose} className="text-xs t-brand">Close</button>}</div><div className="grid grid-cols-2 gap-2 mt-3">{visible.map(({id,icon:Icon,en,hi})=><button key={id} type="button" onClick={()=>setActive(id)} className="focus-ring min-h-20 c-soft rounded-xl p-3 text-left"><Icon className="w-5 h-5 t-brand"/><span className="block mt-2 text-xs font-extrabold">{language==='hi'?hi:en}</span></button>)}</div></section>;
 };
