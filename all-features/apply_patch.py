@@ -24,6 +24,7 @@ shutil.copy2(TEMPLATES / 'LanguageContext.template', SRC / 'context' / 'Language
 shutil.copy2(TEMPLATES / 'FeatureHub.template', SRC / 'components' / 'customer' / 'FeatureHub.tsx')
 shutil.copy2(TEMPLATES / 'FeatureDataPanels.template', SRC / 'components' / 'customer' / 'FeatureDataPanels.tsx')
 shutil.copy2(TEMPLATES / 'dryIceCalc.template', SRC / 'utils' / 'dryIceCalc.ts')
+shutil.copy2(TEMPLATES / 'commercialReceipt.template', SRC / 'utils' / 'commercialReceipt.ts')
 
 app = SRC / 'App.tsx'
 replace_once(app, "import { ThemeProvider } from './context/ThemeContext';", "import { ThemeProvider } from './context/ThemeContext';\nimport { LanguageProvider, useLanguage } from './context/LanguageContext';")
