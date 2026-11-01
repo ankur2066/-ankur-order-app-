@@ -26,6 +26,7 @@ jobs:
         env:
           ANKUR_FEATURE_SDK_ROOT: ${{ github.workspace }}/feature-review/functions
           ANKUR_FEATURE_RULES: ${{ github.workspace }}/feature-review/firestore.rules
+          ANKUR_BILLING_RULES: ${{ github.workspace }}/feature-review/firestore.rules
           ANKUR_RULES_QA_ROOT: ${{ github.workspace }}/rules-qa
         run: |
           node --experimental-vm-modules --test all-features/backend/receipts.test.mjs

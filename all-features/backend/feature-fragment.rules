@@ -7,7 +7,7 @@
     // Keep those snapshots immutable while permitting normal operational status/payment batches.
     match /orders/{id} {
       allow update: if isValidId(id) && isOwner() &&
-        (resource.data.get('promoCode','') != '' || resource.data.get('etaSource','') == 'manual') &&
+        (resource.data.get('promoCode','') != '' || resource.data.get('subscriptionId','') != '' || resource.data.get('etaSource','') == 'manual') &&
         request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status','paymentStatus','paymentMethod','paymentNotes','isTrash','trashedAt','updatedAt']) &&
         request.resource.data.updatedAt == request.time && validFeatureStatus(request.resource.data) &&
         request.resource.data.paymentMethod in ['paytm_business_upi','manual_verification','cash_on_delivery'] &&

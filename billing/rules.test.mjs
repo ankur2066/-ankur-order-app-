@@ -9,7 +9,7 @@ const buyer=(uid='buyer-a')=>env.authenticatedContext(uid,{email:uid+'@example.t
 const guest=()=>env.unauthenticatedContext().firestore();
 const catalog=(extra={})=>({id:'demo_piece',name:'Demo item',hindiName:'Demo item',category:'accessories',active:true,billingVersion:2,unit:'piece',unitPricePaise:20000,packingMode:'none',packingPricePaise:0,deliveryFeePaise:0,minQuantityUnits:1,updatedAt:serverTimestamp(),...extra});
 async function admin(fn){return env.withSecurityRulesDisabled(c=>fn(c.firestore()));}
-before(async()=>{env=await initializeTestEnvironment({projectId:PROJECT,firestore:{host:'127.0.0.1',port:8085,rules:readFileSync(new URL('review/firestore.product-billing.rules',import.meta.url),'utf8')}});});
+before(async()=>{env=await initializeTestEnvironment({projectId:PROJECT,firestore:{host:'127.0.0.1',port:8085,rules:readFileSync(process.env.ANKUR_BILLING_RULES||new URL('review/firestore.product-billing.rules',import.meta.url),'utf8')}});});
 after(async()=>{await env?.cleanup();});
 beforeEach(async()=>admin(async db=>{
  await setDoc(doc(db,'settings','unitBilling'),{schemaVersion:2,enabled:true});await setDoc(doc(db,'product_catalog_v2','demo_piece'),catalog());
