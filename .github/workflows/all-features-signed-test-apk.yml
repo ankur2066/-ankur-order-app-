@@ -1,0 +1,98 @@
+name: Private signed TEST APK - all features
+on:
+  workflow_dispatch:
+  push:
+    branches: [codex/all-14-phase-bc-english]
+    paths: ['all-features/**', '.github/workflows/all-features-signed-test-apk.yml']
+permissions: {contents: read}
+jobs:
+  signed-test-apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22', cache: npm}
+      - uses: actions/setup-java@v4
+        with: {distribution: temurin, java-version: '21'}
+      - name: Reconstruct reviewed app
+        run: |
+          set -euo pipefail
+          unzip -oq Ankur_Order_App_Upload_GitHub.zip -d .
+          python3 app-check/apply_patch.py
+          python3 ui-fixes/apply_patch.py
+          python3 ui-fixes/ux_qa_patch.py
+          python3 ui-fixes/premium_booking_v122.py
+          python3 ui-fixes/blinkit_premium_v123.py
+          python3 ui-fixes/customer_home_form_v124.py
+          python3 ui-fixes/customer_home_only_v125.py
+          python3 ui-fixes/compact_customer_form_v126.py
+          python3 ui-fixes/english_booking_v127.py
+          python3 ui-fixes/readable_smooth_v128.py
+          python3 notifications/apply_patch.py
+          python3 notifications/client-fixes/apply_patch.py
+          python3 notifications/tap-fix/apply_patch.py
+          python3 ui-fixes/declutter_v132.py
+          python3 phase-a/apply_patch.py
+          ANKUR_APP_DIR=$PWD python3 all-features/apply_patch.py
+      - name: Configure existing Android Firebase app and signing
+        env:
+          KEYSTORE_B64: ${{ secrets.ANKUR_RELEASE_KEYSTORE_BASE64 }}
+          GOOGLE_SERVICES_B64: ${{ secrets.ANKUR_GOOGLE_SERVICES_JSON_BASE64 }}
+          STORE_PASSWORD: ${{ secrets.ANKUR_RELEASE_STORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANKUR_RELEASE_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.ANKUR_RELEASE_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          test -n "$KEYSTORE_B64" && test -n "$GOOGLE_SERVICES_B64" && test -n "$STORE_PASSWORD" && test -n "$KEY_ALIAS" && test -n "$KEY_PASSWORD"
+          printf '%s' "$KEYSTORE_B64" | base64 --decode > "$RUNNER_TEMP/ankur-release.jks"
+          printf '%s' "$GOOGLE_SERVICES_B64" | base64 --decode > android/app/google-services.json
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('android/app/google-services.json')
+          c=json.loads(p.read_text())
+          assert any(x.get('client_info',{}).get('android_client_info',{}).get('package_name')=='com.ankurdryice.events' for x in c.get('client',[]))
+          v=Path('android/variables.gradle'); s=v.read_text()
+          if 'rgcfaIncludeGoogle' not in s: v.write_text(s.replace('ext {','ext {\n    rgcfaIncludeGoogle = true',1))
+          g=Path('android/app/build.gradle'); s=g.read_text(); marker="\ntry {\n    def servicesJSON = file('google-services.json')"
+          i=s.find(marker); assert i!=-1
+          g.write_text(s[:i]+"\ndef servicesJSON = file('google-services.json')\nif (!servicesJSON.exists()) { throw new GradleException('google-services.json missing') }\napply plugin: 'com.google.gms.google-services'\n")
+          PY
+      - name: Build web and Android release
+        env:
+          STORE_PASSWORD: ${{ secrets.ANKUR_RELEASE_STORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANKUR_RELEASE_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.ANKUR_RELEASE_KEY_PASSWORD }}
+        run: |
+          npm install --save-exact --package-lock-only --ignore-scripts --no-audit --no-fund @capacitor-firebase/app-check@7.5.0 @capacitor/filesystem@7 @capacitor/share@7 @capacitor/push-notifications@7
+          npm ci --ignore-scripts --no-audit --no-fund
+          npm run lint
+          npm run android:sync
+          cp ci-fixes/MainActivity.java android/app/src/main/java/com/ankurdryice/events/MainActivity.java
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('android/app/build.gradle'); lines=p.read_text().splitlines()
+          for i,x in enumerate(lines):
+            if x.strip().startswith('versionCode '): lines[i]='        versionCode 33'
+            if x.strip().startswith('versionName '): lines[i]='        versionName "1.0.33-test"'
+          p.write_text('\n'.join(lines)+'\n')
+          PY
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleRelease --no-daemon -PankurKeystorePath="$RUNNER_TEMP/ankur-release.jks" -PankurStorePassword="$STORE_PASSWORD" -PankurKeyAlias="$KEY_ALIAS" -PankurKeyPassword="$KEY_PASSWORD"
+      - name: Verify package and signature
+        run: |
+          APK=android/app/build/outputs/apk/release/app-release.apk
+          test -s "$APK"
+          "$ANDROID_HOME/build-tools/$(ls "$ANDROID_HOME/build-tools" | sort -V | tail -1)/apksigner" verify --verbose --print-certs "$APK"
+          sha256sum "$APK" > apk-sha256.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Ankur-Dryice-v1.0.33-PRIVATE-TEST
+          path: |
+            android/app/build/outputs/apk/release/app-release.apk
+            apk-sha256.txt
+          retention-days: 7
+      - if: always()
+        run: rm -f "$RUNNER_TEMP/ankur-release.jks" android/app/google-services.json
