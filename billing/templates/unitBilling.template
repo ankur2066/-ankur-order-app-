@@ -1,0 +1,54 @@
+/** Fixed-point product billing. No Firebase calls and no default selling prices. */
+export const UNIT_LABELS = {kg:'KG',piece:'पीस',box:'बॉक्स',package:'पैकेज'} as const;
+export type BillingUnit = keyof typeof UNIT_LABELS;
+export type PackingMode = 'none' | 'per_unit' | 'per_order';
+export interface UnitProduct {
+  id:string; name:string; hindiName:string; category:string; active:boolean; billingVersion:2;
+  unit:BillingUnit | ''; unitPricePaise:number; packingMode:PackingMode;
+  packingPricePaise:number; deliveryFeePaise:number; minQuantityUnits:number; updatedAt?:any;
+}
+export interface BillSnapshot {
+  unit:BillingUnit; quantityUnits:number; unitPricePaise:number; productSubtotalPaise:number;
+  packingMode:PackingMode; packingPricePaise:number; packingSubtotalPaise:number;
+  deliveryFeePaise:number; totalPaise:number;
+}
+export function parseMoney(text:string):number {
+  const value=text.trim();
+  if(!/^\d+(?:\.\d{1,2})?$/.test(value))throw Error('कीमत रुपये में अधिकतम 2 दशमलव तक भरें।');
+  const [whole,fraction='']=value.split('.');const n=Number(whole)*100+Number(fraction.padEnd(2,'0'));
+  if(!Number.isSafeInteger(n)||n>9_900_000)throw Error('कीमत ₹99,000 तक रखें।');return n;
+}
+export function parseQuantity(text:string,unit:BillingUnit):number {
+  const pattern=unit==='kg'?/^\d+(?:\.\d{1,3})?$/:/^\d+$/;
+  if(!pattern.test(text.trim()))throw Error(unit==='kg'?'KG मात्रा अधिकतम 3 दशमलव तक भरें।':'मात्रा पूरी संख्या में भरें।');
+  const [whole,fraction='']=text.trim().split('.');const n=unit==='kg'?Number(whole)*1000+Number(fraction.padEnd(3,'0')):Number(whole);
+  if(!Number.isSafeInteger(n)||n<=0||n>(unit==='kg'?5_000_000:5000))throw Error('सही मात्रा भरें।');return n;
+}
+export function quoteProduct(p:UnitProduct,quantityUnits:number):BillSnapshot {
+  if(!p.active||!Object.hasOwn(UNIT_LABELS,p.unit))throw Error('इस प्रोडक्ट की booking अभी उपलब्ध नहीं है।');
+  const unit=p.unit as BillingUnit;const scale=unit==='kg'?1000:1;
+  for(const n of [p.unitPricePaise,p.packingPricePaise,p.deliveryFeePaise,p.minQuantityUnits,quantityUnits])if(!Number.isSafeInteger(n)||n<0)throw Error('प्रोडक्ट की कीमत/मात्रा सही नहीं है।');
+  if(p.unitPricePaise<=0||p.unitPricePaise>9_900_000||p.packingPricePaise>9_900_000||p.deliveryFeePaise>9_900_000||p.minQuantityUnits<=0||quantityUnits<p.minQuantityUnits||quantityUnits>5000*scale)throw Error('प्रोडक्ट की न्यूनतम/अधिकतम मात्रा और कीमत जाँचें।');
+  if(!['none','per_unit','per_order'].includes(p.packingMode)||(p.packingMode==='none'&&p.packingPricePaise!==0))throw Error('Packing charge सही नहीं है।');
+  const productSubtotalPaise=Math.floor((quantityUnits*p.unitPricePaise+scale/2)/scale);
+  const packingSubtotalPaise=p.packingMode==='none'?0:p.packingMode==='per_order'?p.packingPricePaise:Math.floor((quantityUnits*p.packingPricePaise+scale/2)/scale);
+  const totalPaise=productSubtotalPaise+packingSubtotalPaise+p.deliveryFeePaise;
+  if(!Number.isSafeInteger(totalPaise)||totalPaise<=0||totalPaise>9_900_000)throw Error('Order total ₹99,000 तक रखें।');
+  return {unit,quantityUnits,unitPricePaise:p.unitPricePaise,productSubtotalPaise,packingMode:p.packingMode,packingPricePaise:p.packingPricePaise,packingSubtotalPaise,deliveryFeePaise:p.deliveryFeePaise,totalPaise};
+}
+export const rupees=(paise:number)=>'₹'+(paise/100).toLocaleString('en-IN',{maximumFractionDigits:2});
+export function quantityText(order:any):string {
+  const b=order?.billing;
+  if(order?.billingVersion===2&&b&&Object.hasOwn(UNIT_LABELS,b.unit))return (b.quantityUnits/(b.unit==='kg'?1000:1))+' '+UNIT_LABELS[b.unit as BillingUnit];
+  return String(order?.quantityKg || 0)+' KG';
+}
+export function quantityTextEnglish(order:any):string {
+  const b=order?.billing;if(order?.billingVersion===2&&b)return (b.quantityUnits/(b.unit==='kg'?1000:1))+' '+b.unit;
+  return String(order?.quantityKg||0)+' kg';
+}
+export function normalizeUnitOrder(data:any):any {
+  if(data?.billingVersion!==2)return data;
+  return {...data,quantityKg:0,dryIcePricePerKg:0,dryIceSubtotal:0,thermocolPricePerKg:0,thermocolSubtotal:0,totalAmount:(data.billing?.totalPaise||0)/100};
+}
+export const orderCollection=(id:string)=>id.startsWith('APO-')?'product_orders':'orders';
+export const trackingCollection=(token:string)=>token.startsWith('APO-')?'product_order_tracking':'order_tracking';

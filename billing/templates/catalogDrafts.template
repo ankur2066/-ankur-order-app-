@@ -1,0 +1,11 @@
+/** Owner-requested draft names only. No invented prices, units, active products or live writes. */
+export const REQUESTED_DRAFTS=[
+  {id:'fan_wheel',name:'Fan Wheel',hindiName:'फैन व्हील',category:'event_effects'},
+  {id:'pyro_variant_1',name:'Pyro — variant 1 (name pending)',hindiName:'पायरो — पहला प्रकार (नाम तय करें)',category:'pyro'},
+  {id:'pyro_variant_2',name:'Pyro — variant 2 (name pending)',hindiName:'पायरो — दूसरा प्रकार (नाम तय करें)',category:'pyro'},
+  {id:'pyro_variant_3',name:'Pyro — variant 3 (name pending)',hindiName:'पायरो — तीसरा प्रकार (नाम तय करें)',category:'pyro'},
+  {id:'mirror_pending',name:'Mirror Roll / Ball (confirm name)',hindiName:'मिरर रोल / बॉल (नाम की पुष्टि बाकी)',category:'event_effects'},
+  {id:'mines_pending',name:'Spark Mines (confirm name)',hindiName:'स्पार्क माइन्स (नाम की पुष्टि बाकी)',category:'pyro'},
+  {id:'tail_pending',name:'Tail (confirm name)',hindiName:'टेल (नाम की पुष्टि बाकी)',category:'pyro'},
+  {id:'colour_pyro',name:'Colour Pyro',hindiName:'कलर पायरो',category:'pyro'},
+];

@@ -1,0 +1,450 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // =========================================================================
+    // GLOBAL SECURITY HELPERS & AUDIT PRIMITIVES
+    // =========================================================================
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // Verified owner only. A profile role may never grant owner authority.
+    function isOwner() {
+      return isSignedIn() &&
+        request.auth.token.email == 'ankurdryicewholesalers@gmail.com' &&
+        request.auth.token.email_verified == true;
+    }
+    function isAdmin() { return isOwner(); }
+    function teamData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+    function isFieldTeam() {
+      return isSignedIn() &&
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+        teamData().get('role', '') in ['staff', 'delivery'];
+    }
+    // Missing maps/keys preserve legacy staff access; malformed values fail closed.
+    function teamPermission(name) {
+      return isFieldTeam() && teamData().get('permissions', {}) is map &&
+        teamData().get('permissions', {}).get(name, true) == true;
+    }
+    function canViewOrders() { return teamPermission('viewOrders'); }
+    function canUpdateStatus() { return teamPermission('updateStatus'); }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // Validates document ID to prevent ID-poisoning & buffer overflow attacks
+    function isValidId(id) {
+      return id is string && id.size() >= 4 && id.size() <= 64 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // Validates compound tracking token (${orderId}_${trackingPin})
+    function isValidTrackingToken(token) {
+      return token is string && token.size() >= 14 && token.size() <= 48 && token.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isValidTimestamp(val) {
+      return val is timestamp;
+    }
+
+    // =========================================================================
+    // ENTITY VALIDATION BLUEPRINTS
+    // =========================================================================
+
+    // Validates private customer order schema with exact fixed formula:
+    // Dry Ice ₹50/kg + Thermocol ₹10/kg = ₹60/kg total (zero hidden fees/taxes)
+    function isValidOrder(data) {
+      let allowedKeys = [
+        'orderId', 'trackingToken', 'trackingPin', 'customerName', 
+        'customerPhone', 'district', 'address', 'city', 'quantityKg', 
+        'dispatchTiming', 'productName',
+        'dryIcePricePerKg', 'dryIceSubtotal', 'thermocolPricePerKg', 
+        'thermocolSubtotal', 'transportPrice', 'totalAmount',
+        'status', 'paymentStatus', 'paymentMethod', 'paymentNotes', 
+        'userId', 'isTrash', 'trashedAt', 'createdAt', 'updatedAt'
+      ];
+      let requiredKeys = [
+        'orderId', 'trackingToken', 'trackingPin', 'customerName', 
+        'customerPhone', 'district', 'quantityKg', 
+        'dispatchTiming', 'productName',
+        'dryIcePricePerKg', 'dryIceSubtotal', 'thermocolPricePerKg', 
+        'thermocolSubtotal', 'totalAmount',
+        'status', 'paymentStatus', 'paymentMethod', 'userId', 
+        'createdAt', 'updatedAt'
+      ];
+
+      return data.keys().hasAll(requiredKeys) &&
+             data.keys().hasOnly(allowedKeys) &&
+             data.orderId is string && data.orderId.size() <= 32 &&
+             data.trackingToken is string && data.trackingToken.size() <= 48 &&
+             data.trackingPin is string && data.trackingPin.size() >= 4 && data.trackingPin.size() <= 8 &&
+             data.customerName is string && data.customerName.size() >= 2 && data.customerName.size() <= 100 &&
+             data.customerPhone is string && data.customerPhone.size() >= 10 && data.customerPhone.size() <= 20 &&
+             data.district is string && data.district.size() >= 2 && data.district.size() <= 100 &&
+             (!('address' in data) || (data.address is string && data.address.size() <= 500)) &&
+             (!('city' in data) || (data.city is string && data.city.size() <= 100)) &&
+             (!('isTrash' in data) || data.isTrash is bool) &&
+             (!('trashedAt' in data) || data.trashedAt == null || isValidTimestamp(data.trashedAt)) &&
+             data.quantityKg is number && data.quantityKg > 0 && data.quantityKg <= 5000 &&
+             data.dispatchTiming is string && data.dispatchTiming.size() <= 100 &&
+             data.productName is string && data.productName.size() <= 100 &&
+             
+             // Dynamic booked rate pricing verification
+             data.dryIcePricePerKg is number && data.dryIcePricePerKg >= 0 &&
+             (data.dryIceSubtotal == data.quantityKg * data.dryIcePricePerKg ||
+              (data.dryIceSubtotal >= (data.quantityKg * data.dryIcePricePerKg - 0.05) &&
+               data.dryIceSubtotal <= (data.quantityKg * data.dryIcePricePerKg + 0.05))) &&
+             data.thermocolPricePerKg is number && data.thermocolPricePerKg >= 0 &&
+             (data.thermocolSubtotal == data.quantityKg * data.thermocolPricePerKg ||
+              (data.thermocolSubtotal >= (data.quantityKg * data.thermocolPricePerKg - 0.05) &&
+               data.thermocolSubtotal <= (data.quantityKg * data.thermocolPricePerKg + 0.05))) &&
+             (!('transportPrice' in data) || (data.transportPrice is number && data.transportPrice >= 0)) &&
+             (data.totalAmount == data.dryIceSubtotal + data.thermocolSubtotal + (('transportPrice' in data) ? data.transportPrice : 0) ||
+              (data.totalAmount >= (data.dryIceSubtotal + data.thermocolSubtotal + (('transportPrice' in data) ? data.transportPrice : 0) - 0.05) &&
+               data.totalAmount <= (data.dryIceSubtotal + data.thermocolSubtotal + (('transportPrice' in data) ? data.transportPrice : 0) + 0.05))) &&
+
+             data.status in ['pending', 'confirmed', 'in_packing', 'dispatched', 'delivered', 'cancelled'] &&
+             data.paymentStatus in ['pending_verification', 'payment_verified', 'cash_on_delivery'] &&
+             data.paymentMethod in ['paytm_business_upi', 'manual_verification', 'cash_on_delivery'] &&
+             (!('paymentNotes' in data) || (data.paymentNotes is string && data.paymentNotes.size() <= 200)) &&
+             data.userId is string && data.userId.size() <= 128 &&
+             isValidTimestamp(data.createdAt) &&
+             isValidTimestamp(data.updatedAt);
+    }
+
+    // Validates public tracking projection (Zero PII - no customerName, phone, or address)
+    function isValidOrderTracking(data) {
+      let allowedKeys = [
+        'orderId', 'trackingToken', 'status', 'productName', 'quantityKg', 
+        'district', 'dispatchTiming', 'paymentStatus', 'lastStatusUpdate', 
+        'createdAt', 'updatedAt'
+      ];
+      let requiredKeys = [
+        'orderId', 'trackingToken', 'status', 'productName', 'quantityKg', 
+        'district', 'dispatchTiming', 'paymentStatus', 'lastStatusUpdate', 
+        'createdAt', 'updatedAt'
+      ];
+
+      return data.keys().hasAll(requiredKeys) &&
+             data.keys().hasOnly(allowedKeys) &&
+             data.orderId is string && data.orderId.size() <= 32 &&
+             data.trackingToken is string && data.trackingToken.size() <= 48 &&
+             data.status in ['pending', 'confirmed', 'in_packing', 'dispatched', 'delivered', 'cancelled'] &&
+             data.productName is string && data.productName.size() <= 100 &&
+             data.quantityKg is number && data.quantityKg > 0 && data.quantityKg <= 5000 &&
+             data.district is string && data.district.size() >= 2 && data.district.size() <= 100 &&
+             data.dispatchTiming is string && data.dispatchTiming.size() <= 100 &&
+             data.paymentStatus in ['pending_verification', 'payment_verified', 'cash_on_delivery'] &&
+             data.lastStatusUpdate is string && data.lastStatusUpdate.size() <= 200 &&
+             isValidTimestamp(data.createdAt) &&
+             isValidTimestamp(data.updatedAt);
+    }
+
+    // Validates owner-managed product catalog
+    function isValidProduct(data) {
+      let allowedKeys = ['id', 'name', 'hindiName', 'ratePerKg', 'thermocolPerKg', 'active', 'category', 'updatedAt'];
+      let requiredKeys = ['id', 'name', 'hindiName', 'ratePerKg', 'thermocolPerKg', 'active', 'category', 'updatedAt'];
+
+      return data.keys().hasAll(requiredKeys) &&
+             data.keys().hasOnly(allowedKeys) &&
+             data.id is string && data.id.size() >= 2 && data.id.size() <= 64 &&
+             data.name is string && data.name.size() >= 2 && data.name.size() <= 100 &&
+             data.hindiName is string && data.hindiName.size() >= 2 && data.hindiName.size() <= 100 &&
+             data.ratePerKg is number && data.ratePerKg > 0 &&
+             data.thermocolPerKg is number && data.thermocolPerKg >= 0 &&
+             data.active is bool &&
+             data.category is string && data.category.size() <= 50 &&
+             isValidTimestamp(data.updatedAt);
+    }
+
+    // Unit products use separate collections. Legacy KG orders and prices are untouched.
+    function unitSchemaAvailable() {
+      return exists(/databases/$(database)/documents/settings/unitBilling) &&
+        get(/databases/$(database)/documents/settings/unitBilling).data.get('schemaVersion', 0) == 2;
+    }
+    function unitSalesEnabled() {
+      return unitSchemaAvailable() && get(/databases/$(database)/documents/settings/unitBilling).data.get('enabled', false) == true;
+    }
+    function unitScale(unit) { return unit == 'kg' ? 1000 : 1; }
+    function validPaise(n) { return n is int && n >= 0 && n <= 9900000; }
+    function unitLinePrice(q, price, unit) {
+      return int((q * price + unitScale(unit) / 2) / unitScale(unit));
+    }
+    function validUnitProduct(d, id) {
+      return d.keys().hasAll(['id','name','hindiName','category','active','billingVersion','unit','unitPricePaise','packingMode','packingPricePaise','deliveryFeePaise','minQuantityUnits','updatedAt']) &&
+        d.keys().hasOnly(['id','name','hindiName','category','active','billingVersion','unit','unitPricePaise','packingMode','packingPricePaise','deliveryFeePaise','minQuantityUnits','updatedAt']) &&
+        d.id == id && isValidId(id) && d.billingVersion == 2 &&
+        d.name is string && d.name.size() >= 2 && d.name.size() <= 100 &&
+        d.hindiName is string && d.hindiName.size() >= 2 && d.hindiName.size() <= 100 &&
+        d.category in ['pyro','event_effects','accessories','event_packs','dry_ice'] &&
+        d.unit in ['','kg','piece','box','package'] && d.active is bool &&
+        validPaise(d.unitPricePaise) && validPaise(d.packingPricePaise) && validPaise(d.deliveryFeePaise) &&
+        d.packingMode in ['none','per_unit','per_order'] &&
+        (d.packingMode != 'none' || d.packingPricePaise == 0) &&
+        d.minQuantityUnits is int && d.minQuantityUnits >= 0 && d.minQuantityUnits <= 5000 * unitScale(d.unit) &&
+        (!d.active || (d.unit != '' && d.unitPricePaise > 0 && d.minQuantityUnits > 0)) && d.updatedAt == request.time;
+    }
+    function validUnitBill(b, p) {
+      return b is map && b.keys().hasAll(['unit','quantityUnits','unitPricePaise','productSubtotalPaise','packingMode','packingPricePaise','packingSubtotalPaise','deliveryFeePaise','totalPaise']) &&
+        b.keys().hasOnly(['unit','quantityUnits','unitPricePaise','productSubtotalPaise','packingMode','packingPricePaise','packingSubtotalPaise','deliveryFeePaise','totalPaise']) &&
+        p.active == true && p.billingVersion == 2 && p.unit in ['kg','piece','box','package'] &&
+        validPaise(p.unitPricePaise) && p.unitPricePaise > 0 && validPaise(p.packingPricePaise) && validPaise(p.deliveryFeePaise) &&
+        p.minQuantityUnits is int && p.minQuantityUnits > 0 && p.packingMode in ['none','per_unit','per_order'] &&
+        (p.packingMode != 'none' || p.packingPricePaise == 0) &&
+        b.unit == p.unit && b.quantityUnits is int && b.quantityUnits >= p.minQuantityUnits && b.quantityUnits > 0 && b.quantityUnits <= 5000 * unitScale(b.unit) &&
+        b.unitPricePaise == p.unitPricePaise && b.packingMode == p.packingMode &&
+        b.packingPricePaise == p.packingPricePaise && b.deliveryFeePaise == p.deliveryFeePaise &&
+        b.productSubtotalPaise is int && b.productSubtotalPaise == unitLinePrice(b.quantityUnits, p.unitPricePaise, b.unit) &&
+        b.packingSubtotalPaise is int && b.packingSubtotalPaise == (p.packingMode == 'none' ? 0 : (p.packingMode == 'per_order' ? p.packingPricePaise : unitLinePrice(b.quantityUnits, p.packingPricePaise, b.unit))) &&
+        b.totalPaise is int && b.totalPaise > 0 && b.totalPaise <= 9900000 &&
+        b.totalPaise == b.productSubtotalPaise + b.packingSubtotalPaise + b.deliveryFeePaise;
+    }
+    function unitPrivateAfter(id) { return getAfter(/databases/$(database)/documents/product_orders/$(id)).data; }
+    function unitTrackerAfter(token) { return getAfter(/databases/$(database)/documents/product_order_tracking/$(token)).data; }
+    function matchingUnitProjection(t, o) {
+      return t.billingVersion == 2 && t.orderId == o.orderId && t.trackingToken == o.trackingToken &&
+        t.productId == o.productId && t.productName == o.productName &&
+        t.billing.unit == o.billing.unit && t.billing.quantityUnits == o.billing.quantityUnits &&
+        t.district == o.district && t.dispatchTiming == o.dispatchTiming &&
+        t.status == o.status && t.paymentStatus == o.paymentStatus;
+    }
+    function validUnitOrderCreate(d,id) {
+      let p = getAfter(/databases/$(database)/documents/product_catalog_v2/$(d.productId)).data;
+      return unitSalesEnabled() && id.matches('^APO-[0-9]{8}-[A-F0-9]{8}$') &&
+        d.keys().hasAll(['billingVersion','orderId','trackingToken','trackingPin','productId','productName','billing','userId','customerName','customerPhone','district','address','city','dispatchTiming','status','paymentStatus','paymentMethod','createdAt','updatedAt']) &&
+        d.keys().hasOnly(['billingVersion','orderId','trackingToken','trackingPin','productId','productName','billing','userId','customerName','customerPhone','district','address','city','dispatchTiming','status','paymentStatus','paymentMethod','createdAt','updatedAt']) &&
+        d.billingVersion == 2 && d.orderId == id && d.trackingPin is string && d.trackingPin.matches('^[0-9]{6}$') && d.trackingToken == id + '_' + d.trackingPin &&
+        isValidId(d.productId) && d.productName == p.hindiName && validUnitBill(d.billing,p) &&
+        d.userId is string && ((!isSignedIn() && d.userId == 'guest') || (isSignedIn() && d.userId == request.auth.uid)) &&
+        d.customerName is string && d.customerName.size() >= 2 && d.customerName.size() <= 100 &&
+        d.customerPhone is string && d.customerPhone.matches('^[6-9][0-9]{9}$') &&
+        d.district is string && d.district.size() >= 2 && d.district.size() <= 100 &&
+        d.city is string && d.city.size() >= 2 && d.city.size() <= 100 &&
+        d.address is string && d.address.size() >= 2 && d.address.size() <= 300 &&
+        d.dispatchTiming is string && d.dispatchTiming.size() >= 1 && d.dispatchTiming.size() <= 100 &&
+        d.status == 'pending' && d.paymentStatus == 'pending_verification' && d.paymentMethod == 'paytm_business_upi' &&
+        d.createdAt == request.time && d.updatedAt == request.time &&
+        matchingUnitProjection(unitTrackerAfter(d.trackingToken),d) && unitTrackerAfter(d.trackingToken).createdAt == request.time;
+    }
+    function validUnitTracking(d,token) {
+      return d.keys().hasAll(['billingVersion','orderId','trackingToken','productId','productName','billing','district','dispatchTiming','status','paymentStatus','lastStatusUpdate','createdAt','updatedAt']) &&
+        d.keys().hasOnly(['billingVersion','orderId','trackingToken','productId','productName','billing','district','dispatchTiming','status','paymentStatus','lastStatusUpdate','createdAt','updatedAt']) &&
+        isValidTrackingToken(token) && d.trackingToken == token &&
+        d.billing is map && d.billing.keys().hasAll(['unit','quantityUnits']) && d.billing.keys().hasOnly(['unit','quantityUnits']) &&
+        d.lastStatusUpdate is string && d.lastStatusUpdate.size() <= 200 &&
+        d.status in ['pending','confirmed','in_packing','dispatched','delivered','cancelled'] &&
+        d.paymentStatus in ['pending_verification','payment_verified','cash_on_delivery'] &&
+        matchingUnitProjection(d,unitPrivateAfter(d.orderId));
+    }
+    match /product_catalog_v2/{productId} {
+      allow get,list: if isOwner() || resource.data.active == true;
+      allow create,update: if isOwner() && validUnitProduct(incoming(),productId);
+      allow delete: if false; // Owner hides a SKU; historical bills retain their snapshot.
+    }
+    match /product_orders/{orderId} {
+      allow get,list: if isOwner() || canViewOrders() || (isSignedIn() && resource.data.userId == request.auth.uid);
+      allow create: if validUnitOrderCreate(incoming(),orderId);
+      allow update: if incoming().updatedAt == request.time && (
+        (isOwner() && incoming().diff(existing()).affectedKeys().hasOnly(['status','paymentStatus','isTrash','trashedAt','updatedAt'])) ||
+        (canUpdateStatus() && incoming().diff(existing()).affectedKeys().hasOnly(['status','updatedAt']))
+      ) && incoming().status in ['pending','confirmed','in_packing','dispatched','delivered','cancelled'] &&
+        incoming().paymentStatus in ['pending_verification','payment_verified','cash_on_delivery'] &&
+        (!('isTrash' in incoming()) || incoming().isTrash is bool) &&
+        (!('trashedAt' in incoming()) || incoming().trashedAt is timestamp || incoming().trashedAt == null) &&
+        matchingUnitProjection(unitTrackerAfter(existing().trackingToken),incoming());
+      allow delete: if isOwner() && resource.data.get('isTrash',false) == true;
+    }
+    match /product_order_tracking/{token} {
+      allow get: if isValidTrackingToken(token);
+      allow list: if false;
+      allow create: if unitSalesEnabled() && validUnitTracking(incoming(),token) &&
+        incoming().status == 'pending' && incoming().paymentStatus == 'pending_verification' &&
+        incoming().createdAt == request.time && incoming().updatedAt == request.time && unitPrivateAfter(incoming().orderId).createdAt == request.time;
+      allow update: if (isOwner() || canUpdateStatus()) &&
+        incoming().diff(existing()).affectedKeys().hasOnly(isOwner()?['status','paymentStatus','lastStatusUpdate','updatedAt']:['status','lastStatusUpdate','updatedAt']) &&
+        incoming().updatedAt == request.time && validUnitTracking(incoming(),token);
+      allow delete: if isOwner();
+    }
+
+
+    // =========================================================================
+    // COLLECTION ACCESS RULES
+    // =========================================================================
+
+    // 1. Catch-all Global Safety Net: default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // 2. Private Customer Orders (Contains PII)
+    match /orders/{orderId} {
+      // Single order read: authenticated buyer, admin, staff, or delivery
+      allow get: if isValidId(orderId) && (
+        isAdmin() || canViewOrders() ||
+        (isSignedIn() && resource.data.userId == request.auth.uid)
+      );
+
+      // List orders: admin, staff, or delivery can list all, or authenticated buyer can list their own
+      allow list: if isAdmin() || canViewOrders() || (isSignedIn() && resource.data.userId == request.auth.uid);
+
+      // Customer order creation: strict schema validation, server timestamp, initial pending state,
+      // and atomicity check ensuring protected tracking projection is generated in the same batch.
+      // Staff/Delivery are strictly forbidden from creating orders!
+      allow create: if isValidId(orderId) &&
+        isValidOrder(incoming()) &&
+        incoming().orderId == orderId &&
+        incoming().status == 'pending' &&
+        (isAdmin() || incoming().paymentStatus == 'pending_verification') &&
+        incoming().createdAt == request.time &&
+        incoming().updatedAt == request.time &&
+        (isAdmin() || !isSignedIn() || incoming().userId == request.auth.uid || incoming().userId == 'guest' || incoming().userId == 'owner_manual_entry') &&
+        (isAdmin() || existsAfter(/databases/$(database)/documents/order_tracking/$(incoming().trackingToken)));
+
+      // Order Updates:
+      // Admin: full operational updates
+      // Staff & Delivery: STRICTLY restricted to updating 'status' and 'updatedAt' only!
+      allow update: if isValidId(orderId) && (
+        (isAdmin() &&
+         isValidOrder(incoming()) &&
+         incoming().orderId == existing().orderId &&
+         incoming().createdAt == existing().createdAt &&
+         incoming().userId == existing().userId &&
+         incoming().updatedAt == request.time) ||
+        (canUpdateStatus() &&
+         incoming().diff(existing()).affectedKeys().hasOnly(['status', 'updatedAt']) &&
+         incoming().status in ['pending', 'confirmed', 'in_packing', 'dispatched', 'delivered', 'cancelled'] &&
+         incoming().updatedAt == request.time)
+      );
+
+      // Deletion: Admin only (Staff and Delivery CANNOT delete orders)
+      allow delete: if isValidId(orderId) && isAdmin();
+    }
+
+    // 3. Protected Tracking Projection (Zero PII - Keyed by secret compound token ${orderId}_${trackingPin})
+    match /order_tracking/{trackingToken} {
+      // Authorized Point Lookup: ONLY accessible if the user possesses the secret compound token
+      // Eliminates client-only PIN checks. Without the token, the document path is inaccessible.
+      allow get: if isValidTrackingToken(trackingToken);
+
+      // Mass scraping / directory listing is STRICTLY FORBIDDEN to the public
+      allow list: if false;
+
+      // Creation: Allowed when placed in same batch as private order, or by admin
+      allow create: if isValidTrackingToken(trackingToken) &&
+        isValidOrderTracking(incoming()) &&
+        incoming().trackingToken == trackingToken &&
+        incoming().status == 'pending' &&
+        (isAdmin() || incoming().paymentStatus == 'pending_verification') &&
+        incoming().createdAt == request.time &&
+        incoming().updatedAt == request.time &&
+        (isAdmin() || existsAfter(/databases/$(database)/documents/orders/$(incoming().orderId)));
+
+      // Updates: Admin, Staff, or Delivery can update dispatch state
+      allow update: if isValidTrackingToken(trackingToken) && (
+        (isAdmin() &&
+         isValidOrderTracking(incoming()) &&
+         incoming().orderId == existing().orderId &&
+         incoming().trackingToken == existing().trackingToken &&
+         incoming().createdAt == existing().createdAt &&
+         incoming().updatedAt == request.time) ||
+        (canUpdateStatus() &&
+         incoming().diff(existing()).affectedKeys().hasOnly(['status', 'lastStatusUpdate', 'updatedAt']) &&
+         incoming().status in ['pending', 'confirmed', 'in_packing', 'dispatched', 'delivered', 'cancelled'] &&
+         incoming().lastStatusUpdate is string && incoming().lastStatusUpdate.size() <= 200 &&
+         incoming().updatedAt == request.time)
+      );
+
+      // Deletion: Admin only
+      allow delete: if isValidTrackingToken(trackingToken) && isAdmin();
+    }
+
+    // 4. Products collection (Owner-managed)
+    match /products/{productId} {
+      allow get, list: if true;
+      allow create, update: if isValidId(productId) && isAdmin() && isValidProduct(incoming()) && incoming().updatedAt == request.time;
+      allow delete: if isValidId(productId) && isAdmin();
+    }
+
+    // 5. System Settings collection (Rates & configuration)
+    match /settings/{settingId} {
+      allow read: if true;
+      allow write: if isValidId(settingId) && isAdmin();
+    }
+
+    // 5b. Customer Profiles collection (Users can only read/write their own profile, Admin can manage all)
+    function validCustomerProfile(data) {
+      return (!('customerName' in data) || (data.customerName is string && data.customerName.size() <= 100)) &&
+        (!('customerPhone' in data) || (data.customerPhone is string && data.customerPhone.size() <= 20)) &&
+        (!('city' in data) || (data.city is string && data.city.size() <= 100)) &&
+        (!('updatedAt' in data) || data.updatedAt == request.time);
+    }
+    match /users/{userId} {
+      allow get: if isSignedIn() && (request.auth.uid == userId || isAdmin());
+      allow list: if isAdmin();
+      allow create: if isSignedIn() && request.auth.uid == userId &&
+        incoming().keys().hasOnly(['customerName', 'customerPhone', 'city', 'updatedAt']) &&
+        validCustomerProfile(incoming());
+      allow update: if isSignedIn() && request.auth.uid == userId &&
+        incoming().diff(existing()).affectedKeys().hasOnly(['customerName', 'customerPhone', 'city', 'updatedAt']) &&
+        validCustomerProfile(incoming());
+      allow create, update, delete: if isAdmin();
+    }
+
+    // 6. Expenses collection (Admin only)
+    match /expenses/{expenseId} {
+      allow read, write: if isAdmin();
+    }
+
+    // 7. Anti-Escalation Gate: Block arbitrary admin role creation
+    match /admins/{adminId} {
+      allow read, write: if false;
+    }
+
+
+    // v1.0.29: private Android FCM device registration.
+    // Clients cannot read or list device tokens. Firebase Admin only reads recipients.
+    function isValidPushDevice(data) {
+      return data.keys().hasAll(['token', 'platform', 'updatedAt']) &&
+        data.keys().hasOnly(['token', 'platform', 'updatedAt']) &&
+        data.token is string && data.token.size() >= 30 && data.token.size() <= 4096 &&
+        data.platform == 'android' &&
+        data.updatedAt == request.time;
+    }
+
+    // Only the verified owner may register a device to get ALL new-order alerts.
+    match /push_owner_devices/{deviceId} {
+      allow get, list: if false;
+      allow create, update, delete: if isValidId(deviceId) && isOwner() &&
+        (request.method == 'delete' || isValidPushDevice(incoming()));
+    }
+
+    // Staff and delivery team are eligible only while allowed to view orders.
+    match /push_team_devices/{uid}/devices/{deviceId} {
+      allow get, list: if false;
+      allow create, update, delete: if isValidId(deviceId) &&
+        isSignedIn() && uid == request.auth.uid && canViewOrders() &&
+        (request.method == 'delete' || isValidPushDevice(incoming()));
+    }
+
+    // Customer/guest: possessing an exact secret tracking token grants the
+    // ability to register push for that ONE order only. No order PII exposed.
+    match /order_push_subscriptions/{trackingToken}/devices/{deviceId} {
+      allow get, list: if false;
+      allow create, update: if isValidId(deviceId) &&
+        isValidTrackingToken(trackingToken) &&
+        (exists(/databases/$(database)/documents/order_tracking/$(trackingToken)) ||
+         exists(/databases/$(database)/documents/product_order_tracking/$(trackingToken))) &&
+        isValidPushDevice(incoming());
+      allow delete: if false; // invalid/expired tokens are cleaned server-side
+    }
+
+  }
+}
