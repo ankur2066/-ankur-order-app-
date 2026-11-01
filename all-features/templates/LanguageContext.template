@@ -1,0 +1,46 @@
+import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
+
+export type AppLanguage = 'en' | 'hi';
+
+const STORAGE_KEY = 'ankur.app.language.v1';
+
+const dictionary = {
+  en: {
+    settings: 'Settings', language: 'Language', english: 'English', hindi: 'हिंदी (Hindi)',
+    profile: 'Profile', customer: 'Customer', owner: 'Owner', staff: 'Staff', delivery: 'Delivery',
+    ownerDashboard: 'Open Owner Dashboard', contact: 'Contact us', call: 'Call', logout: 'Log out',
+    help: 'Help & Support', rewards: 'Rewards & Offers', wholesale: 'Wholesale Partner', regular: 'Regular Supply',
+    features: 'Services and tools', back: 'Back', unconfigured: 'Setup pending',
+  },
+  hi: {
+    settings: 'सेटिंग्स', language: 'भाषा', english: 'English', hindi: 'हिंदी (Hindi)',
+    profile: 'प्रोफ़ाइल', customer: 'ग्राहक', owner: 'मालिक', staff: 'स्टाफ', delivery: 'डिलीवरी',
+    ownerDashboard: 'ओनर डैशबोर्ड खोलें', contact: 'संपर्क करें', call: 'कॉल', logout: 'लॉगआउट',
+    help: 'सहायता', rewards: 'रिवार्ड और ऑफ़र', wholesale: 'होलसेल पार्टनर', regular: 'नियमित सप्लाई',
+    features: 'सेवाएँ और टूल', back: 'वापस', unconfigured: 'सेटअप बाकी है',
+  },
+} as const;
+
+type Key = keyof typeof dictionary.en;
+type LanguageValue = { language: AppLanguage; setLanguage: (value: AppLanguage) => void; t: (key: Key) => string };
+const LanguageContext = createContext<LanguageValue | null>(null);
+
+export const LanguageProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
+  const [language, setLanguageState] = useState<AppLanguage>(() => localStorage.getItem(STORAGE_KEY) === 'hi' ? 'hi' : 'en');
+  const setLanguage = (value: AppLanguage) => {
+    localStorage.setItem(STORAGE_KEY, value);
+    setLanguageState(value);
+  };
+  useEffect(() => {
+    document.documentElement.lang = language;
+    document.documentElement.dataset.appLanguage = language;
+  }, [language]);
+  const value = useMemo(() => ({ language, setLanguage, t: (key: Key) => dictionary[language][key] }), [language]);
+  return <LanguageContext.Provider value={value}>{children}</LanguageContext.Provider>;
+};
+
+export const useLanguage = () => {
+  const value = useContext(LanguageContext);
+  if (!value) throw new Error('useLanguage must be used inside LanguageProvider');
+  return value;
+};

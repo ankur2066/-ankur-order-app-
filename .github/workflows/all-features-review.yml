@@ -1,0 +1,59 @@
+name: All 14 features + English default private review
+
+on:
+  push:
+    branches: [codex/all-14-phase-bc-english]
+  pull_request:
+    branches: [codex/phase-a-owner-reports-expenses]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  lint-build-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - name: Reconstruct verified v1.0.32 and Phase A
+        run: |
+          set -euo pipefail
+          unzip -oq Ankur_Order_App_Upload_GitHub.zip -d .
+          python3 app-check/apply_patch.py
+          python3 ui-fixes/apply_patch.py
+          python3 ui-fixes/ux_qa_patch.py
+          python3 ui-fixes/premium_booking_v122.py
+          python3 ui-fixes/blinkit_premium_v123.py
+          python3 ui-fixes/customer_home_form_v124.py
+          python3 ui-fixes/customer_home_only_v125.py
+          python3 ui-fixes/compact_customer_form_v126.py
+          python3 ui-fixes/english_booking_v127.py
+          python3 ui-fixes/readable_smooth_v128.py
+          python3 notifications/apply_patch.py
+          python3 notifications/client-fixes/apply_patch.py
+          python3 notifications/tap-fix/apply_patch.py
+          python3 ui-fixes/declutter_v132.py
+          python3 phase-a/apply_patch.py
+          sha256sum src/components/OrderForm.tsx src/components/OrderTrackingView.tsx src/hooks/useOrderNotifications.ts src/data/rates.ts firestore.rules > /tmp/protected.before
+      - name: Apply private review overlay
+        run: |
+          ANKUR_APP_DIR=$PWD python3 all-features/apply_patch.py
+          sha256sum src/components/OrderForm.tsx src/components/OrderTrackingView.tsx src/hooks/useOrderNotifications.ts src/data/rates.ts firestore.rules > /tmp/protected.after
+          diff -u /tmp/protected.before /tmp/protected.after
+      - name: Unit and regression contracts
+        run: |
+          node --test all-features/feature-contract.test.mjs all-features/backend/trustedOperations.test.mjs
+          node --experimental-strip-types --test phase-a/phase-a.test.mjs
+      - name: Install and build
+        run: |
+          npm install --save-exact --package-lock-only --ignore-scripts --no-audit --no-fund @capacitor-firebase/app-check@7.5.0 @capacitor/filesystem@7 @capacitor/share@7 @capacitor/push-notifications@7
+          npm ci --ignore-scripts --no-audit --no-fund
+          npm run lint
+          npm run build
+      - name: Safety boundary
+        run: |
+          test -f dist/index.html
+          echo 'Private review only: no Firebase deploy, billing change, data seed, APK publish or installation.'

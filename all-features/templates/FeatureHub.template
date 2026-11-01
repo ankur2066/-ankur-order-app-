@@ -1,0 +1,50 @@
+import React, { useMemo, useState } from 'react';
+import { ArrowLeft, Calculator, CalendarClock, ClipboardList, Gift, Handshake, Headphones, Languages, Lightbulb, MapPin, PackageSearch, Percent, ReceiptText, Share2, Sparkles, Warehouse } from 'lucide-react';
+import type { User } from 'firebase/auth';
+import { useLanguage } from '../../context/LanguageContext';
+
+export type FeatureId = 'calculator'|'video'|'loyalty'|'catalog'|'partner'|'subscriptions'|'promotions'|'inventory'|'reports'|'faq'|'rates'|'support'|'service-area'|'referral';
+
+const FEATURES: Array<{id:FeatureId; icon:React.ComponentType<{className?:string}>; en:string; hi:string; auth?:boolean; owner?:boolean; state?:string}> = [
+  {id:'calculator',icon:Calculator,en:'Ice Calculator',hi:'आइस कैलकुलेटर'},
+  {id:'video',icon:Lightbulb,en:'Video Idea Builder',hi:'वीडियो आइडिया बिल्डर'},
+  {id:'loyalty',icon:Gift,en:'Loyalty Rewards',hi:'लॉयल्टी रिवार्ड',auth:true,state:'Reward policy is not configured.'},
+  {id:'catalog',icon:PackageSearch,en:'Application Catalogue',hi:'एप्लिकेशन कैटलॉग'},
+  {id:'partner',icon:Handshake,en:'Wholesale Partner',hi:'होलसेल पार्टनर',auth:true,state:'Partner approval is required.'},
+  {id:'subscriptions',icon:CalendarClock,en:'Regular Supply',hi:'नियमित सप्लाई',auth:true,state:'Owner approval is required. No automatic charge.'},
+  {id:'promotions',icon:Percent,en:'Promotions',hi:'प्रमोशन',state:'No public promotion is active.'},
+  {id:'inventory',icon:Warehouse,en:'Inventory',hi:'इन्वेंटरी',owner:true,state:'Opening stock is not configured.'},
+  {id:'reports',icon:ClipboardList,en:'Reports Hub',hi:'रिपोर्ट हब',owner:true},
+  {id:'faq',icon:Sparkles,en:'FAQ / How-to',hi:'सवाल और तरीका'},
+  {id:'rates',icon:ReceiptText,en:'Rate Card',hi:'रेट कार्ड'},
+  {id:'support',icon:Headphones,en:'Support Hub',hi:'सपोर्ट हब'},
+  {id:'service-area',icon:MapPin,en:'Service Area',hi:'सेवा क्षेत्र'},
+  {id:'referral',icon:Share2,en:'Referral Share',hi:'रेफरल शेयर',auth:true,state:'Referral rewards require owner review.'},
+];
+
+const CalculatorPanel = () => {
+  const [people,setPeople]=useState(10); const [hours,setHours]=useState(4);
+  const estimate=Math.max(10,Math.ceil((people*hours)/8));
+  return <div className="space-y-3"><p className="text-sm t-sub">Planning estimate only. Your booking quantity changes only when you enter it in the booking form.</p><label className="block text-sm font-bold">People<input className="mt-1 w-full border b-line rounded-xl p-3 c-card" type="number" min="1" max="10000" value={people} onChange={e=>setPeople(Math.max(1,Number(e.target.value)||1))}/></label><label className="block text-sm font-bold">Cooling hours<input className="mt-1 w-full border b-line rounded-xl p-3 c-card" type="number" min="1" max="72" value={hours} onChange={e=>setHours(Math.max(1,Number(e.target.value)||1))}/></label><div className="rounded-xl c-soft p-4 font-black">Estimated dry ice: {estimate} KG</div></div>;
+};
+
+const SafePanel: React.FC<{id:FeatureId; state?:string}> = ({id,state}) => {
+  if(id==='calculator') return <CalculatorPanel/>;
+  if(id==='video') return <div className="space-y-3"><p className="text-sm t-sub">Build a prompt here, then copy it to your preferred external AI tool. The app does not claim to generate a video.</p><textarea className="w-full min-h-32 border b-line rounded-xl p-3 c-card" defaultValue="Create a short event video idea using dry ice fog, safe handling and the Ankur Dryice brand."/><button type="button" className="w-full min-h-11 rounded-xl c-brand font-bold">Copy prompt</button></div>;
+  if(id==='rates') return <div className="space-y-2 text-sm"><p>Dry ice: ₹50/KG</p><p>Thermocol packing: ₹10/KG</p><p className="t-sub">Transport and other packing charges apply only when shown in the booking total.</p></div>;
+  if(id==='support') return <div className="grid grid-cols-2 gap-3"><a className="c-brand rounded-xl p-3 text-center font-bold" href="tel:+919580882066">Call</a><a className="c-brand rounded-xl p-3 text-center font-bold" target="_blank" rel="noreferrer" href="https://wa.me/918896332066?text=Hello%20Ankur%20Dryice">WhatsApp</a></div>;
+  if(id==='faq') return <div className="space-y-3 text-sm"><p><b>How should dry ice be handled?</b><br/>Use insulated gloves, keep ventilation, and never seal it in an airtight container.</p><p><b>When is delivery confirmed?</b><br/>Only after the order status and owner confirmation shown in the app.</p></div>;
+  if(id==='service-area') return <div><p className="text-sm t-sub">Search Uttar Pradesh districts. Availability and timing are confirmed per order.</p><input aria-label="Search district" placeholder="Search district" className="mt-3 w-full border b-line rounded-xl p-3 c-card"/></div>;
+  if(id==='catalog') return <p className="text-sm t-sub">Application categories use the active products already shown in Categories. Unavailable products are not offered for booking.</p>;
+  return <div className="rounded-xl c-soft p-4 text-sm font-bold">{state || 'This feature uses verified account and order data.'}</div>;
+};
+
+export const FeatureHub: React.FC<{currentUser:User|null; role:string|null; initial?:FeatureId|null; onClose?:()=>void}> = ({currentUser,role,initial=null,onClose}) => {
+  const {language,t}=useLanguage(); const [active,setActive]=useState<FeatureId|null>(initial);
+  const visible=useMemo(()=>FEATURES.filter(f=>!f.owner||role==='admin'),[role]);
+  const selected=FEATURES.find(f=>f.id===active);
+  if(selected) return <div className="c-app min-h-screen page-with-bottom-nav"><header className="c-card border-b b-line px-3 py-3 flex items-center gap-2"><button aria-label={t('back')} onClick={()=>setActive(null)} className="w-11 h-11 rounded-full flex items-center justify-center"><ArrowLeft className="w-5 h-5"/></button><h1 className="font-black">{language==='hi'?selected.hi:selected.en}</h1></header><main className="p-4 max-w-lg mx-auto"><SafePanel id={selected.id} state={selected.state}/>{selected.auth&&!currentUser&&<p className="mt-3 text-sm text-amber-700">Sign in is required to use account actions.</p>}</main></div>;
+  return <section className="c-card border b-line rounded-2xl p-4"><div className="flex items-center justify-between"><h2 className="text-sm font-black">{t('features')}</h2>{onClose&&<button onClick={onClose} className="text-xs t-brand">Close</button>}</div><div className="grid grid-cols-2 gap-2 mt-3">{visible.map(({id,icon:Icon,en,hi})=><button key={id} type="button" onClick={()=>setActive(id)} className="focus-ring min-h-20 c-soft rounded-xl p-3 text-left"><Icon className="w-5 h-5 t-brand"/><span className="block mt-2 text-xs font-extrabold">{language==='hi'?hi:en}</span></button>)}</div></section>;
+};
+
+export const LanguageSettings = () => { const {language,setLanguage,t}=useLanguage(); return <section className="c-card border b-line rounded-2xl p-4"><h2 className="text-sm font-black flex items-center gap-2"><Languages className="w-5 h-5 t-brand"/>{t('settings')}</h2><p className="mt-3 text-xs font-bold t-sub">{t('language')}</p><div className="grid grid-cols-2 gap-2 mt-2"><button type="button" aria-pressed={language==='en'} onClick={()=>setLanguage('en')} className={`min-h-11 rounded-xl border ${language==='en'?'b-brand c-soft':'b-line c-card'} font-bold`}>{t('english')}</button><button type="button" aria-pressed={language==='hi'} onClick={()=>setLanguage('hi')} className={`min-h-11 rounded-xl border ${language==='hi'?'b-brand c-soft':'b-line c-card'} font-bold`}>{t('hindi')}</button></div></section> };
