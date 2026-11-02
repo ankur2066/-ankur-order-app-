@@ -20,6 +20,7 @@ export function AppUpdateNotice(){
     let checking=false;
     let lastCheckAt=0;
     let nativeListener: {remove:()=>Promise<void>}|null=null;
+    let wasBackgrounded=false;
     if(!Capacitor.isNativePlatform()||Capacitor.getPlatform()!=='android')return;
     const check=async(force=false,nativeForeground=false)=>{
       // Native appStateChange can precede a WebView visibility/focus event.
@@ -49,7 +50,11 @@ export function AppUpdateNotice(){
     // Android process may keep its WebView alive without a DOM focus change.
     // The Capacitor App bridge provides a native resume signal.
     void App.addListener('appStateChange',({isActive})=>{
-      if(isActive)void check(false,true);
+      if(!isActive){wasBackgrounded=true;return;}
+      // Only real background -> foreground resumes bypass the 15s DOM burst throttle.
+      const force=wasBackgrounded;
+      wasBackgrounded=false;
+      void check(force,true);
     }).then(listener=>{
       if(mounted)nativeListener=listener;
       else void listener.remove();
