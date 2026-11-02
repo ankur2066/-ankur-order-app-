@@ -1,6 +1,6 @@
 # ANKUR DRYICE — PROJECT PROGRESS / CHAT HANDOFF
 
-**Last checked:** 2026-11-02 (Asia/Kolkata)  
+**Last checked:** 2026-11-02 16:48 IST (Asia/Kolkata)  
 **Project:** Ankur Dryice customer / owner / staff Android app  
 **Repository:** `ankur2066/-ankur-order-app-`  
 **Active review branch:** `codex/all-14-phase-bc-english`  
@@ -49,4 +49,18 @@ The owner uses short ChatGPT conversations and Codex quotas run out. **Resume fr
 
 ## Current ChatGPT direct work
 
-2026-11-02: User explicitly requested continuation via connected GitHub rather than short Codex quota sessions. First action is to establish this durable handoff. Next planned scoped task: English-first bilingual review of `billing/templates/UnitProductForm.template` and `billing/templates/UnitProductManager.template`, then verify CI and record outcome.
+**2026-11-02 — first direct GitHub work completed; no owner questions required.**
+
+- `9c33d0182`: created this durable progress/handoff document.
+- `37e879dac`: customer `UnitProductForm` / `UnitOrderBreakdown` now use the existing persistent English/Hindi preference. English-first labels include booking, validation messages, order confirmation, bill totals, packing/delivery and correct editable input lengths. Existing Firestore order fields and fixed-point price calculation remain unchanged.
+- `93191b5d4`: owner `UnitProductManager` now shows translated field labels, draft state, pricing/packing labels, product names and actions.
+- `336a1f8bb` and `d2eadcc26`: added a three-test bilingual source/permission regression contract and wired it to all-features CI.
+- `01cc1ac4b`: updated the existing checkout React test harness to supply the new language context and verify both English and Hindi form labels. Earlier intermediate CI failures were caused by the missing test mock and have been addressed.
+- **Latest code revision checks at `01cc1ac4b`: PASS**
+  - All 14 feature review CI: https://github.com/ankur2066/-ankur-order-app-/actions/runs/41435548607 and https://github.com/ankur2066/-ankur-order-app-/actions/runs/41435540852
+  - Product billing review: https://github.com/ankur2066/-ankur-order-app-/actions/runs/41435540768
+  - Security emulator: https://github.com/ankur2066/-ankur-order-app-/actions/runs/41435540545
+- **New combined signed private TEST APK** was successfully rebuilt from app-source revision `93191b5d4` (same application source as latest test commit), run https://github.com/ankur2066/-ankur-order-app-/actions/runs/41435216292, artifact `13135244610`: https://github.com/ankur2066/-ankur-order-app-/actions/runs/41435216292/artifacts/13135244610. Version `1.0.34-combined-test`; artifact expires 2026-11-09 ~11:18 UTC. Not installed / device-smoke-tested / published.
+- **Known language gap:** underlying pure-money validation exceptions, some native dispatch-slot text and the legacy booking/tracking/admin screens still have untranslated Hindi. This change covers the new unit-product customer/owner views only; do not claim full-app localization.
+
+**Next safe development task:** inventory and finish remaining English-first screen localization (especially legacy Booking and Tracking) without changing booking IDs, money, Firestore rules or notification behavior. Then request device smoke testing of signed APK. Keep feature-suite backend disabled until owner-approved deployment.
