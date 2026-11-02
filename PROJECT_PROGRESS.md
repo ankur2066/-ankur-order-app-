@@ -102,3 +102,5 @@ The owner wants maximum forward progress with **minimal questions**, frequent sa
 - Next: review the newest Actions run and signed APK/AAB hashes, phone smoke test for Dry Ice/Pyro booking, language, tracking, real owner/staff/customer FCM and in-place upgrade.
 
 - 2026-11-02 follow-up: fixed a local rebuild parity gap. `all-features/reconstruct.py` now applies the same final scoped booking-contrast overlay as review CI and signed APK CI. Added a reconstruction parity test; source builder remains offline/review-only. Corrected old-version update guidance: v1.0.35 already has the checker; v1.0.34 and earlier need a verified in-place update first. No production changes.
+
+- 2026-11-02: added a **real React component integration test** for Android update-notice lifecycle (first launch, Later dismissal, foreground return, new version, withdrawn manifest, duplicate focus event and browser suppression), in `updates/notice.test.mjs`. It runs in the existing CI React test stage. This is emulated browser/render testing, **not** physical Android confirmation.
