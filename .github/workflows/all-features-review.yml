@@ -44,10 +44,11 @@ jobs:
           ANKUR_APP_DIR=$PWD python3 all-features/apply_patch.py
           python3 all-features/wire_additions.py
           python3 ui-fixes/seasonal_contrast_v135.py
+          python3 ui-fixes/customer-home-language.py
           python3 all-features/protected_audit.py check /tmp/protected.json
       - name: Unit and regression contracts
         run: |
-          node --test all-features/feature-contract.test.mjs all-features/backend/trustedOperations.test.mjs billing/language-coverage.test.mjs seasonal/catalogPolicy.test.mjs updates/appUpdate.test.mjs ui-fixes/contrast.test.mjs all-features/reconstruct-contract.test.mjs ci-fixes/signing-cert.test.mjs
+          node --test all-features/feature-contract.test.mjs all-features/backend/trustedOperations.test.mjs billing/language-coverage.test.mjs seasonal/catalogPolicy.test.mjs updates/appUpdate.test.mjs ui-fixes/contrast.test.mjs ui-fixes/customer-home-language.test.mjs all-features/reconstruct-contract.test.mjs ci-fixes/signing-cert.test.mjs
           node --experimental-strip-types --test phase-a/phase-a.test.mjs
       - name: Install and build
         run: |
