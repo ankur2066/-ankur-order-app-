@@ -2,6 +2,9 @@
 from pathlib import Path
 import shutil
 root=Path('billing/templates')
+# Seasonal customer storefront gate: owner products are never deleted.
+Path('src/config').mkdir(parents=True,exist_ok=True)
+shutil.copyfile('seasonal/catalogPolicy.template','src/config/seasonalCatalog.ts')
 for source,target in [('unitBilling.template','src/billing/unitBilling.ts'),('catalogDrafts.template','src/billing/catalogDrafts.ts'),('productOrders.template','src/services/productOrders.ts'),('useUnitProducts.template','src/hooks/useUnitProducts.ts'),('UnitProductManager.template','src/components/UnitProductManager.tsx'),('UnitProductForm.template','src/components/UnitProductForm.tsx')]:
     p=Path(target);p.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(root/source,p)
 def replace(path,a,b,count=1):
@@ -19,6 +22,11 @@ replace('src/components/customer/categoryIcons.tsx','  accessories: Package,',' 
 replace('src/hooks/useProducts.ts',"import { INITIAL_PRODUCTS } from '../data/products';","import { INITIAL_PRODUCTS } from '../data/products';\nimport { useUnitProducts } from './useUnitProducts';\nimport { UNIT_LABELS } from '../billing/unitBilling';")
 replace('src/hooks/useProducts.ts','export function useStorefrontProducts() {','export function useStorefrontProducts() {\n  const unit = useUnitProducts();')
 replace('src/hooks/useProducts.ts','    products: sortProducts(products.filter((p) => p.active)),',"    products: sortProducts([...products.filter((p) => p.active), ...unit.products.map(p => ({id:p.id,name:p.name,hindiName:p.hindiName,category:p.category,active:p.active,unitProduct:p,unit:p.unit?UNIT_LABELS[p.unit]:'',ratePerKg:0,thermocolPerKg:0}))]),")
+
+# Customer-facing catalogue and new-order picker offer only Dry Ice and Pyro.
+# Saved orders, admin-only catalogue, prices and database remain unchanged.
+replace('src/hooks/useProducts.ts',"import { UNIT_LABELS } from '../billing/unitBilling';","import { UNIT_LABELS } from '../billing/unitBilling';\\nimport { isSeasonalPublicProduct } from '../config/seasonalCatalog';")
+replace('src/hooks/useProducts.ts',"products: sortProducts([...products.filter((p) => p.active), ...unit.products.map(p =>", "products: sortProducts([...products.filter(isSeasonalPublicProduct), ...unit.products.filter(isSeasonalPublicProduct).map(p =>")
 replace('src/components/customer/ProductCard.tsx',"import { CategoryIcon } from './categoryIcons';","import { CategoryIcon } from './categoryIcons';\nimport { rupees } from '../../billing/unitBilling';")
 replace('src/components/customer/ProductCard.tsx','<p className="text-[10px] t-sub mt-1.5">थर्मोकोल पैकिंग सहित</p>',"<p className=\"text-[10px] t-sub mt-1.5\">{product.unitProduct ? (product.unitProduct.packingMode==='none'?'Packing charge नहीं':rupees(product.unitProduct.packingPricePaise)+' packing '+(product.unitProduct.packingMode==='per_order'?'एक बार':'प्रति '+product.unit)) : 'थर्मोकोल पैकिंग सहित'}</p>")
 replace('src/components/OwnerStorefrontManager.tsx',"import { seedCatalog, useAllProducts }", "import { UnitProductManager } from './UnitProductManager';\nimport { seedCatalog, useAllProducts }")
