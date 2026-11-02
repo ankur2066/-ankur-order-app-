@@ -100,3 +100,5 @@ The owner wants maximum forward progress with **minimal questions**, frequent sa
 - Bumped **private test candidate** Android versionCode to 36 and versionName to `1.0.36-season-test`, including aligned update-check version and contract tests so it can be tested as an in-place update from v1.0.35. **Do not call the new APK successful before CI reports it.**
 - All feature services still on review branch; no website manifest, public APK/Play publishing, Firebase/Rules writes or billing changes.
 - Next: review the newest Actions run and signed APK/AAB hashes, phone smoke test for Dry Ice/Pyro booking, language, tracking, real owner/staff/customer FCM and in-place upgrade.
+
+- 2026-11-02 follow-up: fixed a local rebuild parity gap. `all-features/reconstruct.py` now applies the same final scoped booking-contrast overlay as review CI and signed APK CI. Added a reconstruction parity test; source builder remains offline/review-only. Corrected old-version update guidance: v1.0.35 already has the checker; v1.0.34 and earlier need a verified in-place update first. No production changes.

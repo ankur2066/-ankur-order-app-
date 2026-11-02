@@ -8,7 +8,7 @@
 - User can select Open update or Later. The app does **not** silently download or install APKs, request `REQUEST_INSTALL_PACKAGES`, access Firestore, or change booking and notification state.
 - Only allowlisted destination: official HTTPS `https://ankurdryice.store/app-releases/*.apk` or exact official Google Play listing for package `com.ankurdryice.events`. No third-party redirects.
 - This is **not yet** full native Play Core flexible in-app installation. Google Play-distributed builds should use Play Core when Play listing is available. Play's restricted install permission policy prohibits arbitrary self-update installers in this business app.
-- Existing customers on v1.0.35 or earlier cannot see the new notice until they install the **first v1.0.36 update**. Reuse the same signing certificate, never uninstall/reinstall and erase customer data to update.
+- Customers on v1.0.34 or earlier lack update discovery and need an **owner-verified, same-signature in-place upgrade** to at least v1.0.35 before they can see notices. An installed v1.0.35 test build already contains the checker, but it will not show a v1.0.36 notice unless the owner publishes a genuine, trusted newer-release manifest. Reuse the same signing certificate, never uninstall/reinstall and erase customer data to update.
 
 ## Owner-approved publishing procedure, later (do not auto-run)
 1. Build and device-test **v1.0.37 or higher** signed with the *existing* release certificate and increasing Android versionCode.
