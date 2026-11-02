@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
   push:
     branches: [codex/all-14-phase-bc-english]
-    paths: ['all-features/templates/**', 'all-features/apply_patch.py', 'all-features/wire_additions.py', 'billing/templates/**', 'billing/apply_patch.py', '.github/workflows/all-features-signed-test-apk.yml']
+    paths: ['all-features/templates/**', 'all-features/apply_patch.py', 'all-features/wire_additions.py', 'billing/templates/**', 'billing/apply_patch.py', 'seasonal/*.template', 'updates/*.template', '.github/workflows/all-features-signed-test-apk.yml']
 permissions: {contents: read}
 jobs:
   signed-test-apk:
