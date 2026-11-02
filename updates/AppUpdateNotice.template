@@ -1,5 +1,6 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {Capacitor} from '@capacitor/core';
+import {App} from '@capacitor/app';
 import {useLanguage} from '../context/LanguageContext';
 import {checkForUpdate,type UpdateRelease} from '../services/appUpdate';
 
@@ -18,9 +19,11 @@ export function AppUpdateNotice(){
     let mounted=true;
     let checking=false;
     let lastCheckAt=0;
+    let nativeListener: {remove:()=>Promise<void>}|null=null;
     if(!Capacitor.isNativePlatform()||Capacitor.getPlatform()!=='android')return;
-    const check=async(force=false)=>{
-      if(!mounted||checking||document.visibilityState==='hidden')return;
+    const check=async(force=false,nativeForeground=false)=>{
+      // Native appStateChange can precede a WebView visibility/focus event.
+      if(!mounted||checking||(!nativeForeground&&document.visibilityState==='hidden'))return;
       const now=Date.now();
       if(!force&&now-lastCheckAt<15000)return; // focus + visibility may both fire
       lastCheckAt=now;
@@ -43,10 +46,19 @@ export function AppUpdateNotice(){
     void check(true);
     document.addEventListener('visibilitychange',onResume);
     window.addEventListener('focus',onResume);
+    // Android process may keep its WebView alive without a DOM focus change.
+    // The Capacitor App bridge provides a native resume signal.
+    void App.addListener('appStateChange',({isActive})=>{
+      if(isActive)void check(false,true);
+    }).then(listener=>{
+      if(mounted)nativeListener=listener;
+      else void listener.remove();
+    }).catch(()=>{/* DOM focus/visibility listeners remain the fallback. */});
     return ()=>{
       mounted=false;
       document.removeEventListener('visibilitychange',onResume);
       window.removeEventListener('focus',onResume);
+      if(nativeListener)void nativeListener.remove();
     };
   },[]);
   if(!release||dismissed)return null;

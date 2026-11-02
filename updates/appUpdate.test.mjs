@@ -70,6 +70,9 @@ test('native only, nonblocking, bilingual notice and no silent installer permiss
  assert.match(notice,/onClick=\{\(\)=>setDismissed\(true\)\}/);
  assert.match(notice,/document\.addEventListener\('visibilitychange',onResume\)/);
  assert.match(notice,/window\.addEventListener\('focus',onResume\)/);
+ assert.match(notice,/App\.addListener\('appStateChange'/);
+ assert.match(notice,/nativeForeground/);
+ assert.match(notice,/nativeListener\.remove\(\)/);
  assert.match(notice,/if\(!info\)\{setRelease\(null\);return;\}/,'withdrawn/invalid releases must clear stale notice');
  assert.match(notice,/rel="noopener noreferrer"/);
  assert.doesNotMatch(notice,/REQUEST_INSTALL_PACKAGES|ACTION_INSTALL_PACKAGE|PackageInstaller|download\(/);

@@ -116,3 +116,5 @@ The owner wants maximum forward progress with **minimal questions**, frequent sa
 - Added `docs/ANDROID_V136_DEVICE_QA.md`: no-PII, old-version upgrade, language/booking/tracking/FCM/security checks for an authorized physical Android test. **A real physical device test is still pending; no production order test performed.**
 - An untrusted/absent manifest at `https://ankurdryice.store/app-updates/android-stable.json` must not show an update prompt; no manifest publication was performed.
 - All code remains private draft PR #15. No main merge, public APK release, Play submission, new Firebase Functions/Rules deployment, billing change, or live customer data mutation.
+
+- 2026-11-02 second work session: staged native Android appStateChange foreground wakeup for update manifest (in addition to existing focus/visibility), cleanup and React integration regression. Review and signed CI install the official Capacitor App 7 plugin. Prior v1.0.36 binary is unchanged until another signed build passes; no remote publication or production data changes.

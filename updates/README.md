@@ -41,3 +41,8 @@ For an approved Google Play rollout, set `channel:"play"` and `url:"https://play
 - The APK release URL must now be one canonical `/app-releases/filename.apk` path with no encoded separators, nested folders, query strings or redirects; the checker rejects oversized response headers before reading a body.
 - If the approved manifest becomes unavailable, invalid or withdrawn after a notification appeared, the prompt is cleared on the next check instead of continuing to promote a stale download link.
 - These are review-only source changes. The existing signed v1.0.35 APK does not include later source commits until the private signed build completes; no manifest was published.
+
+## 2026-11-02 additional Android resume fix (review only)
+- Added Capacitor's native App `appStateChange` foreground listener in addition to DOM focus/visibility, so returning to a still-alive Android WebView triggers the trusted manifest recheck even if DOM visibility lags.
+- Inactive/background transitions do not request the manifest. Listener cleanup handles component unmount and delayed native registration. There is no silent download/install.
+- The private Android build needs `@capacitor/app@7` linked by `npm ci` and `android:sync`, then repeat CI tests and signed build. This source revision is **not** automatically inside the previous signed v1.0.36 APK.

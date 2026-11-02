@@ -19,6 +19,7 @@ async function harness(responses,native=true){
  let now=1000000;
  let checks=0;
  const events=new Map();
+ const appListeners=new Map();
  const document={
    visibilityState:'visible',
    addEventListener(name,callback){events.set('document:'+name,callback);},
@@ -35,6 +36,10 @@ async function harness(responses,native=true){
      react:{...React,default:React},
      'react/jsx-runtime':require('react/jsx-runtime'),
      '@capacitor/core':{Capacitor:{isNativePlatform:()=>native,getPlatform:()=>'android'}},
+     '@capacitor/app':{App:{addListener:async(name,callback)=>{
+       appListeners.set(name,callback);
+       return {remove:async()=>{appListeners.delete(name);}};
+     }}},
      '../context/LanguageContext':{useLanguage:()=>({language:'en'})},
      '../services/appUpdate':{checkForUpdate:async()=>{checks++;return responses.shift()??null;}},
    };
@@ -51,8 +56,10 @@ async function harness(responses,native=true){
    async mount(){await act(async()=>{root=create(React.createElement(compiled.namespace.AppUpdateNotice));});},
    async resume(name='window:focus'){now+=20000;await act(async()=>{events.get(name)?.();});},
    async burst(){await act(async()=>{events.get('window:focus')?.();events.get('document:visibilitychange')?.();});},
+   async nativeResume(hidden=false){now+=20000;document.visibilityState=hidden?'hidden':'visible';await act(async()=>{appListeners.get('appStateChange')?.({isActive:true});});document.visibilityState='visible';},
+   async nativeBackground(){await act(async()=>{appListeners.get('appStateChange')?.({isActive:false});});},
    async dismiss(){await act(async()=>{root.root.findByType('button').props.onClick();});},
-   async close(){await act(async()=>root.unmount());assert.equal(events.size,0);},
+   async close(){await act(async()=>root.unmount());await Promise.resolve();assert.equal(events.size,0);assert.equal(appListeners.size,0,'native listener cleaned up');},
  };
 }
 
@@ -85,4 +92,16 @@ test('quick focus/visibility burst is deduplicated; browser is not offered APK p
  assert.equal(browser.checks,0);
  assert.equal(browser.text,'null');
  await browser.close();
+});
+
+test('native Android appStateChange rechecks while WebView reports hidden; background does not request a manifest',async()=>{
+ const h=await harness([release(37),release(38)]);
+ await h.mount();
+ assert.equal(h.checks,1);
+ await h.nativeBackground();
+ assert.equal(h.checks,1,'backgrounding the app must not fetch');
+ await h.nativeResume(true);
+ assert.equal(h.checks,2,'native resume must recheck even before document becomes visible');
+ assert.match(h.text,/1.0.38/);
+ await h.close();
 });
