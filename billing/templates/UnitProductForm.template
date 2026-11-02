@@ -3,28 +3,33 @@ import type {User} from 'firebase/auth';
 import {doc,getDoc,serverTimestamp,runTransaction} from 'firebase/firestore';
 import {auth,db} from '../firebase';
 import {getDispatchSlots} from '../data/products';
+import {useLanguage} from '../context/LanguageContext';
 import {subscribeNewOrderPush} from '../services/orderPush';
 import {useUnitBillingState} from '../hooks/useUnitProducts';
-import {quoteProduct,parseQuantity,quantityText,rupees,UNIT_LABELS,type UnitProduct,type BillSnapshot} from '../billing/unitBilling';
+import {quoteProduct,parseQuantity,quantityText,quantityTextEnglish,rupees,UNIT_LABELS,type UnitProduct,type BillSnapshot} from '../billing/unitBilling';
+
+const displayUnit=(unit:keyof typeof UNIT_LABELS,hi:boolean)=>hi?UNIT_LABELS[unit]:({kg:'KG',piece:'piece',box:'box',package:'package'} as const)[unit];
 
 export function UnitOrderBreakdown({order}:{order:any}){
+ const {language}=useLanguage();const hi=language==='hi';const ui=(en:string,hindi:string)=>hi?hindi:en;
  const b=order?.billing as BillSnapshot|undefined;if(!b)return null;
- return <dl className="rounded-xl border b-line p-3 text-sm space-y-2 t-main" aria-label="प्रोडक्ट का बिल">
- <div className="flex justify-between gap-3"><dt>{order.productName} · {quantityText(order)} × {rupees(b.unitPricePaise)}</dt><dd>{rupees(b.productSubtotalPaise)}</dd></div>
- {b.packingMode!=='none'&&<div className="flex justify-between gap-3"><dt>Packing ({b.packingMode==='per_order'?'एक बार':'प्रति '+UNIT_LABELS[b.unit]})</dt><dd>{rupees(b.packingSubtotalPaise)}</dd></div>}
- {b.deliveryFeePaise>0&&<div className="flex justify-between gap-3"><dt>Delivery (एक बार)</dt><dd>{rupees(b.deliveryFeePaise)}</dd></div>}
- <div className="flex justify-between gap-3 font-black border-t b-line pt-2"><dt>कुल राशि</dt><dd>{rupees(b.totalPaise)}</dd></div>
+ return <dl className="rounded-xl border b-line p-3 text-sm space-y-2 t-main" aria-label={ui("Product bill","प्रोडक्ट का बिल")}>
+ <div className="flex justify-between gap-3"><dt>{order.productName} · {hi?quantityText(order):quantityTextEnglish(order)} × {rupees(b.unitPricePaise)}</dt><dd>{rupees(b.productSubtotalPaise)}</dd></div>
+ {b.packingMode!=='none'&&<div className="flex justify-between gap-3"><dt>{ui('Packing','पैकिंग')} ({b.packingMode==='per_order'?ui('once','एक बार'):ui('per','प्रति')+' '+displayUnit(b.unit,hi)})</dt><dd>{rupees(b.packingSubtotalPaise)}</dd></div>}
+ {b.deliveryFeePaise>0&&<div className="flex justify-between gap-3"><dt>{ui('Delivery (once)','डिलीवरी (एक बार)')}</dt><dd>{rupees(b.deliveryFeePaise)}</dd></div>}
+ <div className="flex justify-between gap-3 font-black border-t b-line pt-2"><dt>{ui('Total amount','कुल राशि')}</dt><dd>{rupees(b.totalPaise)}</dd></div>
  </dl>;
 }
 export function UnitProductForm({product,currentUser,onOrderSuccess,onGoToTrack}:{product:UnitProduct;currentUser:User|null;onOrderSuccess:(id:string,pin:string)=>void;onGoToTrack?:(id:string,pin:string)=>void}){
+ const {language}=useLanguage();const hi=language==='hi';const ui=(en:string,hindi:string)=>hi?hindi:en;
  const {enabled}=useUnitBillingState();const [current,setCurrent]=useState(product);const [quantity,setQuantity]=useState(product.unit?String(product.minQuantityUnits/(product.unit==='kg'?1000:1)):'');
  const [name,setName]=useState(currentUser?.displayName||'');const [phone,setPhone]=useState('');const [place,setPlace]=useState('');const slots=getDispatchSlots();const [slot,setSlot]=useState(slots.find(x=>!x.disabled)?.label||'');
  const [busy,setBusy]=useState(false),[error,setError]=useState(''),[done,setDone]=useState<any>(null);const inFlight=useRef(false);const attempt=useRef<{id:string;pin:string;token:string;order:any}|null>(null);
- const preview=useMemo(()=>{try{return {bill:quoteProduct(current,parseQuantity(quantity,current.unit as any)),error:''};}catch(e){return {bill:null,error:e instanceof Error?e.message:'मात्रा जाँचें।'};}},[current,quantity]);
+ const preview=useMemo(()=>{try{return {bill:quoteProduct(current,parseQuantity(quantity,current.unit as any)),error:''};}catch(e){return {bill:null,error:e instanceof Error?e.message:ui('Check the quantity.','मात्रा जाँचें।')};}},[current,quantity,hi]);
  const submit=async(e:React.FormEvent)=>{e.preventDefault();if(inFlight.current||done)return;setError('');
- if(!enabled){setError('नई product booking अभी उपलब्ध नहीं है।');return;}
- if(name.trim().length<2||name.trim().length>100||!/^[6-9]\d{9}$/.test(phone.trim())||place.trim().length<2||place.trim().length>300){setError('नाम, 10 अंकों का मोबाइल और शहर/पता सही भरें।');return;}
- if(!slots.some(s=>s.label===slot&&!s.disabled)){setError('उपलब्ध dispatch समय चुनें।');return;}
+ if(!enabled){setError(ui('Product booking is not available yet.','नई product booking अभी उपलब्ध नहीं है।'));return;}
+ if(name.trim().length<2||name.trim().length>100||!/^[6-9]\d{9}$/.test(phone.trim())||place.trim().length<2||place.trim().length>300){setError(ui('Enter a valid name, 10-digit mobile number and city/address.','नाम, 10 अंकों का मोबाइल और शहर/पता सही भरें।'));return;}
+ if(!slots.some(s=>s.label===slot&&!s.disabled)){setError(ui('Choose an available dispatch time.','उपलब्ध dispatch समय चुनें।'));return;}
  inFlight.current=true;setBusy(true);const expectedUid=currentUser?.uid||'guest';
  try{
   if(!attempt.current){
@@ -35,12 +40,12 @@ export function UnitProductForm({product,currentUser,onOrderSuccess,onGoToTrack}
   const order=await runTransaction(db,async tx=>{
    const previous=await tx.get(doc(db,'product_order_tracking',currentAttempt.token));
    if(previous.exists()&&currentAttempt.order)return currentAttempt.order;
-   if(previous.exists())throw Error('इस booking की स्थिति पहले जाँचें।');
-   const flag=await tx.get(doc(db,'settings','unitBilling'));if(!flag.exists()||flag.data().schemaVersion!==2||flag.data().enabled!==true)throw Error('नई booking अभी बंद है।');
-   const snap=await tx.get(doc(db,'product_catalog_v2',product.id));if(!snap.exists())throw Error('प्रोडक्ट अब उपलब्ध नहीं है।');
+   if(previous.exists())throw Error(ui('Please check this booking status before retrying.','इस booking की स्थिति पहले जाँचें।'));
+   const flag=await tx.get(doc(db,'settings','unitBilling'));if(!flag.exists()||flag.data().schemaVersion!==2||flag.data().enabled!==true)throw Error(ui('New bookings are currently disabled.','नई booking अभी बंद है।'));
+   const snap=await tx.get(doc(db,'product_catalog_v2',product.id));if(!snap.exists())throw Error(ui('This product is no longer available.','प्रोडक्ट अब उपलब्ध नहीं है।'));
    const latest={...snap.data(),id:snap.id} as UnitProduct;const bill=quoteProduct(latest,parseQuantity(quantity,latest.unit as any));
-   if(!preview.bill||JSON.stringify(bill)!==JSON.stringify(preview.bill)||latest.hindiName!==current.hindiName)throw Object.assign(new Error('कीमत या packing बदल गई है। नया bill देखकर फिर booking दबाएँ।'),{nextProduct:latest});
-   if((auth.currentUser?.uid||'guest')!==expectedUid)throw Error('खाता बदल गया है। कृपया दोबारा booking करें।');
+   if(!preview.bill||JSON.stringify(bill)!==JSON.stringify(preview.bill)||latest.hindiName!==current.hindiName)throw Object.assign(new Error(ui('Price or packing changed. Review the updated bill before booking again.','कीमत या packing बदल गई है। नया bill देखकर फिर booking दबाएँ।')),{nextProduct:latest});
+   if((auth.currentUser?.uid||'guest')!==expectedUid)throw Error(ui('Account changed. Please restart your booking.','खाता बदल गया है। कृपया दोबारा booking करें।'));
    const {id:orderId,pin:trackingPin,token:trackingToken}=currentAttempt;
    const value={billingVersion:2,orderId,trackingPin,trackingToken,productId:latest.id,productName:latest.hindiName,billing:bill,userId:expectedUid,customerName:name.trim(),customerPhone:phone.trim(),district:place.trim().slice(0,100),address:place.trim(),city:place.trim().slice(0,100),dispatchTiming:slot,status:'pending',paymentStatus:'pending_verification',paymentMethod:'paytm_business_upi',createdAt:serverTimestamp(),updatedAt:serverTimestamp()};
    currentAttempt.order=value;
@@ -52,16 +57,16 @@ export function UnitProductForm({product,currentUser,onOrderSuccess,onGoToTrack}
 
   try{const key='ankur_dryice_placed_orders_v1';const rows=JSON.parse(localStorage.getItem(key)||'[]');localStorage.setItem(key,JSON.stringify([{...order,createdAtMs:Date.now()},...(Array.isArray(rows)?rows:[])].slice(0,20)));}catch{}
   void subscribeNewOrderPush(orderId,trackingPin).catch(()=>{});onOrderSuccess(orderId,trackingPin);
- }catch(e){if((e as any)?.nextProduct)setCurrent((e as any).nextProduct);setError(e instanceof Error?e.message:'Booking पूरी नहीं हुई। कृपया फिर प्रयास करें।');}finally{inFlight.current=false;setBusy(false);}};
- if(done)return <section className="c-card p-4 rounded-2xl space-y-3 t-main" role="status"><h2 className="text-xl font-black">ऑर्डर मिल गया</h2><p>{done.orderId}</p><p>गुप्त tracking PIN: <strong>{done.trackingPin}</strong></p><UnitOrderBreakdown order={done}/><button type="button" onClick={()=>onGoToTrack?.(done.orderId,done.trackingPin)} className="c-brand rounded-xl px-4 py-3">ऑर्डर ट्रैक करें</button><p className="text-sm t-sub">भुगतान मालिक की पुष्टि के बाद verified होगा।</p></section>;
- return <form onSubmit={submit} className="c-card rounded-2xl p-4 space-y-4" aria-label="प्रोडक्ट की booking">
- <h2 className="text-xl font-black t-main">{current.hindiName}</h2><p className="text-sm t-sub">{current.name}</p>
- {[['नाम',name,setName],['मोबाइल',phone,setPhone],['शहर / पता',place,setPlace]].map(([label,value,setter]:any)=><label key={label} className="block text-sm t-main">{label}<input required value={value} onChange={e=>setter(e.target.value)} maxLength={label==='मोबाइल'?10:label==='नाम'?100:300} inputMode={label==='मोबाइल'?'tel':'text'} className="block w-full rounded-xl border b-line c-soft p-3"/></label>)}
- <label className="block text-sm t-main">मात्रा ({current.unit?UNIT_LABELS[current.unit]:'unit'})<input required inputMode={current.unit==='kg'?'decimal':'numeric'} value={quantity} onChange={e=>setQuantity(e.target.value)} className="block w-full rounded-xl border b-line c-soft p-3"/></label>
- <label className="block text-sm t-main">Dispatch समय<select value={slot} onChange={e=>setSlot(e.target.value)} className="block w-full rounded-xl border b-line c-soft p-3">{slots.map(s=><option key={s.id} value={s.label} disabled={s.disabled}>{s.label}</option>)}</select></label>
- {preview.bill?<UnitOrderBreakdown order={{billingVersion:2,billing:preview.bill,productName:current.hindiName}}/>:<p role="status" className="text-sm t-sub">{preview.error}</p>}
- {!enabled&&<p role="status" className="text-sm t-sub">नई product booking अभी चालू नहीं है।</p>}
+ }catch(e){if((e as any)?.nextProduct)setCurrent((e as any).nextProduct);setError(e instanceof Error?e.message:ui('Booking failed. Please try again.','Booking पूरी नहीं हुई। कृपया फिर प्रयास करें।'));}finally{inFlight.current=false;setBusy(false);}};
+ if(done)return <section className="c-card p-4 rounded-2xl space-y-3 t-main" role="status"><h2 className="text-xl font-black">{ui("Order received","ऑर्डर मिल गया")}</h2><p>{done.orderId}</p><p>{ui("Private tracking PIN:","गुप्त tracking PIN:")} <strong>{done.trackingPin}</strong></p><UnitOrderBreakdown order={done}/><button type="button" onClick={()=>onGoToTrack?.(done.orderId,done.trackingPin)} className="c-brand rounded-xl px-4 py-3">{ui("Track order","ऑर्डर ट्रैक करें")}</button><p className="text-sm t-sub">{ui("Payment is verified only after owner confirmation.","भुगतान मालिक की पुष्टि के बाद verified होगा।")}</p></section>;
+ return <form onSubmit={submit} className="c-card rounded-2xl p-4 space-y-4" aria-label={ui("Product booking","प्रोडक्ट की booking")}>
+ <h2 className="text-xl font-black t-main">{hi?current.hindiName:current.name}</h2><p className="text-sm t-sub">{hi?current.name:current.hindiName}</p>
+ {[['name',ui('Name','नाम'),name,setName],['phone',ui('Mobile number','मोबाइल'),phone,setPhone],['place',ui('City / address','शहर / पता'),place,setPlace]].map(([key,label,value,setter]:any)=><label key={key} className="block text-sm t-main">{label}<input required value={value} onChange={e=>setter(e.target.value)} maxLength={key==='phone'?10:key==='name'?100:300} inputMode={key==='phone'?'tel':'text'} className="block w-full rounded-xl border b-line c-soft p-3"/></label>)}
+ <label className="block text-sm t-main">{ui('Quantity','मात्रा')} ({current.unit?displayUnit(current.unit,hi):'unit'})<input required inputMode={current.unit==='kg'?'decimal':'numeric'} value={quantity} onChange={e=>setQuantity(e.target.value)} className="block w-full rounded-xl border b-line c-soft p-3"/></label>
+ <label className="block text-sm t-main">{ui("Dispatch time","डिस्पैच समय")}<select value={slot} onChange={e=>setSlot(e.target.value)} className="block w-full rounded-xl border b-line c-soft p-3">{slots.map(s=><option key={s.id} value={s.label} disabled={s.disabled}>{s.label}</option>)}</select></label>
+ {preview.bill?<UnitOrderBreakdown order={{billingVersion:2,billing:preview.bill,productName:hi?current.hindiName:current.name}}/>:<p role="status" className="text-sm t-sub">{preview.error}</p>}
+ {!enabled&&<p role="status" className="text-sm t-sub">{ui("Product booking is not enabled yet.","नई product booking अभी चालू नहीं है।")}</p>}
  {error&&<p role="alert" className="rounded-xl p-3 bg-rose-50 text-rose-800 text-sm">{error}</p>}
- <button disabled={busy||!enabled||!preview.bill} className="w-full c-brand rounded-xl p-3 font-bold disabled:opacity-50">{busy?'Booking हो रही है…':'Order बुक करें'}</button>
+ <button disabled={busy||!enabled||!preview.bill} className="w-full c-brand rounded-xl p-3 font-bold disabled:opacity-50">{busy?ui('Booking…','बुकिंग हो रही है…'):ui('Book order','ऑर्डर बुक करें')}</button>
  </form>;
 }
