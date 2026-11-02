@@ -82,3 +82,11 @@ test('Android private PDF export rejects traversal and non-PDF filenames before 
   assert.equal(h.writes.length, 0, 'no unsafe file may be written');
   assert.equal(h.shares.length, 0, 'no unsafe file may be shared');
 });
+
+test('Android PDF cache write failure aborts before opening any share chooser', async()=>{
+  const h = harness();
+  h.deps.filesystem.Filesystem.writeFile = async()=>{throw Error('private cache unavailable');};
+  await assert.rejects(pdfExporter.exportPdf(h.pdf, 'Ankur_Monthly_Test.pdf'), /private cache unavailable/);
+  assert.equal(h.shares.length, 0, 'must never share an unwritten PDF');
+  assert.equal(h.saves.length, 0, 'must not fall back to a browser download on Android');
+});
