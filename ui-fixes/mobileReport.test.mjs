@@ -70,3 +70,15 @@ test('share failure is reported rather than claiming the PDF was saved', async()
   await assert.rejects(pdfExporter.exportPdf(h.pdf, 'Ankur_Monthly_Test.pdf'), /no receiving app/);
   assert.equal(h.writes.length, 1);
 });
+
+
+test('Android private PDF export rejects traversal and non-PDF filenames before any file write', async()=>{
+  const h = harness();
+  for (const name of ['../orders.pdf', 'folder/orders.pdf', '..\\orders.pdf',
+    '/sdcard/orders.pdf', 'orders.txt', 'orders.pdf?download=1',
+    'orders..pdf', '.hidden.pdf', 'orders.PDF']) {
+    await assert.rejects(pdfExporter.exportPdf(h.pdf, name), /PDF फ़ाइल नाम/, name);
+  }
+  assert.equal(h.writes.length, 0, 'no unsafe file may be written');
+  assert.equal(h.shares.length, 0, 'no unsafe file may be shared');
+});
