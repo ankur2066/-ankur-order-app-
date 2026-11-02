@@ -43,6 +43,7 @@ test('native Android PDF is shared as an actual file from private cache, not as 
   assert.equal(h.writes[0].path, 'Ankur_Monthly_Test.pdf');
   assert.equal(h.writes[0].data, 'JVBERi0xLjQ=');
   assert.equal(h.writes[0].directory, 'CACHE');
+  assert.equal(h.writes[0].recursive, false, 'a single PDF must not create nested directories');
   assert.equal(h.shares.length, 1);
   assert.deepEqual(h.shares[0].files, ['file:///data/user/0/com.ankurdryice.events/cache/Ankur_Monthly_Test.pdf']);
   assert.equal(h.shares[0].url, undefined, 'file is not URL text');
