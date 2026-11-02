@@ -8,16 +8,16 @@ const notice=readFileSync(new URL('./AppUpdateNotice.template',import.meta.url),
 const workflow=readFileSync(new URL('../.github/workflows/all-features-signed-test-apk.yml',import.meta.url),'utf8');
 const update=await import('data:text/javascript;charset=utf-8,'+encodeURIComponent(stripTypeScriptTypes(source)));
 const play='https://play.google.com/store/apps/details?id=com.ankurdryice.events';
-const apk='https://ankurdryice.store/app-releases/Ankur-Dryice-v1.0.36-signed.apk';
-const mk=(url,versionCode=36,channel='signed_apk')=>({versionCode,versionName:'1.0.36',channel,url,notes:'Booking and Tracking improvements'});
+const apk='https://ankurdryice.store/app-releases/Ankur-Dryice-v1.0.37-signed.apk';
+const mk=(url,versionCode=37,channel='signed_apk')=>({versionCode,versionName:'1.0.37',channel,url,notes:'Booking and Tracking improvements'});
 
 test('version checker accepts only newer known verified destinations',()=>{
- assert.equal(update.ANDROID_VERSION_CODE,35);
+ assert.equal(update.ANDROID_VERSION_CODE,36);
  assert.equal(update.validateUpdateManifest(mk(apk))?.url,apk);
- assert.equal(update.validateUpdateManifest(mk(play,36,'play'))?.url,play);
+ assert.equal(update.validateUpdateManifest(mk(play,37,'play'))?.url,play);
+ assert.equal(update.validateUpdateManifest(mk(apk,36)),null);
  assert.equal(update.validateUpdateManifest(mk(apk,35)),null);
- assert.equal(update.validateUpdateManifest(mk(apk,34)),null);
- assert.equal(update.validateUpdateManifest(mk(apk,36.5)),null);
+ assert.equal(update.validateUpdateManifest(mk(apk,37.5)),null);
  assert.equal(update.validateUpdateManifest(mk(apk,99999999)),null);
 });
 
@@ -37,9 +37,9 @@ test('block arbitrary and unsafe APK destinations, redirects and malformed conte
  'https://ankurdryice.store/app-releases/file.APK']){
   assert.equal(update.validateUpdateManifest(mk(url)),null,url);
  }
- assert.equal(update.validateUpdateManifest(mk(apk,36,'play')),null,'wrong Play channel');
+ assert.equal(update.validateUpdateManifest(mk(apk,37,'play')),null,'wrong Play channel');
  assert.equal(update.validateUpdateManifest({...mk(apk),notes:{html:'danger'}})?.notes,undefined);
- assert.equal(update.validateUpdateManifest({versionCode:36,versionName:'../../foo',channel:'signed_apk',url:apk}),null);
+ assert.equal(update.validateUpdateManifest({versionCode:37,versionName:'../../foo',channel:'signed_apk',url:apk}),null);
 });
 
 test('app-open update check fails closed when manifest is absent/offline and never redirects',async()=>{
@@ -57,7 +57,7 @@ test('app-open update check fails closed when manifest is absent/offline and nev
  assert.equal(readBody,false,'oversized declared body must not be read');
  let requested;
  const out=await update.checkForUpdate(async(url,options)=>{requested={url,options};return{ok:true,text:async()=>JSON.stringify(mk(apk))};});
- assert.equal(out?.versionCode,36);
+ assert.equal(out?.versionCode,37);
  assert.equal(requested.url,'https://ankurdryice.store/app-updates/android-stable.json');
  assert.equal(requested.options.redirect,'error');
  assert.equal(requested.options.cache,'no-store');
@@ -73,6 +73,6 @@ test('native only, nonblocking, bilingual notice and no silent installer permiss
  assert.match(notice,/if\(!info\)\{setRelease\(null\);return;\}/,'withdrawn/invalid releases must clear stale notice');
  assert.match(notice,/rel="noopener noreferrer"/);
  assert.doesNotMatch(notice,/REQUEST_INSTALL_PACKAGES|ACTION_INSTALL_PACKAGE|PackageInstaller|download\(/);
- assert.match(workflow,/versionCode 35/);
- assert.match(workflow,/versionName "1\.0\.35-season-test"/);
+ assert.match(workflow,/versionCode 36/);
+ assert.match(workflow,/versionName "1\.0\.36-season-test"/);
 });

@@ -90,3 +90,13 @@ The owner wants maximum forward progress with **minimal questions**, frequent sa
 - **None of these proves** device installation, real customer order round-trip, working live in-app update, published Play Store, or newly deployed Firestore backend. Do not state otherwise.
 
 **Next action:** physical Android test (especially Pyro availability if correctly active), contrast QA, core booking/tracking/notifications. Confirm Play Console account/eligibility before planning public store launch; keep all production changes awaiting approval.
+
+## 2026-11-02 — v1.0.36 private review follow-up
+
+- Audited PR #15, signed v1.0.35 APK/AAB workflow and owner handoff. No main-branch merge, production deployment or live data change.
+- Update checker: restrict release links to canonical first-party APK filenames; reject encoded paths, redirects and declared oversized payloads; remove stale update notification when the manifest is invalid/withdrawn at a foreground recheck.
+- Scoped customer Booking high-contrast styling (fields, disabled/selected slots, price totals, focus); contrast-ratio test requires at least 4.5:1 on specified text/surface pairs. It changes CSS only.
+- An intermediate contrast assertion wrongly rejected a word in a harmless script comment; corrected at `31927b290`. Superseded failed CI runs are not final verification.
+- Bumped **private test candidate** Android versionCode to 36 and versionName to `1.0.36-season-test`, including aligned update-check version and contract tests so it can be tested as an in-place update from v1.0.35. **Do not call the new APK successful before CI reports it.**
+- All feature services still on review branch; no website manifest, public APK/Play publishing, Firebase/Rules writes or billing changes.
+- Next: review the newest Actions run and signed APK/AAB hashes, phone smoke test for Dry Ice/Pyro booking, language, tracking, real owner/staff/customer FCM and in-place upgrade.
