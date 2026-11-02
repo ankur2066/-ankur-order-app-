@@ -27,7 +27,10 @@ export function AppUpdateNotice(){
       checking=true;
       try{
         const info=await checkForUpdate();
-        if(!mounted||!info)return;
+        if(!mounted)return;
+        // An update may be withdrawn at its trusted source. Never keep showing
+        // a stale link after a failed/invalid manifest check on app resume.
+        if(!info){setRelease(null);return;}
         // Respect "Later" for the same version; show again for a newer one.
         if(seenVersion.current!==info.versionCode){
           seenVersion.current=info.versionCode;
