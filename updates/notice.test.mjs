@@ -12,7 +12,7 @@ const {create,act}=require('react-test-renderer');
 const {transformSync}=appRequire('esbuild');
 globalThis.IS_REACT_ACT_ENVIRONMENT=true;
 const code=transformSync(readFileSync(new URL('./AppUpdateNotice.template',import.meta.url),'utf8'),{loader:'tsx',jsx:'automatic',format:'esm'}).code;
-const first='https://ankurdryice.store/app-releases/Ankur-Dryice-v1.0.37-signed.apk';
+const first='https://ankurdryice.store/app-releases/Ankur-Dryice-v1.0.39-signed.apk';
 const release=versionCode=>({versionCode,versionName:'1.0.'+versionCode,channel:'signed_apk',url:first});
 
 async function harness(responses,native=true){
@@ -64,7 +64,7 @@ async function harness(responses,native=true){
 }
 
 test('native update appears, Later persists for same version, newer release reopens, withdrawal clears link',async()=>{
- const h=await harness([release(37),release(37),release(38),null]);
+ const h=await harness([release(38),release(38),release(39),null]);
  await h.mount();
  assert.match(h.text,/Ankur Dryice update available/);
  assert.equal(h.root.root.findByType('a').props.href,first);
@@ -73,7 +73,7 @@ test('native update appears, Later persists for same version, newer release reop
  await h.resume();
  assert.equal(h.text,'null','same release stays dismissed during resume');
  await h.resume('document:visibilitychange');
- assert.match(h.text,/1.0.38/,'newer release reopens notice');
+ assert.match(h.text,/1.0.39/,'newer release reopens notice');
  await h.resume();
  assert.equal(h.text,'null','withdrawn or invalid update must not retain old APK link');
  assert.equal(h.checks,4);
@@ -81,13 +81,13 @@ test('native update appears, Later persists for same version, newer release reop
 });
 
 test('quick focus/visibility burst is deduplicated; browser is not offered APK prompt',async()=>{
- const android=await harness([release(37),release(38)]);
+ const android=await harness([release(38),release(39)]);
  await android.mount();
  assert.equal(android.checks,1);
  await android.burst();
  assert.equal(android.checks,1,'burst must not cause an extra fetch');
  await android.close();
- const browser=await harness([release(37)],false);
+ const browser=await harness([release(38)],false);
  await browser.mount();
  assert.equal(browser.checks,0);
  assert.equal(browser.text,'null');
@@ -95,25 +95,25 @@ test('quick focus/visibility burst is deduplicated; browser is not offered APK p
 });
 
 test('native Android appStateChange rechecks while WebView reports hidden; background does not request a manifest',async()=>{
- const h=await harness([release(37),release(38)]);
+ const h=await harness([release(38),release(39)]);
  await h.mount();
  assert.equal(h.checks,1);
  await h.nativeBackground();
  assert.equal(h.checks,1,'backgrounding the app must not fetch');
  await h.nativeResume(true);
  assert.equal(h.checks,2,'native resume must recheck even before document becomes visible');
- assert.match(h.text,/1.0.38/);
+ assert.match(h.text,/1.0.39/);
  await h.close();
 });
 
 test('native quick reopen checks again without duplicate foreground network calls',async()=>{
- const h=await harness([release(37),release(38)]);
+ const h=await harness([release(38),release(39)]);
  await h.mount();
  assert.equal(h.checks,1);
  await h.nativeBackground();
  await h.nativeResume(true,1000);
  assert.equal(h.checks,2,'a one-second genuine reopen should recheck');
- assert.match(h.text,/1.0.38/);
+ assert.match(h.text,/1.0.39/);
  await h.nativeResume(false,1000);
  assert.equal(h.checks,2,'repeat foreground event without background is throttled');
  await h.close();
