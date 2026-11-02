@@ -11,6 +11,9 @@ test('signed private APK and AAB must match the known in-place upgrade certifica
  assert.equal(workflow.split(fingerprint).length-1,2,'expect one pinned fingerprint per binary');
  assert.match(workflow,/test "\$APK_CERT_SHA256" = "\$EXPECTED_CERT_SHA256"/);
  assert.match(workflow,/test "\$AAB_CERT_SHA256" = "/);
+ assert.match(workflow,/aapt" dump badging/);
+ assert.match(workflow,/package: name='com\.ankurdryice\.events' versionCode='37'/);
+ assert.match(workflow,/REQUEST_INSTALL_PACKAGES\|MANAGE_EXTERNAL_STORAGE\|QUERY_ALL_PACKAGES/);
  assert.match(workflow,/versionCode 37/);
  assert.match(workflow,/versionName "1\.0\.37-season-test"/);
 });
