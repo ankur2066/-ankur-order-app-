@@ -106,3 +106,13 @@ The owner wants maximum forward progress with **minimal questions**, frequent sa
 - 2026-11-02: added a **real React component integration test** for Android update-notice lifecycle (first launch, Later dismissal, foreground return, new version, withdrawn manifest, duplicate focus event and browser suppression), in `updates/notice.test.mjs`. It runs in the existing CI React test stage. This is emulated browser/render testing, **not** physical Android confirmation.
 
 - 2026-11-02 signing identity hardening: GitHub Actions for v1.0.35 and v1.0.36 both reported the same APK certificate SHA-256 `ebb60e0b13f7b5bfa814a619d5e4acc0ee65f0e12835ad5a282c072bc9976a6e`. The review workflow now refuses to upload APK or AAB if their certificate changes unexpectedly. This guard is a future-build protection; the already successful v1.0.36 artifact remains valid. No key or password is stored in source.
+
+## 2026-11-02 21:02 IST — v1.0.36 cert-guarded Android build PASS
+
+- **Latest source-bearing APK commit:** `fc9a72a0b8081848f16693588b0decb9ffce0b7f`; GitHub signed run [41471582997](https://github.com/ankur2066/-ankur-order-app-/actions/runs/41471582997) completed **SUCCESS**: web/native Gradle, APK signature + pinned certificate, AAB jarsigner + pinned certificate, both uploaded.
+- **Private v1.0.36 signed APK:** [artifact 13156235587](https://github.com/ankur2066/-ankur-order-app-/actions/runs/41471582997/artifacts/13156235587), expires 2026-11-09 15:31 UTC. Artifact includes `app-release.apk` and SHA-256 file.
+- **Private v1.0.36 Play AAB:** [artifact 13155867278](https://github.com/ankur2066/-ankur-order-app-/actions/runs/41471582997/artifacts/13155867278), expires 2026-11-16 15:31 UTC. Artifact includes signed AAB and SHA-256 file.
+- **Signing certificate safeguard confirmed** at fingerprint `ebb60e0b13f7b5bfa814a619d5e4acc0ee65f0e12835ad5a282c072bc9976a6e`, same as previous v1.0.35 and v1.0.36 build. GitHub review CI on cert-guard head also passed [41471599950](https://github.com/ankur2066/-ankur-order-app-/actions/runs/41471599950) and [41471582949](https://github.com/ankur2066/-ankur-order-app-/actions/runs/41471582949).
+- Added `docs/ANDROID_V136_DEVICE_QA.md`: no-PII, old-version upgrade, language/booking/tracking/FCM/security checks for an authorized physical Android test. **A real physical device test is still pending; no production order test performed.**
+- An untrusted/absent manifest at `https://ankurdryice.store/app-updates/android-stable.json` must not show an update prompt; no manifest publication was performed.
+- All code remains private draft PR #15. No main merge, public APK release, Play submission, new Firebase Functions/Rules deployment, billing change, or live customer data mutation.

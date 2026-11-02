@@ -5,7 +5,7 @@
 ## Release identity and in-place update (no data deletion)
 
 - Build: **1.0.36-season-test**, Android `versionCode=36`, package `com.ankurdryice.events`.
-- Source of test APK: GitHub Actions run [41470266406](https://github.com/ankur2066/-ankur-order-app-/actions/runs/41470266406), artifact `13155695627`. If a later cert-guarded job succeeds, use its artifacts instead; compare exact SHA and version.
+- Source of test APK: GitHub Actions run [41471582997](https://github.com/ankur2066/-ankur-order-app-/actions/runs/41471582997), pinned-certificate-verified signed APK artifact [13156235587](https://github.com/ankur2066/-ankur-order-app-/actions/runs/41471582997/artifacts/13156235587). Compare the included checksum and installed version.
 - APK signer certificate SHA-256 expected from v1.0.35 and v1.0.36 CI:
   `ebb60e0b13f7b5bfa814a619d5e4acc0ee65f0e12835ad5a282c072bc9976a6e`.
 - **Never uninstall the old app to update.** Save/verify account and record access first. Android package replacement must retain app data and auth; a signing mismatch must stop the test and be reported, never fixed by uninstalling.
