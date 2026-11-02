@@ -1,0 +1,36 @@
+import React, {useEffect, useState} from 'react';
+import {Capacitor} from '@capacitor/core';
+import {useLanguage} from '../context/LanguageContext';
+import {checkForUpdate,type UpdateRelease} from '../services/appUpdate';
+
+/**
+ * Nonblocking, accessible, update-on-launch notice. No installer permissions.
+ * Release availability is sourced only from the allowlisted Ankur Dryice site.
+ */
+export function AppUpdateNotice(){
+  const {language}=useLanguage();
+  const [release,setRelease]=useState<UpdateRelease|null>(null);
+  const [dismissed,setDismissed]=useState(false);
+  useEffect(()=>{
+    let mounted=true;
+    if(!Capacitor.isNativePlatform()||Capacitor.getPlatform()!=='android')return;
+    void checkForUpdate().then(info=>{if(mounted&&info)setRelease(info);});
+    return ()=>{mounted=false;};
+  },[]);
+  if(!release||dismissed)return null;
+  const hi=language==='hi';
+  return <aside role="status" aria-live="polite" className="fixed top-3 left-3 right-3 z-[100] mx-auto max-w-md rounded-2xl border-2 border-white bg-slate-950 p-4 text-white shadow-2xl" style={{color:'#ffffff',backgroundColor:'#0f172a',borderColor:'#ffffff'}}>
+    <div className="flex items-start gap-3">
+      <div className="min-w-0 flex-1">
+        <p className="font-black text-white">{hi?'Ankur Dryice का नया अपडेट':'Ankur Dryice update available'}</p>
+        <p className="mt-1 text-sm text-white">{hi?'वर्ज़न':'Version'} {release.versionName}</p>
+        {release.notes&&<p className="mt-1 text-sm text-white">{release.notes}</p>}
+      </div>
+      <button type="button" className="rounded-lg border border-white px-3 py-1 text-sm text-white" onClick={()=>setDismissed(true)} aria-label={hi?'बाद में':'Later'}>{hi?'बाद में':'Later'}</button>
+    </div>
+    <a className="mt-3 block min-h-11 rounded-xl bg-white px-4 py-3 text-center font-black text-slate-950" style={{backgroundColor:'#ffffff',color:'#0f172a'}} target="_blank" rel="noopener noreferrer" href={release.url}>
+      {hi?'अपडेट खोलें':'Open update'}
+    </a>
+    <p className="mt-2 text-xs text-white">{hi?'अपडेट करने के लिए आपकी अनुमति जरूरी है।':'Your approval is required to install an update.'}</p>
+  </aside>;
+}
