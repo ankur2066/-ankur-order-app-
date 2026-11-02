@@ -9,6 +9,11 @@ export async function exportPdf(pdf: jsPDF, fileName: string): Promise<void> {
     pdf.save(fileName);
     return;
   }
+  // The monthly report contains private customer/payment data. Never let a
+  // caller escape the app-private cache or choose a non-PDF output path.
+  if (!/^[A-Za-z0-9][A-Za-z0-9._-]{0,119}\.pdf$/.test(fileName) || fileName.includes('..')) {
+    throw new Error('अमान्य PDF फ़ाइल नाम');
+  }
   const [{ Filesystem, Directory }, { Share }] = await Promise.all([
     import('@capacitor/filesystem'),
     import('@capacitor/share'),
