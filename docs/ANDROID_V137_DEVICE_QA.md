@@ -6,7 +6,7 @@
 
 - Package ID: `com.ankurdryice.events`; candidate `versionCode=37` / `versionName=1.0.37-season-test`.
 - Signing certificate SHA-256 (historical same-signer requirement): `ebb60e0b13f7b5bfa814a619d5e4acc0ee65f0e12835ad5a282c072bc9976a6e`.
-- Use the [successful v1.0.37 signed APK artifact #13159639062](https://github.com/ankur2066/-ankur-order-app-/actions/runs/41481537453/artifacts/13159639062) ([signed AAB artifact #13159798626](https://github.com/ankur2066/-ankur-order-app-/actions/runs/41481537453/artifacts/13159798626)). Compare the embedded `apk-sha256.txt` and actual certificate before installation.
+- Use the [successful v1.0.37 signed APK artifact #13160417227](https://github.com/ankur2066/-ankur-order-app-/actions/runs/41482732286/artifacts/13160417227) ([signed AAB artifact #13159509265](https://github.com/ankur2066/-ankur-order-app-/actions/runs/41482732286/artifacts/13159509265)). Compare the embedded `apk-sha256.txt` and actual certificate before installation.
 - Install **over** an existing signed v1.0.36 app; do **not uninstall**, clear data, bypass Android signature errors or lose saved orders/settings.
 - Record prior version, new version, device + Android version and whether the existing user's language, Google login and My Orders remain available.
 
@@ -44,5 +44,8 @@
 **Status register:** Android in-place update: pending; English/Hindi real device: pending; PDF attachment Save/Share: pending; production notifications: pending; published update manifest: not approved/not verified.
 
 ## CI evidence
-- Android signed APK + AAB, verified certificate: [run #41481537453](https://github.com/ankur2066/-ankur-order-app-/actions/runs/41481537453), 2026-11-02. **This is not a completed phone test.**
+- Android signed APK + AAB, verified certificate: [run #41482732286](https://github.com/ankur2066/-ankur-order-app-/actions/runs/41482732286), 2026-11-02. **This is not a completed phone test.**
 - Offline React/product/notification/Monthly PDF contracts pass in GitHub review runs; do not equate mocked Android Share.file calls with a recipient receiving a PDF on the phone.
+
+## Latest built-binary checks (2026-11-02)
+The new signed run checks **the APK actually built**, including package `com.ankurdryice.events`, Android `versionCode=37`, `versionName=1.0.37-season-test`, absence of broad installer/storage/package-query permissions and original signing certificate. See [successful CI #41482732286](https://github.com/ankur2066/-ankur-order-app-/actions/runs/41482732286). All these are build checks, not installation evidence.
