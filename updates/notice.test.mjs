@@ -56,7 +56,7 @@ async function harness(responses,native=true){
    async mount(){await act(async()=>{root=create(React.createElement(compiled.namespace.AppUpdateNotice));});},
    async resume(name='window:focus'){now+=20000;await act(async()=>{events.get(name)?.();});},
    async burst(){await act(async()=>{events.get('window:focus')?.();events.get('document:visibilitychange')?.();});},
-   async nativeResume(hidden=false){now+=20000;document.visibilityState=hidden?'hidden':'visible';await act(async()=>{appListeners.get('appStateChange')?.({isActive:true});});document.visibilityState='visible';},
+   async nativeResume(hidden=false,advance=20000){now+=advance;document.visibilityState=hidden?'hidden':'visible';await act(async()=>{appListeners.get('appStateChange')?.({isActive:true});});document.visibilityState='visible';},
    async nativeBackground(){await act(async()=>{appListeners.get('appStateChange')?.({isActive:false});});},
    async dismiss(){await act(async()=>{root.root.findByType('button').props.onClick();});},
    async close(){await act(async()=>root.unmount());await Promise.resolve();assert.equal(events.size,0);assert.equal(appListeners.size,0,'native listener cleaned up');},
@@ -103,5 +103,18 @@ test('native Android appStateChange rechecks while WebView reports hidden; backg
  await h.nativeResume(true);
  assert.equal(h.checks,2,'native resume must recheck even before document becomes visible');
  assert.match(h.text,/1.0.38/);
+ await h.close();
+});
+
+test('native quick reopen checks again without duplicate foreground network calls',async()=>{
+ const h=await harness([release(37),release(38)]);
+ await h.mount();
+ assert.equal(h.checks,1);
+ await h.nativeBackground();
+ await h.nativeResume(true,1000);
+ assert.equal(h.checks,2,'a one-second genuine reopen should recheck');
+ assert.match(h.text,/1.0.38/);
+ await h.nativeResume(false,1000);
+ assert.equal(h.checks,2,'repeat foreground event without background is throttled');
  await h.close();
 });
