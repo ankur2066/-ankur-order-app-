@@ -6,7 +6,7 @@ import {stripTypeScriptTypes} from 'node:module';
 const original = readFileSync(new URL('./mobileReport.ts', import.meta.url), 'utf8');
 assert.match(original, /Directory\.Cache/, 'native report stays in private cache');
 const injected = original
-  .replace("import { Capacitor } from '@capacitor/core';", 'const Capacitor = globalThis.__ankurPdfDeps.capacitor;')
+  .replace("import { Capacitor } from '@capacitor/core';", 'const Capacitor = {getPlatform:()=>globalThis.__ankurPdfDeps.capacitor.getPlatform()};')
   .replace("import('@capacitor/filesystem')", 'Promise.resolve(globalThis.__ankurPdfDeps.filesystem)')
   .replace("import('@capacitor/share')", 'Promise.resolve(globalThis.__ankurPdfDeps.share)');
 globalThis.__ankurPdfDeps = {capacitor:{getPlatform:()=> 'web'},filesystem:{},share:{}};
