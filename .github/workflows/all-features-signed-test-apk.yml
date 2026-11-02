@@ -78,8 +78,8 @@ jobs:
           from pathlib import Path
           p=Path('android/app/build.gradle'); lines=p.read_text().splitlines()
           for i,x in enumerate(lines):
-            if x.strip().startswith('versionCode '): lines[i]='        versionCode 36'
-            if x.strip().startswith('versionName '): lines[i]='        versionName "1.0.36-season-test"'
+            if x.strip().startswith('versionCode '): lines[i]='        versionCode 37'
+            if x.strip().startswith('versionName '): lines[i]='        versionName "1.0.37-season-test"'
           p.write_text('\n'.join(lines)+'\n')
           PY
           cd android
@@ -111,7 +111,7 @@ jobs:
           sha256sum "$AAB" > aab-sha256.txt
       - uses: actions/upload-artifact@v4
         with:
-          name: Ankur-Dryice-v1.0.36-PRIVATE-PLAY-AAB
+          name: Ankur-Dryice-v1.0.37-PRIVATE-PLAY-AAB
           path: |
             android/app/build/outputs/bundle/release/app-release.aab
             aab-sha256.txt
@@ -119,7 +119,7 @@ jobs:
           retention-days: 14
       - uses: actions/upload-artifact@v4
         with:
-          name: Ankur-Dryice-v1.0.36-SEASON-PRIVATE-TEST
+          name: Ankur-Dryice-v1.0.37-SEASON-PRIVATE-TEST
           path: |
             android/app/build/outputs/apk/release/app-release.apk
             apk-sha256.txt
