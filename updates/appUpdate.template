@@ -26,8 +26,8 @@ export function validateUpdateManifest(value: unknown, currentVersionCode = ANDR
   const versionName = obj.versionName;
   const channel = obj.channel;
   const targetUrl = obj.url;
-  if (!Number.isSafeInteger(versionCode) || (versionCode as number) <= currentVersionCode ||
-      (versionCode as number) > 10_000_000 || typeof versionName !== 'string' ||
+  if (typeof versionCode !== 'number' || !Number.isSafeInteger(versionCode) || versionCode <= currentVersionCode ||
+      versionCode > 10_000_000 || typeof versionName !== 'string' ||
       !/^\d+\.\d+\.\d+(?:-[a-zA-Z0-9.-]+)?$/.test(versionName) ||
       (channel !== 'play' && channel !== 'signed_apk') || typeof targetUrl !== 'string') return null;
   let url: URL;
@@ -43,7 +43,7 @@ export function validateUpdateManifest(value: unknown, currentVersionCode = ANDR
         url.pathname.includes('..')) return null;
   }
   const notes = typeof obj.notes === 'string' ? obj.notes.trim().slice(0, 150) : undefined;
-  return { versionCode: versionCode as number, versionName, channel, url: targetUrl, ...(notes ? {notes} : {}) };
+  return { versionCode, versionName, channel, url: targetUrl, ...(notes ? {notes} : {}) };
 }
 
 export async function checkForUpdate(fetcher: typeof fetch = fetch): Promise<UpdateRelease | null> {
