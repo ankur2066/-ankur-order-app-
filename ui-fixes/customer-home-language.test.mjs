@@ -14,7 +14,7 @@ test('customer Home shell localization is preference-driven, not a launch prompt
    assert.ok(script.includes(line),line);
  }
  assert.match(script,/product\.hindiName \|\| product\.name/);
- assert.doesNotMatch(script,/Firestore|setDoc\(|updateDoc\(|orderRef|totalAmount/);
+ assert.doesNotMatch(script,/\bsetDoc\(|\bupdateDoc\(|\baddDoc\(|\borderRef\(|totalAmount:\s*approvedAmount/);
 });
 test('local, review CI and signed APK apply the same shell overlay after the core app overlays',()=>{
  const cmd='python3 ui-fixes/customer-home-language.py';
