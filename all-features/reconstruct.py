@@ -6,7 +6,7 @@ CHAIN=['app-check/apply_patch.py','ui-fixes/apply_patch.py','ui-fixes/ux_qa_patc
 def reconstruct(out):
     out.mkdir(parents=True,exist_ok=False)
     with zipfile.ZipFile(ROOT/'Ankur_Order_App_Upload_GitHub.zip') as z:z.extractall(out)
-    for name in ['app-check','ui-fixes','notifications','phase-a','billing','all-features','seasonal']:shutil.copytree(ROOT/name,out/name,dirs_exist_ok=True,ignore=shutil.ignore_patterns('__pycache__'))
+    for name in ['app-check','ui-fixes','notifications','phase-a','billing','all-features','seasonal','updates']:shutil.copytree(ROOT/name,out/name,dirs_exist_ok=True,ignore=shutil.ignore_patterns('__pycache__'))
     import os
     for script in CHAIN:subprocess.run(['python3',script],cwd=out,env={**os.environ,'ANKUR_APP_DIR':str(out)},check=True)
 if __name__=='__main__':
