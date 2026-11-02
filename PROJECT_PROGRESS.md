@@ -124,3 +124,12 @@ The owner wants maximum forward progress with **minimal questions**, frequent sa
 - 2026-11-02 second session: added an actual React-render test of reconstructed CustomerHome, checking English default, selected Hindi labels and product names, one product selector and unchanged single booking form. Integrated in CI's existing React regression stage. It is a source/UI test, not a physical Android customer booking.
 
 - 2026-11-02: integrated Android Monthly PDF `ui-fixes/mobileReport.test.mjs` in review CI, covering private-cache write, actual file-attachment share, web save fallback, missing data and receiver failures. Signed Android workflow now triggers whenever monthly/PDF source changes; previously modifying `mobileReport.ts` could leave an outdated APK artifact. Real on-device Save/Share still requires physical testing.
+
+## 2026-11-02 22:03 IST — signed v1.0.37 private Android build verified
+
+- **Code-bearing signed build** [GitHub Actions #41481537453](https://github.com/ankur2066/-ankur-order-app-/actions/runs/41481537453), source SHA `5a8d479276be8ea61d617968f493ab1b208efb0d`, SUCCESS. Native Android `versionCode=37` with original certificate SHA-256 `ebb60e0b13f7b5bfa814a619d5e4acc0ee65f0e12835ad5a282c072bc9976a6e`. AAB `jarsigner` verification passed.
+- **Signed private v1.0.37 APK ZIP:** [artifact #13159639062](https://github.com/ankur2066/-ankur-order-app-/actions/runs/41481537453/artifacts/13159639062), expires 2026-11-09 16:31 UTC. ZIP has `app-release.apk` and `apk-sha256.txt`.
+- **Signed private v1.0.37 Play AAB ZIP:** [artifact #13159798626](https://github.com/ankur2066/-ankur-order-app-/actions/runs/41481537453/artifacts/13159798626), expires 2026-11-16 16:31 UTC.
+- The signed application includes Android App native foreground recheck, Home language-switch overlay, and Monthly PDF share-as-attached-file fix. Later commits only adjusted tests/CI/documents, not those application sources. Latest review CI should be checked separately.
+- Core Firebase/rates/order data/main branch were not changed. App has **not** been installed/tested on a physical phone or published to website/Play. Manifest is still not verified live.
+- Next gate: owner-approved **in-place** upgrade and real-device QA per `docs/ANDROID_V137_DEVICE_QA.md`; then release decision, Play account/app-policy checks and owner-controlled website manifest only after actual hosting.
