@@ -14,10 +14,12 @@ effect="""  useEffect(() => {
 """
 assert s.count(anchor)==1;s=s.replace(anchor,effect+anchor)
 s=s.replace("{currentTab === 'ai-video' && <AIVideoStudio currentUser={currentUser} />}","{currentTab === 'ai-video' && <><FeatureHub currentUser={currentUser} role={role} initial=\"video\" allowed={['video']}/><AIVideoStudio currentUser={currentUser} /></>}")
-anchor='          <AdminDashboard\n';assert s.count(anchor)==1;s=s.replace(anchor,'          <FeatureHub currentUser={currentUser} role={role} allowed={["inventory","reports","partner","subscriptions","promotions","referral"]}/>\n'+anchor,1)
+anchor='          <AdminDashboard\n';assert s.count(anchor)==1;s=s.replace(anchor,'          <FeatureHub currentUser={currentUser} role={role} allowed={["inventory","reports","catalog","partner","subscriptions","promotions","referral"]}/>\n'+anchor,1)
 anchor='          <StaffDashboard ';assert s.count(anchor)==1;s=s.replace(anchor,'          {access.permissions.updateStatus && <DataFeaturePanel id="eta" user={currentUser} role={role}/>}\n'+anchor,1)
 anchor='          <CustomerOrders\n';assert s.count(anchor)==1;s=s.replace(anchor,'          <details><summary>Regular Supply</summary><FeatureHub currentUser={currentUser} role={role} initial="subscriptions" allowed={["subscriptions"]}/></details>\n'+anchor,1)
-anchor="      {currentTab === 'categories' && (";assert s.count(anchor)==1;s=s.replace(anchor,"      {currentTab === 'categories' && <details><summary>Application Catalogue</summary><FeatureHub currentUser={currentUser} role={role} initial=\"catalog\" allowed={['catalog']}/></details>}\n"+anchor,1)
+# Keep the original Categories bottom tab but DO NOT inject a duplicate Other Products page.
+# Seasonal public products are filtered by the storefront hook; catalogue drafts remain owner-only.
+assert s.count("      {currentTab === 'categories' && (")==1
 p.write_text(s)
 p=Path('src/data/products.ts');s=p.read_text().replace("BUSINESS_CALL_HREF = 'tel:+918896332066'","BUSINESS_CALL_HREF = 'tel:+919580882066'");p.write_text(s)
 p=Path('src/components/customer/ProfileTab.tsx');s=p.read_text();s="import { DataFeaturePanel } from './FeatureDataPanels';\n"+s;s=s.replace('<FeatureHub currentUser={currentUser} role={role} />','<FeatureHub currentUser={currentUser} role={role} allowed={["loyalty","partner","subscriptions","promotions","faq","support","service-area","referral"]}/>');s=s.replace('        <LanguageSettings />','        <LanguageSettings />\n        {currentUser && <details><summary>Notification preferences</summary><DataFeaturePanel id="preferences" user={currentUser} role={role}/></details>}',1);p.write_text(s)
