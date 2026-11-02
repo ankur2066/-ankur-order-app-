@@ -1,0 +1,24 @@
+/** Temporary customer catalogue gate for the November–December 2026 wedding season.
+ *
+ * Customer storefront/booking shows only verified active Dry Ice and Pyro products.
+ * Owners keep all draft/stock/catalogue data unchanged for the January 2027 season.
+ *
+ * This is an intentionally EXPLICIT release flag: do not use a calendar clock
+ * to reveal future products automatically on 15 January. The owner must first
+ * approve testing, rates, stock, safe handling and a separate release.
+ */
+export const CURRENT_SEASON_LABEL = 'November–December 2026 Wedding Season';
+export const PUBLIC_CATEGORY_IDS = ['dry_ice', 'pyro'] as const;
+export const PUBLIC_OTHER_PRODUCTS_ENABLED = false as boolean;
+
+export type SeasonalProduct = {
+  category?: string | null;
+  active?: boolean | null;
+};
+
+/** Never elevates unpublished products to active. Security is enforced separately by Rules. */
+export function isSeasonalPublicProduct(product: SeasonalProduct): boolean {
+  if (!product || product.active !== true) return false;
+  if (PUBLIC_OTHER_PRODUCTS_ENABLED) return true;
+  return PUBLIC_CATEGORY_IDS.includes(product.category as (typeof PUBLIC_CATEGORY_IDS)[number]);
+}
