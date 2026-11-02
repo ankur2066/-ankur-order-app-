@@ -13,7 +13,7 @@ test('local reconstruction matches CI and signed APK CSS overlay ordering',()=>{
  assert.ok(i>=0 && j>i,'contrast must be applied after all app overlays');
  assert.equal(local.split(patch).length-1,1,'apply contrast once in local reconstruction');
  assert.equal(reviewed.split(patch).length-1,1,'apply contrast once in review reconstruction');
- assert.equal(signed.split(patch).length-1,1,'apply contrast once in signed APK reconstruction');
+ assert.equal(signed.split('python3 '+patch).length-1,1,'apply contrast once in signed APK reconstruction');
  assert.match(local,/subprocess.run\(\['python3',script\]/);
  assert.match(local,/ANKUR_APP_DIR/);
 });
