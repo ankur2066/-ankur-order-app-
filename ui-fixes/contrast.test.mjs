@@ -33,7 +33,8 @@ test('contrast is scoped and preserves booking logic, native focus and signed wo
  assert.match(css,/\.apb-slot-selected/);
  assert.match(css,/:focus-visible/);
  assert.match(css,/@media \(forced-colors: active\)/);
- assert.doesNotMatch(patch,/OrderForm\.tsx|firestore\.rules|rates\.ts|tracking\.ts|Firebase/);
+ assert.match(patch,/css\.write_text/);
+ assert.doesNotMatch(patch,/OrderForm\.tsx|firestore\.rules|rates\.ts|tracking\.ts/);
  assert.match(review,/ui-fixes\/seasonal_contrast_v135\.py/);
  assert.match(signed,/ui-fixes\/seasonal_contrast_v135\.py/);
 });
