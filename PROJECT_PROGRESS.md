@@ -79,3 +79,14 @@ The owner wants maximum forward progress with **minimal questions**, frequent sa
 - **No production data changes, feature flags, release hosting, public Google Play submission, app installation or new billing changes were executed.**
 
 **Immediate next priority:** record the finished signed v1.0.35 artifact and checksum; Android-device smoke test of a legacy v1.0.34→v1.0.35 in-place update, home Dry Ice/Pyro visibility, both language modes, booking/tracking/push, notification and high contrast. Then prepare Google Play listing and consent-safe update distribution. Play account testing/approval requirements may affect November launch timing. Do not use unverified Play Store dates.
+
+## 2026-11-02 19:45 IST — signed APK and Play AAB confirmed
+
+- **Both signed Android artifacts PASS** at code revision `e5c0a2509ba26573dcab19c1ebbcf137bda67020`; GitHub run https://github.com/ankur2066/-ankur-order-app-/actions/runs/41459341566 succeeded, including web build, Gradle `assembleRelease bundleRelease`, APK signature and AAB `jarsigner`/certificate check.
+- **Signed private v1.0.35 APK:** artifact `13148698344`, link https://github.com/ankur2066/-ankur-order-app-/actions/runs/41459341566/artifacts/13148698344, expires around **2026-11-09 14:15 UTC**.
+- **Signed private v1.0.35 Play AAB:** artifact `13147289558`, link https://github.com/ankur2066/-ankur-order-app-/actions/runs/41459341566/artifacts/13147289558, expires around **2026-11-16 14:15 UTC**.
+- Store listing draft: `docs/PLAY_LISTING_DRAFT.md`. Release security checklist: `docs/WEDDING_SEASON_RELEASE_GATE.md`.
+- Automated latest review pass: https://github.com/ankur2066/-ankur-order-app-/actions/runs/41459551904 (prior to this documentation note).
+- **None of these proves** device installation, real customer order round-trip, working live in-app update, published Play Store, or newly deployed Firestore backend. Do not state otherwise.
+
+**Next action:** physical Android test (especially Pyro availability if correctly active), contrast QA, core booking/tracking/notifications. Confirm Play Console account/eligibility before planning public store launch; keep all production changes awaiting approval.
