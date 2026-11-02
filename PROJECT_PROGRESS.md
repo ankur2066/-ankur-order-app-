@@ -133,3 +133,11 @@ The owner wants maximum forward progress with **minimal questions**, frequent sa
 - The signed application includes Android App native foreground recheck, Home language-switch overlay, and Monthly PDF share-as-attached-file fix. Later commits only adjusted tests/CI/documents, not those application sources. Latest review CI should be checked separately.
 - Core Firebase/rates/order data/main branch were not changed. App has **not** been installed/tested on a physical phone or published to website/Play. Manifest is still not verified live.
 - Next gate: owner-approved **in-place** upgrade and real-device QA per `docs/ANDROID_V137_DEVICE_QA.md`; then release decision, Play account/app-policy checks and owner-controlled website manifest only after actual hosting.
+
+## 2026-11-02 second session — review gate status
+
+- Latest PR #15 remains **Draft**, source remains in private review branch. Latest safe v1.0.37 signed APK/AAB links are recorded above; no release manifest or production deployment.
+- Review CI [#41482833393](https://github.com/ankur2066/-ankur-order-app-/actions/runs/41482833393) passed all applicable checks: 34 source/unit checks + 4 Phase A + 59 actual React/component tests = **97 passed, zero failed**. Separate security emulator also passed [#41482808455](https://github.com/ankur2066/-ankur-order-app-/actions/runs/41482808455).
+- Added a customer call-link contract to preserve dedicated `tel:+919580882066` instead of accidentally routing calls to the WhatsApp-only number. This is source-level validation, not proof of a real dialer action.
+- The Android signed workflow now also checks `aapt dump badging` for exact package `com.ankurdryice.events` and `versionCode 37`, and rejects broad installer/file-management/package-query permissions. Its **new** guarded artifact run must be observed separately before calling those new binary checks passed.
+- Android physical sign-in, update-over-old-version, customer booking/tracking, FCM and PDF Save/Share remain **untested on a real handset**. Manifest HTTPS hosting and public Google Play rollout remain owner-approval gates.
