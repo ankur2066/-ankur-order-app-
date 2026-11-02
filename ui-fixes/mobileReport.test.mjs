@@ -9,6 +9,7 @@ const injected = original
   .replace("import { Capacitor } from '@capacitor/core';", 'const Capacitor = globalThis.__ankurPdfDeps.capacitor;')
   .replace("import('@capacitor/filesystem')", 'Promise.resolve(globalThis.__ankurPdfDeps.filesystem)')
   .replace("import('@capacitor/share')", 'Promise.resolve(globalThis.__ankurPdfDeps.share)');
+globalThis.__ankurPdfDeps = {capacitor:{getPlatform:()=> 'web'},filesystem:{},share:{}};
 const pdfExporter = await import('data:text/javascript;charset=utf-8,' + encodeURIComponent(stripTypeScriptTypes(injected)));
 
 function harness(platform = 'android') {
