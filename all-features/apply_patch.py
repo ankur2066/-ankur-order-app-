@@ -25,14 +25,17 @@ shutil.copy2(TEMPLATES / 'FeatureHub.template', SRC / 'components' / 'customer' 
 shutil.copy2(TEMPLATES / 'FeatureDataPanels.template', SRC / 'components' / 'customer' / 'FeatureDataPanels.tsx')
 shutil.copy2(TEMPLATES / 'dryIceCalc.template', SRC / 'utils' / 'dryIceCalc.ts')
 shutil.copy2(TEMPLATES / 'commercialReceipt.template', SRC / 'utils' / 'commercialReceipt.ts')
+# Local review-only update check; no download/install permissions.
+shutil.copy2(ROOT / 'updates' / 'appUpdate.template', SRC / 'services' / 'appUpdate.ts')
+shutil.copy2(ROOT / 'updates' / 'AppUpdateNotice.template', SRC / 'components' / 'AppUpdateNotice.tsx')
 
 app = SRC / 'App.tsx'
-replace_once(app, "import { ThemeProvider } from './context/ThemeContext';", "import { ThemeProvider } from './context/ThemeContext';\nimport { LanguageProvider, useLanguage } from './context/LanguageContext';")
+replace_once(app, "import { ThemeProvider } from './context/ThemeContext';", "import { ThemeProvider } from './context/ThemeContext';\nimport { LanguageProvider, useLanguage } from './context/LanguageContext';\nimport { AppUpdateNotice } from './components/AppUpdateNotice';")
 replace_once(app, "function AppShell() {\n", "function AppShell() {\n  const { language } = useLanguage();\n")
 replace_once(app, '<span className="text-xs t-sub">लोड हो रहा है…</span>', '<span className="text-xs t-sub">{language === \'hi\' ? \'लोड हो रहा है…\' : \'Loading…\'}</span>')
 replace_once(app, '<SubPageBar title="ड्राई आइस बुकिंग"', '<SubPageBar title={language === \'hi\' ? \'ड्राई आइस बुकिंग\' : \'Dry Ice Booking\'}')
 replace_once(app, '<SubPageBar title="ऑर्डर ट्रैकिंग"', '<SubPageBar title={language === \'hi\' ? \'ऑर्डर ट्रैकिंग\' : \'Order Tracking\'}')
-replace_once(app, "  return (\n    <ThemeProvider>\n      <AppShell />\n    </ThemeProvider>\n  );\n}", "  return (\n    <LanguageProvider>\n      <ThemeProvider>\n        <AppShell />\n      </ThemeProvider>\n    </LanguageProvider>\n  );\n}")
+replace_once(app, "  return (\n    <ThemeProvider>\n      <AppShell />\n    </ThemeProvider>\n  );\n}", "  return (\n    <LanguageProvider>\n      <ThemeProvider>\n        <AppUpdateNotice />\n        <AppShell />\n      </ThemeProvider>\n    </LanguageProvider>\n  );\n}")
 
 profile = SRC / 'components' / 'customer' / 'ProfileTab.tsx'
 replace_once(profile, "import { SignInScreen } from '../SignInScreen';", "import { SignInScreen } from '../SignInScreen';\nimport { FeatureHub, LanguageSettings } from './FeatureHub';\nimport { useLanguage } from '../../context/LanguageContext';")
