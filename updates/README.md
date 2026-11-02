@@ -35,3 +35,9 @@ For an approved Google Play rollout, set `channel:"play"` and `url:"https://play
 - Do not use raw download or APK installer APIs in the app.
 - Tests: `updates/appUpdate.test.mjs`, alongside normal app lint/build/security tests.
 - **Publishing manifest, public APK or Google Play listing is a separate release action requiring owner approval.**
+
+## 2026-11-02 follow-up security hardening
+- Update discovery also rechecks when the Android WebView returns to the foreground (visibility/focus), with burst deduplication; no background installer or silent update.
+- The APK release URL must now be one canonical `/app-releases/filename.apk` path with no encoded separators, nested folders, query strings or redirects; the checker rejects oversized response headers before reading a body.
+- If the approved manifest becomes unavailable, invalid or withdrawn after a notification appeared, the prompt is cleared on the next check instead of continuing to promote a stale download link.
+- These are review-only source changes. The existing signed v1.0.35 APK does not include later source commits until the private signed build completes; no manifest was published.
