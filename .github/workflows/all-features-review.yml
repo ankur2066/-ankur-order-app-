@@ -46,7 +46,7 @@ jobs:
           python3 all-features/protected_audit.py check /tmp/protected.json
       - name: Unit and regression contracts
         run: |
-          node --test all-features/feature-contract.test.mjs all-features/backend/trustedOperations.test.mjs
+          node --test all-features/feature-contract.test.mjs all-features/backend/trustedOperations.test.mjs billing/language-coverage.test.mjs
           node --experimental-strip-types --test phase-a/phase-a.test.mjs
       - name: Install and build
         run: |
