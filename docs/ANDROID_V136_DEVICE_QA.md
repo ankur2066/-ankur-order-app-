@@ -24,6 +24,7 @@
 8. If there is **no published valid newer** first-party manifest at `https://ankurdryice.store/app-updates/android-stable.json`, there should be **no update popup**. Resume-only requests are deduplicated; a real future update must show a consent-required external link, never silently install.
 9. Confirm Call `95808 82066` and WhatsApp `88963 32066` use different correct destinations. Verify the exact prefilled WhatsApp text on the device before sharing.
 10. Inspect Booking, Tracking, Profile in light and dark themes at narrow display/text scaling. Record low contrast, cut-off labels, missing tap feedback; selected/disabled dispatch slots must remain legible.
+11. Owner-only Monthly PDF: on a permitted real Android test device, open Insights/Monthly Report and initiate the existing export without changing orders. Android should show its native Save/Share chooser (not a browser Blob download); only after an authorized tester selects a target confirm a file was saved and can be opened. Verify that the accounting period is 15th–14th, all included orders appear, and verified payments are distinguished from booked value. **The old PDF-save bug is not certified fixed until this device step passes.**
 
 ## Authorized controlled live test (SEPARATE owner approval)
 
@@ -44,6 +45,7 @@
 | Tracking and protected history | Not tested |
 | Update-on-open/resume / manifest state | Not tested |
 | Accessibility light/dark screenshots | Not tested |
+| Owner Monthly PDF native Save/Share and opened document | Not tested |
 | Controlled live booking and FCM device delivery | Not authorized / not tested |
 
 **Release gate:** Keep PR #15 private/draft until the owner approves its actual device evidence and production operations. CI web/native build success alone is insufficient for public rollout.
