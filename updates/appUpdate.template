@@ -36,11 +36,13 @@ export function validateUpdateManifest(value: unknown, currentVersionCode = ANDR
   if (channel === 'play') {
     if (targetUrl !== PLAY_STORE_URL) return null;
   } else {
+    // The manifest is remote data: permit one canonical APK filename only.
+    // Encoded slashes, path segments and lookalike extensions are not releases.
     if (url.origin !== 'https://ankurdryice.store' ||
-        !url.pathname.startsWith('/app-releases/') ||
-        !url.pathname.toLowerCase().endsWith('.apk') ||
+        !/^\/app-releases\/[A-Za-z0-9][A-Za-z0-9._-]*\.apk$/.test(url.pathname) ||
         url.search !== '' ||
-        url.pathname.includes('..')) return null;
+        url.pathname.includes('..') ||
+        url.href !== targetUrl) return null;
   }
   const notes = typeof obj.notes === 'string' ? obj.notes.trim().slice(0, 150) : undefined;
   return { versionCode, versionName, channel, url: targetUrl, ...(notes ? {notes} : {}) };
@@ -52,7 +54,10 @@ export async function checkForUpdate(fetcher: typeof fetch = fetch): Promise<Upd
   try {
     // Explicit 'no-store' on app-open; the website must permit cross-origin requests.
     const response = await fetcher(UPDATE_MANIFEST_URL, {cache:'no-store',signal:controller.signal,redirect:'error'});
-    if (!response.ok) return null;
+    if (!response.ok || response.redirected === true) return null;
+    // Avoid reading a declared oversized payload even on a trusted HTTPS host.
+    const lengthHeader = response.headers?.get?.('content-length');
+    if (lengthHeader && /^\d+$/.test(lengthHeader) && Number(lengthHeader) > 8192) return null;
     const raw = await response.text();
     if (raw.length > 8192) return null;
     let json: unknown;
