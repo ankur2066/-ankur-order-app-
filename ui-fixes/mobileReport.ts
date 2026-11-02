@@ -24,7 +24,8 @@ export async function exportPdf(pdf: jsPDF, fileName: string): Promise<void> {
     path: fileName,
     data: base64,
     directory: Directory.Cache,
-    recursive: true,
+    // A validated single PDF filename never needs recursive directory creation.
+    recursive: false,
   });
   // The user can choose Files, Drive, WhatsApp or another PDF receiver.
   // Android may not present a "Save" action on every phone; do not claim saved until chosen.
