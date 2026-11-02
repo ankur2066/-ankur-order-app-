@@ -25,7 +25,7 @@ replace('src/hooks/useProducts.ts','    products: sortProducts(products.filter((
 
 # Customer-facing catalogue and new-order picker offer only Dry Ice and Pyro.
 # Saved orders, admin-only catalogue, prices and database remain unchanged.
-replace('src/hooks/useProducts.ts',"import { UNIT_LABELS } from '../billing/unitBilling';","import { UNIT_LABELS } from '../billing/unitBilling';\\nimport { isSeasonalPublicProduct } from '../config/seasonalCatalog';")
+replace('src/hooks/useProducts.ts',"import { UNIT_LABELS } from '../billing/unitBilling';","import { UNIT_LABELS } from '../billing/unitBilling';\nimport { isSeasonalPublicProduct } from '../config/seasonalCatalog';")
 replace('src/hooks/useProducts.ts',"products: sortProducts([...products.filter((p) => p.active), ...unit.products.map(p =>", "products: sortProducts([...products.filter(isSeasonalPublicProduct), ...unit.products.filter(isSeasonalPublicProduct).map(p =>")
 replace('src/components/customer/ProductCard.tsx',"import { CategoryIcon } from './categoryIcons';","import { CategoryIcon } from './categoryIcons';\nimport { rupees } from '../../billing/unitBilling';")
 replace('src/components/customer/ProductCard.tsx','<p className="text-[10px] t-sub mt-1.5">थर्मोकोल पैकिंग सहित</p>',"<p className=\"text-[10px] t-sub mt-1.5\">{product.unitProduct ? (product.unitProduct.packingMode==='none'?'Packing charge नहीं':rupees(product.unitProduct.packingPricePaise)+' packing '+(product.unitProduct.packingMode==='per_order'?'एक बार':'प्रति '+product.unit)) : 'थर्मोकोल पैकिंग सहित'}</p>")
