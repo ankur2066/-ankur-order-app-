@@ -1,0 +1,63 @@
+/**
+ * ANKUR DRYICE — safe staged update discovery.
+ * No hidden downloads, APK installer permissions, silent self-update or arbitrary URLs.
+ * Manifest publishing on the verified HTTPS website is a SEPARATE owner-approved task.
+ *
+ * For installed Play Store builds, show the official Play listing. A future native
+ * Play Core integration can use Google's flexible update flow.
+ */
+export const ANDROID_VERSION_CODE = 35;
+export const ANDROID_VERSION_NAME = '1.0.35';
+export const UPDATE_MANIFEST_URL = 'https://ankurdryice.store/app-updates/android-stable.json';
+const PLAY_STORE_URL = 'https://play.google.com/store/apps/details?id=com.ankurdryice.events';
+
+export interface UpdateRelease {
+  versionCode: number;
+  versionName: string;
+  channel: 'play' | 'signed_apk';
+  url: string;
+  notes?: string;
+}
+
+export function validateUpdateManifest(value: unknown, currentVersionCode = ANDROID_VERSION_CODE): UpdateRelease | null {
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) return null;
+  const obj = value as Record<string, unknown>;
+  const versionCode = obj.versionCode;
+  const versionName = obj.versionName;
+  const channel = obj.channel;
+  const targetUrl = obj.url;
+  if (!Number.isSafeInteger(versionCode) || (versionCode as number) <= currentVersionCode ||
+      (versionCode as number) > 10_000_000 || typeof versionName !== 'string' ||
+      !/^\d+\.\d+\.\d+(?:-[a-zA-Z0-9.-]+)?$/.test(versionName) ||
+      (channel !== 'play' && channel !== 'signed_apk') || typeof targetUrl !== 'string') return null;
+  let url: URL;
+  try { url = new URL(targetUrl); } catch { return null; }
+  if (url.protocol !== 'https:' || url.username || url.password || url.port || url.hash) return null;
+  if (channel === 'play') {
+    if (targetUrl !== PLAY_STORE_URL) return null;
+  } else {
+    if (url.origin !== 'https://ankurdryice.store' ||
+        !url.pathname.startsWith('/app-releases/') ||
+        !url.pathname.toLowerCase().endsWith('.apk') ||
+        url.search !== '' ||
+        url.pathname.includes('..')) return null;
+  }
+  const notes = typeof obj.notes === 'string' ? obj.notes.trim().slice(0, 150) : undefined;
+  return { versionCode: versionCode as number, versionName, channel, url: targetUrl, ...(notes ? {notes} : {}) };
+}
+
+export async function checkForUpdate(fetcher: typeof fetch = fetch): Promise<UpdateRelease | null> {
+  const controller = new AbortController();
+  const abortTimer = setTimeout(() => controller.abort(), 6500);
+  try {
+    // Explicit 'no-store' on app-open; the website must permit cross-origin requests.
+    const response = await fetcher(UPDATE_MANIFEST_URL, {cache:'no-store',signal:controller.signal,redirect:'error'});
+    if (!response.ok) return null;
+    const raw = await response.text();
+    if (raw.length > 8192) return null;
+    let json: unknown;
+    try {json = JSON.parse(raw);} catch {return null;}
+    return validateUpdateManifest(json);
+  } catch { return null; }
+  finally {clearTimeout(abortTimer);}
+}
