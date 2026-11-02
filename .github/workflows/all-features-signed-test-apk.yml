@@ -76,8 +76,8 @@ jobs:
           from pathlib import Path
           p=Path('android/app/build.gradle'); lines=p.read_text().splitlines()
           for i,x in enumerate(lines):
-            if x.strip().startswith('versionCode '): lines[i]='        versionCode 34'
-            if x.strip().startswith('versionName '): lines[i]='        versionName "1.0.34-combined-test"'
+            if x.strip().startswith('versionCode '): lines[i]='        versionCode 35'
+            if x.strip().startswith('versionName '): lines[i]='        versionName "1.0.35-season-test"'
           p.write_text('\n'.join(lines)+'\n')
           PY
           cd android
@@ -91,7 +91,7 @@ jobs:
           sha256sum "$APK" > apk-sha256.txt
       - uses: actions/upload-artifact@v4
         with:
-          name: Ankur-Dryice-v1.0.34-COMBINED-PRIVATE-TEST
+          name: Ankur-Dryice-v1.0.35-SEASON-PRIVATE-TEST
           path: |
             android/app/build/outputs/apk/release/app-release.apk
             apk-sha256.txt
