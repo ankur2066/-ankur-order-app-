@@ -88,7 +88,14 @@ jobs:
         run: |
           APK=android/app/build/outputs/apk/release/app-release.apk
           test -s "$APK"
-          "$ANDROID_HOME/build-tools/$(ls "$ANDROID_HOME/build-tools" | sort -V | tail -1)/apksigner" verify --verbose --print-certs "$APK"
+          # Preserve the certificate already used by v1.0.35 and v1.0.36:
+          # Android in-place upgrades require the identical signing identity.
+          EXPECTED_CERT_SHA256="ebb60e0b13f7b5bfa814a619d5e4acc0ee65f0e12835ad5a282c072bc9976a6e"
+          SIGNER="$ANDROID_HOME/build-tools/$(ls "$ANDROID_HOME/build-tools" | sort -V | tail -1)/apksigner"
+          CERT_OUTPUT=$("$SIGNER" verify --verbose --print-certs "$APK")
+          printf '%s\\n' "$CERT_OUTPUT"
+          APK_CERT_SHA256=$(printf '%s\\n' "$CERT_OUTPUT" | sed -nE 's/.*certificate SHA-256 digest: ([0-9a-fA-F]{64}).*/\\1/p' | head -n 1 | tr 'A-F' 'a-f')
+          test "$APK_CERT_SHA256" = "$EXPECTED_CERT_SHA256" || { echo 'BLOCKED: unexpected APK signing certificate'; exit 1; }
           sha256sum "$APK" > apk-sha256.txt
 
       - name: Verify signed Google Play App Bundle
@@ -98,6 +105,8 @@ jobs:
           test -s "$AAB"
           jarsigner -verify "$AAB"
           keytool -printcert -jarfile "$AAB" | grep -E 'SHA256:|SHA-256:' > aab-cert-check.txt
+          AAB_CERT_SHA256=$(sed -nE 's/.*SHA-?256:[[:space:]]*([0-9A-Fa-f:]+).*/\\1/p' aab-cert-check.txt | head -n 1 | tr -d ':' | tr 'A-F' 'a-f')
+          test "$AAB_CERT_SHA256" = "ebb60e0b13f7b5bfa814a619d5e4acc0ee65f0e12835ad5a282c072bc9976a6e" || { echo 'BLOCKED: unexpected AAB signing certificate'; exit 1; }
           sha256sum "$AAB" > aab-sha256.txt
       - uses: actions/upload-artifact@v4
         with:

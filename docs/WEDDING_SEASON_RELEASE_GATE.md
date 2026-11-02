@@ -40,3 +40,6 @@
 `updates/README.md` contains the strict JSON manifest schema. Publish a real new signed version, verify HTTPS link, then release manifest. Never claim automatic APK installation or background permission; Android requires user action. For Google Play builds prefer the official Play Core in-app updates API.
 
 **Deployment status:** review source and CI only. No customer update, production Firebase change, Play Console upload, public store listing or manifest publication has been performed.
+
+## Signing identity QA
+- CI must verify the actual APK and AAB certificates match the prior installed release certificate, not merely that each file is independently signed. The expected SHA-256 fingerprint is pinned to the observed same certificate from private v1.0.35/v1.0.36 CI; any planned certificate rotation requires separate owner review.
