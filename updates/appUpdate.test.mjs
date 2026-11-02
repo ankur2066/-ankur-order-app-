@@ -29,7 +29,12 @@ test('block arbitrary and unsafe APK destinations, redirects and malformed conte
  'https://ankurdryice.store/app-releases/app.txt',
  'https://user:pass@ankurdryice.store/app-releases/app.apk',
  'https://ankurdryice.store:444/app-releases/app.apk',
- 'javascript:alert(1)']){
+ 'javascript:alert(1)',
+ 'https://ankurdryice.store/app-releases/%2fmalicious.apk',
+ 'https://ankurdryice.store/app-releases/subdir/file.apk',
+ 'https://ankurdryice.store/app-releases//file.apk',
+ 'https://ankurdryice.store/app-releases/x%2eapk',
+ 'https://ankurdryice.store/app-releases/file.APK']){
   assert.equal(update.validateUpdateManifest(mk(url)),null,url);
  }
  assert.equal(update.validateUpdateManifest(mk(apk,36,'play')),null,'wrong Play channel');
@@ -42,6 +47,14 @@ test('app-open update check fails closed when manifest is absent/offline and nev
  assert.equal(await update.checkForUpdate(async()=>({ok:false,status:404})),null);
  assert.equal(await update.checkForUpdate(async()=>({ok:true,text:async()=>'{not-json'})),null);
  assert.equal(await update.checkForUpdate(async()=>({ok:true,text:async()=> 'x'.repeat(8200)})),null);
+ assert.equal(await update.checkForUpdate(async()=>({ok:true,redirected:true,text:async()=>JSON.stringify(mk(apk))})),null);
+ let readBody=false;
+ assert.equal(await update.checkForUpdate(async()=>({
+   ok:true,
+   headers:{get:key=>key==='content-length'?'9000':null},
+   text:async()=>{readBody=true;return JSON.stringify(mk(apk));}
+ })),null);
+ assert.equal(readBody,false,'oversized declared body must not be read');
  let requested;
  const out=await update.checkForUpdate(async(url,options)=>{requested={url,options};return{ok:true,text:async()=>JSON.stringify(mk(apk))};});
  assert.equal(out?.versionCode,36);
@@ -55,6 +68,9 @@ test('native only, nonblocking, bilingual notice and no silent installer permiss
  assert.match(notice,/Capacitor\.getPlatform\(\)!=='android'/);
  assert.match(notice,/useLanguage\(\)/);
  assert.match(notice,/onClick=\{\(\)=>setDismissed\(true\)\}/);
+ assert.match(notice,/document\.addEventListener\('visibilitychange',onResume\)/);
+ assert.match(notice,/window\.addEventListener\('focus',onResume\)/);
+ assert.match(notice,/if\(!info\)\{setRelease\(null\);return;\}/,'withdrawn/invalid releases must clear stale notice');
  assert.match(notice,/rel="noopener noreferrer"/);
  assert.doesNotMatch(notice,/REQUEST_INSTALL_PACKAGES|ACTION_INSTALL_PACKAGE|PackageInstaller|download\(/);
  assert.match(workflow,/versionCode 35/);
