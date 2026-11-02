@@ -141,3 +141,11 @@ The owner wants maximum forward progress with **minimal questions**, frequent sa
 - Added a customer call-link contract to preserve dedicated `tel:+919580882066` instead of accidentally routing calls to the WhatsApp-only number. This is source-level validation, not proof of a real dialer action.
 - The Android signed workflow now also checks `aapt dump badging` for exact package `com.ankurdryice.events` and `versionCode 37`, and rejects broad installer/file-management/package-query permissions. Its **new** guarded artifact run must be observed separately before calling those new binary checks passed.
 - Android physical sign-in, update-over-old-version, customer booking/tracking, FCM and PDF Save/Share remain **untested on a real handset**. Manifest HTTPS hosting and public Google Play rollout remain owner-approval gates.
+
+## 2026-11-02 22:09 IST — final hardened v1.0.37 private build PASS
+
+- **Signed APK/AAB job [#41482732286](https://github.com/ankur2066/-ankur-order-app-/actions/runs/41482732286) SUCCESS**, source SHA `4876ef575f4f1538fa0b1b9e6788856b0f20f225` and Android versionCode **37**. New gate checks actual `aapt dump badging` package/version, rejects broad install/file/query permissions, and verifies APK plus AAB original signing certificate.
+- **Latest verified private APK:** [artifact #13160417227](https://github.com/ankur2066/-ankur-order-app-/actions/runs/41482732286/artifacts/13160417227), expires 9 Nov 2026 16:38 UTC.
+- **Latest verified private AAB:** [artifact #13159509265](https://github.com/ankur2066/-ankur-order-app-/actions/runs/41482732286/artifacts/13159509265), expires 16 Nov 2026 16:38 UTC.
+- The application code matches the prior v1.0.37 candidate; this run **adds actual built-binary security verification** and supersedes the earlier signed link. APK/AAB are private test artifacts, not released to users.
+- All 97 source/React/Phase A checks passed in [review #41482833393](https://github.com/ankur2066/-ankur-order-app-/actions/runs/41482833393), with security emulator pass. **Physical phone and live manifest tests remain pending.**
