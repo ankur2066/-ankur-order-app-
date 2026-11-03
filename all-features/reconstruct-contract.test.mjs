@@ -17,3 +17,21 @@ test('local reconstruction matches CI and signed APK CSS overlay ordering',()=>{
  assert.match(local,/subprocess.run\(\['python3',script\]/);
  assert.match(local,/ANKUR_APP_DIR/);
 });
+
+test('review and signed APK run the entire local reconstruction chain in order',()=>{
+ const chain=local.match(/CHAIN=\[([^\]]+)\]/)[1].match(/'([^']+\.py)'/g).map(x=>x.slice(1,-1));
+ const scripts=text=>[...text.matchAll(/python3 ([\w./-]+\.py)/g)]
+   .map(x=>x[1]).filter(x=>x!=='all-features/protected_audit.py');
+ assert.deepEqual(scripts(reviewed),chain,'review source must match local source');
+ assert.deepEqual(scripts(signed),chain,'signed APK must include every reviewed overlay');
+});
+
+test('private signing depends on successful same-commit review before accessing signing secrets',()=>{
+ assert.match(reviewed,/^  workflow_call:/m);
+ assert.match(signed,/review:\n    uses: \.\/\.github\/workflows\/all-features-review\.yml/);
+ assert.match(signed,/signed-test-apk:\n    needs: review/);
+ assert.doesNotMatch(signed,/continue-on-error: true/);
+ for(const path of ['ui-fixes/customer_nav_v138.py','ui-fixes/customer_dark_contrast_v138.py','ui-fixes/customer-dark-contrast-v138.css']) {
+   assert.ok(signed.split('permissions:')[0].includes("'"+path+"'"),'UI change must trigger a fresh binary: '+path);
+ }
+});

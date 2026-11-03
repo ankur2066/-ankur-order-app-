@@ -3,10 +3,13 @@ on:
   workflow_dispatch:
   push:
     branches: [codex/all-14-phase-bc-english]
-    paths: ['all-features/templates/**', 'all-features/apply_patch.py', 'all-features/wire_additions.py', 'billing/templates/**', 'billing/apply_patch.py', 'seasonal/*.template', 'updates/*.template', 'ui-fixes/seasonal-contrast-v135.css', 'ui-fixes/seasonal_contrast_v135.py', 'ui-fixes/customer-home-language.py', 'ui-fixes/mobileReport.ts', 'ui-fixes/monthlyReport.ts', '.github/workflows/all-features-signed-test-apk.yml']
+    paths: ['all-features/templates/**', 'all-features/apply_patch.py', 'all-features/wire_additions.py', 'billing/templates/**', 'billing/apply_patch.py', 'seasonal/*.template', 'updates/*.template', 'ui-fixes/seasonal-contrast-v135.css', 'ui-fixes/seasonal_contrast_v135.py', 'ui-fixes/customer-home-language.py', 'ui-fixes/customer_nav_v138.py', 'ui-fixes/customer_dark_contrast_v138.py', 'ui-fixes/customer-dark-contrast-v138.css', 'ui-fixes/mobileReport.ts', 'ui-fixes/monthlyReport.ts', '.github/workflows/all-features-signed-test-apk.yml']
 permissions: {contents: read}
 jobs:
+  review:
+    uses: ./.github/workflows/all-features-review.yml
   signed-test-apk:
+    needs: review
     runs-on: ubuntu-latest
     timeout-minutes: 40
     steps:
@@ -39,6 +42,8 @@ jobs:
           python3 all-features/wire_additions.py
           python3 ui-fixes/seasonal_contrast_v135.py
           python3 ui-fixes/customer-home-language.py
+          python3 ui-fixes/customer_nav_v138.py
+          python3 ui-fixes/customer_dark_contrast_v138.py
       - name: Configure existing Android Firebase app and signing
         env:
           KEYSTORE_B64: ${{ secrets.ANKUR_RELEASE_KEYSTORE_BASE64 }}
@@ -78,8 +83,8 @@ jobs:
           from pathlib import Path
           p=Path('android/app/build.gradle'); lines=p.read_text().splitlines()
           for i,x in enumerate(lines):
-            if x.strip().startswith('versionCode '): lines[i]='        versionCode 37'
-            if x.strip().startswith('versionName '): lines[i]='        versionName "1.0.37-season-test"'
+            if x.strip().startswith('versionCode '): lines[i]='        versionCode 38'
+            if x.strip().startswith('versionName '): lines[i]='        versionName "1.0.38-season-test"'
           p.write_text('\n'.join(lines)+'\n')
           PY
           cd android
@@ -93,7 +98,7 @@ jobs:
           # update in place; a mismatched package would install as a second app.
           BUILD_TOOLS="$ANDROID_HOME/build-tools/$(ls "$ANDROID_HOME/build-tools" | sort -V | tail -1)"
           BADGING=$("$BUILD_TOOLS/aapt" dump badging "$APK")
-          printf '%s\n' "$BADGING" | grep -F "package: name='com.ankurdryice.events' versionCode='37' versionName='1.0.37-season-test'"
+          printf '%s\n' "$BADGING" | grep -F "package: name='com.ankurdryice.events' versionCode='38' versionName='1.0.38-season-test'"
           # Update flow opens a consent-based external link; never request installer
           # or broad file-management privileges in the packaged manifest.
           PERMISSIONS=$("$BUILD_TOOLS/aapt" dump permissions "$APK")
@@ -123,7 +128,7 @@ jobs:
           sha256sum "$AAB" > aab-sha256.txt
       - uses: actions/upload-artifact@v4
         with:
-          name: Ankur-Dryice-v1.0.37-PRIVATE-PLAY-AAB
+          name: Ankur-Dryice-v1.0.38-PRIVATE-PLAY-AAB
           path: |
             android/app/build/outputs/bundle/release/app-release.aab
             aab-sha256.txt
@@ -131,7 +136,7 @@ jobs:
           retention-days: 14
       - uses: actions/upload-artifact@v4
         with:
-          name: Ankur-Dryice-v1.0.37-SEASON-PRIVATE-TEST
+          name: Ankur-Dryice-v1.0.38-SEASON-PRIVATE-TEST
           path: |
             android/app/build/outputs/apk/release/app-release.apk
             apk-sha256.txt

@@ -171,3 +171,14 @@ The owner wants maximum forward progress with **minimal questions**, frequent sa
 - New regression assertions in `ui-fixes/customer-nav-v138.test.mjs` and `ui-fixes/customer-dark-contrast-v138.test.mjs`. **Success / failure of the final new source CI must be confirmed from the final branch head; do not infer from older runs.**
 - **Signing is deliberately on hold** while the owner reviews visual edits. Existing signed Android workflow is still v1.0.37 and does **not yet reconstruct v1.0.38 nav/color patches**. It must be aligned and version-bumped only after safe review/test, with explicit permission before any private signed build.
 - Physical Android screenshot/color inspection, owner PDF recipient Save/Share, controlled booking/tracking/FCM and approved public release remain pending.
+
+
+## 3 November 2026 — resumed work: private v1.0.38 build preparation
+
+The owner requested continued implementation, holding device-dependent questions together for later. Continue private review/test work only; public rollout and production data/backend changes remain out of scope.
+
+- Aligned signed reconstruction with the reviewed four-tab navigation and scoped dark-theme overlays. New UI overlay changes now trigger a fresh private binary.
+- Added a same-commit reusable review prerequisite to signing; signing secrets are used only after the full review job succeeds. Added full reconstruction-chain parity and review-gate regression tests.
+- Android candidate and in-app update checker both advance to versionCode 38 / 1.0.38; APK/AAB keep the existing pinned signer and package/permission checks.
+- Local targeted verification: 8/8 update, signing and reconstruction contracts passed. Full reconstructed CI and signed APK/AAB are pending at time of this entry; do not label an artifact successful without its completed run.
+- Physical handset installation, visual inspection, actual PDF receiver Save/Share, real push receipt and live update hosting remain unverified. No main merge, public release, production Firebase write or customer order mutation.
