@@ -149,3 +149,15 @@ The owner wants maximum forward progress with **minimal questions**, frequent sa
 - **Latest verified private AAB:** [artifact #13159509265](https://github.com/ankur2066/-ankur-order-app-/actions/runs/41482732286/artifacts/13159509265), expires 16 Nov 2026 16:38 UTC.
 - The application code matches the prior v1.0.37 candidate; this run **adds actual built-binary security verification** and supersedes the earlier signed link. APK/AAB are private test artifacts, not released to users.
 - All 97 source/React/Phase A checks passed in [review #41482833393](https://github.com/ankur2066/-ankur-order-app-/actions/runs/41482833393), with security emulator pass. **Physical phone and live manifest tests remain pending.**
+
+
+## 3 November 2026 — customer navigation + dark theme before next signed APK
+
+**Owner request:** Finish private tests and screen cleanup first; do not publish a new signed APK or make production changes yet. Existing live Dry Ice booking on Home replaces the redundant customer Categories/Products browsing tab.
+
+- Customer bottom navigation is **Home / My Orders / AI Video / Profile**. `ui-fixes/customer_nav_v138.py` removes only the Categories button and updates the old catalogue-promo navigation to open Home. The legacy internal catalogue implementation and all real product/order data are preserved.
+- `ui-fixes/customer_dark_contrast_v138.py` + `customer-dark-contrast-v138.css` scope readable dark-mode colors to Profile, AI Video Studio and the Video Idea Builder/FeatureHub. Customer Home booking, owner/staff dashboards, backend, stored theme preference and light mode are not recolored.
+- Static regression tests `ui-fixes/customer-nav-v138.test.mjs` and `ui-fixes/customer-dark-contrast-v138.test.mjs` assert 4-tab navigation, protected Home booking anchors and >= 4.5:1 sample foreground/background contrast.
+- Changes were applied to the **draft review branch only**. The completed GitHub review **PASS** includes reconstruction, node contracts, npm lint/build and actual React client/tap regressions: [run #41551346193](https://github.com/ankur2066/-ankur-order-app-/actions/runs/41551346193), head `8cc3dee3dcd65e7f6ee742f08a8e32d74a4bc561`. A prior failed attempt was fixed (English-translated `Categories` label in reconstructed BottomNav).
+- **Not done yet:** new signed v1.0.38 private build, device-side screenshots/contrast inspection, in-place installation, customer booking/tracking/notifications, Monthly PDF recipient Save/Share, published HTTPS update manifest. The existing **v1.0.37** signed private APK is not a build of these new v1.0.38 review changes.
+- Before any signed candidate, update the private signed workflow to reconstruct *both* new UI patches, re-run all release checks, pin the correct version code/certificate, and only then produce an explicitly **private TEST** artifact. Public release and production Firebase changes require separate approval.
