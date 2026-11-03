@@ -7,6 +7,7 @@ const root = process.env.ANKUR_CLIENT_APP || process.cwd();
 const css = readFileSync(new URL('./customer-dark-contrast-v138.css', import.meta.url), 'utf8');
 const profile = readFileSync(resolve(root, 'src/components/customer/ProfileTab.tsx'), 'utf8');
 const video = readFileSync(resolve(root, 'src/components/AIVideoStudio.tsx'), 'utf8');
+const hub = readFileSync(resolve(root, 'src/components/customer/FeatureHub.tsx'), 'utf8');
 
 function luminance(value) {
   const channels = value.substring(1).match(/../g).map(c => parseInt(c, 16) / 255);
@@ -21,6 +22,7 @@ function contrast(a, b) {
 test('Profile and AI Video get independent dark-mode readable surfaces', () => {
   assert.match(profile, /ankur-readable-customer-page/);
   assert.match(video, /ankur-readable-customer-page/);
+  assert.match(hub, /ankur-readable-customer-page/);
   assert.match(css, /html\[data-theme='dark'\] \.ankur-readable-customer-page/);
   assert.doesNotMatch(css, /html\[data-theme='dark'\] body\s*\{/);
 });
