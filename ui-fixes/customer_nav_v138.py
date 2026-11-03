@@ -15,7 +15,7 @@ source = nav.read_text(encoding="utf-8")
 changes = [
     ("House, LayoutGrid, ClipboardList, Clapperboard, User",
      "House, ClipboardList, Clapperboard, User"),
-    ("  { id: 'categories', label: 'कैटेगरी', Icon: LayoutGrid },\n", ""),
+    ("  { id: 'categories', label: 'Categories', Icon: LayoutGrid },\n", ""),
     ("max-w-lg mx-auto grid grid-cols-5", "max-w-lg mx-auto grid grid-cols-4"),
 ]
 for before, after in changes:
