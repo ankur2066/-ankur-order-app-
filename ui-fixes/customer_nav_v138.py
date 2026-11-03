@@ -37,5 +37,12 @@ source = source.replace(before, after, 1)
 assert "bookingForm={(inlineProduct)" in source
 assert "onGoToTrack={handleGoToTrack}" in source
 assert "CategoriesTab" in source
+# Keep the legacy component compiled for internal product/order compatibility,
+# but disable its customer page while its redundant bottom-tab is retired.
+# This also avoids rendering an orphaned catalogue if a stale tab state survives.
+old_page = "{currentTab === 'categories' && ("
+assert source.count(old_page) == 1, "Duplicate Categories page anchor changed"
+source = source.replace(old_page, "{false && currentTab === 'categories' && (", 1)
+assert "{currentTab === 'categories' && (" not in source, "Customer Categories route must not be live"
 app.write_text(source, encoding="utf-8")
 print("PASS: four customer tabs; obsolete catalogue promo opens Home; booking and product data preserved.")
