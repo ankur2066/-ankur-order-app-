@@ -18,6 +18,8 @@ test('duplicate customer Products/Categories tab is not rendered', () => {
 test('legacy customer catalogue promo routes to Home, not dead Categories page', () => {
   assert.match(app, /else if \(action === 'categories'\) setCurrentTab\('home'\)/);
   assert.doesNotMatch(app, /else if \(action === 'categories'\) setCurrentTab\('categories'\)/);
+  assert.match(app, /\{false && currentTab === 'categories' && \(/, 'orphaned product page disabled');
+  assert.doesNotMatch(app, /\{currentTab === 'categories' && \(/, 'unreachable Categories render must stay gated');
 });
 
 test('existing booking and private product records remain untouched', () => {
