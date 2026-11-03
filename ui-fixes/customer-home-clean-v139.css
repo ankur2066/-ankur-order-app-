@@ -1,0 +1,21 @@
+/* ANKUR CUSTOMER HOME CLEAN v1.0.39
+   Only the heading position changes; booking fields, rates and slots retain
+   their existing layout, dimensions and high-contrast styles. */
+.aqp-form-only-main .aqp-booking-heading {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  min-height: 40px !important;
+}
+.aqp-form-only-main .aqp-booking-heading > div {
+  width: 100%;
+  text-align: center;
+}
+.aqp-form-only-main .aqp-booking-heading h1 {
+  margin: 0 auto !important;
+  text-align: center !important;
+}
+.aqp-form-only-home .aqp-header {
+  padding-bottom: 0 !important;
+}
