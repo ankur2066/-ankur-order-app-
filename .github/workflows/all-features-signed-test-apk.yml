@@ -44,6 +44,21 @@ jobs:
           python3 ui-fixes/customer-home-language.py
           python3 ui-fixes/customer_nav_v138.py
           python3 ui-fixes/customer_dark_contrast_v138.py
+      - name: Confirm reviewed v1.0.38 customer UI is in the signed app source
+        run: |
+          set -euo pipefail
+          # Fail closed if the Android job reconstructs older customer screens.
+          grep -Fq 'max-w-lg mx-auto grid grid-cols-4' src/components/customer/BottomNav.tsx
+          if grep -Fq "id: 'categories'" src/components/customer/BottomNav.tsx; then
+            echo 'Blocked: obsolete Categories tab still present in candidate'
+            exit 1
+          fi
+          grep -Fq "false && currentTab === 'categories'" src/App.tsx
+          grep -Fq 'ANKUR CUSTOMER DARK CONTRAST v1.0.38' src/index.css
+          grep -Fq 'ankur-readable-customer-page' src/components/customer/ProfileTab.tsx
+          grep -Fq 'ankur-readable-customer-page' src/components/AIVideoStudio.tsx
+          grep -Fq 'bookingForm={(inlineProduct)' src/App.tsx
+          echo 'PASS: four tabs, hidden redundant Products page, scoped contrast, original booking form'
       - name: Configure existing Android Firebase app and signing
         env:
           KEYSTORE_B64: ${{ secrets.ANKUR_RELEASE_KEYSTORE_BASE64 }}
