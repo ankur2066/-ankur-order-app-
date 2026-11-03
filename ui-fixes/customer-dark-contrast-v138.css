@@ -1,0 +1,51 @@
+/* ANKUR CUSTOMER DARK CONTRAST v1.0.38
+   Scoped to customer Profile and AI Video only; Home booking, bottom nav,
+   owner/staff screens and light mode keep their existing appearance. */
+html[data-theme='dark'] .ankur-readable-customer-page {
+  --app-bg: #0D1E32;
+  --card-bg: #182C46;
+  --text-main: #F8FAFC;
+  --text-sub: #CBD5E1;
+  --line: #53657B;
+  --brand-soft: #31415A;
+  --brand-ink: #FFDBB5;
+  background: var(--app-bg);
+  color: var(--text-main);
+}
+html[data-theme='dark'] .ankur-readable-customer-page .c-card {
+  background-color: var(--card-bg);
+  color: var(--text-main);
+}
+html[data-theme='dark'] .ankur-readable-customer-page .c-soft {
+  background-color: var(--brand-soft);
+  color: var(--brand-ink);
+}
+html[data-theme='dark'] .ankur-readable-customer-page .t-main {
+  color: #F8FAFC;
+}
+html[data-theme='dark'] .ankur-readable-customer-page .t-sub {
+  color: #CBD5E1;
+}
+html[data-theme='dark'] .ankur-readable-customer-page .t-brand-ink {
+  color: #FFDBB5;
+}
+html[data-theme='dark'] .ankur-readable-customer-page .c-brand {
+  background-color: #9A3412;
+  color: #FFFFFF;
+}
+html[data-theme='dark'] .ankur-readable-customer-page input:not([type='file']),
+html[data-theme='dark'] .ankur-readable-customer-page textarea,
+html[data-theme='dark'] .ankur-readable-customer-page select {
+  background-color: #102038;
+  color: #F8FAFC;
+  border-color: #8092AB;
+}
+html[data-theme='dark'] .ankur-readable-customer-page input::placeholder,
+html[data-theme='dark'] .ankur-readable-customer-page textarea::placeholder {
+  color: #CBD5E1;
+  opacity: 1;
+}
+html[data-theme='dark'] .ankur-readable-customer-page :focus-visible {
+  outline: 3px solid #F8B976;
+  outline-offset: 2px;
+}
