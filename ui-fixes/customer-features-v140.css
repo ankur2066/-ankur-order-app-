@@ -1,0 +1,35 @@
+/* ANKUR AI FEATURES NAV v1.0.40
+   Fixed five-button mobile navigation + a truthful winner slot on AI Features.
+   Keep booking, owner dashboard and unrelated pages untouched. */
+.aqp-bottom-nav li { min-width: 0; }
+.aqp-bottom-nav li button { min-width: 0; }
+.aqp-bottom-nav li button > span:last-child {
+  display: block;
+  max-width: 100%;
+  padding: 0 1px;
+  font-size: 10px;
+  line-height: 1.15;
+  overflow-wrap: normal;
+  text-align: center;
+}
+@media (max-width: 365px) {
+  .aqp-bottom-nav li button > span:last-child { font-size: 9px; }
+  .aqp-bottom-nav li button svg { width: 20px; height: 20px; }
+}
+.ankur-daily-winner {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 16px;
+  margin: 0 0 14px;
+  border-radius: 16px;
+  border: 1px solid #4777b0;
+  background: linear-gradient(120deg, #173250, #245a86);
+  color: #ffffff;
+  box-shadow: 0 4px 18px rgba(8, 41, 78, .12);
+}
+.ankur-daily-winner h1,
+.ankur-daily-winner p,
+.ankur-daily-winner span,
+.ankur-daily-winner svg { color: #ffffff !important; }
+.ankur-daily-winner span { opacity: .9; }
