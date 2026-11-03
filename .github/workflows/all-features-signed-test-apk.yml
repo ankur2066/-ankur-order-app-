@@ -63,6 +63,7 @@ jobs:
           grep -Fq "id: 'ai-features'" src/components/customer/BottomNav.tsx
           grep -Fq "currentTab === 'ai-features'" src/App.tsx
           grep -Fq 'ankur-daily-winner' src/App.tsx
+          grep -Fq 'ANKUR AI FEATURES NAV v1.0.40' src/index.css
           grep -Fq 'bookingForm(null)' src/components/customer/CustomerHome.tsx
           if grep -Fq 'aqp-top-product-picker' src/components/customer/CustomerHome.tsx; then echo 'Blocked: duplicate product picker present'; exit 1; fi
           echo 'PASS: four tabs, hidden redundant Products page, scoped contrast, original booking form'
