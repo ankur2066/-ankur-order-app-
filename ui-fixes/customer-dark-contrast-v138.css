@@ -29,6 +29,23 @@ html[data-theme='dark'] .ankur-readable-customer-page .t-sub {
 html[data-theme='dark'] .ankur-readable-customer-page .t-brand-ink {
   color: #FFDBB5;
 }
+/* Ensure Profile settings choices, service cards and the video-tool links
+   remain readable even if a legacy component supplies its own accent class. */
+html[data-theme='dark'] .ankur-readable-customer-page .t-brand,
+html[data-theme='dark'] .ankur-readable-customer-page .t-brand-ink {
+  color: #FFDBB5;
+}
+html[data-theme='dark'] .ankur-readable-customer-page button.c-soft,
+html[data-theme='dark'] .ankur-readable-customer-page a.c-soft {
+  background-color: #31415A;
+  color: #FFDBB5;
+}
+html[data-theme='dark'] .ankur-readable-customer-page .b-line {
+  border-color: #8092AB;
+}
+html[data-theme='dark'] .ankur-readable-customer-page a:not(.c-brand) {
+  text-decoration-color: currentColor;
+}
 html[data-theme='dark'] .ankur-readable-customer-page .c-brand {
   background-color: #9A3412;
   color: #FFFFFF;
