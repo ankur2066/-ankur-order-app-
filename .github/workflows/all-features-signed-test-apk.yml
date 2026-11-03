@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
   push:
     branches: [codex/all-14-phase-bc-english]
-    paths: ['all-features/templates/**', 'all-features/apply_patch.py', 'all-features/wire_additions.py', 'billing/templates/**', 'billing/apply_patch.py', 'seasonal/*.template', 'updates/*.template', 'ui-fixes/seasonal-contrast-v135.css', 'ui-fixes/seasonal_contrast_v135.py', 'ui-fixes/customer-home-language.py', 'ui-fixes/customer_nav_v138.py', 'ui-fixes/customer_dark_contrast_v138.py', 'ui-fixes/customer-dark-contrast-v138.css', 'ui-fixes/customer_home_clean_v139.py', 'ui-fixes/customer-home-clean-v139.css', 'ui-fixes/mobileReport.ts', 'ui-fixes/monthlyReport.ts', '.github/workflows/all-features-signed-test-apk.yml']
+    paths: ['all-features/templates/**', 'all-features/apply_patch.py', 'all-features/wire_additions.py', 'billing/templates/**', 'billing/apply_patch.py', 'seasonal/*.template', 'updates/*.template', 'ui-fixes/seasonal-contrast-v135.css', 'ui-fixes/seasonal_contrast_v135.py', 'ui-fixes/customer-home-language.py', 'ui-fixes/customer_nav_v138.py', 'ui-fixes/customer_dark_contrast_v138.py', 'ui-fixes/customer-dark-contrast-v138.css', 'ui-fixes/customer_home_clean_v139.py', 'ui-fixes/customer-home-clean-v139.css', 'ui-fixes/customer_features_nav_v140.py', 'ui-fixes/customer-features-v140.css', 'ui-fixes/mobileReport.ts', 'ui-fixes/monthlyReport.ts', '.github/workflows/all-features-signed-test-apk.yml']
 permissions: {contents: read}
 jobs:
   review:
@@ -45,11 +45,12 @@ jobs:
           python3 ui-fixes/customer_nav_v138.py
           python3 ui-fixes/customer_dark_contrast_v138.py
           python3 ui-fixes/customer_home_clean_v139.py
+          python3 ui-fixes/customer_features_nav_v140.py
       - name: Confirm reviewed v1.0.38 customer UI is in the signed app source
         run: |
           set -euo pipefail
           # Fail closed if the Android job reconstructs older customer screens.
-          grep -Fq 'max-w-lg mx-auto grid grid-cols-4' src/components/customer/BottomNav.tsx
+          grep -Fq 'max-w-lg mx-auto grid grid-cols-5' src/components/customer/BottomNav.tsx
           if grep -Fq "id: 'categories'" src/components/customer/BottomNav.tsx; then
             echo 'Blocked: obsolete Categories tab still present in candidate'
             exit 1
@@ -59,6 +60,9 @@ jobs:
           grep -Fq 'ankur-readable-customer-page' src/components/customer/ProfileTab.tsx
           grep -Fq 'ankur-readable-customer-page' src/components/AIVideoStudio.tsx
           grep -Fq 'bookingForm={(inlineProduct)' src/App.tsx
+          grep -Fq "id: 'ai-features'" src/components/customer/BottomNav.tsx
+          grep -Fq "currentTab === 'ai-features'" src/App.tsx
+          grep -Fq 'ankur-daily-winner' src/App.tsx
           grep -Fq 'bookingForm(null)' src/components/customer/CustomerHome.tsx
           if grep -Fq 'aqp-top-product-picker' src/components/customer/CustomerHome.tsx; then echo 'Blocked: duplicate product picker present'; exit 1; fi
           echo 'PASS: four tabs, hidden redundant Products page, scoped contrast, original booking form'
@@ -101,8 +105,8 @@ jobs:
           from pathlib import Path
           p=Path('android/app/build.gradle'); lines=p.read_text().splitlines()
           for i,x in enumerate(lines):
-            if x.strip().startswith('versionCode '): lines[i]='        versionCode 39'
-            if x.strip().startswith('versionName '): lines[i]='        versionName "1.0.39-season-test"'
+            if x.strip().startswith('versionCode '): lines[i]='        versionCode 40'
+            if x.strip().startswith('versionName '): lines[i]='        versionName "1.0.40-season-test"'
           p.write_text('\n'.join(lines)+'\n')
           PY
           cd android
@@ -116,7 +120,7 @@ jobs:
           # update in place; a mismatched package would install as a second app.
           BUILD_TOOLS="$ANDROID_HOME/build-tools/$(ls "$ANDROID_HOME/build-tools" | sort -V | tail -1)"
           BADGING=$("$BUILD_TOOLS/aapt" dump badging "$APK")
-          printf '%s\n' "$BADGING" | grep -F "package: name='com.ankurdryice.events' versionCode='39' versionName='1.0.39-season-test'"
+          printf '%s\n' "$BADGING" | grep -F "package: name='com.ankurdryice.events' versionCode='40' versionName='1.0.39-season-test'"
           # Update flow opens a consent-based external link; never request installer
           # or broad file-management privileges in the packaged manifest.
           PERMISSIONS=$("$BUILD_TOOLS/aapt" dump permissions "$APK")
@@ -146,7 +150,7 @@ jobs:
           sha256sum "$AAB" > aab-sha256.txt
       - uses: actions/upload-artifact@v4
         with:
-          name: Ankur-Dryice-v1.0.39-PRIVATE-PLAY-AAB
+          name: Ankur-Dryice-v1.0.40-PRIVATE-PLAY-AAB
           path: |
             android/app/build/outputs/bundle/release/app-release.aab
             aab-sha256.txt
