@@ -5,6 +5,7 @@ from pathlib import Path
 targets = (
     Path("src/components/customer/ProfileTab.tsx"),
     Path("src/components/AIVideoStudio.tsx"),
+    Path("src/components/customer/FeatureHub.tsx"),
 )
 needle = 'className="c-app min-h-screen page-with-bottom-nav"'
 replacement = 'className="c-app ankur-readable-customer-page min-h-screen page-with-bottom-nav"'
