@@ -38,6 +38,10 @@ test('dark text, secondary labels, light chips and action buttons have >=4.5:1 c
     assert.ok(contrast(fg, bg) >= 4.5, name + ' ratio ' + contrast(fg, bg));
     assert.ok(css.includes(fg) && css.includes(bg), 'palette missing ' + name);
   }
+  assert.match(css, /\.ankur-readable-customer-page \.t-brand,/);
+  assert.match(css, /button\.c-soft,/);
+  assert.match(css, /border-color: #8092AB/);
+  assert.ok(contrast('#FFDBB5','#31415A') >= 4.5, 'settings choice/button text contrast');
   assert.match(css, /:focus-visible/);
   assert.match(css, /::placeholder/);
 });
