@@ -161,3 +161,13 @@ The owner wants maximum forward progress with **minimal questions**, frequent sa
 - Changes were applied to the **draft review branch only**. The completed GitHub review **PASS** includes reconstruction, node contracts, npm lint/build and actual React client/tap regressions: [run #41551346193](https://github.com/ankur2066/-ankur-order-app-/actions/runs/41551346193), head `8cc3dee3dcd65e7f6ee742f08a8e32d74a4bc561`. A prior failed attempt was fixed (English-translated `Categories` label in reconstructed BottomNav).
 - **Not done yet:** new signed v1.0.38 private build, device-side screenshots/contrast inspection, in-place installation, customer booking/tracking/notifications, Monthly PDF recipient Save/Share, published HTTPS update manifest. The existing **v1.0.37** signed private APK is not a build of these new v1.0.38 review changes.
 - Before any signed candidate, update the private signed workflow to reconstruct *both* new UI patches, re-run all release checks, pin the correct version code/certificate, and only then produce an explicitly **private TEST** artifact. Public release and production Firebase changes require separate approval.
+
+
+## 3 November 2026 — source-only customer screen cleanup (before signing)
+
+- Previous review baseline head `104a0f8c6ad` has successful review CI [#41551620650](https://github.com/ankur2066/-ankur-order-app-/actions/runs/41551620650).
+- **Categories page now also disabled as a customer render target** in `ui-fixes/customer_nav_v138.py`, beyond merely removing its bottom-tab button. A stale `categories` promo action routes to Home. The old component stays compiled for internal compatibility; no product records, rates, order histories, Firestore Rules, owner or staff data were deleted.
+- Scoped CSS for Profile / AI Video / FeatureHub now explicitly includes readable accent text, Settings choices, focus outlines, buttons and link contrast in Dark Mode. No global theme choice or customer booking pricing changed.
+- New regression assertions in `ui-fixes/customer-nav-v138.test.mjs` and `ui-fixes/customer-dark-contrast-v138.test.mjs`. **Success / failure of the final new source CI must be confirmed from the final branch head; do not infer from older runs.**
+- **Signing is deliberately on hold** while the owner reviews visual edits. Existing signed Android workflow is still v1.0.37 and does **not yet reconstruct v1.0.38 nav/color patches**. It must be aligned and version-bumped only after safe review/test, with explicit permission before any private signed build.
+- Physical Android screenshot/color inspection, owner PDF recipient Save/Share, controlled booking/tracking/FCM and approved public release remain pending.
