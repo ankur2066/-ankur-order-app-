@@ -1,6 +1,6 @@
 # ANKUR DRYICE — PROJECT PROGRESS / CHAT HANDOFF
 
-**Last checked:** 2026-11-02 16:48 IST (Asia/Kolkata)  
+**Last checked:** 2026-11-03, private v1.0.38 work session (Asia/Kolkata)  
 **Project:** Ankur Dryice customer / owner / staff Android app  
 **Repository:** `ankur2066/-ankur-order-app-`  
 **Active review branch:** `codex/all-14-phase-bc-english`  
@@ -17,7 +17,7 @@ The owner uses short ChatGPT conversations and Codex quotas run out. **Resume fr
 - App name for UI and promotions: **Ankur Dryice**.
 - Primary Call: **95808 82066**; WhatsApp: **88963 32066**. Preserve distinct links.
 - New install launches in **English** without a prompt; users switch English/Hindi only in Profile > Settings > Language and choice persists. Remaining legacy screen translations are incomplete.
-- Preserve original five bottom tabs, existing working booking, tracking, notifications, staff/owner permissions, and protected rates. Keep real data safe.
+- Current customer navigation is Home / My Orders / AI Video / Profile (four tabs), per the 3 November cleanup. Preserve existing booking, tracking, notifications, staff/owner permissions and protected rates.
 - **Phase A** owner 30-day overview, actual orders CSV and 15th–14th expenses implemented and CI passed; no live deployment.
 - **14 additional features** staged through `all-features`: calculator, video *prompt* generator, loyalty, catalogue, wholesale, recurring, promos, inventory, reports, FAQ, rate card, support, service area, referral. Basic route/UI is **not equal to a live completed feature**.
 - **Billing extension:** `billing/` staged inactive unit-product catalog, safe integer-paise calculation, immutable order snapshots, isolated product notifications; no live settings or product catalog seeded.

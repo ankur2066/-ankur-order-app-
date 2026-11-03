@@ -1,6 +1,6 @@
 # Ankur Dryice — wedding season release gate (Nov 2026)
 
-**Release scope:** Dry Ice plus active approved Pyro products only. First customer screen is booking. Other product catalogue entries remain saved privately for a separate owner-approved January 2027 release. Preserve original five bottom tabs, 14 feature definitions and user roles. No incomplete optional feature may claim to be live.
+**Release scope:** Dry Ice plus active approved Pyro products only. First customer screen is booking. Other product catalogue entries remain saved privately for a separate owner-approved January 2027 release. Customer navigation is Home / My Orders / AI Video / Profile (four tabs). Preserve 14 feature definitions and user roles. No incomplete optional feature may claim to be live.
 
 ## Private review already automated
 - [x] Project progress survives chat limits in `PROJECT_PROGRESS.md`.

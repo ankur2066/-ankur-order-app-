@@ -67,3 +67,16 @@ jobs:
         run: |
           test -f dist/index.html
           echo 'Private review only: no Firebase deploy, billing change, data seed, APK publish or installation.'
+      - name: Package private review evidence
+        run: |
+          git rev-parse HEAD > review-source-sha.txt
+          # Only repository source and generated web assets: no Android signing
+          # material, environment files, live data, or dependency directories.
+          tar -czf review-source.tar.gz src dist public index.html package.json package-lock.json tsconfig.json vite.config.ts
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Ankur-private-review-source
+          path: |
+            review-source.tar.gz
+            review-source-sha.txt
+          retention-days: 7
