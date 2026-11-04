@@ -38,6 +38,9 @@ def stage(base_path,out):
     match /staffOrderAssignments/{key} {
       allow get, list, create, update, delete: if isOwner();
     }
+    match /staffProjectionWatermarks/{key} {
+      allow read, write: if false;
+    }
     match /staffContactRates/{key} {
       allow read, write: if false;
     }
