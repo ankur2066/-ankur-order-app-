@@ -30,8 +30,10 @@ export function createFeatureService({db,now=()=>Date.now(),timestamp=()=>new Da
    });
   }
   if(action==='preferences'){
-   if(typeof data.orderUpdates!=='boolean'||typeof data.promos!=='boolean')throw Error('Invalid preferences');
-   await db.doc('userPrefs/'+auth.uid).set({orderUpdates:data.orderUpdates,promos:data.promos,updatedAt:timestamp()});return {ok:true};
+   if(typeof data.orderUpdates!=='boolean'||typeof data.promos!=='boolean'||
+      (data.winnerPublicConsent!==undefined&&typeof data.winnerPublicConsent!=='boolean'))throw Error('Invalid preferences');
+   await db.doc('userPrefs/'+auth.uid).set({orderUpdates:data.orderUpdates,promos:data.promos,
+     winnerPublicConsent:data.winnerPublicConsent===true,updatedAt:timestamp()},{merge:true});return {ok:true};
   }
   if(action==='referralClaim'){
    const referrerId=code(data.referrerId);if(referrerId===auth.uid)throw Error('Self referral denied');
