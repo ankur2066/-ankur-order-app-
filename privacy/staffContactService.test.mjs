@@ -144,6 +144,16 @@ test('projection create/update/delete contains no raw phone and deletion is idem
  await f.service.project({...f.data,after:null,occurredAt:Date.parse(STAMP)});
  assert.equal(f.docs.has('staffOrderViews/'+f.key),false);
 });
+
+test('backfill defaults to dry run and cannot apply without explicit named-DB signoff',()=>{
+ const script=readFileSync(new URL('./backfill.mjs',import.meta.url),'utf8');
+ assert.match(script,/ANKUR_PRIVACY_BACKFILL_APPROVED_DATABASE/);
+ assert.match(script,/ANKUR_PRIVACY_BACKFILL_SIGNOFF/);
+ assert.match(script,/OWNER_CONFIRMED_BACKUP_AND_ROLLBACK/);
+ assert.match(script,/apply=false/);
+ assert.match(script,/orderBy\('__name__'\)/);
+ assert.match(script,/snap\.updateTime\?\.toMillis\(\)/);
+});
 test('runtime declares correct named database and App Check, no deployment config',()=>{
  const runtime=readFileSync(new URL('./index.mjs',import.meta.url),'utf8');
  assert.match(runtime,/ai-studio-ankurdryiceorder-f4d89318-c640-47a5-a9f7-98543eff2673/);
