@@ -26,7 +26,7 @@ const VIDEO_OCCASIONS = [
 function VideoIdeaPanel({user}:{user:User|null}){
   const [occasion,setOccasion]=useState('wedding');
   const [customOccasion,setCustomOccasion]=useState('');
-  const [duration,setDuration]=useState(10);
+  const [duration,setDuration]=useState(30);
   const [notice,setNotice]=useState('');
   const [contact,setContact]=useState<VideoContact>({name:'',city:'',mobile:''});
   // Separate account data on shared phones; never sync to backend.
