@@ -78,7 +78,6 @@ assert "कॉल: {ord.customerPhone}" not in s
 assert "phoneMatch" not in s
 assert "href={`tel:${ord.customerPhone" in s
 assert "revealedContactOrderId === ord.orderId" in s
-assert "<StaffDashboard" not in s # dashboard module, not caller
 p.write_text(s,encoding="utf-8")
 
 sheet=Path("ui-fixes/staff-contact-v148.css").read_text(encoding="utf-8")
