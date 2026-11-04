@@ -39,5 +39,5 @@ test('Local, review and signed source reconstruction contain the same v1.0.39 cl
  assert.equal(review.split('python3 '+name).length-1,1);
  assert.equal(signed.split('python3 '+name).length-1,1);
  assert.ok(reconstruct.indexOf('customer_dark_contrast_v138.py')<reconstruct.indexOf(name));
- assert.ok(signed.split('permissions:')[0].includes("'"+name+"'"));
+ assert.match(signed,/paths: \['release-batches\/\*\.txt'\]/,'only explicit release batch triggers signed APK');
 });
