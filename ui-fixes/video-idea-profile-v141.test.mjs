@@ -21,10 +21,10 @@ test('Video Idea Builder shows event selection, prompt and two equal-width actio
   assert.match(hub,/id="ankur-video-occasion"/);
   const occasions=hub.slice(hub.indexOf('const VIDEO_OCCASIONS = ['),hub.indexOf('] as const;',hub.indexOf('const VIDEO_OCCASIONS = [')));
   const ids=[...occasions.matchAll(/\{id:'([^']+)',name:/g)].map(m=>m[1]);
-  assert.equal(ids.length,24,'24 occasion choices in 8 rows');
-  assert.equal(new Set(ids).size,24,'no duplicate occasion choices');
+  assert.equal(ids.length,29,'29 occasion choices in compact 3-column rows');
+  assert.equal(new Set(ids).size,29,'no duplicate occasion choices');
   assert.ok(!ids.includes('business'),'remove obsolete Dry Ice Supply');
-  for(const category of ['Wedding Entry','Stage Fog','Engagement','Birthday','Cocktail','Reception','Haldi','Mehndi','Sangeet','DJ Night','Corporate Event','Anniversary','Baby Shower','Bridal Entry','Groom Entry','Varmala','First Dance','Ring Ceremony','Grand Opening','Award Ceremony','Fashion Show','College Fest','Product Launch','Other Event'])
+  for(const category of ['Wedding Entry','Stage Fog','Engagement','Birthday','Cocktail','Reception','Haldi','Mehndi','Sangeet','DJ Night','Corporate Event','Anniversary','Baby Shower','Bridal Entry','Groom Entry','Varmala','First Dance','Ring Ceremony','Grand Opening','Award Ceremony','Fashion Show','College Fest','Product Launch','Baraat Entry','Pool Party','Diwali Party','New Year Party','Live Concert','Other Event'])
     assert.ok(occasions.includes(category),category);
   const video=hub.slice(hub.indexOf('function VideoIdeaPanel('),hub.indexOf('function ServiceAreaPanel()'));
   assert.doesNotMatch(video,/<select\b/,'native one-option-per-row dropdown must be removed');
