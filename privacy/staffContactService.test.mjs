@@ -47,7 +47,7 @@ test('projection uses a strict allowlist for both legacy and product orders',()=
   assert.equal(p.city,'Lucknow');
   assert.deepEqual(Object.keys(p).sort(),[
    'projectionVersion','sourceCollection','orderId','customerName','city','productName',
-   'dispatchTiming','status','paymentStatus','quantityKg','quantityUnits','updatedAt'].sort());
+   'dispatchTiming','status','paymentStatus','quantityKg','quantityUnits','quantityUnit','billingVersion','createdAt','updatedAt'].sort());
   const raw=JSON.stringify(p);
   for(const secret of ['9000000001','123456','Full street','secret@example.test','paymentNotes','SECRET'])
    assert.equal(raw.includes(secret),false,'projection leaked '+secret);
