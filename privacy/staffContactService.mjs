@@ -42,6 +42,9 @@ export function staffSafeProjection(source, orderId, record, updatedAt) {
     paymentStatus: plain(record.paymentStatus, 50),
     quantityKg: Number.isFinite(record.quantityKg) ? record.quantityKg : null,
     quantityUnits: Number.isFinite(record.billing?.quantityUnits) ? record.billing.quantityUnits : null,
+    quantityUnit: ['kg','piece','box'].includes(record.billing?.unit) ? record.billing.unit : null,
+    billingVersion: record.billingVersion === 2 ? 2 : 1,
+    createdAt: record.createdAt ?? null,
     updatedAt
   };
 }
