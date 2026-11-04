@@ -102,8 +102,20 @@ export function createDailyWinnerService({db,now=()=>Date.now(),randomPick=lengt
     for(const doc of snap.docs)rows.push({source,orderId:doc.id,order:doc.data(),
       createdAtMs:doc.data().createdAt?.toMillis?.()??0});
   }
-  const pool=selectEligiblePool(rows,day,rates,config.distribution||'all3_top4');
-  if(pool.candidates.length===0)return {skipped:'no_eligible_retail_orders'};
+  // Public announcements require affirmative, user-controlled consent.
+  // Refuse guest identities and never infer consent from making a purchase.
+  const candidateUids=[...new Set(rows.filter(row=>row.createdAtMs>=start&&row.createdAtMs<end)
+    .map(row=>row.order?.userId).filter(uid=>typeof uid==='string' &&
+      uid!==''&&uid!=='guest'&&uid!=='owner_manual_entry'))];
+  if(candidateUids.length>200)throw Error('Too many customers for safe consent review');
+  const consents=await Promise.all(candidateUids.map(async uid=>{
+    const preference=await db.doc('userPrefs/'+uid).get();
+    return preference.data()?.winnerPublicConsent===true?uid:null;
+  }));
+  const consented=new Set(consents.filter(Boolean));
+  const optedInRows=rows.filter(row=>consented.has(row.order?.userId));
+  const pool=selectEligiblePool(optedInRows,day,rates,config.distribution||'all3_top4');
+  if(pool.candidates.length===0)return {skipped:'no_eligible_opted_in_retail_orders'};
   const manualCandidate=!automatic&&data.source&&data.orderId
    ?pool.candidates.find(x=>x.source===data.source&&x.orderId===data.orderId):null;
   if(!automatic&&data.orderId&&!manualCandidate)throw Error('Selected order is not retail-eligible today');
