@@ -52,7 +52,7 @@ export function eligibleRetailOrder(source,orderId,order,rates){
    ?'u:'+order.userId:(/^[6-9]\d{9}$/.test(phone.slice(-10))?'p:'+createHash('sha256').update(phone.slice(-10)).digest('hex'):null);
  if(!uid)return null; // No stable customer identity; do not enable anonymous gaming.
  return {source,orderId,customerKey:uid,name,city:city&&!/\d{5}/.test(city)?city:'उत्तर प्रदेश',
-   quantityKg:quantity,createdAtMs:order.createdAt?.toMillis?.()??Date.parse(order.createdAt)||0};
+   quantityKg:quantity,createdAtMs:order.createdAt?.toMillis?.() ?? 0};
 }
 export function selectEligiblePool(rows,day,rates,distribution='all3_top4'){
  const {start,end}=indiaDayRange(day),counts=new Map(),today=new Map();
@@ -66,7 +66,7 @@ export function selectEligiblePool(rows,day,rates,distribution='all3_top4'){
   }
  }
  const active=[...today.values()].sort((a,b)=>a.customerKey.localeCompare(b.customerKey));
- const top=[...counts.entries()].sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0])).slice(0,3).map(x=>x[0]);
+ const top=[...today.keys()].sort((a,b)=>(counts.get(b)||0)-(counts.get(a)||0)||a.localeCompare(b)).slice(0,3);
  return {topCustomerDay:isTopCustomerDay(day,distribution),
    candidates:isTopCustomerDay(day,distribution)?active.filter(x=>top.includes(x.customerKey)):active,
    topCustomerKeys:top};
