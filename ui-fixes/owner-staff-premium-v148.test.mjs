@@ -30,10 +30,12 @@ test('Premium owner UI keeps all 7 original destinations and all key functions',
 test('Premium design owner scoped, balanced tab grid and clear contrast',()=>{
  assert.match(css,/ANKUR OWNER PREMIUM 1\.0\.48/);
  assert.match(css,/\.ankur-owner-dashboard \.ankur-owner-nav/);
- assert.match(css,/grid-template-columns: repeat\(4,minmax\(0,1fr\)\)/);
- assert.match(css,/\.ankur-owner-nav>button:last-child \{grid-column:auto\}/);
+ assert.match(css,/grid-template-columns:repeat\(12,minmax\(0,1fr\)\)/);
+ assert.match(css,/>button:nth-child\(n\+4\)\{grid-column:span 3!important;\}/);
  assert.match(css,/\.ankur-owner-masthead h2/);
- assert.match(css,/background:#fff!important/);
+ assert.match(css,/background:radial-gradient\(ellipse 100% 40% at 100% 0%/);
+ assert.match(css,/\.ankur-owner-dashboard :is\(\.text-slate-950/);
+ assert.doesNotMatch(css,/\.ankur-owner-premium/);
 });
 
 test('Staff order list never shows every phone number or permits phone searching',()=>{
