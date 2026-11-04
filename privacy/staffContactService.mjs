@@ -149,7 +149,7 @@ export function createStaffPrivacyService({db, now = () => Date.now(), timestamp
     return db.runTransaction(async tx => {
       const [staffSnap,orderSnap] = await Promise.all([tx.get(staffRef),tx.get(orderRef)]);
       if (!orderSnap.exists || !validStatus(orderSnap.data()?.status) || orderSnap.data()?.isTrash === true) deny();
-      if (data.approved && !staffOk(staffSnap.data(),'callCustomer')) deny();
+      if (data.approved && !staffOk(staffSnap.data(),'callCustomer') && !staffOk(staffSnap.data(),'updateStatus')) deny();
       tx.set(assignmentRef,{
         sourceCollection,orderId,staffUid:data.staffUid,approved:data.approved,
         expiresAtMs:data.approved ? now()+expiresHours*3600000 : now(),
