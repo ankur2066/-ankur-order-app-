@@ -27,12 +27,10 @@ jobs:
           from pathlib import Path
           text=Path('/tmp/ankur-staff-source/src/components/StaffDashboard.tsx').read_text()
           lines=text.splitlines()
-          markers=['subscribeOrderDocuments(', 'setOrders(activeList)', 'batch.commit()', 'const openOneContact', 'revealedContactOrderId === ord.orderId']
-          for marker in markers:
-              indices=[i for i,line in enumerate(lines) if marker in line]
-              print('SOURCE MARKER:',marker,'COUNT:',len(indices))
-              for i in indices[:2]:
-                  print('\n'.join(f'{j+1}: {lines[j]}' for j in range(max(0,i-10),min(len(lines),i+14))))
+          for start,end in [(1,110),(111,275),(276,350),(475,560)]:
+              print(f'BEGIN CLIENT SOURCE {start}-{end}')
+              print('\n'.join(f'{j+1}: {lines[j]}' for j in range(start-1,min(len(lines),end))))
+              print('END CLIENT SOURCE')
           PY
       - name: Build staged reviewed rules in isolated folders
         run: |
