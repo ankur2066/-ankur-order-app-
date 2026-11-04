@@ -118,10 +118,15 @@ export function createStaffPrivacyService({db, now = () => Date.now(), timestamp
     const {sourceCollection,orderId} = inputOrder({sourceCollection:data.sourceCollection,orderId:data.orderId});
     if (!validStatus(data.status)) deny();
     const userRef=db.doc('users/'+auth.uid), orderRef=db.doc(sourceCollection+'/'+orderId);
+    const assignmentRef=db.doc('staffOrderAssignments/'+projectionId(sourceCollection,orderId)+'_'+auth.uid);
     return db.runTransaction(async tx=>{
-      const [userSnap,orderSnap]=await Promise.all([tx.get(userRef),tx.get(orderRef)]);
-      const user=userSnap.data(), order=orderSnap.data();
+      const [userSnap,orderSnap,assignmentSnap]=await Promise.all([
+        tx.get(userRef),tx.get(orderRef),tx.get(assignmentRef)]);
+      const user=userSnap.data(), order=orderSnap.data(), assignment=assignmentSnap.data();
       if (!staffOk(user,'updateStatus') || !orderSnap.exists || order?.isTrash === true ||
+          !assignmentSnap.exists || assignment?.approved !== true || assignment?.staffUid !== auth.uid ||
+          assignment?.sourceCollection !== sourceCollection || assignment?.orderId !== orderId ||
+          !Number.isSafeInteger(assignment?.expiresAtMs) || assignment.expiresAtMs <= now() ||
           !validStatus(order?.status) || typeof order?.trackingToken!=='string' ||
           !/^[A-Za-z0-9_-]{14,80}$/.test(order.trackingToken)) deny();
       const trackingRef=db.doc((sourceCollection==='orders'?'order_tracking':'product_order_tracking')+'/'+order.trackingToken);
