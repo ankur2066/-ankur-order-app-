@@ -54,6 +54,17 @@ test('projection uses a strict allowlist for both legacy and product orders',()=
  }
  assert.equal(staffSafeProjection('orders','ADI-TEST-1234',{...order,isTrash:true},STAMP),null);
 });
+test('legacy district may contain a complete street address and must never populate city',()=>{
+ const p=staffSafeProjection('orders','ADI-LEGACY-1234',{
+  status:'pending',customerName:'Buyer +91 8896332000',
+  district:'42 Private Street, Lucknow, 8896332000',
+  customerPhone:'8896332000',quantityKg:10,dispatchTiming:'Tomorrow',
+  productName:'Dry Ice'
+ },STAMP);
+ assert.equal(p.city,'');
+ assert.doesNotMatch(p.customerName,/8896332000/);
+ assert.doesNotMatch(JSON.stringify(p),/Private Street|8896332000/);
+});
 test('phone parsing rejects invalid/non-Indian and input cannot request a batch',async()=>{
  assert.equal(normalizeContactPhone('+91 8896332000'),'+918896332000');
  for(const phone of ['123456','5555555555','+19000000001','998899889999','foo'])assert.throws(()=>normalizeContactPhone(phone));
