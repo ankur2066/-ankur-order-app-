@@ -10,9 +10,20 @@ const safeUid = value => typeof value === 'string' && /^[A-Za-z0-9_-]{1,128}$/.t
 // User-supplied names/labels may themselves contain a phone. Redact apparent
 // Indian mobile numbers in EVERY displayed free-text field.
 const plain = (v, limit = 100) => typeof v === 'string'
-  ? v.replace(/(?:\+?91[ -]?)?[6-9](?:[ -]?[0-9]){9}/g,'[redacted]').slice(0, limit)
+  ? v.replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi,'[redacted]')
+      .replace(/(?:\+?91[ -]?)?[6-9](?:[ -]?[0-9]){9}/g,'[redacted]')
+      .replace(/https?:\/\/\S+/gi,'[redacted]')
+      .slice(0, limit)
   : '';
 const validStatus = value => STATUS.has(value);
+const STATUS_RANK = {pending:0,confirmed:1,in_packing:2,dispatched:3,delivered:4};
+export function validStaffStatusTransition(previous,next) {
+  if (!validStatus(previous) || !validStatus(next)) return false;
+  if (previous === next) return true;
+  if (previous === 'cancelled' || previous === 'delivered') return false;
+  if (next === 'cancelled') return true;
+  return STATUS_RANK[next] > STATUS_RANK[previous];
+}
 const deny = () => { throw Error('Not authorized for this order'); };
 export function projectionId(source, orderId) {
   if (!SOURCES.has(source) || !safeId(orderId)) throw Error('Invalid order reference');
@@ -166,7 +177,9 @@ export function createStaffPrivacyService({db, now = () => Date.now(), timestamp
           !/^[A-Za-z0-9_-]{14,80}$/.test(order.trackingToken)) deny();
       const trackingRef=db.doc((sourceCollection==='orders'?'order_tracking':'product_order_tracking')+'/'+order.trackingToken);
       const tracker=await tx.get(trackingRef);
-      if (!tracker.exists || tracker.data()?.orderId !== orderId) deny();
+      if (!tracker.exists || tracker.data()?.orderId !== orderId ||
+          tracker.data()?.status !== order.status ||
+          !validStaffStatusTransition(order.status,data.status)) deny();
       // Both snapshots atomically preserve the original status/tracking relationship.
       tx.update(orderRef,{status:data.status,updatedAt:timestamp()});
       tx.update(trackingRef,{status:data.status,lastStatusUpdate:'Order status updated',updatedAt:timestamp()});
