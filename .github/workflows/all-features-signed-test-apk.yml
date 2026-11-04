@@ -3,7 +3,8 @@ on:
   workflow_dispatch:
   push:
     branches: [codex/all-14-phase-bc-english]
-    paths: ['all-features/templates/**', 'all-features/apply_patch.py', 'all-features/wire_additions.py', 'billing/templates/**', 'billing/apply_patch.py', 'seasonal/*.template', 'updates/*.template', 'ui-fixes/seasonal-contrast-v135.css', 'ui-fixes/seasonal_contrast_v135.py', 'ui-fixes/customer-home-language.py', 'ui-fixes/customer_nav_v138.py', 'ui-fixes/customer_dark_contrast_v138.py', 'ui-fixes/customer-dark-contrast-v138.css', 'ui-fixes/customer_home_clean_v139.py', 'ui-fixes/customer-home-clean-v139.css', 'ui-fixes/customer_features_nav_v140.py', 'ui-fixes/customer-features-v140.css', 'ui-fixes/video_idea_profile_v141.py', 'ui-fixes/video-idea-profile-v141.css', 'ui-fixes/video-idea-profile-v141.test.mjs', 'ui-fixes/customer_profile_contact_v145.py', 'ui-fixes/customer-profile-contact-v145.test.mjs', 'ui-fixes/customer_ai_video_cleanup_v146.py', 'ui-fixes/customer-ai-video-cleanup-v146.test.mjs', 'ui-fixes/dispatch_rules_privacy_v147.py', 'ui-fixes/dispatch-rules-v147.css', 'ui-fixes/dispatch-rules-privacy-v147.test.mjs', 'updates/appUpdate.test.mjs', 'ci-fixes/signing-cert.test.mjs', 'ui-fixes/mobileReport.ts', 'ui-fixes/monthlyReport.ts', '.github/workflows/all-features-signed-test-apk.yml']
+    # Explicit release marker only: do not build an APK on every source edit.
+    paths: ['release-batches/*.txt']
 permissions: {contents: read}
 jobs:
   review:
