@@ -38,6 +38,11 @@ const VIDEO_OCCASIONS = [
   {id:'fashion',name:'Fashion Show / फैशन शो',short:'Fashion Show',hi:'फैशन शो'},
   {id:'college',name:'College Fest / कॉलेज फेस्ट',short:'College Fest',hi:'कॉलेज फेस्ट'},
   {id:'launch',name:'Product Launch / प्रोडक्ट लॉन्च',short:'Product Launch',hi:'प्रोडक्ट लॉन्च'},
+  {id:'baraat',name:'Baraat Entry / बारात एंट्री',short:'Baraat',hi:'बारात'},
+  {id:'pool',name:'Pool Party / पूल पार्टी',short:'Pool Party',hi:'पूल पार्टी'},
+  {id:'diwali',name:'Diwali Party / दिवाली पार्टी',short:'Diwali',hi:'दिवाली'},
+  {id:'newyear',name:'New Year Party / नया साल',short:'New Year',hi:'नया साल'},
+  {id:'concert',name:'Live Concert / लाइव कॉन्सर्ट',short:'Concert',hi:'कॉन्सर्ट'},
   {id:'other',name:'Other Event / अन्य कार्यक्रम',short:'Other Event',hi:'अन्य कार्यक्रम'},
 ] as const;
 function VideoIdeaPanel({user}:{user:User|null}){
