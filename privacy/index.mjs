@@ -39,3 +39,10 @@ export const ankurStaffUpdateOrderStatus=onCall(
   try { return await service.updateOrderStatus({auth:request.auth,app:request.app,data:request.data}); }
   catch { throw new HttpsError('permission-denied','Status update not allowed'); }
  });
+
+export const ankurOwnerAssignStaffOrder=onCall(
+ {...options,enforceAppCheck:true},
+ async request=>{
+  try { return await service.assignStaffOrder({auth:request.auth,app:request.app,data:request.data}); }
+  catch { throw new HttpsError('permission-denied','Assignment not authorized'); }
+ });
