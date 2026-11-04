@@ -79,6 +79,16 @@ test('no client may publish a forged safe view or read phone/audit/rate document
  await assertFails(setDoc(doc(owner(true),'staffContactAudit/fake'),{phone:'9000000010'}));
  await assertSucceeds(setDoc(doc(owner(true),'staffOrderAssignments/orders_'+id+'_activeStaff'),{approved:true,staffUid:'activeStaff',sourceCollection:'orders',orderId:id,expiresAtMs:Date.now()+86400000}));
 });
+test('staff cannot write raw order or tracking docs, even with updateStatus permission',async()=>{
+ const db=user('activeStaff');
+ for(const path of ['orders/'+id,'product_orders/'+productId]) {
+   await assertFails(updateDoc(doc(db,path),{status:'confirmed',updatedAt:serverTimestamp()}));
+ }
+ // Direct tracking mutation is forbidden too; server callable updates both.
+ for(const path of ['order_tracking/'+id+'_123456','product_order_tracking/'+productId+'_123456']) {
+   await assertFails(updateDoc(doc(db,path),{status:'dispatched',updatedAt:serverTimestamp()}));
+ }
+});
 test('status update privileges remain separate from read privileges and require active explicit grants',async()=>{
  const disabled=user('inactiveStaff');
  await assertFails(updateDoc(doc(disabled,'orders',id),{status:'confirmed',updatedAt:serverTimestamp()}));
