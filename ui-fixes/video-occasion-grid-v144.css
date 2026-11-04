@@ -1,0 +1,27 @@
+/* ANKUR VIDEO OCCASION GRID v1.0.44: only Video Idea Builder */
+.ankur-video-idea-page .ankur-video-occasion-toggle {
+  display:flex; align-items:center; justify-content:space-between; gap:8px;
+  text-align:left; font-size:14px; font-weight:700; min-width:0;
+}
+.ankur-video-idea-page .ankur-video-occasion-toggle span:first-child {
+  min-width:0; overflow-wrap:anywhere;
+}
+.ankur-video-idea-page .ankur-video-occasion-grid {
+  display:grid; grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:7px; width:100%; padding:8px 0;
+  max-height: min(65vh, 610px); overflow-y:auto; overscroll-behavior:contain;
+}
+.ankur-video-idea-page .ankur-video-occasion-option {
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  text-align:center; padding:7px 4px; min-width:0; min-height:60px;
+  overflow-wrap:anywhere; line-height:1.22; font-weight:700;
+}
+.ankur-video-idea-page .ankur-video-occasion-en { display:block; font-size:12px; }
+.ankur-video-idea-page .ankur-video-occasion-hi { display:block; font-size:11px; margin-top:3px; }
+.ankur-video-idea-page .ankur-video-occasion-option[aria-pressed='true'] {
+  border:2px solid #38A6D4; box-shadow:inset 0 0 0 1px #38A6D4;
+}
+.ankur-video-idea-page .ankur-video-occasion-toggle:focus-visible,
+.ankur-video-idea-page .ankur-video-occasion-option:focus-visible {
+  outline:3px solid #F8B976; outline-offset:2px;
+}
