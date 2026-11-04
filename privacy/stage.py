@@ -25,7 +25,7 @@ def stage(base_path,out):
     assert rules.count(product)==1, 'Unexpected product raw-order match count'
     rules=rules.replace(legacy,"isAdmin() ||",2)
     rules=rules.replace(product,"isOwner() ||",1)
-    anchor="    // =========================================================================\n    // COLLECTION ACCESS RULES"
+    anchor="    match /orders/{orderId} {"
     assert rules.count(anchor)==1
     additions="""
     // Staff projections are created ONLY by trusted Cloud Functions.
