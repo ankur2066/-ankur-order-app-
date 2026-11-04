@@ -27,7 +27,7 @@ jobs:
           from pathlib import Path
           text=Path('/tmp/ankur-staff-source/src/components/StaffDashboard.tsx').read_text()
           lines=text.splitlines()
-          for start,end in [(1,110),(111,275),(276,350),(475,560)]:
+          for start,end in [(550,750)]:
               print(f'BEGIN CLIENT SOURCE {start}-{end}')
               print('\n'.join(f'{j+1}: {lines[j]}' for j in range(start-1,min(len(lines),end))))
               print('END CLIENT SOURCE')
