@@ -44,7 +44,7 @@ safe="""                    <div className="ankur-staff-contact mt-2">
                     </div>
 """
 s=s[:start]+safe+s[end:]
-address_start=s.index("                       <span>{ord.address ? ")
+address_start=s.index("<span>{ord.address ? ")
 address_end=s.index("</span>",address_start)+len("</span>")
 s=s[:address_start]+"                       <span>{ord.city || 'शहर दर्ज नहीं'}</span>"+s[address_end:]
 assert 'ord.customerPhone' not in s and 'revealedContactOrderId' not in s
