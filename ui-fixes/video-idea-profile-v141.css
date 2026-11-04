@@ -1,0 +1,35 @@
+/* ANKUR VIDEO IDEA PROFILE v1.0.41 */
+.ankur-video-idea-page .ankur-video-action {
+  display: flex;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 50px;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  border-radius: 12px;
+  padding: 12px 16px;
+  text-decoration: none !important;
+  font-weight: 800;
+  font-size: 16px;
+  line-height: 1.25;
+  cursor: pointer;
+}
+.ankur-video-idea-page .ankur-gemini-button {
+  font-size: 18px;
+  margin-top: 12px;
+}
+.ankur-video-idea-page .ankur-video-saved-details {
+  margin-top: 22px;
+}
+.ankur-video-idea-page input,
+.ankur-video-idea-page select,
+.ankur-video-idea-page textarea { font-size: 16px; min-width: 0; }
+html[data-theme='dark'] .ankur-readable-customer-page .ankur-video-action {
+  background: #9A3412;
+  color: #FFFFFF !important;
+}
+.ankur-video-idea-page .ankur-video-action:focus-visible {
+  outline: 3px solid #F8B976;
+  outline-offset: 2px;
+}
