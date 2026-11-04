@@ -108,6 +108,9 @@ test('status updates do not expose a raw phone or modify payments',async()=>{
  assert.equal(f.docs.get('orders/'+f.data.orderId).status,'dispatched');
  assert.equal(f.docs.get('order_tracking/'+f.data.orderId+'_123456').status,'dispatched');
  assert.equal(f.docs.get('order_tracking/'+f.data.orderId+'_123456').paymentStatus,'pending_verification');
+ f.docs.get('staffOrderAssignments/'+f.key+'_'+f.uid).approved=false;
+ await assert.rejects(()=>f.service.updateOrderStatus({auth:f.auth,app:f.app,data:{...f.data,status:'confirmed'}}));
+ assert.equal(f.docs.get('orders/'+f.data.orderId).status,'dispatched');
 });
 test('projection create/update/delete contains no raw phone and deletion is idempotent',async()=>{
  const f=fixture(), raw=f.docs.get('orders/'+f.data.orderId);
