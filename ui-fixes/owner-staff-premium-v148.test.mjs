@@ -38,32 +38,36 @@ test('Premium design owner scoped, balanced tab grid and clear contrast',()=>{
  assert.match(css,/background:radial-gradient/);
 });
 
-test('Staff order list never shows every phone number or permits phone searching',()=>{
- assert.doesNotMatch(staff,/कॉल: \{ord\.customerPhone\}/);
- assert.doesNotMatch(staff,/phoneMatch|customerPhone \|\| ''\)\.includes\(q\)/);
- assert.match(staff,/revealedContactOrderId === ord\.orderId/);
- assert.match(staff,/aria-expanded=\{revealedContactOrderId === ord\.orderId\}/);
- assert.match(staff,/setRevealedContactOrderId\(current => current === orderId \? null : orderId\)/);
- assert.match(staff,/window\.setTimeout\(\(\) => setRevealedContactOrderId\(null\), 15000\)/);
+test('Staff gets no raw PII and obtains only one explicit short-lived contact',()=>{
+ assert.doesNotMatch(staff,/subscribeOrderDocuments|resolvedOrderRef|resolvedTrackingRef|ord\.customerPhone/);
+ assert.doesNotMatch(staff,/phoneMatch|batch\.commit\(\)|writeBatch\(/);
+ assert.match(staff,/collection\(db, 'staffOrderViews'\)/);
+ assert.match(staff,/onSnapshot\(/);
+ assert.match(staff,/ankurGetOneOrderContact/);
+ assert.match(staff,/contact\?\.key === contactKey/);
+ assert.match(staff,/aria-expanded=\{contact\?\.key === contactKey\}/);
  assert.match(staff,/document\.visibilityState === 'hidden'/);
- assert.match(staff,/\{ord\.customerPhone\}/);
+ assert.match(staff,/window\.setTimeout\(\(\) => \{/);
+ assert.match(staff,/\}, 15000\)/);
+ assert.match(staff,/\{contact\.phone\}/);
  assert.match(staff,/डायल करें/);
  assert.match(staff,/WhatsApp/);
  assert.match(css,/ANKUR STAFF CONTACT PRIVACY 1\.0\.48/);
 });
 
-test('Order status & staff role permissions kept intact; do not imply data read security',()=>{
+test('Staff status update calls backend but owner and self pickup routes survive',()=>{
  assert.match(staff,/if \(!canView\)/);
  assert.match(staff,/if \(!canUpdate\)/);
- assert.match(staff,/subscribeOrderDocuments\(/);
- assert.match(staff,/batch\.commit\(\)/);
- assert.match(staff,/setOrders\(activeList\)/);
+ assert.match(staff,/permissions\?\.viewOrders === true/);
+ assert.match(staff,/ankurStaffUpdateOrderStatus/);
+ assert.match(staff,/setOrders\(list\)/);
  assert.match(staff,/handleSelfPickup/);
+ assert.match(staff,/handleUpdateStatus/);
  assert.match(app,/<StaffDashboard/);
 });
 
-test('Both overlays applied in review and reproducible local source; signed APK gated on batch marker',()=>{
- for(const script of ['ui-fixes/owner_premium_v148.py','ui-fixes/staff_contact_privacy_v148.py']){
+test('Owner and secure staff patches applied consistently; APK still batch gated',()=>{
+ for(const script of ['ui-fixes/owner_premium_v148.py','ui-fixes/staff_contact_privacy_v148.py','privacy/staff_data_cutover_v149.py','privacy/staff_contact_ui_v149.py']){
   assert.equal(local.split("'"+script+"'").length-1,1);
   assert.equal(review.split('python3 '+script).length-1,1);
   assert.equal(signed.split('python3 '+script).length-1,1);
