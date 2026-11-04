@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
   push:
     branches: [codex/all-14-phase-bc-english]
-    paths: ['all-features/templates/**', 'all-features/apply_patch.py', 'all-features/wire_additions.py', 'billing/templates/**', 'billing/apply_patch.py', 'seasonal/*.template', 'updates/*.template', 'ui-fixes/seasonal-contrast-v135.css', 'ui-fixes/seasonal_contrast_v135.py', 'ui-fixes/customer-home-language.py', 'ui-fixes/customer_nav_v138.py', 'ui-fixes/customer_dark_contrast_v138.py', 'ui-fixes/customer-dark-contrast-v138.css', 'ui-fixes/customer_home_clean_v139.py', 'ui-fixes/customer-home-clean-v139.css', 'ui-fixes/customer_features_nav_v140.py', 'ui-fixes/customer-features-v140.css', 'ui-fixes/video_idea_profile_v141.py', 'ui-fixes/video-idea-profile-v141.css', 'ui-fixes/video-idea-profile-v141.test.mjs', 'ui-fixes/customer_profile_contact_v145.py', 'ui-fixes/customer-profile-contact-v145.test.mjs', 'ui-fixes/customer_ai_video_cleanup_v146.py', 'ui-fixes/customer-ai-video-cleanup-v146.test.mjs', 'updates/appUpdate.test.mjs', 'ci-fixes/signing-cert.test.mjs', 'ui-fixes/mobileReport.ts', 'ui-fixes/monthlyReport.ts', '.github/workflows/all-features-signed-test-apk.yml']
+    paths: ['all-features/templates/**', 'all-features/apply_patch.py', 'all-features/wire_additions.py', 'billing/templates/**', 'billing/apply_patch.py', 'seasonal/*.template', 'updates/*.template', 'ui-fixes/seasonal-contrast-v135.css', 'ui-fixes/seasonal_contrast_v135.py', 'ui-fixes/customer-home-language.py', 'ui-fixes/customer_nav_v138.py', 'ui-fixes/customer_dark_contrast_v138.py', 'ui-fixes/customer-dark-contrast-v138.css', 'ui-fixes/customer_home_clean_v139.py', 'ui-fixes/customer-home-clean-v139.css', 'ui-fixes/customer_features_nav_v140.py', 'ui-fixes/customer-features-v140.css', 'ui-fixes/video_idea_profile_v141.py', 'ui-fixes/video-idea-profile-v141.css', 'ui-fixes/video-idea-profile-v141.test.mjs', 'ui-fixes/customer_profile_contact_v145.py', 'ui-fixes/customer-profile-contact-v145.test.mjs', 'ui-fixes/customer_ai_video_cleanup_v146.py', 'ui-fixes/customer-ai-video-cleanup-v146.test.mjs', 'ui-fixes/dispatch_rules_privacy_v147.py', 'ui-fixes/dispatch-rules-v147.css', 'ui-fixes/dispatch-rules-privacy-v147.test.mjs', 'updates/appUpdate.test.mjs', 'ci-fixes/signing-cert.test.mjs', 'ui-fixes/mobileReport.ts', 'ui-fixes/monthlyReport.ts', '.github/workflows/all-features-signed-test-apk.yml']
 permissions: {contents: read}
 jobs:
   review:
@@ -49,6 +49,7 @@ jobs:
           python3 ui-fixes/video_idea_profile_v141.py
           python3 ui-fixes/customer_profile_contact_v145.py
           python3 ui-fixes/customer_ai_video_cleanup_v146.py
+          python3 ui-fixes/dispatch_rules_privacy_v147.py
       - name: Confirm reviewed v1.0.38 customer UI is in the signed app source
         run: |
           set -euo pipefail
@@ -73,9 +74,13 @@ jobs:
           grep -Fq 'Call: 95808 82066 · WhatsApp: 88963 32066' src/components/customer/ProfileTab.tsx
           grep -Fq 'initial="video" allowed=' src/App.tsx
           if grep -Fq '<AIVideoStudio' src/App.tsx; then echo 'Blocked: duplicate lower AI Video Studio'; exit 1; fi
+          grep -Fq 'apb-slot-compact-grid' src/components/OrderForm.tsx
+          test ! -f src/components/RulesReviewModal.tsx
+          if grep -Fq 'RulesReviewModal' src/App.tsx; then echo 'Blocked: bundled Rules viewer'; exit 1; fi
+          if grep -Fq 'onOpenRulesReview' src/components/AdminDashboard.tsx; then echo 'Blocked: owner Rules button'; exit 1; fi
           grep -Fq 'bookingForm(null)' src/components/customer/CustomerHome.tsx
           if grep -Fq 'aqp-top-product-picker' src/components/customer/CustomerHome.tsx; then echo 'Blocked: duplicate product picker present'; exit 1; fi
-          echo 'PASS: five tabs, Video Idea Builder, Profile cleanup, original booking form'
+          echo 'PASS: short dispatch radio options and no embedded Rules viewer; five tabs and original booking flow'
       - name: Configure existing Android Firebase app and signing
         env:
           KEYSTORE_B64: ${{ secrets.ANKUR_RELEASE_KEYSTORE_BASE64 }}
@@ -115,8 +120,8 @@ jobs:
           from pathlib import Path
           p=Path('android/app/build.gradle'); lines=p.read_text().splitlines()
           for i,x in enumerate(lines):
-            if x.strip().startswith('versionCode '): lines[i]='        versionCode 46'
-            if x.strip().startswith('versionName '): lines[i]='        versionName "1.0.46-season-test"'
+            if x.strip().startswith('versionCode '): lines[i]='        versionCode 47'
+            if x.strip().startswith('versionName '): lines[i]='        versionName "1.0.47-season-test"'
           p.write_text('\n'.join(lines)+'\n')
           PY
           cd android
@@ -130,7 +135,7 @@ jobs:
           # update in place; a mismatched package would install as a second app.
           BUILD_TOOLS="$ANDROID_HOME/build-tools/$(ls "$ANDROID_HOME/build-tools" | sort -V | tail -1)"
           BADGING=$("$BUILD_TOOLS/aapt" dump badging "$APK")
-          printf '%s\n' "$BADGING" | grep -F "package: name='com.ankurdryice.events' versionCode='46' versionName='1.0.46-season-test'"
+          printf '%s\n' "$BADGING" | grep -F "package: name='com.ankurdryice.events' versionCode='47' versionName='1.0.47-season-test'"
           # Update flow opens a consent-based external link; never request installer
           # or broad file-management privileges in the packaged manifest.
           PERMISSIONS=$("$BUILD_TOOLS/aapt" dump permissions "$APK")
@@ -160,7 +165,7 @@ jobs:
           sha256sum "$AAB" > aab-sha256.txt
       - uses: actions/upload-artifact@v4
         with:
-          name: Ankur-Dryice-v1.0.46-PRIVATE-PLAY-AAB
+          name: Ankur-Dryice-v1.0.47-PRIVATE-PLAY-AAB
           path: |
             android/app/build/outputs/bundle/release/app-release.aab
             aab-sha256.txt
@@ -168,7 +173,7 @@ jobs:
           retention-days: 14
       - uses: actions/upload-artifact@v4
         with:
-          name: Ankur-Dryice-v1.0.46-SEASON-PRIVATE-TEST
+          name: Ankur-Dryice-v1.0.47-SEASON-PRIVATE-TEST
           path: |
             android/app/build/outputs/apk/release/app-release.apk
             apk-sha256.txt
