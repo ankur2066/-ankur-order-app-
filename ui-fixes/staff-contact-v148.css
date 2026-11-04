@@ -1,0 +1,18 @@
+/* ANKUR STAFF CONTACT PRIVACY 1.0.48
+   Staff-only per-order display; not an alternative to database authorization. */
+.ankur-staff-call-trigger {
+  border:1px solid #b7d6cf !important;
+  color:#125e47!important;
+  background:#e8f7f1!important;
+  min-height:42px;
+}
+.ankur-staff-call-trigger:hover {background:#d6f0e5!important}
+.ankur-staff-contact-revealed {
+  background:#f8fbff!important;
+  border-color:#bdcdec!important;
+  color:#23395f!important;
+  max-width:100%;
+}
+.ankur-staff-contact-revealed p {overflow-wrap:anywhere}
+.ankur-staff-dial {background:#145c4a!important;color:#fff!important;min-height:38px}
+.ankur-staff-whatsapp {background:#325bc4!important;color:#fff!important;min-height:38px}
