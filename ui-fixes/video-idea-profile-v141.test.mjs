@@ -22,6 +22,10 @@ test('Video Idea Builder shows event selection, prompt and two equal-width actio
   for(const category of ['Wedding Entry','Stage Fog','Engagement','Birthday','Cocktail','Dry Ice Supply','Other Event'])
     assert.ok(hub.includes(category),category);
   assert.match(hub,/id="ankur-video-prompt"/);
+  assert.match(hub,/Generate an actual finished/);
+  assert.match(hub,/playable video, not just a video concept/);
+  assert.match(hub,/video generation is unavailable/);
+  assert.match(hub,/\[duration,setDuration\]=useState\(30\)/);
   assert.match(hub,/Copy Prompt/);
   assert.match(hub,/Open Gemini/);
   assert.match(hub,/ankur-video-action ankur-video-copy/);
