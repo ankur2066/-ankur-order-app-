@@ -26,12 +26,14 @@ test('customer bottom navigation includes a real fifth AI Features tab in the in
 
 test('AI Features shows one full-width winner strip then existing two-column tools without a fake result',()=>{
  const section=app.slice(app.indexOf("currentTab === 'ai-features'"),app.indexOf("currentTab === 'ai-video'"));
- assert.match(section,/ankur-daily-winner/);
- assert.match(section,/आज का Lucky Winner/);
- assert.match(section,/winner\?\.active/);
- assert.match(section,/winner\.name/);
- assert.match(section,/winner\.city/);
- assert.match(section,/विजेता घोषित होने पर/);
+ assert.match(section,/<DailyWinnerBanner \/>/);
+ const banner=readFileSync(resolve(root,'src/components/customer/DailyWinner.tsx'),'utf8');
+ assert.match(banner,/ankur-daily-winner/);
+ assert.match(banner,/आज का Lucky Winner/);
+ assert.match(banner,/dailyWinners/);
+ assert.match(banner,/winner\.name/);
+ assert.match(banner,/winner\.city/);
+ assert.match(banner,/विजेता घोषित होने पर/);
  assert.match(section,/allowed=\{\['calculator'/);
  assert.doesNotMatch(section,/'inventory'|'reports'|'video'|'catalog'/);
  assert.match(section,/'rates'/);
@@ -58,6 +60,6 @@ test('local reconstruction, private review and signed APK apply the same UI patc
  assert.equal(signed.split('python3 '+name).length-1,1);
  assert.ok(local.indexOf('customer_home_clean_v139.py')<local.indexOf(name));
  assert.match(signed,/paths: \['release-batches\/\*\.txt'\]/,'only explicit release batch triggers signed APK');
- assert.match(signed,/versionCode 47/);
- assert.match(signed,/versionName "1\.0\.47-season-test"/);
+ assert.match(signed,/versionCode 50/);
+ assert.match(signed,/versionName "1\.0\.50-private-test"/);
 });
