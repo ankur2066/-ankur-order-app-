@@ -12,6 +12,11 @@ const review=readFileSync(new URL('../.github/workflows/all-features-review.yml'
 const signed=readFileSync(new URL('../.github/workflows/all-features-signed-test-apk.yml',import.meta.url),'utf8');
 const reconstruct=readFileSync(new URL('../all-features/reconstruct.py',import.meta.url),'utf8');
 
+test('Video Idea Builder defaults to 30 seconds while keeping duration editable',()=>{
+ assert.match(hub,/\[duration,setDuration\]=useState\(30\)/);
+ assert.match(hub,/min=\"5\" max=\"120\" value=\{duration\}/);
+});
+
 test('Video Idea Builder shows event selection, prompt and two equal-width actions',()=>{
   assert.match(hub,/id="ankur-video-occasion"/);
   for(const category of ['Wedding Entry','Stage Fog','Engagement','Birthday','Cocktail','Dry Ice Supply','Other Event'])
