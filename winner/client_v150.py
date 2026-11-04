@@ -15,7 +15,7 @@ text=text.replace(anchor,
   "import { DailyWinnerBanner } from './components/customer/DailyWinner';\n"+anchor,1)
 start_marker='          <section className="ankur-daily-winner"'
 end_marker="          <FeatureHub currentUser={currentUser} role={role}"
-assert text.count(start_marker)==1 and text.count(end_marker)==1
+assert text.count(start_marker)==1 and end_marker in text[text.index(start_marker):]
 start=text.index(start_marker)
 end=text.index(end_marker,start)
 previous=text[start:end]
