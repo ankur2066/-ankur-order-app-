@@ -35,7 +35,7 @@ test('same Profile-only fix applied in local/review/signed v1.0.45',()=>{
  assert.equal(local.split("'"+patch+"'").length-1,1);
  assert.equal(review.split('python3 '+patch).length-1,1);
  assert.equal(signed.split('python3 '+patch).length-1,1);
- assert.ok(local.indexOf('video_occasion_grid_v144.py')<local.indexOf(patch));
+ assert.ok(local.indexOf('video_idea_profile_v141.py')<local.indexOf(patch));
  assert.ok(signed.split('permissions:')[0].includes("'"+patch+"'"));
  assert.match(signed,/versionCode 45/);
  assert.match(signed,/versionName "1\.0\.45-season-test"/);
