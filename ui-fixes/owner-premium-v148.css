@@ -51,7 +51,7 @@
 .ankur-owner-dashboard .ankur-owner-masthead button svg {color:#dddbff!important}
 .ankur-owner-dashboard .ankur-owner-nav {
   display:grid!important;
-  grid-template-columns: repeat(4,minmax(0,1fr))!important;
+  grid-template-columns: repeat(3,minmax(0,1fr))!important;
   gap:8px!important;
   border:0!important;
   padding:0 0 10px!important;
@@ -79,7 +79,7 @@
   border-color:#6e6adf!important;
   box-shadow:0 9px 17px rgba(77,80,174,.22);
 }
-.ankur-owner-dashboard .ankur-owner-nav>button:last-child {grid-column:auto}
+.ankur-owner-dashboard .ankur-owner-nav>button:last-child {grid-column:1/-1}
 .ankur-owner-dashboard .ankur-owner-nav>button:focus-visible,
 .ankur-owner-dashboard button:focus-visible,
 .ankur-owner-dashboard :is(input,textarea,select):focus-visible {
