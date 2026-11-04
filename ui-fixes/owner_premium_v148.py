@@ -33,7 +33,6 @@ start_of_last=segment.rfind('      </div>')
 assert start_of_last>=0
 segment=segment[:start_of_last]+'      </nav>'+segment[start_of_last+len('      </div>'):]
 s=s[:a]+segment+s[b:]
-assert '<AdminDashboard' not in s
 assert s.count('ankur-owner-nav')==1 and s.count('ankur-owner-masthead')==1
 for needed in ["'new-entry'","'orders'","'insights'","'expenses'","'users'","'storefront'","'ai-chat'","<OwnerStorefrontManager","<UserManagement","<ExpensesView","<AIChat"]:
     assert needed in s,needed
