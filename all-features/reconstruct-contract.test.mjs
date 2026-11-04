@@ -31,7 +31,9 @@ test('private signing depends on successful same-commit review before accessing 
  assert.match(signed,/review:\n    uses: \.\/\.github\/workflows\/all-features-review\.yml/);
  assert.match(signed,/signed-test-apk:\n    needs: review/);
  assert.doesNotMatch(signed,/continue-on-error: true/);
- for(const path of ['ui-fixes/customer_nav_v138.py','ui-fixes/customer_dark_contrast_v138.py','ui-fixes/customer-dark-contrast-v138.css']) {
-   assert.ok(signed.split('permissions:')[0].includes("'"+path+"'"),'UI change must trigger a fresh binary: '+path);
- }
+ // All changes still go through CI, but signed APKs are built once per approved batch.
+ assert.match(signed,/^  workflow_dispatch:/m);
+ assert.match(signed,/paths: \['release-batches\/\*\.txt'\]/);
+ assert.doesNotMatch(signed,/paths: \['ui-fixes\//);
+
 });
