@@ -2,7 +2,7 @@ name: Private signed TEST APK - all features
 on:
   workflow_dispatch:
   push:
-    branches: [codex/all-14-phase-bc-english]
+    branches: [codex/all-14-phase-bc-english, codex/staff-phone-server-privacy-v149]
     # Explicit release marker only: do not build an APK on every source edit.
     paths: ['release-batches/*.txt']
 permissions: {contents: read}
@@ -56,6 +56,7 @@ jobs:
           python3 privacy/staff_data_cutover_v149.py
           python3 privacy/staff_contact_ui_v149.py
           python3 privacy/owner_assignment_ui_v149.py
+          python3 winner/client_v150.py
       - name: Confirm reviewed v1.0.38 customer UI is in the signed app source
         run: |
           set -euo pipefail
@@ -72,7 +73,7 @@ jobs:
           grep -Fq 'bookingForm={(inlineProduct)' src/App.tsx
           grep -Fq "id: 'ai-features'" src/components/customer/BottomNav.tsx
           grep -Fq "currentTab === 'ai-features'" src/App.tsx
-          grep -Fq 'ankur-daily-winner' src/App.tsx
+          grep -Fq 'ankur-daily-winner' src/components/customer/DailyWinner.tsx
           grep -Fq 'ANKUR AI FEATURES NAV v1.0.40' src/index.css
           grep -Fq 'ANKUR VIDEO IDEA PROFILE v1.0.41' src/index.css
           grep -Fq 'ankur-video-occasion' src/components/customer/FeatureHub.tsx
@@ -85,7 +86,8 @@ jobs:
           if grep -Fq 'RulesReviewModal' src/App.tsx; then echo 'Blocked: bundled Rules viewer'; exit 1; fi
           if grep -Fq 'onOpenRulesReview' src/components/AdminDashboard.tsx; then echo 'Blocked: owner Rules button'; exit 1; fi
           grep -Fq 'ankur-owner-dashboard' src/components/AdminDashboard.tsx
-          grep -Fq 'revealedContactOrderId' src/components/StaffDashboard.tsx
+          grep -Fq "collection(db, 'staffOrderViews')" src/components/StaffDashboard.tsx
+          grep -Fq 'DailyWinnerOwnerControls' src/components/AdminDashboard.tsx
           grep -Fq 'bookingForm(null)' src/components/customer/CustomerHome.tsx
           if grep -Fq 'aqp-top-product-picker' src/components/customer/CustomerHome.tsx; then echo 'Blocked: duplicate product picker present'; exit 1; fi
           echo 'PASS: short dispatch radio options and no embedded Rules viewer; five tabs and original booking flow'
@@ -128,8 +130,8 @@ jobs:
           from pathlib import Path
           p=Path('android/app/build.gradle'); lines=p.read_text().splitlines()
           for i,x in enumerate(lines):
-            if x.strip().startswith('versionCode '): lines[i]='        versionCode 47'
-            if x.strip().startswith('versionName '): lines[i]='        versionName "1.0.47-season-test"'
+            if x.strip().startswith('versionCode '): lines[i]='        versionCode 50'
+            if x.strip().startswith('versionName '): lines[i]='        versionName "1.0.50-private-test"'
           p.write_text('\n'.join(lines)+'\n')
           PY
           cd android
@@ -143,7 +145,7 @@ jobs:
           # update in place; a mismatched package would install as a second app.
           BUILD_TOOLS="$ANDROID_HOME/build-tools/$(ls "$ANDROID_HOME/build-tools" | sort -V | tail -1)"
           BADGING=$("$BUILD_TOOLS/aapt" dump badging "$APK")
-          printf '%s\n' "$BADGING" | grep -F "package: name='com.ankurdryice.events' versionCode='47' versionName='1.0.47-season-test'"
+          printf '%s\n' "$BADGING" | grep -F "package: name='com.ankurdryice.events' versionCode='50' versionName='1.0.50-private-test'"
           # Update flow opens a consent-based external link; never request installer
           # or broad file-management privileges in the packaged manifest.
           PERMISSIONS=$("$BUILD_TOOLS/aapt" dump permissions "$APK")
