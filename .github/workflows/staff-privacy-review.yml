@@ -2,7 +2,7 @@ name: Staff phone privacy server review (NO DEPLOY)
 on:
   push:
     branches: [codex/staff-phone-server-privacy-v149]
-    paths: ['privacy/**', '.github/workflows/staff-privacy-review.yml']
+    paths: ['privacy/**', 'all-features/reconstruct.py', '.github/workflows/staff-privacy-review.yml']
   workflow_dispatch:
 
 permissions:
@@ -22,6 +22,7 @@ jobs:
         run: node --test privacy/staffContactService.test.mjs
       - name: Inspect reconstructed staff client subscriptions (source only)
         run: |
+          python3 -m py_compile all-features/reconstruct.py privacy/staff_data_cutover_v149.py privacy/staff_contact_ui_v149.py
           python3 all-features/reconstruct.py --output /tmp/ankur-staff-source
           python3 - <<'PY'
           from pathlib import Path
