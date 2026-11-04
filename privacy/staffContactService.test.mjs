@@ -100,6 +100,22 @@ test('per-order hourly cap, daily limit state and expired assignment fail closed
  f.docs.get('staffOrderAssignments/'+f.key+'_'+f.uid).expiresAtMs=Date.parse(STAMP);
  await assert.rejects(()=>f.service.getOneOrderContact({auth:f.auth,app:f.app,data:f.data}));
 });
+test('only verified owner can assign or revoke one exact order for active staff',async()=>{
+ const f=fixture();
+ const owner={uid:'verifiedOwner',token:{email:'ankurdryicewholesalers@gmail.com',email_verified:true}};
+ const assignment='staffOrderAssignments/'+f.key+'_'+f.uid;
+ f.docs.delete(assignment);
+ const data={...f.data,staffUid:f.uid,approved:true,expiresHours:24};
+ await assert.rejects(()=>f.service.assignStaffOrder({auth:f.auth,app:f.app,data}));
+ await assert.rejects(()=>f.service.assignStaffOrder({auth:{...owner,token:{email:owner.token.email,email_verified:false}},app:f.app,data}));
+ await assert.rejects(()=>f.service.assignStaffOrder({auth:owner,app:null,data}));
+ await assert.rejects(()=>f.service.getOneOrderContact({auth:f.auth,app:f.app,data:f.data}));
+ const approved=await f.service.assignStaffOrder({auth:owner,app:f.app,data});
+ assert.equal(approved.approved,true);
+ assert.equal((await f.service.getOneOrderContact({auth:f.auth,app:f.app,data:f.data})).phone,'+918896332000');
+ await f.service.assignStaffOrder({auth:owner,app:f.app,data:{...data,approved:false}});
+ await assert.rejects(()=>f.service.getOneOrderContact({auth:f.auth,app:f.app,data:f.data}));
+});
 test('status updates do not expose a raw phone or modify payments',async()=>{
  const f=fixture();
  await assert.rejects(()=>f.service.updateOrderStatus({auth:f.auth,app:f.app,data:{...f.data,status:'dispatched',customerPhone:'fake'}}));
@@ -131,7 +147,7 @@ test('projection create/update/delete contains no raw phone and deletion is idem
 test('runtime declares correct named database and App Check, no deployment config',()=>{
  const runtime=readFileSync(new URL('./index.mjs',import.meta.url),'utf8');
  assert.match(runtime,/ai-studio-ankurdryiceorder-f4d89318-c640-47a5-a9f7-98543eff2673/);
- assert.equal((runtime.match(/enforceAppCheck:true/g)||[]).length,2);
+ assert.equal((runtime.match(/enforceAppCheck:true/g)||[]).length,3);
  assert.match(runtime,/onDocumentWritten/);
  const stage=readFileSync(new URL('./stage.py',import.meta.url),'utf8');
  assert.match(stage,/NO firebase\.json is emitted/);
