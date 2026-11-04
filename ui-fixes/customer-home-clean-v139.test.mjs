@@ -20,7 +20,7 @@ test('Home no longer has duplicate product selector or Ice Calculator/Rate Card'
   assert.match(home,/bookingForm\(null\)/);
   assert.match(home,/Dry Ice Booking Form/);
   assert.match(home,/data-ui-build="1\.0\.39"/);
-  assert.match(profile,/allowed=\{\["calculator"/);
+  assert.doesNotMatch(profile,/<FeatureHub/);
   assert.match(css,/ANKUR CUSTOMER HOME CLEAN v1\.0\.39/);
   assert.match(css,/justify-content: center !important/);
 });
