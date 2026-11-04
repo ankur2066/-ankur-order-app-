@@ -107,6 +107,8 @@ function mock(){
  });
  const service=createDailyWinnerService({db,now:()=>now,randomPick:()=>0,timestamp:()=>new Date(now)});
  documents.set('settings/rates',rates);
+ documents.set('userPrefs/A',{winnerPublicConsent:true});
+ documents.set('userPrefs/B',{winnerPublicConsent:true});
  documents.set('settings/dailyWinner',{enabled:true,mode:'auto',distribution:'all3_top4'});
  return {db,service,documents};
 }
@@ -144,10 +146,18 @@ test('owner manual override changes one published winner with audited revision',
  assert.equal(x.documents.get('dailyWinners/'+DATE).name,'B');
  assert.equal([...x.documents.keys()].filter(x=>x.startsWith('dailyWinners/')).length,1);
 });
+test('do not publish identifiable winner without explicit profile consent',async()=>{
+ const x=mock(),v=order({uid:'A'});
+ x.documents.set('orders/'+v.orderId,v.order);
+ x.documents.set('userPrefs/A',{winnerPublicConsent:false});
+ assert.deepEqual(await x.service.choose({automatic:true,data:{day:DATE}}),
+  {skipped:'no_eligible_opted_in_retail_orders'});
+ assert.equal(x.documents.has('dailyWinners/'+DATE),false);
+});
 test('no fake winner when only wholesale orders exist; future dates rejected',async()=>{
  const x=mock(),cheap=order({uid:'bulk',qty:500,total:1000});
  x.documents.set('orders/'+cheap.orderId,cheap.order);
  assert.deepEqual(await x.service.choose({automatic:true,data:{day:DATE}}),
-  {skipped:'no_eligible_retail_orders'});
+  {skipped:'no_eligible_opted_in_retail_orders'});
  await assert.rejects(()=>x.service.choose({automatic:true,data:{day:'2026-11-06'}}),/outside/);
 });
