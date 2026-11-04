@@ -89,7 +89,7 @@ export function createDailyWinnerService({db,now=()=>Date.now(),randomPick=lengt
   const day=data.day||indiaDay(now()),{start,end}=indiaDayRange(day);
   if(day>indiaDay(now())||start<Date.parse(indiaDay(now())+'T00:00:00Z')-INDIA_OFFSET-2*MS_DAY)throw Error('Day outside review window');
   const config=(await db.doc('settings/dailyWinner').get()).data();
-  if(config?.enabled!==true)throw Error('Daily Winner not activated');
+  if(config?.enabled!==true){if(automatic)return {skipped:'disabled'};throw Error('Daily Winner not activated');}
   if(automatic&&config.mode!=='auto')return {skipped:'manual_mode'};
   if(!automatic&&data.override===true&&config.mode!=='manual')throw Error('Switch to manual before an override');
   const rates=(await db.doc('settings/rates').get()).data();
