@@ -15,6 +15,7 @@ function fixture() {
    const tx={
     get:async ref=>({exists:docs.has(ref.path),data:()=>docs.get(ref.path)}),
     set:(ref,data)=>pending.push(()=>docs.set(ref.path,data)),
+    delete:(ref)=>pending.push(()=>docs.delete(ref.path)),
     update:(ref,data)=>pending.push(()=>docs.set(ref.path,{...docs.get(ref.path),...data})),
     create:(ref,data)=>pending.push(()=>{if(docs.has(ref.path))throw Error('exists');docs.set(ref.path,data);})
    };
@@ -102,10 +103,15 @@ test('projection create/update/delete contains no raw phone and deletion is idem
  await f.service.project({...f.data,after:raw});
  assert.equal(f.docs.get('staffOrderViews/'+f.key).customerName,'Customer A');
  assert.equal(f.docs.get('staffOrderViews/'+f.key).customerPhone,undefined);
+ f.advance(1000);
  await f.service.project({...f.data,after:{...raw,status:'dispatched'}});
  assert.equal(f.docs.get('staffOrderViews/'+f.key).status,'dispatched');
+ // Older delayed event must not resurrect earlier status.
+ await f.service.project({...f.data,after:raw,occurredAt:Date.parse(STAMP)});
+ assert.equal(f.docs.get('staffOrderViews/'+f.key).status,'dispatched');
+ f.advance(1000);
  await f.service.project({...f.data,after:null});
- await f.service.project({...f.data,after:null});
+ await f.service.project({...f.data,after:null,occurredAt:Date.parse(STAMP)});
  assert.equal(f.docs.has('staffOrderViews/'+f.key),false);
 });
 test('runtime declares correct named database and App Check, no deployment config',()=>{
