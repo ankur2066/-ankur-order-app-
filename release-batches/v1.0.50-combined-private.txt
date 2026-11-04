@@ -1,0 +1,5 @@
+ANKUR DRYICE PRIVATE QA BATCH v1.0.50
+Build only after same-commit review passes.
+Includes staged 14 features, AI Video, owner premium dashboard, server-side privacy client, Daily Winner UI.
+NO PRODUCTION FIREBASE RULES/FUNCTIONS MIGRATION, NO MAIN MERGE, NO PUBLIC DISTRIBUTION.
+Retain original signing certificate, package and permission checks. Owner must test on device.
