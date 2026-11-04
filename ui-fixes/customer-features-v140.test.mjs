@@ -33,7 +33,8 @@ test('AI Features shows one full-width winner strip then existing two-column too
  assert.match(section,/winner\.city/);
  assert.match(section,/विजेता घोषित होने पर/);
  assert.match(section,/allowed=\{\['calculator'/);
- assert.doesNotMatch(section,/'rates'|'inventory'|'reports'/);
+ assert.doesNotMatch(section,/'inventory'|'reports'|'video'|'catalog'/);
+ assert.match(section,/'rates'/);
  assert.match(featureHub,/grid grid-cols-2 gap-2/);
  assert.match(featureHub,/id:'calculator'/);
  assert.match(app,/currentTab === 'ai-video'/);
@@ -57,6 +58,6 @@ test('local reconstruction, private review and signed APK apply the same UI patc
  assert.equal(signed.split('python3 '+name).length-1,1);
  assert.ok(local.indexOf('customer_home_clean_v139.py')<local.indexOf(name));
  assert.ok(signed.split('permissions:')[0].includes("'"+name+"'"));
- assert.match(signed,/versionCode 45/);
- assert.match(signed,/versionName "1\.0\.45-season-test"/);
+ assert.match(signed,/versionCode 46/);
+ assert.match(signed,/versionName "1\.0\.46-season-test"/);
 });
