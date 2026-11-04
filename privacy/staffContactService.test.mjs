@@ -139,6 +139,18 @@ test('only verified owner can assign or revoke one exact order for active staff'
  await f.service.assignStaffOrder({auth:owner,app:f.app,data:{...data,approved:false}});
  await assert.rejects(()=>f.service.getOneOrderContact({auth:f.auth,app:f.app,data:f.data}));
 });
+test('owner can assign status-only staff without granting customer phone access',async()=>{
+ const f=fixture();
+ f.docs.get('users/'+f.uid).permissions.callCustomer=false;
+ const owner={uid:'verifiedOwner',token:{email:'ankurdryicewholesalers@gmail.com',email_verified:true}};
+ const granted=await f.service.assignStaffOrder({auth:owner,app:f.app,
+   data:{...f.data,staffUid:f.uid,approved:true,expiresHours:24}});
+ assert.equal(granted.approved,true);
+ await assert.rejects(()=>f.service.getOneOrderContact({auth:f.auth,app:f.app,data:f.data}));
+ const updated=await f.service.updateOrderStatus({auth:f.auth,app:f.app,data:{...f.data,status:'confirmed'}});
+ assert.equal(updated.ok,true);
+ assert.equal(f.docs.get('orders/'+f.data.orderId).status,'confirmed');
+});
 test('status updates do not expose a raw phone or modify payments',async()=>{
  const f=fixture();
  await assert.rejects(()=>f.service.updateOrderStatus({auth:f.auth,app:f.app,data:{...f.data,status:'dispatched',customerPhone:'fake'}}));
