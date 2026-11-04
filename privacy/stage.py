@@ -53,7 +53,7 @@ def stage(base_path,out):
     rules=rules.replace(anchor,additions+anchor,1)
     (out/'firestore.rules').write_text(rules,encoding='utf-8')
     functions=out/'functions';functions.mkdir()
-    for name in ['index.mjs','staffContactService.mjs']:
+    for name in ['index.mjs','staffContactService.mjs','backfill.mjs']:
         shutil.copyfile(ROOT/'privacy'/name,functions/name)
     (functions/'package.json').write_text(json.dumps({
       'name':'ankur-staff-privacy-review-only','private':True,'type':'module',
