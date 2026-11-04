@@ -44,6 +44,12 @@ export function staffSafeProjection(source, orderId, record, updatedAt) {
     quantityUnits: Number.isFinite(record.billing?.quantityUnits) ? record.billing.quantityUnits : null,
     quantityUnit: ['kg','piece','box'].includes(record.billing?.unit) ? record.billing.unit : null,
     billingVersion: record.billingVersion === 2 ? 2 : 1,
+    // The self-pickup UI needs operational state only, never contact/identity data.
+    selfPickup: ['pickup_pending','pickup_completed'].includes(record.selfPickup?.status)
+      ? {
+        status: record.selfPickup.status,
+        receiptStatus: plain(record.selfPickup?.receiptStatus, 40)
+      } : null,
     createdAt: record.createdAt ?? null,
     updatedAt
   };
