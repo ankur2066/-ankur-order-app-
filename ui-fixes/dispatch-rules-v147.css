@@ -1,0 +1,35 @@
+/* ANKUR COMPACT DISPATCH v1.0.47
+   Two-by-two radio options; hide no expired choices, only their detailed text.
+   Booking values, expiry handling and keyboard label selection stay intact. */
+.aqp-form-only-main .ankur-premium-booking .apb-slot-compact-grid {
+  grid-template-columns: repeat(2, minmax(0,1fr)) !important;
+  gap: 8px !important;
+}
+.aqp-form-only-main .ankur-premium-booking .apb-slot-compact {
+  min-height: 48px !important;
+  height: 48px !important;
+  padding: 8px 10px !important;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 10px !important;
+  border-radius: 11px !important;
+}
+.aqp-form-only-main .ankur-premium-booking .apb-slot-compact input[type="radio"] {
+  width: 19px !important;
+  height: 19px !important;
+  flex-shrink: 0;
+  margin: 0;
+}
+.aqp-form-only-main .ankur-premium-booking .apb-slot-compact .apb-slot-title {
+  font-size: 14px !important;
+  font-weight: 800 !important;
+  line-height: 1.25 !important;
+  margin: 0 !important;
+  white-space: nowrap;
+}
+@media(max-width:375px) {
+  .aqp-form-only-main .ankur-premium-booking .apb-slot-compact {padding: 7px 6px !important; gap: 6px !important;}
+  .aqp-form-only-main .ankur-premium-booking .apb-slot-compact .apb-slot-title {font-size: 13px !important;}
+}
