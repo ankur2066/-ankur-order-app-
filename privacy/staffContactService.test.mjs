@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {createStaffPrivacyService,projectionId,staffSafeProjection,normalizeContactPhone} from './staffContactService.mjs';
+import {createStaffPrivacyService,projectionId,staffSafeProjection,normalizeContactPhone,validStaffStatusTransition} from './staffContactService.mjs';
 
 const STAMP=new Date('2026-11-04T10:00:00.000Z');
 function fixture() {
@@ -65,6 +65,29 @@ test('legacy district may contain a complete street address and must never popul
  assert.doesNotMatch(p.customerName,/8896332000/);
  assert.doesNotMatch(JSON.stringify(p),/Private Street|8896332000/);
 });
+test('staff view never carries emails or URLs in customer-provided labels',()=>{
+ const p=staffSafeProjection('orders','ADI-TEST-1234',{
+   status:'pending',
+   city:'http://example.test/private 9876543210',
+   customerName:'Customer person@example.com',
+   productName:'Dry Ice',
+   dispatchTiming:'Friday'
+ },STAMP);
+ const serialized=JSON.stringify(p);
+ for (const forbidden of ['person@example.com','http://example.test/private','9876543210'])
+   assert.equal(serialized.includes(forbidden),false);
+});
+test('staff status moves forward only; owner handles terminal corrections',()=>{
+ for(const current of ['pending','confirmed','in_packing','dispatched']){
+   assert.equal(validStaffStatusTransition(current,'delivered'),true);
+   assert.equal(validStaffStatusTransition(current,'cancelled'),true);
+ }
+ for(const status of ['pending','confirmed','in_packing','dispatched','delivered','cancelled'])
+   assert.equal(validStaffStatusTransition(status,status),true);
+ assert.equal(validStaffStatusTransition('dispatched','in_packing'),false);
+ assert.equal(validStaffStatusTransition('delivered','pending'),false);
+ assert.equal(validStaffStatusTransition('cancelled','confirmed'),false);
+});
 test('phone parsing rejects invalid/non-Indian and input cannot request a batch',async()=>{
  assert.equal(normalizeContactPhone('+91 8896332000'),'+918896332000');
  for(const phone of ['123456','5555555555','+19000000001','998899889999','foo'])assert.throws(()=>normalizeContactPhone(phone));
@@ -124,6 +147,8 @@ test('status updates do not expose a raw phone or modify payments',async()=>{
  assert.equal(f.docs.get('orders/'+f.data.orderId).status,'dispatched');
  assert.equal(f.docs.get('order_tracking/'+f.data.orderId+'_123456').status,'dispatched');
  assert.equal(f.docs.get('order_tracking/'+f.data.orderId+'_123456').paymentStatus,'pending_verification');
+ await assert.rejects(()=>f.service.updateOrderStatus({auth:f.auth,app:f.app,data:{...f.data,status:'in_packing'}}));
+ assert.equal(f.docs.get('orders/'+f.data.orderId).status,'dispatched');
  f.docs.get('staffOrderAssignments/'+f.key+'_'+f.uid).approved=false;
  await assert.rejects(()=>f.service.updateOrderStatus({auth:f.auth,app:f.app,data:{...f.data,status:'confirmed'}}));
  assert.equal(f.docs.get('orders/'+f.data.orderId).status,'dispatched');
