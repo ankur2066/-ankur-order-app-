@@ -16,6 +16,7 @@ test('Premium owner UI keeps all 7 original destinations and all key functions',
  assert.match(admin,/ankur-owner-masthead/);
  assert.match(admin,/ankur-owner-nav/);
  assert.match(admin,/ankur-owner-overview/);
+ assert.match(admin,/<StaffOrderAccessManager/);
  assert.match(admin,/BUSINESS COMMAND CENTER/);
  for(const id of ['new-entry','orders','insights','expenses','users','storefront','ai-chat']){
    assert.match(admin,new RegExp("setActiveSection\\('"+id+"'\\)"),'missing owner tab '+id);
@@ -67,7 +68,7 @@ test('Staff status update calls backend but owner and self pickup routes survive
 });
 
 test('Owner and secure staff patches applied consistently; APK still batch gated',()=>{
- for(const script of ['ui-fixes/owner_premium_v148.py','ui-fixes/staff_contact_privacy_v148.py','privacy/staff_data_cutover_v149.py','privacy/staff_contact_ui_v149.py']){
+ for(const script of ['ui-fixes/owner_premium_v148.py','ui-fixes/staff_contact_privacy_v148.py','privacy/staff_data_cutover_v149.py','privacy/staff_contact_ui_v149.py','privacy/owner_assignment_ui_v149.py']){
   assert.equal(local.split("'"+script+"'").length-1,1);
   assert.equal(review.split('python3 '+script).length-1,1);
   assert.equal(signed.split('python3 '+script).length-1,1);
