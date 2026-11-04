@@ -30,8 +30,8 @@ test('Premium owner UI keeps all 7 original destinations and all key functions',
 test('Premium design owner scoped, balanced tab grid and clear contrast',()=>{
  assert.match(css,/ANKUR OWNER PREMIUM 1\.0\.48/);
  assert.match(css,/\.ankur-owner-dashboard \.ankur-owner-nav/);
- assert.match(css,/grid-template-columns: repeat\(3,minmax\(0,1fr\)\)/);
- assert.match(css,/\.ankur-owner-nav>button:last-child \{grid-column:1\/-1\}/);
+ assert.match(css,/grid-template-columns: repeat\(4,minmax\(0,1fr\)\)/);
+ assert.match(css,/\.ankur-owner-nav>button:last-child \{grid-column:auto\}/);
  assert.match(css,/\.ankur-owner-masthead h2/);
  assert.match(css,/background:#fff!important/);
 });
