@@ -24,3 +24,7 @@
 9. Only **after** owner sign-off on exact database, verified rollback, backfill, Rules and Functions cutover, launch another private signed test candidate. No deployment, migrations, domain update, public APK or Play submission has been performed.
 
 The review workflow emits `staff-privacy-review/REVIEW_ONLY.json` and intentionally emits **no `firebase.json`**. Its CI artefact is source and proposed Rules, never an APK.
+
+## 4 November — direct status-write security gate (source only)
+
+Staged Firestore rules now explicitly set `canUpdateStatus() { return false; }` for **all direct client writes**, not just raw contact reads. An older staff APK that knows an order ID must not bypass the new scoped callable by writing `orders`, `product_orders`, `order_tracking` or `product_order_tracking` directly. The staff status callable still uses Firebase Admin to update paired canonical/tracking state after checking active role, assignment and permission. The emulator regression in `privacy/rules.test.mjs` explicitly denies a fully active, update-authorized staff user's direct writes to both order types and both tracking types. This is not deployed. The latest workflow run for this change must be checked before claiming the new test passed.
