@@ -7,7 +7,11 @@ const SOURCES = new Set(['orders', 'product_orders']);
 const STATUS = new Set(['pending','confirmed','in_packing','dispatched','delivered','cancelled']);
 const safeId = value => typeof value === 'string' && /^[A-Za-z0-9_-]{4,64}$/.test(value);
 const safeUid = value => typeof value === 'string' && /^[A-Za-z0-9_-]{1,128}$/.test(value);
-const plain = (v, limit = 100) => typeof v === 'string' ? v.slice(0, limit) : '';
+// User-supplied names/labels may themselves contain a phone. Redact apparent
+// Indian mobile numbers in EVERY displayed free-text field.
+const plain = (v, limit = 100) => typeof v === 'string'
+  ? v.replace(/(?:\+?91[ -]?)?[6-9](?:[ -]?[0-9]){9}/g,'[redacted]').slice(0, limit)
+  : '';
 const validStatus = value => STATUS.has(value);
 const deny = () => { throw Error('Not authorized for this order'); };
 export function projectionId(source, orderId) {
@@ -30,7 +34,8 @@ export function staffSafeProjection(source, orderId, record, updatedAt) {
     sourceCollection: source,
     orderId,
     customerName: plain(record.customerName, 100),
-    city: plain(record.city || record.district, 100),
+    // Do not fall back to district: some legacy code saves a FULL ADDRESS there.
+    city: plain(record.city, 100),
     productName: plain(record.productName, 100),
     dispatchTiming: plain(record.dispatchTiming, 100),
     status: record.status,
