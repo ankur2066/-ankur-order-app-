@@ -1,6 +1,6 @@
-/* ANKUR OWNER PREMIUM 1.0.48
+/* ANKUR OWNER PREMIUM v1.0.48
    Owner-only theme; no hiding controls, tabs, records, or business forms. */
-.ankur-owner-dashboard {
+.ankur-owner-premium {
   --owner-ink: #17243e;
   --owner-muted: #596984;
   --owner-brand: #7252db;
@@ -12,7 +12,7 @@
   max-width: 1220px !important;
   padding-bottom: calc(28px + env(safe-area-inset-bottom,0px)) !important;
 }
-.ankur-owner-dashboard .ankur-owner-masthead {
+.ankur-owner-premium .ankur-owner-header {
   padding: 18px 16px !important;
   border: 1px solid #455b87 !important;
   border-radius: 23px !important;
@@ -20,7 +20,7 @@
   box-shadow: 0 16px 32px rgba(24,41,74,.18);
   gap: 12px !important;
 }
-.ankur-owner-dashboard .ankur-owner-kicker {
+.ankur-owner-premium .ankur-owner-kicker {
   display: block;
   font-size: 10px;
   font-weight: 900;
@@ -28,18 +28,18 @@
   color: #bec8ff;
   margin: 5px 0 2px;
 }
-.ankur-owner-dashboard .ankur-owner-masthead h2 {
+.ankur-owner-premium .ankur-owner-header h2 {
   font-size: clamp(21px,4.5vw,29px) !important;
   color: #fff !important;
   line-height:1.22 !important;
   letter-spacing:-.02em;
 }
-.ankur-owner-dashboard .ankur-owner-masthead .text-amber-700,
-.ankur-owner-dashboard .ankur-owner-masthead .text-amber-600 {color:#f4ca81!important}
-.ankur-owner-dashboard .ankur-owner-masthead .text-slate-500,
-.ankur-owner-dashboard .ankur-owner-masthead .text-slate-700,
-.ankur-owner-dashboard .ankur-owner-masthead .font-mono {color:#dae5ff!important}
-.ankur-owner-dashboard .ankur-owner-masthead button {
+.ankur-owner-premium .ankur-owner-header .text-amber-700,
+.ankur-owner-premium .ankur-owner-header .text-amber-600 {color:#f4ca81!important}
+.ankur-owner-premium .ankur-owner-header .text-slate-500,
+.ankur-owner-premium .ankur-owner-header .text-slate-700,
+.ankur-owner-premium .ankur-owner-header .font-mono {color:#dae5ff!important}
+.ankur-owner-premium .ankur-owner-header button {
   min-height: 38px;
   border:1px solid rgba(236,242,255,.23)!important;
   border-radius:11px!important;
@@ -47,17 +47,17 @@
   color:#f8fbff!important;
   padding:8px 10px!important;
 }
-.ankur-owner-dashboard .ankur-owner-masthead button:hover {background:rgba(255,255,255,.19)!important}
-.ankur-owner-dashboard .ankur-owner-masthead button svg {color:#dddbff!important}
-.ankur-owner-dashboard .ankur-owner-nav {
+.ankur-owner-premium .ankur-owner-header button:hover {background:rgba(255,255,255,.19)!important}
+.ankur-owner-premium .ankur-owner-header button svg {color:#dddbff!important}
+.ankur-owner-premium .ankur-owner-nav {
   display:grid!important;
-  grid-template-columns: repeat(3,minmax(0,1fr))!important;
+  grid-template-columns: repeat(4,minmax(0,1fr))!important;
   gap:8px!important;
   border:0!important;
   padding:0 0 10px!important;
   margin-bottom:14px!important;
 }
-.ankur-owner-dashboard .ankur-owner-nav>button {
+.ankur-owner-premium .ankur-owner-nav>button {
   background:#fff!important;
   color:#26385a!important;
   min-width:0;
@@ -72,68 +72,71 @@
   line-height:1.2;
   gap:5px!important;
 }
-.ankur-owner-dashboard .ankur-owner-nav>button svg {width:16px!important;height:16px!important;flex-shrink:0}
-.ankur-owner-dashboard .ankur-owner-nav>button[class*="bg-sky-500"] {
+.ankur-owner-premium .ankur-owner-nav>button svg {width:16px!important;height:16px!important;flex-shrink:0}
+.ankur-owner-premium .ankur-owner-nav>button[class*="bg-sky-500"] {
   background:linear-gradient(125deg,#6955d8,#345bb9)!important;
   color:#fff!important;
   border-color:#6e6adf!important;
   box-shadow:0 9px 17px rgba(77,80,174,.22);
 }
-.ankur-owner-dashboard .ankur-owner-nav>button:last-child {grid-column:1/-1}
-.ankur-owner-dashboard .ankur-owner-nav>button:focus-visible,
-.ankur-owner-dashboard button:focus-visible,
-.ankur-owner-dashboard :is(input,textarea,select):focus-visible {
+.ankur-owner-premium .ankur-owner-nav>button:last-child {grid-column:auto}
+.ankur-owner-premium .ankur-owner-nav>button:focus-visible,
+.ankur-owner-premium button:focus-visible,
+.ankur-owner-premium :is(input,textarea,select):focus-visible {
   outline:3px solid #b89aff!important;outline-offset:2px;
 }
-.ankur-owner-dashboard .ankur-owner-overview {
+.ankur-owner-premium .ankur-owner-overview {
   border:1px solid #cfdcf4!important;
   border-radius:21px!important;
   background:#fff!important;
   padding:15px!important;
   box-shadow:0 10px 24px rgba(26,47,85,.06);
 }
-.ankur-owner-dashboard .ankur-owner-overview h3 {
+.ankur-owner-premium .ankur-owner-overview h3 {
   font-size:15px!important;font-weight:900!important;color:#1e3357!important;
 }
-.ankur-owner-dashboard .ankur-owner-overview .grid>div {
+.ankur-owner-premium .ankur-owner-overview .grid>div {
   border:1px solid #dce5f5!important;
   background:linear-gradient(160deg,#fff,#f3f5ff)!important;
   border-radius:15px!important;
   padding:12px!important;
   min-width:0;
 }
-.ankur-owner-dashboard .ankur-owner-overview .grid>div:nth-child(2) {background:linear-gradient(150deg,#fff,#fff4e7)!important}
-.ankur-owner-dashboard .ankur-owner-overview .grid>div:nth-child(3) {background:linear-gradient(150deg,#fff,#effbf6)!important}
-.ankur-owner-dashboard .ankur-owner-overview .grid>div:nth-child(4) {background:linear-gradient(150deg,#fff,#f0eeff)!important}
-.ankur-owner-dashboard .ankur-owner-overview .grid>div .text-base {
+.ankur-owner-premium .ankur-owner-overview .grid>div:nth-child(2) {background:linear-gradient(150deg,#fff,#fff4e7)!important}
+.ankur-owner-premium .ankur-owner-overview .grid>div:nth-child(3) {background:linear-gradient(150deg,#fff,#effbf6)!important}
+.ankur-owner-premium .ankur-owner-overview .grid>div:nth-child(4) {background:linear-gradient(150deg,#fff,#f0eeff)!important}
+.ankur-owner-premium .ankur-owner-overview .grid>div .text-base {
   font-size:20px!important;letter-spacing:-.025em;
 }
-.ankur-owner-dashboard :is(.rounded-2xl,.rounded-xl) {scroll-margin-top:12px}
-.ankur-owner-dashboard div[class*="max-w-xl"][class*="bg-white"] {
+.ankur-owner-premium :is(.rounded-2xl,.rounded-xl) {scroll-margin-top:12px}
+.ankur-owner-premium div[class*="max-w-xl"][class*="bg-white"] {
   border:1px solid var(--owner-stroke)!important;
   border-radius:20px!important;
   box-shadow:0 10px 26px rgba(36,55,97,.075);
 }
-.ankur-owner-dashboard :is(input,select,textarea) {
+.ankur-owner-premium :is(input,select,textarea) {
   border-radius:11px;
   accent-color:#6956ce;
 }
-.ankur-owner-dashboard :is(input,select,textarea):not([type="checkbox"]):not([type="radio"]) {
+.ankur-owner-premium :is(input,select,textarea):not([type="checkbox"]):not([type="radio"]) {
   max-width:100%;
 }
-.ankur-owner-dashboard :is(section,article) {min-width:0}
-.ankur-owner-dashboard :is(table) {font-size:12px}
-.ankur-owner-dashboard :is(th,td) {overflow-wrap:anywhere}
-.ankur-owner-dashboard :is(button,a) {touch-action:manipulation}
+.ankur-owner-premium :is(section,article) {min-width:0}
+.ankur-owner-premium :is(table) {font-size:12px}
+.ankur-owner-premium :is(th,td) {overflow-wrap:anywhere}
+.ankur-owner-premium :is(button,a) {touch-action:manipulation}
 @media(min-width:640px){
-  .ankur-owner-dashboard .ankur-owner-nav {grid-template-columns:repeat(4,minmax(0,1fr))!important}
-  .ankur-owner-dashboard .ankur-owner-nav>button:last-child {grid-column:span 2}
+  .ankur-owner-premium .ankur-owner-nav {grid-template-columns:repeat(7,minmax(0,1fr))!important}
+  .ankur-owner-premium .ankur-owner-nav>button:last-child {grid-column:auto}
 }
 @media(max-width:375px){
-  .ankur-owner-dashboard{padding-left:9px!important;padding-right:9px!important}
-  .ankur-owner-dashboard .ankur-owner-nav {gap:5px!important}
-  .ankur-owner-dashboard .ankur-owner-nav>button {font-size:11px!important;padding:7px 4px!important}
+  .ankur-owner-premium{padding-left:9px!important;padding-right:9px!important}
+  .ankur-owner-premium .ankur-owner-nav {gap:5px!important}
+  .ankur-owner-premium .ankur-owner-nav>button {font-size:11px!important;padding:7px 4px!important}
 }
 @media(prefers-reduced-motion:reduce){
-  .ankur-owner-dashboard *{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}
+  .ankur-owner-premium *{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}
 }
+
+/* All seven original owner sections remain visible; the accent follows the real selected state. */
+.ankur-owner-premium .ankur-owner-nav>button[aria-pressed="true"] {background:linear-gradient(125deg,#6955d8,#345bb9)!important;color:#fff!important;border-color:#6e6adf!important;}
