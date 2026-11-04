@@ -17,6 +17,13 @@ def stage(base_path,out):
         teamData().get('permissions', {}).get(name, false) == true;"""
     assert base.count(before)==1, 'Team permissions must match reviewed baseline'
     rules=base.replace(before,after,1)
+    # All staff operational mutations use the authenticated server callable.
+    # A write-only Firestore update bypasses the sanitized read path, so the
+    # legacy direct status grant MUST be disabled in the proposed Rules.
+    old_update="function canUpdateStatus() { return teamPermission('updateStatus'); }"
+    assert rules.count(old_update)==1, 'Unexpected client status authorization'
+    rules=rules.replace(old_update,
+      "function canUpdateStatus() { return false; } // Server callable only",1)
     # Firestore Rules are OR-composed across match blocks. Do not just add a
     # restrictive matching block while old staff grants still exist.
     legacy="isAdmin() || canViewOrders() ||"
