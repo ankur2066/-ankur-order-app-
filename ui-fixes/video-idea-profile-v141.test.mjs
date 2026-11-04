@@ -62,6 +62,6 @@ test('v1.0.41 UI patch applied in local, CI and signed APK with correct version'
  assert.equal(signed.split('python3 '+name).length-1,1);
  assert.ok(reconstruct.indexOf('customer_features_nav_v140.py')<reconstruct.indexOf(name));
  assert.ok(signed.split('permissions:')[0].includes("'"+name+"'"));
- assert.match(signed,/versionCode 42/);
- assert.match(signed,/versionName "1\.0\.42-season-test"/);
+ assert.match(signed,/versionCode 43/);
+ assert.match(signed,/versionName "1\.0\.43-season-test"/);
 });
