@@ -22,11 +22,11 @@ for (const source of ['orders','product_orders']) {
 export const ankurStaffOrdersProjection=onDocumentWritten(
  {...options,document:'orders/{orderId}',retry:true},
  async event=>service.project({sourceCollection:'orders',
-   orderId:event.params.orderId,after:event.data?.after?.data() ?? null}));
+   orderId:event.params.orderId,after:event.data?.after?.data() ?? null,occurredAt:Date.parse(event.time)}));
 export const ankurStaffProductProjection=onDocumentWritten(
  {...options,document:'product_orders/{orderId}',retry:true},
  async event=>service.project({sourceCollection:'product_orders',
-   orderId:event.params.orderId,after:event.data?.after?.data() ?? null}));
+   orderId:event.params.orderId,after:event.data?.after?.data() ?? null,occurredAt:Date.parse(event.time)}));
 export const ankurGetOneOrderContact=onCall(
  {...options,enforceAppCheck:true},
  async request=>{
