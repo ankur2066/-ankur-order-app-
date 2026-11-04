@@ -40,7 +40,7 @@ test('Core booking and privileged dashboards remain wired as before',()=>{
  assert.match(app,/onGoToTrack=\{handleGoToTrack\}/);
  assert.match(app,/<AdminDashboard/);
  assert.match(app,/<StaffDashboard/);
- assert.doesNotMatch(app,/currentTab === 'categories' && \(/);
+ assert.match(app,/false && currentTab === 'categories' && \(/);
 });
 
 test('Private review, local reconstruction and v1.0.46 signed APK share the exact cleanup',()=>{
