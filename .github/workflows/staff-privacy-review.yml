@@ -35,8 +35,7 @@ jobs:
           PY
       - name: Reconstructed staff and owner source contract
         run: |
-          cd /tmp/ankur-staff-source
-          node --test ui-fixes/owner-staff-premium-v148.test.mjs
+          ANKUR_CLIENT_APP=/tmp/ankur-staff-source node --test ui-fixes/owner-staff-premium-v148.test.mjs
       - name: Full React and TypeScript production compilation (review only)
         run: |
           cd /tmp/ankur-staff-source
