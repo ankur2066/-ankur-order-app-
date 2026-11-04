@@ -20,20 +20,20 @@ test('Video Idea Builder defaults to 30 seconds while keeping duration editable'
 test('Video Idea Builder shows event selection, prompt and two equal-width actions',()=>{
   assert.match(hub,/id="ankur-video-occasion"/);
   const occasions=hub.slice(hub.indexOf('const VIDEO_OCCASIONS = ['),hub.indexOf('] as const;',hub.indexOf('const VIDEO_OCCASIONS = [')));
-  const ids=[...occasions.matchAll(/\\{id:'([^']+)',name:/g)].map(m=>m[1]);
+  const ids=[...occasions.matchAll(/\{id:'([^']+)',name:/g)].map(m=>m[1]);
   assert.equal(ids.length,24,'24 occasion choices in 8 rows');
   assert.equal(new Set(ids).size,24,'no duplicate occasion choices');
   assert.ok(!ids.includes('business'),'remove obsolete Dry Ice Supply');
   for(const category of ['Wedding Entry','Stage Fog','Engagement','Birthday','Cocktail','Reception','Haldi','Mehndi','Sangeet','DJ Night','Corporate Event','Anniversary','Baby Shower','Bridal Entry','Groom Entry','Varmala','First Dance','Ring Ceremony','Grand Opening','Award Ceremony','Fashion Show','College Fest','Product Launch','Other Event'])
     assert.ok(occasions.includes(category),category);
   const video=hub.slice(hub.indexOf('function VideoIdeaPanel('),hub.indexOf('function ServiceAreaPanel()'));
-  assert.doesNotMatch(video,/<select\\b/,'native one-option-per-row dropdown must be removed');
+  assert.doesNotMatch(video,/<select\b/,'native one-option-per-row dropdown must be removed');
   assert.match(video,/ankur-video-occasion-grid grid grid-cols-3/);
-  assert.match(video,/aria-expanded=\\{occasionOpen\\}/);
-  assert.match(video,/aria-pressed=\\{occasion===item.id\\}/);
-  assert.match(video,/onClick=\\{\\(\\)=>\\{setOccasion\\(item.id\\);setOccasionOpen\\(false\\);\\}\\}/);
-  assert.match(css,/grid-template-columns: repeat\\(3, minmax\\(0, 1fr\\)\\)/);
-  assert.match(css,/max-height: min\\(72vh, 720px\\)/);
+  assert.match(video,/aria-expanded=\{occasionOpen\}/);
+  assert.match(video,/aria-pressed=\{occasion===item.id\}/);
+  assert.match(video,/onClick=\{\(\)=>\{setOccasion\(item.id\);setOccasionOpen\(false\);\}\}/);
+  assert.match(css,/grid-template-columns: repeat\(3, minmax\(0, 1fr\)\)/);
+  assert.match(css,/max-height: min\(72vh, 720px\)/);
   assert.match(hub,/id="ankur-video-prompt"/);
   assert.match(hub,/Generate an actual finished/);
   assert.match(hub,/playable video, not just a video concept/);
