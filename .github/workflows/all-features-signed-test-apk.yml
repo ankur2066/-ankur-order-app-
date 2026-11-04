@@ -110,8 +110,8 @@ jobs:
           from pathlib import Path
           p=Path('android/app/build.gradle'); lines=p.read_text().splitlines()
           for i,x in enumerate(lines):
-            if x.strip().startswith('versionCode '): lines[i]='        versionCode 41'
-            if x.strip().startswith('versionName '): lines[i]='        versionName "1.0.41-season-test"'
+            if x.strip().startswith('versionCode '): lines[i]='        versionCode 42'
+            if x.strip().startswith('versionName '): lines[i]='        versionName "1.0.42-season-test"'
           p.write_text('\n'.join(lines)+'\n')
           PY
           cd android
@@ -125,7 +125,7 @@ jobs:
           # update in place; a mismatched package would install as a second app.
           BUILD_TOOLS="$ANDROID_HOME/build-tools/$(ls "$ANDROID_HOME/build-tools" | sort -V | tail -1)"
           BADGING=$("$BUILD_TOOLS/aapt" dump badging "$APK")
-          printf '%s\n' "$BADGING" | grep -F "package: name='com.ankurdryice.events' versionCode='41' versionName='1.0.41-season-test'"
+          printf '%s\n' "$BADGING" | grep -F "package: name='com.ankurdryice.events' versionCode='42' versionName='1.0.42-season-test'"
           # Update flow opens a consent-based external link; never request installer
           # or broad file-management privileges in the packaged manifest.
           PERMISSIONS=$("$BUILD_TOOLS/aapt" dump permissions "$APK")
@@ -155,7 +155,7 @@ jobs:
           sha256sum "$AAB" > aab-sha256.txt
       - uses: actions/upload-artifact@v4
         with:
-          name: Ankur-Dryice-v1.0.41-PRIVATE-PLAY-AAB
+          name: Ankur-Dryice-v1.0.42-PRIVATE-PLAY-AAB
           path: |
             android/app/build/outputs/bundle/release/app-release.aab
             aab-sha256.txt
@@ -163,7 +163,7 @@ jobs:
           retention-days: 14
       - uses: actions/upload-artifact@v4
         with:
-          name: Ankur-Dryice-v1.0.41-SEASON-PRIVATE-TEST
+          name: Ankur-Dryice-v1.0.42-SEASON-PRIVATE-TEST
           path: |
             android/app/build/outputs/apk/release/app-release.apk
             apk-sha256.txt
