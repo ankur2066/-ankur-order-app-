@@ -56,6 +56,8 @@ jobs:
           python3 ui-fixes/dispatch_rules_privacy_v147.py
           python3 ui-fixes/owner_premium_v148.py
           python3 ui-fixes/staff_contact_privacy_v148.py
+          python3 privacy/staff_data_cutover_v149.py
+          python3 privacy/staff_contact_ui_v149.py
           python3 all-features/protected_audit.py check /tmp/protected.json
       - name: Unit and regression contracts
         run: |
