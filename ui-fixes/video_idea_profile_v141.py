@@ -15,16 +15,34 @@ start=s.index("function VideoIdeaPanel(){")
 end=s.index("function ServiceAreaPanel()",start)
 replacement=r'''type VideoContact = {name:string;city:string;mobile:string};
 const VIDEO_OCCASIONS = [
-  {id:'wedding',name:'Wedding Entry / शादी की एंट्री'},
-  {id:'stage',name:'Stage Fog / स्टेज फॉग'},
-  {id:'engagement',name:'Engagement / सगाई'},
-  {id:'birthday',name:'Birthday / जन्मदिन'},
-  {id:'cocktail',name:'Cocktail / बार फॉग'},
-  {id:'business',name:'Dry Ice Supply / ड्राई आइस सप्लाई'},
-  {id:'other',name:'Other Event / अन्य कार्यक्रम'},
+  {id:'wedding',name:'Wedding Entry / शादी की एंट्री',short:'Wedding Entry',hi:'शादी एंट्री'},
+  {id:'stage',name:'Stage Fog / स्टेज फॉग',short:'Stage Fog',hi:'स्टेज फॉग'},
+  {id:'engagement',name:'Engagement / सगाई',short:'Engagement',hi:'सगाई'},
+  {id:'birthday',name:'Birthday / जन्मदिन',short:'Birthday',hi:'जन्मदिन'},
+  {id:'cocktail',name:'Cocktail / बार फॉग',short:'Cocktail',hi:'बार फॉग'},
+  {id:'reception',name:'Reception / रिसेप्शन',short:'Reception',hi:'रिसेप्शन'},
+  {id:'haldi',name:'Haldi / हल्दी',short:'Haldi',hi:'हल्दी'},
+  {id:'mehndi',name:'Mehndi / मेहंदी',short:'Mehndi',hi:'मेहंदी'},
+  {id:'sangeet',name:'Sangeet / संगीत',short:'Sangeet',hi:'संगीत'},
+  {id:'dj-night',name:'DJ Night / डीजे नाइट',short:'DJ Night',hi:'डीजे नाइट'},
+  {id:'corporate',name:'Corporate Event / कॉर्पोरेट इवेंट',short:'Corporate',hi:'कॉर्पोरेट'},
+  {id:'anniversary',name:'Anniversary / सालगिरह',short:'Anniversary',hi:'सालगिरह'},
+  {id:'baby-shower',name:'Baby Shower / गोद भराई',short:'Baby Shower',hi:'गोद भराई'},
+  {id:'bride-entry',name:'Bridal Entry / दुल्हन एंट्री',short:'Bridal Entry',hi:'दुल्हन एंट्री'},
+  {id:'groom-entry',name:'Groom Entry / दूल्हा एंट्री',short:'Groom Entry',hi:'दूल्हा एंट्री'},
+  {id:'varmala',name:'Varmala / वरमाला',short:'Varmala',hi:'वरमाला'},
+  {id:'first-dance',name:'First Dance / पहला डांस',short:'First Dance',hi:'पहला डांस'},
+  {id:'ring',name:'Ring Ceremony / रिंग सेरेमनी',short:'Ring Ceremony',hi:'रिंग सेरेमनी'},
+  {id:'opening',name:'Grand Opening / भव्य उद्घाटन',short:'Grand Opening',hi:'उद्घाटन'},
+  {id:'awards',name:'Award Ceremony / पुरस्कार समारोह',short:'Awards',hi:'पुरस्कार'},
+  {id:'fashion',name:'Fashion Show / फैशन शो',short:'Fashion Show',hi:'फैशन शो'},
+  {id:'college',name:'College Fest / कॉलेज फेस्ट',short:'College Fest',hi:'कॉलेज फेस्ट'},
+  {id:'launch',name:'Product Launch / प्रोडक्ट लॉन्च',short:'Product Launch',hi:'प्रोडक्ट लॉन्च'},
+  {id:'other',name:'Other Event / अन्य कार्यक्रम',short:'Other Event',hi:'अन्य कार्यक्रम'},
 ] as const;
 function VideoIdeaPanel({user}:{user:User|null}){
   const [occasion,setOccasion]=useState('wedding');
+  const [occasionOpen,setOccasionOpen]=useState(false);
   const [customOccasion,setCustomOccasion]=useState('');
   const [duration,setDuration]=useState(30);
   const [notice,setNotice]=useState('');
@@ -72,10 +90,23 @@ function VideoIdeaPanel({user}:{user:User|null}){
   };
   return <div className="ankur-video-idea-page space-y-3">
     <label className="block font-semibold" htmlFor="ankur-video-occasion">Occasion / Function</label>
-    <select id="ankur-video-occasion" className="w-full rounded-xl border p-3 min-h-12"
-      value={occasion} onChange={e=>setOccasion(e.target.value)}>
-      {VIDEO_OCCASIONS.map(item=><option key={item.id} value={item.id}>{item.name}</option>)}
-    </select>
+    <button id="ankur-video-occasion" type="button" aria-expanded={occasionOpen}
+      aria-controls="ankur-video-occasion-options"
+      onClick={()=>setOccasionOpen(open=>!open)}
+      className="ankur-video-occasion-trigger w-full rounded-xl border p-3 min-h-12 text-left font-semibold">
+      <span>{VIDEO_OCCASIONS.find(item=>item.id===occasion)?.name}</span>
+      <span aria-hidden="true">{occasionOpen?'▴':'▾'}</span>
+    </button>
+    {occasionOpen&&<div id="ankur-video-occasion-options" aria-label="Choose occasion"
+        className="ankur-video-occasion-grid grid grid-cols-3 gap-2 p-2 rounded-xl border b-line">
+      {VIDEO_OCCASIONS.map(item=><button key={item.id} type="button"
+        aria-pressed={occasion===item.id}
+        className={`ankur-video-occasion-option rounded-lg border p-2 ${occasion===item.id?'ankur-selected':''}`}
+        onClick={()=>{setOccasion(item.id);setOccasionOpen(false);}}>
+        <span className="block font-semibold">{item.short}</span>
+        <span className="block ankur-video-occasion-hi">{item.hi}</span>
+      </button>)}
+    </div>}
     {occasion==='other'&&<label className="block">Function name
       <input className="w-full rounded-xl border p-3 mt-2" maxLength={100}
         value={customOccasion} onChange={e=>setCustomOccasion(e.target.value)}/>
