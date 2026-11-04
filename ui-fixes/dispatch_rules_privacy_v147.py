@@ -37,10 +37,10 @@ new="""                <div className="apb-slot-grid apb-slot-compact-grid grid 
                       <label
                         key={slot.id}
                         aria-disabled={slot.disabled}
-                        className={\`apb-slot apb-slot-compact flex flex-row items-center gap-2 cursor-pointer transition-all \${
+                        className={`apb-slot apb-slot-compact flex flex-row items-center gap-2 cursor-pointer transition-all ${
                           slot.disabled ? 'apb-slot-disabled cursor-not-allowed' :
                           dispatchTiming === slot.label ? 'apb-slot-selected' : 'apb-slot-idle'
-                        }\`}
+                        }`}
                       >
                         <input
                           type="radio"
