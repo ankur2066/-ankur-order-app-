@@ -121,6 +121,32 @@ export function createStaffPrivacyService({db, now = () => Date.now(), timestamp
       return {phone,orderId,sourceCollection,expiresInSeconds:15};
     });
   }
+  async function assignStaffOrder({auth, app, data}) {
+    const verifiedOwner = auth?.uid && auth?.token?.email === 'ankurdryicewholesalers@gmail.com' &&
+      auth?.token?.email_verified === true;
+    if (!verifiedOwner || !app || !data || typeof data !== 'object' || Array.isArray(data)) deny();
+    if (Object.keys(data).some(k => !['sourceCollection','orderId','staffUid','approved','expiresHours'].includes(k)) ||
+        typeof data.approved !== 'boolean' || !safeUid(data.staffUid)) deny();
+    const {sourceCollection,orderId,key} = inputOrder({
+      sourceCollection:data.sourceCollection,orderId:data.orderId
+    });
+    const expiresHours = data.expiresHours === undefined ? 24 : data.expiresHours;
+    if (!Number.isSafeInteger(expiresHours) || expiresHours < 1 || expiresHours > 168) deny();
+    const assignmentRef=db.doc('staffOrderAssignments/'+key+'_'+data.staffUid);
+    const staffRef=db.doc('users/'+data.staffUid);
+    const orderRef=db.doc(sourceCollection+'/'+orderId);
+    return db.runTransaction(async tx => {
+      const [staffSnap,orderSnap] = await Promise.all([tx.get(staffRef),tx.get(orderRef)]);
+      if (!orderSnap.exists || !validStatus(orderSnap.data()?.status) || orderSnap.data()?.isTrash === true) deny();
+      if (data.approved && !staffOk(staffSnap.data(),'callCustomer')) deny();
+      tx.set(assignmentRef,{
+        sourceCollection,orderId,staffUid:data.staffUid,approved:data.approved,
+        expiresAtMs:data.approved ? now()+expiresHours*3600000 : now(),
+        approvedBy:auth.uid,updatedAt:timestamp()
+      });
+      return {ok:true,sourceCollection,orderId,staffUid:data.staffUid,approved:data.approved};
+    });
+  }
   async function updateOrderStatus({auth,app,data}) {
     if (!auth?.uid || !safeUid(auth.uid) || !app) deny();
     if (!data || Object.keys(data).some(k => !['sourceCollection','orderId','status'].includes(k))) deny();
@@ -147,5 +173,5 @@ export function createStaffPrivacyService({db, now = () => Date.now(), timestamp
       return {ok:true,orderId,status:data.status};
     });
   }
-  return {project,getOneOrderContact,updateOrderStatus};
+  return {project,getOneOrderContact,updateOrderStatus,assignStaffOrder};
 }
