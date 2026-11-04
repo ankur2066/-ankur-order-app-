@@ -22,6 +22,10 @@ previous=text[start:end]
 assert "winner?.active" in previous and "विजेता घोषित होने पर" in previous
 assert previous.count('</section>')==1
 text=text[:start]+"          <DailyWinnerBanner />\n"+text[end:]
+# The old banner used a Gift icon in App, now owned by the winner component.
+assert text.count("ArrowLeft, BellRing, Gift, Loader2")==1
+text=text.replace("ArrowLeft, BellRing, Gift, Loader2",
+                  "ArrowLeft, BellRing, Loader2",1)
 assert text.count('<DailyWinnerBanner />')==1
 assert "currentTab === 'ai-features'" in text
 assert "bookingForm={(inlineProduct)" in text
