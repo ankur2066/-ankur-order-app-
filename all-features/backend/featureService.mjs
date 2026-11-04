@@ -97,8 +97,25 @@ export function createFeatureService({db,now=()=>Date.now(),timestamp=()=>new Da
   }
   if(action==='stockMapping'){requireOwner(auth);const key=data.legacyName?'legacy_'+createHash('sha256').update(text(data.legacyName,100)).digest('hex').slice(0,20):code(data.productId);await db.doc('stockMappings/'+key).set({sku:code(data.sku),updatedAt:timestamp()});return{ok:true};}
   if(action==='eta'){
-   const id=code(data.orderId);if(!owner(auth)){const staff=await db.doc('users/'+auth.uid).get();const s=staff.data();if(!['staff','delivery'].includes(s?.role)||!(s.permissions===undefined||s.permissions?.updateStatus===true))throw Error('ETA access denied');}
-   const etaMs=integer(data.etaMs,now(),now()+7*86400000),privateRef=db.doc((id.startsWith('APO-')?'product_orders/':'orders/')+id);await db.runTransaction(async tx=>{const order=await tx.get(privateRef);if(!order.exists)throw Error('Order not found');const token=order.data().trackingToken;const tracking=db.doc((id.startsWith('APO-')?'product_order_tracking/':'order_tracking/')+token);const p=await tx.get(tracking);if(!p.exists)throw Error('Tracking missing');const eta={etaMs,etaUpdatedAt:timestamp(),etaSource:'manual'};tx.update(privateRef,eta);tx.update(tracking,eta);});return{ok:true};
+   const id=code(data.orderId),unit=id.startsWith('APO-'),source=unit?'product_orders':'orders';
+   const etaMs=integer(data.etaMs,now(),now()+7*86400000),privateRef=db.doc(source+'/'+id);
+   await db.runTransaction(async tx=>{
+    const order=await tx.get(privateRef);
+    if(!order.exists || order.data()?.isTrash === true || order.data()?.status === 'cancelled')throw Error('Order not found');
+    if(!owner(auth)){
+     const staffRef=db.doc('users/'+auth.uid),scopeRef=db.doc('staffOrderAssignments/'+source+'_'+id+'_'+auth.uid);
+     const [staff,scope]=await Promise.all([tx.get(staffRef),tx.get(scopeRef)]),s=staff.data(),a=scope.data();
+     if(!['staff','delivery'].includes(s?.role)||s?.active!==true||s?.permissions?.viewOrders!==true||
+        s?.permissions?.updateStatus!==true||!scope.exists||a?.approved!==true||
+        a?.staffUid!==auth.uid||a?.orderId!==id||a?.sourceCollection!==source||
+        !Number.isSafeInteger(a?.expiresAtMs)||a.expiresAtMs<=now())throw Error('ETA access denied');
+    }
+    const token=order.data().trackingToken;
+    const tracking=db.doc((unit?'product_order_tracking/':'order_tracking/')+token);
+    const p=await tx.get(tracking);if(!p.exists||p.data()?.orderId!==id)throw Error('Tracking missing');
+    const eta={etaMs,etaUpdatedAt:timestamp(),etaSource:'manual'};
+    tx.update(privateRef,eta);tx.update(tracking,eta);
+   });return{ok:true};
   }
   if(action==='promoSave'){
    requireOwner(auth);const promoCode=code(data.code.toUpperCase());const payload={code:promoCode,active:data.active===true,kind:'fixed',valuePaise:integer(data.valuePaise,1),minimumPaise:integer(data.minimumPaise),maximumPaise:integer(data.valuePaise,1),usageLimit:integer(data.usageLimit,1,1000000),startsAtMs:integer(data.startsAtMs,0,Number.MAX_SAFE_INTEGER),endsAtMs:integer(data.endsAtMs,0,Number.MAX_SAFE_INTEGER),updatedAt:timestamp()};if(payload.endsAtMs<=payload.startsAtMs)throw Error('Invalid promo period');await db.runTransaction(async tx=>{const ref=db.doc('promos/'+promoCode),old=await tx.get(ref);tx.set(ref,{...payload,usageCount:old.data()?.usageCount||0});});return{ok:true};
