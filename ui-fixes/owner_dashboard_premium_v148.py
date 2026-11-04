@@ -71,7 +71,7 @@ open_anchor='                    {ord.customerPhone && (\n'
 start=s.index(open_anchor)
 end=s.index('                    )}\n',start)+len('                    )}\n')
 old=s[start:end]
-assert 'href={\`tel:' in old and 'href={\`https://wa.me/' in old
+assert 'href={`tel:' in old and 'href={`https://wa.me/' in old
 assert '<span>कॉल: {ord.customerPhone}</span>' in old
 new="""                    {ord.customerPhone && (
                       <div className="flex items-center gap-2 mt-2" aria-label="Customer contact restricted">
@@ -85,10 +85,10 @@ new="""                    {ord.customerPhone && (
                               setErrorMsg('इस ऑर्डर का संपर्क नंबर सही नहीं है।');
                               return;
                             }
-                            window.location.href = \`tel:+91\${digits}\`;
+                            window.location.href = `tel:+91${digits}`;
                           }}
                           className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-600 text-white border border-emerald-700 text-xs font-bold hover:bg-emerald-700 transition-colors"
-                          aria-label={\`ऑर्डर \${shortId} के ग्राहक को कॉल करें\`}
+                          aria-label={`ऑर्डर ${shortId} के ग्राहक को कॉल करें`}
                         >
                           <Phone className="w-4 h-4" aria-hidden="true" />
                           <span>कॉल करें</span>
@@ -102,7 +102,7 @@ new="""                    {ord.customerPhone && (
 s=s[:start]+new+s[end:]
 assert "phoneMatch" not in s and "wa.me" not in s
 assert "कॉल: {ord.customerPhone}" not in s
-assert "window.location.href = \`tel:+91\${digits}\`" in s
+assert "window.location.href = `tel:+91${digits}`" in s
 assert "subscribeOrderDocuments(" in s, "Do not break staff order listener"
 assert "handleUpdateStatus" in s, "Do not break order status update"
 staff.write_text(s,encoding='utf-8')
