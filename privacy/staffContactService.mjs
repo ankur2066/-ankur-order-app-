@@ -52,13 +52,22 @@ function inputOrder(input) {
   return {sourceCollection, orderId, key: projectionId(sourceCollection, orderId)};
 }
 export function createStaffPrivacyService({db, now = () => Date.now(), timestamp = () => new Date(now())}) {
-  async function project({sourceCollection, orderId, after}) {
+  async function project({sourceCollection, orderId, after, occurredAt}) {
     const key = projectionId(sourceCollection, orderId);
     const viewRef = db.doc('staffOrderViews/' + key);
+    const markerRef = db.doc('staffProjectionWatermarks/' + key);
+    const eventTimeMs = Number.isSafeInteger(occurredAt) && occurredAt >= 0 ? occurredAt : now();
     const view = staffSafeProjection(sourceCollection, orderId, after, timestamp());
-    if (view === null) { await viewRef.delete(); return {deleted:true}; }
-    await viewRef.set(view);
-    return {written:true};
+    // Cloud Functions events may be delivered twice or out of order. A tombstone
+    // watermark is retained after deletion to reject stale replayed events.
+    return db.runTransaction(async tx => {
+      const marker = await tx.get(markerRef);
+      if (marker.exists && marker.data()?.eventTimeMs >= eventTimeMs) return {skipped:true};
+      if (view === null) tx.delete(viewRef);
+      else tx.set(viewRef,view);
+      tx.set(markerRef,{eventTimeMs,sourceCollection,orderId});
+      return view === null ? {deleted:true} : {written:true};
+    });
   }
   async function getOneOrderContact({auth, app, data}) {
     if (!auth?.uid || !safeUid(auth.uid) || !app) deny();
