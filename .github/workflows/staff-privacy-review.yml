@@ -2,7 +2,7 @@ name: Staff phone privacy server review (NO DEPLOY)
 on:
   push:
     branches: [codex/staff-phone-server-privacy-v149]
-    paths: ['privacy/**', 'all-features/reconstruct.py', '.github/workflows/staff-privacy-review.yml']
+    paths: ['privacy/**', 'winner/**', 'updates/**', 'all-features/**', 'ui-fixes/customer-features-v140.test.mjs', 'ci-fixes/signing-cert.test.mjs', '.github/workflows/staff-privacy-review.yml']
   workflow_dispatch:
 
 permissions:
@@ -19,10 +19,11 @@ jobs:
       - uses: actions/setup-java@v4
         with: {distribution: temurin, java-version: '21'}
       - name: Pure server policy tests (no external connections)
-        run: node --test privacy/staffContactService.test.mjs
+        run: node --check winner/index.mjs
+          node --test privacy/staffContactService.test.mjs winner/dailyWinnerService.test.mjs
       - name: Inspect reconstructed staff client subscriptions (source only)
         run: |
-          python3 -m py_compile all-features/reconstruct.py privacy/staff_data_cutover_v149.py privacy/staff_contact_ui_v149.py privacy/owner_assignment_ui_v149.py
+          python3 -m py_compile all-features/reconstruct.py privacy/staff_data_cutover_v149.py privacy/staff_contact_ui_v149.py privacy/owner_assignment_ui_v149.py winner/client_v150.py
           python3 all-features/reconstruct.py --output /tmp/ankur-staff-source
           python3 - <<'PY'
           from pathlib import Path
@@ -35,7 +36,7 @@ jobs:
           PY
       - name: Reconstructed staff and owner source contract
         run: |
-          ANKUR_CLIENT_APP=/tmp/ankur-staff-source node --test ui-fixes/owner-staff-premium-v148.test.mjs
+          ANKUR_CLIENT_APP=/tmp/ankur-staff-source node --test ui-fixes/owner-staff-premium-v148.test.mjs ui-fixes/customer-features-v140.test.mjs updates/appUpdate.test.mjs ci-fixes/signing-cert.test.mjs
       - name: Full React and TypeScript production compilation (review only)
         run: |
           cd /tmp/ankur-staff-source
@@ -48,8 +49,11 @@ jobs:
           python3 billing/review/build_rules.py
           python3 all-features/backend/stage.py --output feature-review
           python3 privacy/stage.py --base feature-review/firestore.rules --output staff-privacy-review
+          python3 winner/stage.py --base staff-privacy-review/firestore.rules --output winner-review
           test -f staff-privacy-review/REVIEW_ONLY.json
           test ! -e staff-privacy-review/firebase.json
+          test -f winner-review/REVIEW_ONLY.json
+          test ! -e winner-review/firebase.json
       - name: Install isolated Firestore emulation SDK
         run: |
           mkdir -p rules-qa
@@ -66,4 +70,6 @@ jobs:
           path: |
             staff-privacy-review/
             !staff-privacy-review/functions/node_modules/**
+            winner-review/
+            !winner-review/functions/node_modules/**
           retention-days: 7
