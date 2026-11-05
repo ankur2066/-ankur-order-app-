@@ -55,6 +55,6 @@ test('v1.0.47 patch applied to all source reconstructions; signed version checke
  assert.equal(signed.split('python3 '+name).length-1,1);
  assert.ok(local.indexOf('customer_ai_video_cleanup_v146.py') < local.indexOf(name));
  assert.match(signed,/paths: \['release-batches\/\*\.txt'\]/,'only explicit release batch triggers signed APK');
- assert.match(signed,/versionCode 52/);
- assert.match(signed,/versionName "1\.0\.52-private-test"/);
+ assert.match(signed,/versionCode 53/);
+ assert.match(signed,/versionName "1\.0\.53-private-test"/);
 });
