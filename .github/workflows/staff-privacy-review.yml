@@ -20,7 +20,7 @@ jobs:
         with: {distribution: temurin, java-version: '21'}
       - name: Pure server policy tests (no external connections)
         run: node --check winner/index.mjs
-          node --test privacy/staffContactService.test.mjs winner/dailyWinnerService.test.mjs
+          node --test privacy/staffContactService.test.mjs privacy/backfillCore.test.mjs winner/dailyWinnerService.test.mjs
       - name: Inspect reconstructed staff client subscriptions (source only)
         run: |
           python3 -m py_compile all-features/reconstruct.py privacy/staff_data_cutover_v149.py privacy/staff_contact_ui_v149.py privacy/owner_assignment_ui_v149.py winner/client_v150.py
