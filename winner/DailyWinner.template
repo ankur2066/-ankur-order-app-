@@ -3,15 +3,19 @@ import {doc,onSnapshot} from 'firebase/firestore';
 import {getFunctions,httpsCallable} from 'firebase/functions';
 import {app,db} from '../../firebase';
 import {isAndroidAppCheckReady} from '../../appCheck';
+import type {User} from 'firebase/auth';
 
 function istDay(){
  const date=new Date(Date.now()+19800000);
  return date.toISOString().slice(0,10);
 }
 type DailyWinner={date:string;name:string;city:string;active:boolean;giftLabel:string};
-export const DailyWinnerBanner:React.FC = ()=>{
+export const DailyWinnerBanner:React.FC<{currentUser:User|null}> = ({currentUser})=>{
  const [day,setDay]=useState(istDay);
  const [winner,setWinner]=useState<DailyWinner|null>(null);
+ const [consent,setConsent]=useState<boolean|null>(null);
+ const [consentBusy,setConsentBusy]=useState(false);
+ const [consentMessage,setConsentMessage]=useState('');
  useEffect(()=>{
   const change=()=>{if(document.visibilityState!=='hidden')setDay(istDay());};
   document.addEventListener('visibilitychange',change);
@@ -29,12 +33,41 @@ export const DailyWinnerBanner:React.FC = ()=>{
        giftLabel:'खास गिफ्ट'}:null);
   },()=>setWinner(null));
  },[day]);
+ useEffect(()=>{
+  setConsent(null);
+  setConsentMessage('');
+  if(!currentUser)return;
+  return onSnapshot(doc(db,'userPrefs',currentUser.uid),snap=>{
+   setConsent(snap.data()?.winnerPublicConsent===true);
+  },()=>{setConsent(null);setConsentMessage('सहमति की स्थिति नहीं पढ़ी जा सकी।');});
+ },[currentUser?.uid]);
+ const saveConsent=async(next:boolean)=>{
+  if(!currentUser || consentBusy || !isAndroidAppCheckReady()){
+   setConsentMessage('सत्यापित Android ऐप से साइन इन करके ही सहमति बदलें।');return;
+  }
+  setConsentBusy(true);setConsentMessage('');
+  try{
+   await httpsCallable(getFunctions(app,'asia-southeast1'),'ankurWinnerConsent')({consent:next});
+   setConsentMessage(next?'सहमति सेव हुई।':'सहमति वापस ली गई; प्रकाशित नाम हटाने का अनुरोध पूरा हुआ।');
+  }catch{setConsentMessage('सहमति नहीं बदली। कनेक्शन या सर्वर सेटअप जाँचें।');}
+  finally{setConsentBusy(false);}
+ };
  return <section className="ankur-daily-winner" aria-labelledby="ankur-daily-winner-title">
   <h1 id="ankur-daily-winner-title" className="text-base font-black">आज का Lucky Winner</h1>
   {winner ? <div className="mt-2">
    <p className="text-sm font-bold">{winner.name} · {winner.city}</p>
    <p className="text-xs mt-1">{winner.giftLabel} · {day}</p>
   </div> : <p className="mt-2 text-sm">विजेता घोषित होने पर यहाँ दिखाई देगा।</p>}
+  {currentUser && <div className="mt-3 border-t border-current/15 pt-3 space-y-2">
+   <p className="text-xs">अपनी इच्छा से भाग लें: चुने जाने पर केवल आपका नाम और शहर सार्वजनिक दिखेगा, मोबाइल नंबर नहीं। आप सहमति वापस ले सकते हैं।</p>
+   <label className="flex items-center gap-2 text-xs font-bold">
+    <input type="checkbox" checked={consent===true}
+      disabled={consent===null||consentBusy||!isAndroidAppCheckReady()}
+      onChange={e=>void saveConsent(e.target.checked)}/>
+    Daily Winner में मेरे नाम और शहर के प्रकाशन की सहमति
+   </label>
+   {consentMessage && <p role="status" className="text-xs">{consentMessage}</p>}
+  </div>}
  </section>;
 };
 
