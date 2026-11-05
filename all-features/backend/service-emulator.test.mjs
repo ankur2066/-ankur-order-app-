@@ -13,9 +13,14 @@ test('partner request is immutable and bulk needs server approval',async()=>{awa
 test('Daily Winner public consent is opt-in only and rejects forged values',async()=>{
  await assert.rejects(()=>perform(a,'preferences',{orderUpdates:true,promos:false,winnerPublicConsent:'yes'}),/Invalid/);
  await perform(a,'preferences',{orderUpdates:true,promos:false});
- assert.equal((await db.doc('userPrefs/'+a.uid).get()).data().winnerPublicConsent,false);
+ assert.notEqual((await db.doc('userPrefs/'+a.uid).get()).data().winnerPublicConsent,true);
  await perform(a,'preferences',{orderUpdates:true,promos:false,winnerPublicConsent:true});
  assert.equal((await db.doc('userPrefs/'+a.uid).get()).data().winnerPublicConsent,true);
+ // An ordinary notification-preferences save must not silently revoke opt-in.
+ await perform(a,'preferences',{orderUpdates:false,promos:true});
+ assert.equal((await db.doc('userPrefs/'+a.uid).get()).data().winnerPublicConsent,true);
+ await perform(a,'preferences',{orderUpdates:false,promos:true,winnerPublicConsent:false});
+ assert.equal((await db.doc('userPrefs/'+a.uid).get()).data().winnerPublicConsent,false);
 });
 test('preferences reject malformed booleans and marketing defaults explicit',async()=>{await assert.rejects(()=>perform(a,'preferences',{orderUpdates:'true',promos:false}),/Invalid/);await perform(a,'preferences',{orderUpdates:true,promos:false});assert.equal((await db.doc('userPrefs/'+a.uid).get()).data().promos,false);});
 test('guest promo bookings atomically respect usage cap; response-loss retry returns same order',async()=>{await db.doc('settings/rates').set({dryIceRate:73,thermocolRate:8,transportRate:2});await perform(owner,'promoSave',{code:'EMU',active:true,valuePaise:3000,minimumPaise:10000,usageLimit:1,startsAtMs:NOW-1000,endsAtMs:NOW+10000});const data={...identity,code:'EMU',dispatchTiming:'Tomorrow morning',expectedTotalPaise:80000};const outcomes=await Promise.allSettled([perform(null,'promoBooking',{...data,requestId:'a'.repeat(32)}),perform(null,'promoBooking',{...data,requestId:'b'.repeat(32)})]);assert.equal(outcomes.filter(x=>x.status==='fulfilled').length,1);const index=outcomes.findIndex(x=>x.status==='fulfilled'),result=outcomes[index].value;const retry=await perform(null,'promoBooking',{...data,requestId:(index===0?'a':'b').repeat(32)});assert.equal(retry.orderId,result.orderId);assert.equal(result.totalAmount,800);assert.equal((await db.doc('promos/EMU').get()).data().usageCount,1);const stored=(await db.doc('orders/'+result.orderId).get()).data();assert.equal(stored.dryIcePricePerKg,73);assert.equal(stored.discountAmount,30);assert.ok((await db.doc('order_tracking/'+result.orderId+'_'+result.trackingPin).get()).exists);});
