@@ -184,6 +184,7 @@ test('projection create/update/delete contains no raw phone and deletion is idem
 
 test('backfill defaults to dry run and cannot apply without explicit named-DB signoff',()=>{
  const script=readFileSync(new URL('./backfill.mjs',import.meta.url),'utf8');
+ const core=readFileSync(new URL('./backfillCore.mjs',import.meta.url),'utf8');
  assert.match(script,/ANKUR_PRIVACY_BACKFILL_APPROVED_DATABASE/);
  assert.match(script,/ANKUR_PRIVACY_BACKFILL_SIGNOFF/);
  assert.match(script,/OWNER_CONFIRMED_BACKUP_AND_ROLLBACK/);
