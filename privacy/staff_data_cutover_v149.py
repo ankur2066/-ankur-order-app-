@@ -33,8 +33,17 @@ contact="""  const [contact, setContact] = useState<{ key: string; phone: string
     document.addEventListener('visibilitychange', closeOnBackground);
     return () => document.removeEventListener('visibilitychange', closeOnBackground);
   }, []);
+  // The actual projection source, NOT billingVersion, chooses the collection.
+  // Legacy product_orders may have billingVersion=1.
+  const staffSource = (ord: Order): 'orders' | 'product_orders' | null => {
+    const raw = (ord as Order & { sourceCollection?: unknown }).sourceCollection;
+    return raw === 'orders' || raw === 'product_orders' ? raw : null;
+  };
   const openOneContact = async (ord: Order) => {
-    const sourceCollection = ord.billingVersion === 2 ? 'product_orders' : 'orders';
+    const sourceCollection = staffSource(ord);
+    if (!sourceCollection) {
+      setErrorMsg('ऑर्डर का स्रोत सत्यापित नहीं हो सका।');return;
+    }
     const key = sourceCollection + '_' + ord.orderId;
     const epoch = ++contactVersion.current;
     if (contact?.key === key) {
@@ -85,6 +94,7 @@ s=s[:start]+"""    // Strictly staff-safe projection documents; never listen to 
               typeof view.orderId !== 'string') return null;
           return {
             orderId: view.orderId,
+            sourceCollection: view.sourceCollection,
             customerName: view.customerName || '',
             city: view.city || '',
             district: view.city || '',
@@ -129,9 +139,10 @@ end=s.index("      await batch.commit();",start)+len("      await batch.commit()
 s=s[:start]+"""      if (!user || !isAndroidAppCheckReady()) {
         throw Error('इस कार्य के लिए सत्यापित Android ऐप जरूरी है।');
       }
+      if (!staffSource(ord)) throw Error('ऑर्डर का स्रोत सत्यापित नहीं है।');
       const fn = httpsCallable(getFunctions(getApp(), 'asia-southeast1'), 'ankurStaffUpdateOrderStatus');
       await fn({
-        sourceCollection: ord.billingVersion === 2 ? 'product_orders' : 'orders',
+        sourceCollection: staffSource(ord),
         orderId: ord.orderId,
         status: newStatus
       });""" + s[end:]
