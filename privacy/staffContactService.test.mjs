@@ -65,12 +65,16 @@ test('malformed createdAt cannot smuggle phone, address or arbitrary objects int
    ['9000000010'],42,null,undefined
  ])assert.equal(make(payload).createdAt,null);
  const date=new Date('2026-11-05T00:01:03Z');
- assert.equal(make(date).createdAt,date);
+ assert.equal(make(date).createdAt?.getTime(),date.getTime());
  const firestoreTimestamp={
    toMillis:()=>date.getTime()+0.123,
-   toDate:()=>new Date(date)
+   toDate:()=>new Date(date),
+   privatePhone:'9000000010'
  };
- assert.equal(make(firestoreTimestamp).createdAt,firestoreTimestamp);
+ const sanitized=make(firestoreTimestamp).createdAt;
+ assert.equal(sanitized?.getTime(),date.getTime());
+ assert.equal(sanitized?.privatePhone,undefined,'must not return original object');
+ assert.equal(JSON.stringify(make(firestoreTimestamp)).includes('9000000010'),false);
  const forged={toMillis:()=>date.getTime(),toDate:()=>new Date('2000-01-01T00:00:00Z'),
   privatePhone:'9000000010'};
  assert.equal(make(forged).createdAt,null);
