@@ -16,6 +16,20 @@ const plain = (v, limit = 100) => typeof v === 'string'
       .slice(0, limit)
   : '';
 const validStatus = value => STATUS.has(value);
+const validOrderTimestamp = value => {
+  if (value instanceof Date) return Number.isFinite(value.getTime()) ? value : null;
+  // Only Firestore Timestamp-like instances with finite millisecond epochs
+  // are allowed. Strings, arbitrary objects, maps, arrays and PII are denied.
+  if (!value || typeof value !== 'object' || Array.isArray(value) ||
+      typeof value.toMillis !== 'function' || typeof value.toDate !== 'function')
+    return null;
+  try {
+    const millis = value.toMillis();
+    const date = value.toDate();
+    return Number.isFinite(millis) && date instanceof Date &&
+      Number.isFinite(date.getTime()) && millis === date.getTime() ? value : null;
+  } catch { return null; }
+};
 const STATUS_RANK = {pending:0,confirmed:1,in_packing:2,dispatched:3,delivered:4};
 export function validStaffStatusTransition(previous,next) {
   if (!validStatus(previous) || !validStatus(next)) return false;
@@ -61,7 +75,7 @@ export function staffSafeProjection(source, orderId, record, updatedAt) {
         status: record.selfPickup.status,
         receiptStatus: plain(record.selfPickup?.receiptStatus, 40)
       } : null,
-    createdAt: record.createdAt ?? null,
+    createdAt: validOrderTimestamp(record.createdAt),
     updatedAt
   };
 }
