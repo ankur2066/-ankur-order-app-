@@ -1,1 +1,95 @@
-bmFtZTogQWxsIDE0IGZlYXR1cmVzICsgRW5nbGlzaCBkZWZhdWx0IHByaXZhdGUgcmV2aWV3CgpvbjoKICBwdXNoOgogICAgYnJhbmNoZXM6IFtjb2RleC9hbGwtMTQtcGhhc2UtYmMtZW5nbGlzaCwgY29kZXgvc3RhZmYtcGhvbmUtc2VydmVyLXByaXZhY3ktdjE0OV0KICBwdWxsX3JlcXVlc3Q6CiAgICBicmFuY2hlczogW2NvZGV4L3BoYXNlLWEtb3duZXItcmVwb3J0cy1leHBlbnNlc10KICB3b3JrZmxvd19kaXNwYXRjaDoKICB3b3JrZmxvd19jYWxsOgoKcGVybWlzc2lvbnM6CiAgY29udGVudHM6IHJlYWQKCmpvYnM6CiAgbGludC1idWlsZC1yZWdyZXNzaW9uOgogICAgcnVucy1vbjogdWJ1bnR1LWxhdGVzdAogICAgdGltZW91dC1taW51dGVzOiAyNQogICAgc3RlcHM6CiAgICAgIC0gdXNlczogYWN0aW9ucy9jaGVja291dEB2NAogICAgICAtIHVzZXM6IGFjdGlvbnMvc2V0dXAtbm9kZUB2NAogICAgICAgIHdpdGg6IHtub2RlLXZlcnNpb246ICcyMid9CiAgICAgIC0gbmFtZTogUmVjb25zdHJ1Y3QgdmVyaWZpZWQgdjEuMC4zMiBhbmQgUGhhc2UgQQogICAgICAgIHJ1bjogfAogICAgICAgICAgc2V0IC1ldW8gcGlwZWZhaWwKICAgICAgICAgIHVuemlwIC1vcSBBbmt1cl9PcmRlcl9BcHBfVXBsb2FkX0dpdEh1Yi56aXAgLWQgLgogICAgICAgICAgcHl0aG9uMyBhcHAtY2hlY2svYXBwbHlfcGF0Y2gucHkKICAgICAgICAgIHB5dGhvbjMgdWktZml4ZXMvYXBwbHlfcGF0Y2gucHkKICAgICAgICAgIHB5dGhvbjMgdWktZml4ZXMvdXhfcWFfcGF0Y2gucHkKICAgICAgICAgIHB5dGhvbjMgdWktZml4ZXMvcHJlbWl1bV9ib29raW5nX3YxMjIucHkKICAgICAgICAgIHB5dGhvbjMgdWktZml4ZXMvYmxpbmtpdF9wcmVtaXVtX3YxMjMucHkKICAgICAgICAgIHB5dGhvbjMgdWktZml4ZXMvY3VzdG9tZXJfaG9tZV9mb3JtX3YxMjQucHkKICAgICAgICAgIHB5dGhvbjMgdWktZml4ZXMvY3VzdG9tZXJfaG9tZV9vbmx5X3YxMjUucHkKICAgICAgICAgIHB5dGhvbjMgdWktZml4ZXMvY29tcGFjdF9jdXN0b21lcl9mb3JtX3YxMjYucHkKICAgICAgICAgIHB5dGhvbjMgdWktZml4ZXMvZW5nbGlzaF9ib29raW5nX3YxMjcucHkKICAgICAgICAgIHB5dGhvbjMgdWktZml4ZXMvcmVhZGFibGVfc21vb3RoX3YxMjgucHkKICAgICAgICAgIHB5dGhvbjMgbm90aWZpY2F0aW9ucy9hcHBseV9wYXRjaC5weQogICAgICAgICAgcHl0aG9uMyBub3RpZmljYXRpb25zL2NsaWVudC1maXhlcy9hcHBseV9wYXRjaC5weQogICAgICAgICAgcHl0aG9uMyBub3RpZmljYXRpb25zL3RhcC1maXgvYXBwbHlfcGF0Y2gucHkKICAgICAgICAgIHB5dGhvbjMgdWktZml4ZXMvZGVjbHV0dGVyX3YxMzIucHkKICAgICAgICAgIHB5dGhvbjMgcGhhc2UtYS9hcHBseV9wYXRjaC5weQogICAgICAgICAgcHl0aG9uMyBhbGwtZmVhdHVyZXMvcHJvdGVjdGVkX2F1ZGl0LnB5IHJlY29yZCAvdG1wL3Byb3RlY3RlZC5qc29uCiAgICAgIC0gbmFtZTogQXBwbHkgcHJpdmF0ZSByZXZpZXcgb3ZlcmxheQogICAgICAgIHJ1bjogfAogICAgICAgICAgcHl0aG9uMyBiaWxsaW5nL2FwcGx5X3BhdGNoLnB5CiAgICAgICAgICBBTktVUl9BUFBfRElSPSRQV0QgcHl0aG9uMyBhbGwtZmVhdHVyZXMvYXBwbHlfcGF0Y2gucHkKICAgICAgICAgIHB5dGhvbjMgYWxsLWZlYXR1cmVzL3dpcmVfYWRkaXRpb25zLnB5CiAgICAgICAgICBweXRob24zIHVpLWZpeGVzL3NlYXNvbmFsX2NvbnRyYXN0X3YxMzUucHkKICAgICAgICAgIHB5dGhvbjMgdWktZml4ZXMvY3VzdG9tZXItaG9tZS1sYW5ndWFnZS5weQogICAgICAgICAgcHl0aG9uMyB1aS1maXhlcy9jdXN0b21lcl9uYXZfdjEzOC5weQogICAgICAgICAgcHl0aG9uMyB1aS1maXhlcy9jdXN0b21lcl9kYXJrX2NvbnRyYXN0X3YxMzgucHkKICAgICAgICAgIHB5dGhvbjMgdWktZml4ZXMvY3VzdG9tZXJfaG9tZV9jbGVhbl92MTM5LnB5CiAgICAgICAgICBweXRob24zIHVpLWZpeGVzL2N1c3RvbWVyX2ZlYXR1cmVzX25hdl92MTQwLnB5CiAgICAgICAgICBweXRob24zIHVpLWZpeGVzL3ZpZGVvX2lkZWFfcHJvZmlsZV92MTQxLnB5CiAgICAgICAgICBweXRob24zIHVpLWZpeGVzL2N1c3RvbWVyX3Byb2ZpbGVfY29udGFjdF92MTQ1LnB5CiAgICAgICAgICBweXRob24zIHVpLWZpeGVzL2N1c3RvbWVyX2FpX3ZpZGVvX2NsZWFudXBfdjE0Ni5weQogICAgICAgICAgcHl0aG9uMyB1aS1maXhlcy9kaXNwYXRjaF9ydWxlc19wcml2YWN5X3YxNDcucHkKICAgICAgICAgIHB5dGhvbjMgdWktZml4ZXMvb3duZXJfcHJlbWl1bV92MTQ4LnB5CiAgICAgICAgICBweXRob24zIHVpLWZpeGVzL3N0YWZmX2NvbnRhY3RfcHJpdmFjeV92MTQ4LnB5CiAgICAgICAgICBweXRob24zIHByaXZhY3kvc3RhZmZfZGF0YV9jdXRvdmVyX3YxNDkucHkKICAgICAgICAgIHB5dGhvbjMgcHJpdmFjeS9zdGFmZl9jb250YWN0X3VpX3YxNDkucHkKICAgICAgICAgIHB5dGhvbjMgcHJpdmFjeS9vd25lcl9hc3NpZ25tZW50X3VpX3YxNDkucHkKICAgICAgICAgIHB5dGhvbjMgd2lubmVyL2NsaWVudF92MTUwLnB5CiAgICAgICAgICBweXRob24zIGFsbC1mZWF0dXJlcy9wcm90ZWN0ZWRfYXVkaXQucHkgY2hlY2sgL3RtcC9wcm90ZWN0ZWQuanNvbgogICAgICAtIG5hbWU6IFVuaXQgYW5kIHJlZ3Jlc3Npb24gY29udHJhY3RzCiAgICAgICAgcnVuOiB8CiAgICAgICAgICBub2RlIC0tdGVzdCBhbGwtZmVhdHVyZXMvcmVmZXJyYWwtc2hhcmUudGVzdC5tanMgYWxsLWZlYXR1cmVzL2ZlYXR1cmUtY29udHJhY3QudGVzdC5tanMgYWxsLWZlYXR1cmVzL3BpbG90LWZpcnN0LWZpdmUudGVzdC5tanMgYWxsLWZlYXR1cmVzL2JhY2tlbmQvdHJ1c3RlZE9wZXJhdGlvbnMudGVzdC5tanMgYmlsbGluZy9sYW5ndWFnZS1jb3ZlcmFnZS50ZXN0Lm1qcyBzZWFzb25hbC9jYXRhbG9nUG9saWN5LnRlc3QubWpzIHVwZGF0ZXMvYXBwVXBkYXRlLnRlc3QubWpzIHVpLWZpeGVzL2NvbnRyYXN0LnRlc3QubWpzIHVpLWZpeGVzL2N1c3RvbWVyLW5hdi12MTM4LnRlc3QubWpzIHVpLWZpeGVzL2N1c3RvbWVyLWRhcmstY29udHJhc3QtdjEzOC50ZXN0Lm1qcyB1aS1maXhlcy9jdXN0b21lci1ob21lLWNsZWFuLXYxMzkudGVzdC5tanMgdWktZml4ZXMvY3VzdG9tZXItZmVhdHVyZXMtdjE0MC50ZXN0Lm1qcyB1aS1maXhlcy92aWRlby1pZGVhLXByb2ZpbGUtdjE0MS50ZXN0Lm1qcyB1aS1maXhlcy9jdXN0b21lci1wcm9maWxlLWNvbnRhY3QtdjE0NS50ZXN0Lm1qcyB1aS1maXhlcy9jdXN0b21lci1haS12aWRlby1jbGVhbnVwLXYxNDYudGVzdC5tanMgdWktZml4ZXMvZGlzcGF0Y2gtcnVsZXMtcHJpdmFjeS12MTQ3LnRlc3QubWpzIHVpLWZpeGVzL293bmVyLXN0YWZmLXByZW1pdW0tdjE0OC50ZXN0Lm1qcyB1aS1maXhlcy9jdXN0b21lci1ob21lLWxhbmd1YWdlLnRlc3QubWpzIGFsbC1mZWF0dXJlcy9waG9uZS1saW5rcy50ZXN0Lm1qcyB1aS1maXhlcy9tb2JpbGVSZXBvcnQudGVzdC5tanMgdWktZml4ZXMvbW9udGhseVJlcG9ydC50ZXN0Lm1qcyBhbGwtZmVhdHVyZXMvcmVjb25zdHJ1Y3QtY29udHJhY3QudGVzdC5tanMgY2ktZml4ZXMvc2lnbmluZy1jZXJ0LnRlc3QubWpzIHdpbm5lci9kYWlseVdpbm5lclNlcnZpY2UudGVzdC5tanMgcHJpdmFjeS9iYWNrZmlsbENvcmUudGVzdC5tanMgcmVsZWFzZS1yZWFkaW5lc3Mvbm92OS1mZWF0dXJlLWNvdmVyYWdlLnRlc3QubWpzIHJlbGVhc2UtcmVhZGluZXNzL25vdjktY2ktZ2F0ZS50ZXN0Lm1qcyBwcml2YWN5L3Byb2plY3Rpb25BdWRpdC50ZXN0Lm1qcwogICAgICAgICAgbm9kZSAtLWV4cGVyaW1lbnRhbC1zdHJpcC10eXBlcyAtLXRlc3QgcGhhc2UtYS9waGFzZS1hLnRlc3QubWpzCiAgICAgICAgICBub2RlIC0tZXhwZXJpbWVudGFsLXZtLW1vZHVsZXMgLS10ZXN0IHVpLWZpeGVzL3ZvaWNlLWlucHV0LnRlc3QubWpzCiAgICAgIC0gbmFtZTogSW5zdGFsbCBhbmQgYnVpbGQKICAgICAgICBydW46IHwKICAgICAgICAgIG5wbSBpbnN0YWxsIC0tc2F2ZS1leGFjdCAtLXBhY2thZ2UtbG9jay1vbmx5IC0taWdub3JlLXNjcmlwdHMgLS1uby1hdWRpdCAtLW5vLWZ1bmQgQGNhcGFjaXRvci1maXJlYmFzZS9hcHAtY2hlY2tANy41LjAgQGNhcGFjaXRvci9hcHBANyBAY2FwYWNpdG9yLWNvbW11bml0eS9zcGVlY2gtcmVjb2duaXRpb25ANy4wLjEgQGNhcGFjaXRvci9maWxlc3lzdGVtQDcgQGNhcGFjaXRvci9zaGFyZUA3IEBjYXBhY2l0b3IvcHVzaC1ub3RpZmljYXRpb25zQDcKICAgICAgICAgIG5wbSBjaSAtLWlnbm9yZS1zY3JpcHRzIC0tbm8tYXVkaXQgLS1uby1mdW5kCiAgICAgICAgICBucG0gcnVuIGxpbnQKICAgICAgICAgIG5wbSBydW4gYnVpbGQKICAgICAgLSBuYW1lOiBBY3R1YWwgUmVhY3QgY2xpZW50IGFuZCB0YXAgcmVncmVzc2lvbnMKICAgICAgICBydW46IHwKICAgICAgICAgIG5wbSBpbnN0YWxsIC0tbm8tc2F2ZSAtLWlnbm9yZS1zY3JpcHRzIHJlYWN0LXRlc3QtcmVuZGVyZXJAMTkKICAgICAgICAgIEFOS1VSX0NPTUJJTkVEX1NPVVJDRT0kUFdEIEFOS1VSX0NMSUVOVF9RQT0kUFdEIEFOS1VSX0NMSUVOVF9BUFA9JFBXRCBub2RlIC0tZXhwZXJpbWVudGFsLXZtLW1vZHVsZXMgLS10ZXN0IG5vdGlmaWNhdGlvbnMvY2xpZW50LWZpeGVzL2NsaWVudC50ZXN0Lm1qcyBub3RpZmljYXRpb25zL3RhcC1maXgvdGFwLnRlc3QubWpzIG5vdGlmaWNhdGlvbnMvbm90aWZpY2F0aW9uUHVzaC50ZXN0Lm1qcyBhbGwtZmVhdHVyZXMvbGFuZ3VhZ2UudGVzdC5tanMgYmlsbGluZy9jaGVja291dC50ZXN0Lm1qcyB1cGRhdGVzL25vdGljZS50ZXN0Lm1qcyB1aS1maXhlcy9jdXN0b21lci1ob21lLWxpdmUudGVzdC5tanMKICAgICAgLSBuYW1lOiBTYWZldHkgYm91bmRhcnkKICAgICAgICBydW46IHwKICAgICAgICAgIHRlc3QgLWYgZGlzdC9pbmRleC5odG1sCiAgICAgICAgICBlY2hvICdQcml2YXRlIHJldmlldyBvbmx5OiBubyBGaXJlYmFzZSBkZXBsb3ksIGJpbGxpbmcgY2hhbmdlLCBkYXRhIHNlZWQsIEFQSyBwdWJsaXNoIG9yIGluc3RhbGxhdGlvbi4nCiAgICAgIC0gbmFtZTogUGFja2FnZSBwcml2YXRlIHJldmlldyBldmlkZW5jZQogICAgICAgIHJ1bjogfAogICAgICAgICAgZ2l0IHJldi1wYXJzZSBIRUFEID4gcmV2aWV3LXNvdXJjZS1zaGEudHh0CiAgICAgICAgICAjIE9ubHkgcmVwb3NpdG9yeSBzb3VyY2UgYW5kIGdlbmVyYXRlZCB3ZWIgYXNzZXRzOiBubyBBbmRyb2lkIHNpZ25pbmcKICAgICAgICAgICMgbWF0ZXJpYWwsIGVudmlyb25tZW50IGZpbGVzLCBsaXZlIGRhdGEsIG9yIGRlcGVuZGVuY3kgZGlyZWN0b3JpZXMuCiAgICAgICAgICB0YXIgLWN6ZiByZXZpZXctc291cmNlLnRhci5neiBzcmMgZGlzdCBwdWJsaWMgaW5kZXguaHRtbCBwYWNrYWdlLmpzb24gcGFja2FnZS1sb2NrLmpzb24gdHNjb25maWcuanNvbiB2aXRlLmNvbmZpZy50cwogICAgICAtIHVzZXM6IGFjdGlvbnMvdXBsb2FkLWFydGlmYWN0QHY0CiAgICAgICAgd2l0aDoKICAgICAgICAgIG5hbWU6IEFua3VyLXByaXZhdGUtcmV2aWV3LXNvdXJjZQogICAgICAgICAgcGF0aDogfAogICAgICAgICAgICByZXZpZXctc291cmNlLnRhci5negogICAgICAgICAgICByZXZpZXctc291cmNlLXNoYS50eHQKICAgICAgICAgIHJldGVudGlvbi1kYXlzOiA3Cg==
+name: All 14 features + English default private review
+
+on:
+  push:
+    branches: [codex/all-14-phase-bc-english, codex/staff-phone-server-privacy-v149]
+  pull_request:
+    branches: [codex/phase-a-owner-reports-expenses]
+  workflow_dispatch:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  lint-build-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - name: Reconstruct verified v1.0.32 and Phase A
+        run: |
+          set -euo pipefail
+          unzip -oq Ankur_Order_App_Upload_GitHub.zip -d .
+          python3 app-check/apply_patch.py
+          python3 ui-fixes/apply_patch.py
+          python3 ui-fixes/ux_qa_patch.py
+          python3 ui-fixes/premium_booking_v122.py
+          python3 ui-fixes/blinkit_premium_v123.py
+          python3 ui-fixes/customer_home_form_v124.py
+          python3 ui-fixes/customer_home_only_v125.py
+          python3 ui-fixes/compact_customer_form_v126.py
+          python3 ui-fixes/english_booking_v127.py
+          python3 ui-fixes/readable_smooth_v128.py
+          python3 notifications/apply_patch.py
+          python3 notifications/client-fixes/apply_patch.py
+          python3 notifications/tap-fix/apply_patch.py
+          python3 ui-fixes/declutter_v132.py
+          python3 phase-a/apply_patch.py
+          python3 all-features/protected_audit.py record /tmp/protected.json
+      - name: Apply private review overlay
+        run: |
+          python3 billing/apply_patch.py
+          ANKUR_APP_DIR=$PWD python3 all-features/apply_patch.py
+          python3 all-features/wire_additions.py
+          python3 ui-fixes/seasonal_contrast_v135.py
+          python3 ui-fixes/customer-home-language.py
+          python3 ui-fixes/customer_nav_v138.py
+          python3 ui-fixes/customer_dark_contrast_v138.py
+          python3 ui-fixes/customer_home_clean_v139.py
+          python3 ui-fixes/customer_features_nav_v140.py
+          python3 ui-fixes/video_idea_profile_v141.py
+          python3 ui-fixes/customer_profile_contact_v145.py
+          python3 ui-fixes/customer_ai_video_cleanup_v146.py
+          python3 ui-fixes/dispatch_rules_privacy_v147.py
+          python3 ui-fixes/owner_premium_v148.py
+          python3 ui-fixes/staff_contact_privacy_v148.py
+          python3 privacy/staff_data_cutover_v149.py
+          python3 privacy/staff_contact_ui_v149.py
+          python3 privacy/owner_assignment_ui_v149.py
+          python3 winner/client_v150.py
+          python3 all-features/protected_audit.py check /tmp/protected.json
+      - name: Unit and regression contracts
+        run: |
+          node --test all-features/referral-share.test.mjs all-features/feature-contract.test.mjs all-features/pilot-first-five.test.mjs all-features/backend/trustedOperations.test.mjs billing/language-coverage.test.mjs seasonal/catalogPolicy.test.mjs updates/appUpdate.test.mjs ui-fixes/contrast.test.mjs ui-fixes/customer-nav-v138.test.mjs ui-fixes/customer-dark-contrast-v138.test.mjs ui-fixes/customer-home-clean-v139.test.mjs ui-fixes/customer-features-v140.test.mjs ui-fixes/video-idea-profile-v141.test.mjs ui-fixes/customer-profile-contact-v145.test.mjs ui-fixes/customer-ai-video-cleanup-v146.test.mjs ui-fixes/dispatch-rules-privacy-v147.test.mjs ui-fixes/owner-staff-premium-v148.test.mjs ui-fixes/customer-home-language.test.mjs all-features/phone-links.test.mjs ui-fixes/mobileReport.test.mjs ui-fixes/monthlyReport.test.mjs all-features/reconstruct-contract.test.mjs ci-fixes/signing-cert.test.mjs winner/dailyWinnerService.test.mjs privacy/backfillCore.test.mjs release-readiness/nov9-feature-coverage.test.mjs release-readiness/nov9-ci-gate.test.mjs privacy/projectionAudit.test.mjs
+          node --experimental-strip-types --test phase-a/phase-a.test.mjs
+          node --experimental-vm-modules --test ui-fixes/voice-input.test.mjs
+      - name: Install and build
+        run: |
+          npm install --save-exact --package-lock-only --ignore-scripts --no-audit --no-fund @capacitor-firebase/app-check@7.5.0 @capacitor/app@7 @capacitor-community/speech-recognition@7.0.1 @capacitor/filesystem@7 @capacitor/share@7 @capacitor/push-notifications@7
+          npm ci --ignore-scripts --no-audit --no-fund
+          npm run lint
+          npm run build
+      - name: Actual React client and tap regressions
+        run: |
+          npm install --no-save --ignore-scripts react-test-renderer@19
+          ANKUR_COMBINED_SOURCE=$PWD ANKUR_CLIENT_QA=$PWD ANKUR_CLIENT_APP=$PWD node --experimental-vm-modules --test notifications/client-fixes/client.test.mjs notifications/tap-fix/tap.test.mjs notifications/notificationPush.test.mjs all-features/language.test.mjs billing/checkout.test.mjs updates/notice.test.mjs ui-fixes/customer-home-live.test.mjs
+      - name: Safety boundary
+        run: |
+          test -f dist/index.html
+          echo 'Private review only: no Firebase deploy, billing change, data seed, APK publish or installation.'
+      - name: Package private review evidence
+        run: |
+          git rev-parse HEAD > review-source-sha.txt
+          # Only repository source and generated web assets: no Android signing
+          # material, environment files, live data, or dependency directories.
+          tar -czf review-source.tar.gz src dist public index.html package.json package-lock.json tsconfig.json vite.config.ts
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Ankur-private-review-source
+          path: |
+            review-source.tar.gz
+            review-source-sha.txt
+          retention-days: 7
