@@ -8,6 +8,7 @@ import {getLocalRates,subscribeToRates} from '../../data/rates';
 import {UP_DISTRICTS} from '../../data/upDistricts';
 import {displayPricePerKg} from '../../data/catalog';
 import {calculateDryIce} from '../../utils/dryIceCalc';
+import {PILOT_FIRST_FIVE,fetchPilotFeatures} from '../../utils/pilotRollout';
 
 export type FeatureId = 'calculator'|'video'|'loyalty'|'catalog'|'partner'|'subscriptions'|'promotions'|'inventory'|'reports'|'faq'|'rates'|'support'|'service-area'|'referral';
 
