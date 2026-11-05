@@ -12,8 +12,8 @@ test('signed private APK and AAB must match the known in-place upgrade certifica
  assert.match(workflow,/test "\$APK_CERT_SHA256" = "\$EXPECTED_CERT_SHA256"/);
  assert.match(workflow,/test "\$AAB_CERT_SHA256" = "/);
  assert.match(workflow,/aapt" dump badging/);
- assert.match(workflow,/package: name='com\.ankurdryice\.events' versionCode='53' versionName='1\.0\.53-private-test'/);
+ assert.match(workflow,/package: name='com\.ankurdryice\.events' versionCode='54' versionName='1\.0\.54-private-test'/);
  assert.match(workflow,/REQUEST_INSTALL_PACKAGES\|MANAGE_EXTERNAL_STORAGE\|QUERY_ALL_PACKAGES/);
- assert.match(workflow,/versionCode 53/);
- assert.match(workflow,/versionName "1\.0\.53-private-test"/);
+ assert.match(workflow,/versionCode 54/);
+ assert.match(workflow,/versionName "1\.0\.54-private-test"/);
 });
