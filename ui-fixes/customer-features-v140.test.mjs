@@ -26,13 +26,16 @@ test('customer bottom navigation includes a real fifth AI Features tab in the in
 
 test('AI Features shows one full-width winner strip then existing two-column tools without a fake result',()=>{
  const section=app.slice(app.indexOf("currentTab === 'ai-features'"),app.indexOf("currentTab === 'ai-video'"));
- assert.match(section,/<DailyWinnerBanner \/>/);
+ assert.match(section,/<DailyWinnerBanner currentUser=\{currentUser\} \/>/);
  const banner=readFileSync(resolve(root,'src/components/customer/DailyWinner.tsx'),'utf8');
  assert.match(banner,/ankur-daily-winner/);
  assert.match(banner,/आज का Lucky Winner/);
  assert.match(banner,/dailyWinners/);
  assert.match(banner,/winner\.name/);
  assert.match(banner,/winner\.city/);
+ assert.match(banner,/ankurWinnerConsent/);
+ assert.match(banner,/winnerPublicConsent/);
+ assert.match(banner,/सहमति वापस ले सकते हैं/);
  assert.match(banner,/विजेता घोषित होने पर/);
  assert.match(section,/allowed=\{\['calculator'/);
  assert.doesNotMatch(section,/'inventory'|'reports'|'video'|'catalog'/);
