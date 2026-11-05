@@ -60,6 +60,19 @@ test('Staff gets no raw PII and obtains only one explicit short-lived contact',(
  assert.match(css,/ANKUR STAFF CONTACT PRIVACY 1\.0\.48/);
 });
 
+test('Owner toggling phone permission never disables login or grants order visibility',()=>{
+ const manager=readFileSync(resolve(root,'src/components/StaffOrderAccessManager.tsx'),'utf8');
+ const template=readFileSync(new URL('../privacy/StaffOrderAccessManager.template',import.meta.url),'utf8');
+ for(const contents of [manager,template]){
+   assert.match(contents,/if \(allowContact && \(!selected\.active \|\| selected\.permissions\.viewOrders !== true\)\)/);
+   assert.match(contents,/\x27permissions\.callCustomer\x27: allowContact/);
+   assert.doesNotMatch(contents,/\x27permissions\.viewOrders\x27\s*:/);
+   assert.doesNotMatch(contents,/active:\s*(true|false)/);
+   assert.match(contents,/केवल नंबर अधिकार बंद/);
+   assert.match(contents,/स्टाफ लॉगिन चालू रहेगा/);
+ }
+});
+
 test('Staff status update calls backend but owner and self pickup routes survive',()=>{
  assert.match(staff,/if \(!canView\)/);
  assert.match(staff,/if \(!canUpdate\)/);
