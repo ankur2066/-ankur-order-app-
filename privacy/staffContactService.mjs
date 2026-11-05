@@ -10,9 +10,11 @@ const safeUid = value => typeof value === 'string' && /^[A-Za-z0-9_-]{1,128}$/.t
 // User-supplied names/labels may themselves contain a phone. Redact apparent
 // Indian mobile numbers in EVERY displayed free-text field.
 const plain = (v, limit = 100) => typeof v === 'string'
-  ? v.replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi,'[redacted]')
-      .replace(/(?:\+?91[ -]?)?[6-9](?:[ -]?[0-9]){9}/g,'[redacted]')
-      .replace(/https?:\/\/\S+/gi,'[redacted]')
+  ? v.replace(/https?:\/\/\S+/gi,'[redacted]')
+      .replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi,'[redacted]')
+      // Normalize typical Indian phone formatting, including repeated spaces,
+      // brackets, hyphens and dots. Staff may see names/cities, not numbers.
+      .replace(/(?<!\d)(?:\+?\s*91[\s().-]*)?[6-9](?:[\s().-]*\d){9}(?!\d)/g,'[redacted]')
       .slice(0, limit)
   : '';
 const validStatus = value => STATUS.has(value);
@@ -69,8 +71,12 @@ export function staffSafeProjection(source, orderId, record, updatedAt) {
     dispatchTiming: plain(record.dispatchTiming, 100),
     status: record.status,
     paymentStatus: plain(record.paymentStatus, 50),
-    quantityKg: Number.isFinite(record.quantityKg) ? record.quantityKg : null,
-    quantityUnits: Number.isFinite(record.billing?.quantityUnits) ? record.billing.quantityUnits : null,
+    // Invalid phone-sized numeric values must not become visible via quantity.
+    quantityKg: Number.isFinite(record.quantityKg) && record.quantityKg >= 0 &&
+      record.quantityKg <= 1_000_000 ? record.quantityKg : null,
+    quantityUnits: Number.isFinite(record.billing?.quantityUnits) &&
+      record.billing.quantityUnits >= 0 && record.billing.quantityUnits <= 100_000_000
+        ? record.billing.quantityUnits : null,
     quantityUnit: ['kg','piece','box'].includes(record.billing?.unit) ? record.billing.unit : null,
     billingVersion: record.billingVersion === 2 ? 2 : 1,
     // The self-pickup UI needs operational state only, never contact/identity data.
