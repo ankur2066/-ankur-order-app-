@@ -12,7 +12,7 @@ before="if(id==='video') return <VideoIdeaPanel/>;"
 assert s.count(before)==1
 s=s.replace(before,"if(id==='video') return <VideoIdeaPanel user={user}/>;",1)
 start=s.index("function VideoIdeaPanel(){")
-end=s.index("function ServiceAreaPanel()",start)
+end=s.index("function FaqPanel()",start)
 replacement=r'''type VideoContact = {name:string;city:string;mobile:string};
 const VIDEO_OCCASIONS = [
   {id:'wedding',name:'Wedding Entry / शादी की एंट्री',short:'Wedding Entry',hi:'शादी एंट्री'},
