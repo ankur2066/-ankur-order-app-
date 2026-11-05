@@ -1,1 +1,39 @@
-Ly8gQHRzLW5vY2hlY2sKaW1wb3J0IHRlc3QgZnJvbSAnbm9kZTp0ZXN0JzsKaW1wb3J0IGFzc2VydCBmcm9tICdub2RlOmFzc2VydC9zdHJpY3QnOwppbXBvcnQge3JlYWRGaWxlU3luY30gZnJvbSAnbm9kZTpmcyc7CmltcG9ydCB7c3RyaXBUeXBlU2NyaXB0VHlwZXN9IGZyb20gJ25vZGU6bW9kdWxlJzsKY29uc3Qgc291cmNlPXJlYWRGaWxlU3luYyhuZXcgVVJMKCcuL21vYmlsZUNzdi50ZW1wbGF0ZScsaW1wb3J0Lm1ldGEudXJsKSwndXRmOCcpCiAucmVwbGFjZSgiaW1wb3J0IHsgQ2FwYWNpdG9yIH0gZnJvbSAnQGNhcGFjaXRvci9jb3JlJzsiLCdjb25zdCBDYXBhY2l0b3I9e2lzTmF0aXZlUGxhdGZvcm06KCk9Pmdsb2JhbFRoaXMuY3N2RGVwcy5uYXRpdmV9OycpCiAucmVwbGFjZSgiaW1wb3J0KCdAY2FwYWNpdG9yL2ZpbGVzeXN0ZW0nKSIsJ1Byb21pc2UucmVzb2x2ZShnbG9iYWxUaGlzLmNzdkRlcHMuZnMpJykKIC5yZXBsYWNlKCJpbXBvcnQoJ0BjYXBhY2l0b3Ivc2hhcmUnKSIsJ1Byb21pc2UucmVzb2x2ZShnbG9iYWxUaGlzLmNzdkRlcHMuc2hhcmUpJyk7CmNvbnN0IHtleHBvcnRDc3Z9PWF3YWl0IGltcG9ydCgnZGF0YTp0ZXh0L2phdmFzY3JpcHQsJytlbmNvZGVVUklDb21wb25lbnQoc3RyaXBUeXBlU2NyaXB0VHlwZXMoc291cmNlKSkpOwpmdW5jdGlvbiBzZXR1cCgpewogY29uc3Qgd3JpdGVzPVtdLHNoYXJlcz1bXTsKIGdsb2JhbFRoaXMuY3N2RGVwcz17bmF0aXZlOnRydWUsZnM6e0RpcmVjdG9yeTp7Q2FjaGU6J0NBQ0hFJ30sRW5jb2Rpbmc6e1VURjg6J3V0ZjgnfSxGaWxlc3lzdGVtOnt3cml0ZUZpbGU6YXN5bmMgeD0+e3dyaXRlcy5wdXNoKHgpO3JldHVybnt1cmk6J2ZpbGU6Ly8vcHJpdmF0ZS9jYWNoZS9yZXBvcnQuY3N2J307fX19LHNoYXJlOntTaGFyZTp7c2hhcmU6YXN5bmMgeD0+c2hhcmVzLnB1c2goeCl9fX07CiByZXR1cm57d3JpdGVzLHNoYXJlc307Cn0KdGVzdCgnbmF0aXZlIENTViBwcmVzZXJ2ZXMgSGluZGkgYW5kIEJPTSBhbmQgYXR0YWNoZXMgYSBwcml2YXRlIFVURjggZmlsZScsYXN5bmMoKT0+ewogY29uc3QgaD1zZXR1cCgpO2F3YWl0IGV4cG9ydENzdign4KSo4KS+4KSuLOCktuCkueCksFxyXG7gpIXgpILgpJXgpYHgpLAs4KSy4KSW4KSo4KSKXHJcbicsJ29yZGVycy5jc3YnKTsKIGFzc2VydC5kZWVwRXF1YWwoaC53cml0ZXMsW3twYXRoOidvcmRlcnMuY3N2JyxkYXRhOidcdUZFRkbgpKjgpL7gpK4s4KS24KS54KSwXHJcbuCkheCkguCkleClgeCksCzgpLLgpJbgpKjgpIpcclxuJyxkaXJlY3Rvcnk6J0NBQ0hFJyxlbmNvZGluZzondXRmOCcscmVjdXJzaXZlOmZhbHNlfV0pOwogYXNzZXJ0LmRlZXBFcXVhbChoLnNoYXJlc1swXS5maWxlcyxbJ2ZpbGU6Ly8vcHJpdmF0ZS9jYWNoZS9yZXBvcnQuY3N2J10pO2Fzc2VydC5lcXVhbChoLnNoYXJlc1swXS51cmwsdW5kZWZpbmVkKTsKfSk7CnRlc3QoJ3Vuc2FmZSBwYXRocyBmYWlsIGJlZm9yZSB3cml0aW5nIGN1c3RvbWVyIGRhdGEnLGFzeW5jKCk9PnsKIGNvbnN0IGg9c2V0dXAoKTtmb3IoY29uc3QgbmFtZSBvZiBbJy4uL3guY3N2JywneC9vbmUuY3N2JywneC4uY3N2JywneC5wZGYnLCcveC5jc3YnXSlhd2FpdCBhc3NlcnQucmVqZWN0cyhleHBvcnRDc3YoJ3ByaXZhdGUnLG5hbWUpKTsKIGFzc2VydC5lcXVhbChoLndyaXRlcy5sZW5ndGgsMCk7YXNzZXJ0LmVxdWFsKGguc2hhcmVzLmxlbmd0aCwwKTsKfSk7CnRlc3QoJ3dyaXRlIGZhaWx1cmUgcHJldmVudHMgc2hhcmUgYW5kIGNhbmNlbGxhdGlvbiBwcm9wYWdhdGVzIHRvIGNhbGxlcicsYXN5bmMoKT0+ewogY29uc3QgaD1zZXR1cCgpO2dsb2JhbFRoaXMuY3N2RGVwcy5mcy5GaWxlc3lzdGVtLndyaXRlRmlsZT1hc3luYygpPT57dGhyb3cgRXJyb3IoJ2Rpc2snKTt9OwogYXdhaXQgYXNzZXJ0LnJlamVjdHMoZXhwb3J0Q3N2KCdkYXRhJywnb3JkZXJzLmNzdicpLC9kaXNrLyk7YXNzZXJ0LmVxdWFsKGguc2hhcmVzLmxlbmd0aCwwKTsKIHNldHVwKCk7Z2xvYmFsVGhpcy5jc3ZEZXBzLnNoYXJlLlNoYXJlLnNoYXJlPWFzeW5jKCk9Pnt0aHJvdyBFcnJvcignY2FuY2VsbGVkJyk7fTsKIGF3YWl0IGFzc2VydC5yZWplY3RzKGV4cG9ydENzdignZGF0YScsJ29yZGVycy5jc3YnKSwvY2FuY2VsbGVkLyk7Cn0pOwp0ZXN0KCdicm93c2VyIGRvd25sb2FkcyBhbmQgcmVsZWFzZXMgaXRzIG9iamVjdCBVUkwgd2l0aG91dCBpbnZva2luZyBuYXRpdmUgcGx1Z2lucycsYXN5bmMoKT0+ewogY29uc3QgaD1zZXR1cCgpO2dsb2JhbFRoaXMuY3N2RGVwcy5uYXRpdmU9ZmFsc2U7bGV0IGNsaWNrZWQ9MCxyZW1vdmVkPTAscmVsZWFzZWQ9MDsKIGNvbnN0IG9yaWdpbmFsVVJMPWdsb2JhbFRoaXMuVVJMLG9yaWdpbmFsRG9jdW1lbnQ9Z2xvYmFsVGhpcy5kb2N1bWVudCxvcmlnaW5hbFdpbmRvdz1nbG9iYWxUaGlzLndpbmRvdzsKIGdsb2JhbFRoaXMuVVJMPXtjcmVhdGVPYmplY3RVUkw6Yj0+e2Fzc2VydC5lcXVhbChiLnR5cGUsJ3RleHQvY3N2O2NoYXJzZXQ9dXRmLTgnKTtyZXR1cm4nYmxvYjpjc3YnO30scmV2b2tlT2JqZWN0VVJMOnU9Pnthc3NlcnQuZXF1YWwodSwnYmxvYjpjc3YnKTtyZWxlYXNlZCsrO319OwogY29uc3QgYT17c3R5bGU6e30sY2xpY2s6KCk9PmNsaWNrZWQrKyxyZW1vdmU6KCk9PnJlbW92ZWQrK307CiBnbG9iYWxUaGlzLmRvY3VtZW50PXtjcmVhdGVFbGVtZW50OigpPT5hLGJvZHk6e2FwcGVuZENoaWxkOigpPT57fX19O2dsb2JhbFRoaXMud2luZG93PXtzZXRUaW1lb3V0OmZuPT5mbigpfTsKIHRyeXthd2FpdCBleHBvcnRDc3YoJ2EsYicsJ29yZGVycy5jc3YnKTthc3NlcnQuZXF1YWwoYS5kb3dubG9hZCwnb3JkZXJzLmNzdicpO2Fzc2VydC5lcXVhbChjbGlja2VkLDEpO2Fzc2VydC5lcXVhbChyZW1vdmVkLDEpO2Fzc2VydC5lcXVhbChyZWxlYXNlZCwxKTthc3NlcnQuZXF1YWwoaC53cml0ZXMubGVuZ3RoLDApO30KIGZpbmFsbHl7Z2xvYmFsVGhpcy5VUkw9b3JpZ2luYWxVUkw7Z2xvYmFsVGhpcy5kb2N1bWVudD1vcmlnaW5hbERvY3VtZW50O2dsb2JhbFRoaXMud2luZG93PW9yaWdpbmFsV2luZG93O30KfSk7Cg==
+// @ts-nocheck
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import {stripTypeScriptTypes} from 'node:module';
+const source=readFileSync(new URL('./mobileCsv.template',import.meta.url),'utf8')
+ .replace("import { Capacitor } from '@capacitor/core';",'const Capacitor={isNativePlatform:()=>globalThis.csvDeps.native};')
+ .replace("import('@capacitor/filesystem')",'Promise.resolve(globalThis.csvDeps.fs)')
+ .replace("import('@capacitor/share')",'Promise.resolve(globalThis.csvDeps.share)');
+const {exportCsv}=await import('data:text/javascript,'+encodeURIComponent(stripTypeScriptTypes(source)));
+function setup(){
+ const writes=[],shares=[];
+ globalThis.csvDeps={native:true,fs:{Directory:{Cache:'CACHE'},Encoding:{UTF8:'utf8'},Filesystem:{writeFile:async x=>{writes.push(x);return{uri:'file:///private/cache/report.csv'};}}},share:{Share:{share:async x=>shares.push(x)}}};
+ return{writes,shares};
+}
+test('native CSV preserves Hindi and BOM and attaches a private UTF8 file',async()=>{
+ const h=setup();await exportCsv('नाम,शहर\r\nअंकुर,लखनऊ\r\n','orders.csv');
+ assert.deepEqual(h.writes,[{path:'orders.csv',data:'\uFEFFनाम,शहर\r\nअंकुर,लखनऊ\r\n',directory:'CACHE',encoding:'utf8',recursive:false}]);
+ assert.deepEqual(h.shares[0].files,['file:///private/cache/report.csv']);assert.equal(h.shares[0].url,undefined);
+});
+test('unsafe paths fail before writing customer data',async()=>{
+ const h=setup();for(const name of ['../x.csv','x/one.csv','x..csv','x.pdf','/x.csv'])await assert.rejects(exportCsv('private',name));
+ assert.equal(h.writes.length,0);assert.equal(h.shares.length,0);
+});
+test('write failure prevents share and cancellation propagates to caller',async()=>{
+ const h=setup();globalThis.csvDeps.fs.Filesystem.writeFile=async()=>{throw Error('disk');};
+ await assert.rejects(exportCsv('data','orders.csv'),/disk/);assert.equal(h.shares.length,0);
+ setup();globalThis.csvDeps.share.Share.share=async()=>{throw Error('cancelled');};
+ await assert.rejects(exportCsv('data','orders.csv'),/cancelled/);
+});
+test('browser downloads and releases its object URL without invoking native plugins',async()=>{
+ const h=setup();globalThis.csvDeps.native=false;let clicked=0,removed=0,released=0;
+ const originalURL=globalThis.URL,originalDocument=globalThis.document,originalWindow=globalThis.window;
+ globalThis.URL={createObjectURL:b=>{assert.equal(b.type,'text/csv;charset=utf-8');return'blob:csv';},revokeObjectURL:u=>{assert.equal(u,'blob:csv');released++;}};
+ const a={style:{},click:()=>clicked++,remove:()=>removed++};
+ globalThis.document={createElement:()=>a,body:{appendChild:()=>{}}};globalThis.window={setTimeout:fn=>fn()};
+ try{await exportCsv('a,b','orders.csv');assert.equal(a.download,'orders.csv');assert.equal(clicked,1);assert.equal(removed,1);assert.equal(released,1);assert.equal(h.writes.length,0);}
+ finally{globalThis.URL=originalURL;globalThis.document=originalDocument;globalThis.window=originalWindow;}
+});
