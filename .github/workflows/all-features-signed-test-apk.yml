@@ -59,7 +59,7 @@ jobs:
           python3 privacy/staff_contact_ui_v149.py
           python3 privacy/owner_assignment_ui_v149.py
           python3 winner/client_v150.py
-      - name: Confirm exact v1.0.55 winner, staff privacy and customer UI in signed app source
+      - name: Confirm exact v1.0.56 winner, staff privacy and customer UI in signed app source
         run: |
           set -euo pipefail
           # Fail closed if the Android job reconstructs older customer screens.
@@ -132,8 +132,8 @@ jobs:
           from pathlib import Path
           p=Path('android/app/build.gradle'); lines=p.read_text().splitlines()
           for i,x in enumerate(lines):
-            if x.strip().startswith('versionCode '): lines[i]='        versionCode 55'
-            if x.strip().startswith('versionName '): lines[i]='        versionName "1.0.55-private-test"'
+            if x.strip().startswith('versionCode '): lines[i]='        versionCode 56'
+            if x.strip().startswith('versionName '): lines[i]='        versionName "1.0.56-private-test"'
           p.write_text('\n'.join(lines)+'\n')
           PY
           cd android
@@ -147,7 +147,7 @@ jobs:
           # update in place; a mismatched package would install as a second app.
           BUILD_TOOLS="$ANDROID_HOME/build-tools/$(ls "$ANDROID_HOME/build-tools" | sort -V | tail -1)"
           BADGING=$("$BUILD_TOOLS/aapt" dump badging "$APK")
-          printf '%s\n' "$BADGING" | grep -F "package: name='com.ankurdryice.events' versionCode='55' versionName='1.0.55-private-test'"
+          printf '%s\n' "$BADGING" | grep -F "package: name='com.ankurdryice.events' versionCode='56' versionName='1.0.56-private-test'"
           # Update flow opens a consent-based external link; never request installer
           # or broad file-management privileges in the packaged manifest.
           PERMISSIONS=$("$BUILD_TOOLS/aapt" dump permissions "$APK")
@@ -177,7 +177,7 @@ jobs:
           sha256sum "$AAB" > aab-sha256.txt
       - uses: actions/upload-artifact@v4
         with:
-          name: Ankur-Dryice-v1.0.55-PRIVATE-PLAY-AAB
+          name: Ankur-Dryice-v1.0.56-PRIVATE-PLAY-AAB
           path: |
             android/app/build/outputs/bundle/release/app-release.aab
             aab-sha256.txt
@@ -185,7 +185,7 @@ jobs:
           retention-days: 14
       - uses: actions/upload-artifact@v4
         with:
-          name: Ankur-Dryice-v1.0.55-PRIVATE-TEST
+          name: Ankur-Dryice-v1.0.56-PRIVATE-TEST
           path: |
             android/app/build/outputs/apk/release/app-release.apk
             apk-sha256.txt

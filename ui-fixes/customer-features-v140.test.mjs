@@ -73,6 +73,6 @@ test('local reconstruction, private review and signed APK apply the same UI patc
  assert.equal(signed.split('python3 '+name).length-1,1);
  assert.ok(local.indexOf('customer_home_clean_v139.py')<local.indexOf(name));
  assert.match(signed,/paths: \['release-batches\/\*\.txt'\]/,'only explicit release batch triggers signed APK');
- assert.match(signed,/versionCode 55/);
- assert.match(signed,/versionName "1\.0\.55-private-test"/);
+ assert.match(signed,/versionCode 56/);
+ assert.match(signed,/versionName "1\.0\.56-private-test"/);
 });
