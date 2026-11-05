@@ -1,5 +1,5 @@
 // Presentation-only rollout flags; never override Firestore/Cloud Function permissions.
-export const PILOT_MANIFEST_URL='https://ankurdryice.store/app-updates/pilot-features.json';
+export const PILOT_MANIFEST_URL='https://www.ankurdryice.store/app-updates/pilot-features.json';
 export const PILOT_FIRST_FIVE=['calculator','rates','faq','support','service-area'] as const;
 export const PILOT_ALL_IDS=[
   'calculator','video','loyalty','catalog','partner','subscriptions','promotions',

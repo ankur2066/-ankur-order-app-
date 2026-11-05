@@ -44,7 +44,7 @@ test('network failures, redirects and oversized payload cannot activate addition
   requested={url,options};return {ok:true,text:async()=>JSON.stringify(next)};
  });
  assert.deepEqual(result,next.enabledFeatureIds);
- assert.equal(requested.url,'https://ankurdryice.store/app-updates/pilot-features.json');
+ assert.equal(requested.url,'https://www.ankurdryice.store/app-updates/pilot-features.json');
  assert.equal(requested.options.cache,'no-store');
  assert.equal(requested.options.credentials,'omit');
  assert.equal(requested.options.redirect,'error');

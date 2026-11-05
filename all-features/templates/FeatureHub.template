@@ -9,6 +9,7 @@ import {UP_DISTRICTS} from '../../data/upDistricts';
 import {displayPricePerKg} from '../../data/catalog';
 import {calculateDryIce} from '../../utils/dryIceCalc';
 import {PILOT_FIRST_FIVE,fetchPilotFeatures} from '../../utils/pilotRollout';
+import {ReferralSharePanel} from './ReferralSharePanel';
 
 export type FeatureId = 'calculator'|'video'|'loyalty'|'catalog'|'partner'|'subscriptions'|'promotions'|'inventory'|'reports'|'faq'|'rates'|'support'|'service-area'|'referral';
 
@@ -68,6 +69,7 @@ const CalculatorPanel = () => {
 };
 
 const SafePanel: React.FC<{id:FeatureId; state?:string; user:User|null;role:string|null}> = ({id,state,user,role}) => {
+  if(id==='referral'&&role!=='admin')return <ReferralSharePanel user={user}/>;
   if(['loyalty','partner','subscriptions','promotions','inventory','reports','referral'].includes(id))return <DataFeaturePanel id={id} user={user} role={role}/>;
   if(id==='calculator') return <CalculatorPanel/>;
   if(id==='video') return <VideoIdeaPanel/>;
@@ -90,8 +92,8 @@ function usePilotFeatureIds(){
       const nextController=new AbortController();controller=nextController;
       const deadline=window.setTimeout(()=>nextController.abort(),5000);
       try{
-        const next=await fetchPilotFeatures(fetch,56,nextController.signal);
-        if(active&&next)setEnabled(next);
+        const next=await fetchPilotFeatures(fetch,57,nextController.signal);
+        if(active&&controller===nextController&&!nextController.signal.aborted)setEnabled(next??[...PILOT_FIRST_FIVE]);
       }finally{window.clearTimeout(deadline);}
     };
     const foreground=()=>{void refresh();};
