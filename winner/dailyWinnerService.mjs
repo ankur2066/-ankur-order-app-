@@ -75,6 +75,38 @@ function requireOwner(auth){
  if(!auth?.uid||auth.token?.email!==OWNER||auth.token?.email_verified!==true)throw Error('Owner authorization required');
 }
 export function createDailyWinnerService({db,now=()=>Date.now(),randomPick=length=>randomInt(length),timestamp=()=>new Date(now())}){
+ /**
+  * Opt-in is independent of marketing preferences. A customer can withdraw.
+  * On withdrawal, suppress every matching public announcement atomically.
+  */
+ async function consent({auth,app,data}){
+  if(!app || typeof auth?.uid!=='string' ||
+     !/^[A-Za-z0-9_-]{1,128}$/.test(auth.uid) ||
+     !data || typeof data!=='object' || Array.isArray(data) ||
+     Object.keys(data).length!==1 || typeof data.consent!=='boolean')throw Error('Consent denied');
+  const pref=db.doc('userPrefs/'+auth.uid);
+  return db.runTransaction(async tx=>{
+   // Read customer preference inside transaction: a concurrent winner selection
+   // must revalidate this same document and cannot publish after opt-out.
+   await tx.get(pref);
+   let suppressed=0;
+   if(data.consent===false){
+    const match=db.collection('dailyWinnerPrivate')
+      .where('customerKey','==','u:'+auth.uid).limit(200);
+    const existing=await tx.get(match);
+    if(existing.size>=200)throw Error('Manual privacy cleanup needed');
+    for(const item of existing.docs){
+     if(!KEY.test(item.id) || item.data()?.customerKey!=='u:'+auth.uid)continue;
+     tx.set(db.doc('dailyWinners/'+item.id),
+       {active:false,updatedAt:timestamp()},{merge:true});
+     suppressed++;
+    }
+   }
+   tx.set(pref,{winnerPublicConsent:data.consent,winnerConsentUpdatedAt:timestamp()},
+     {merge:true});
+   return {ok:true,consent:data.consent,suppressed};
+  });
+ }
  async function settings({auth,app,data}){
   requireOwner(auth);if(!app)throw Error('App Check required');
   if(!data||Object.keys(data).some(k=>!['enabled','mode','distribution'].includes(k))||
@@ -124,6 +156,13 @@ export function createDailyWinnerService({db,now=()=>Date.now(),randomPick=lengt
   const pub=db.doc('dailyWinners/'+day),priv=db.doc('dailyWinnerPrivate/'+day),
     audit=db.collection('dailyWinnerAudit').doc();
   return db.runTransaction(async tx=>{
+   // Recheck explicit consent in the same serializable transaction as publishing.
+   // Never trust an earlier eligibility query if consent was revoked meanwhile.
+   const uid=chosen.customerKey.startsWith('u:')?chosen.customerKey.slice(2):'';
+   if(!uid)return {skipped:'no_authenticated_consent'};
+   const liveConsent=await tx.get(db.doc('userPrefs/'+uid));
+   if(liveConsent.data()?.winnerPublicConsent!==true)
+    return {skipped:'revoked_consent'};
    const existing=await tx.get(priv);
    if(existing.exists&&(!data.override||automatic))return {alreadySelected:true,date:day};
    const revision=(existing.data()?.revision||0)+1;
@@ -138,5 +177,5 @@ export function createDailyWinnerService({db,now=()=>Date.now(),randomPick=lengt
    return {ok:true,date:day,revision,topCustomerDay:pool.topCustomerDay};
   });
  }
- return {settings,choose};
+ return {settings,choose,consent};
 }
