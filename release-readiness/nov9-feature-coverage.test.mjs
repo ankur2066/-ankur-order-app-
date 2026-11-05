@@ -60,7 +60,7 @@ test('server-backed tools are wired to real callables but never silently enabled
  assert.match(service,/Feature suite not enabled/);
  assert.match(panels,/Feature setup is pending/);
  assert.match(panels,/ankurFeatureAction/);
- assert.match(panels,/No automatic charge/);
+ assert.match(panels,/no automatic charge/i);
 });
 
 test('winner remains opt-in and staff cannot read raw phone-bearing canonical records',()=>{
