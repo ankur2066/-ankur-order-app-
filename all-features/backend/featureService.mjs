@@ -96,10 +96,14 @@ export function createFeatureService({db,now=()=>Date.now(),timestamp=()=>new Da
     tx.create(execution,{orderId,period,userId:s.userId,createdAt:timestamp()});tx.update(ref,{nextDueMs:due.getTime(),updatedAt:timestamp()});return{orderId};});return result;
   }
   if(action==='stockOpening'){
-   requireOwner(auth);const sku=code(data.sku),quantityUnits=integer(data.quantityUnits,0,100000000);const ref=db.doc('stock/'+sku);await db.runTransaction(async tx=>{const old=await tx.get(ref);if(old.exists)throw Error('Opening already configured; use audited adjustment');tx.create(ref,{sku,availableUnits:quantityUnits,configured:true,enabled:data.enabled===true,unit:text(data.unit,16),updatedAt:timestamp()});tx.create(db.doc('stockMovements/opening_'+sku),{sku,deltaUnits:quantityUnits,reason:'opening',actor:auth.uid,createdAt:timestamp()});});return{ok:true};
+   requireOwner(auth);const sku=code(data.sku),quantityUnits=integer(data.quantityUnits,0,100000000);
+   if(!['kg','piece','box','package'].includes(data.unit)||typeof data.enabled!=='boolean')throw Error('Invalid stock setup');
+   const ref=db.doc('stock/'+sku);await db.runTransaction(async tx=>{const old=await tx.get(ref);if(old.exists)throw Error('Opening already configured; use audited adjustment');tx.create(ref,{sku,availableUnits:quantityUnits,configured:true,enabled:data.enabled,unit:data.unit,updatedAt:timestamp()});tx.create(db.doc('stockMovements/opening_'+sku),{sku,deltaUnits:quantityUnits,reason:'opening',actor:auth.uid,createdAt:timestamp()});});return{ok:true};
   }
   if(action==='stockAdjust'){
-   requireOwner(auth);const sku=code(data.sku),key=code(data.requestId),delta=integer(data.deltaUnits,-100000000,100000000),reason=text(data.reason);return db.runTransaction(async tx=>{const ref=db.doc('stock/'+sku),movement=db.doc('stockMovements/adjust_'+key);const [stock,old]=await Promise.all([tx.get(ref),tx.get(movement)]);if(old.exists)return{ok:true};if(!stock.exists)throw Error('Stock not configured');const availableUnits=integer(stock.data().availableUnits+delta,0,100000000);tx.update(ref,{availableUnits,updatedAt:timestamp()});tx.create(movement,{sku,deltaUnits:delta,reason,actor:auth.uid,createdAt:timestamp()});return{ok:true};});
+   requireOwner(auth);const sku=code(data.sku),key=code(data.requestId),delta=integer(data.deltaUnits,-100000000,100000000),reason=text(data.reason);return db.runTransaction(async tx=>{const ref=db.doc('stock/'+sku),movement=db.doc('stockMovements/adjust_'+key);const [stock,old]=await Promise.all([tx.get(ref),tx.get(movement)]);
+    if(old.exists){const prior=old.data();if(prior.sku!==sku||prior.deltaUnits!==delta||prior.reason!==reason)throw Error('Adjustment ID already used for different details');return{ok:true};}
+    if(!stock.exists)throw Error('Stock not configured');const availableUnits=integer(stock.data().availableUnits+delta,0,100000000);tx.update(ref,{availableUnits,updatedAt:timestamp()});tx.create(movement,{sku,deltaUnits:delta,reason,actor:auth.uid,createdAt:timestamp()});return{ok:true};});
   }
   if(action==='stockDispatch'){
    requireOwner(auth);const id=code(data.orderId),sku=code(data.sku);return db.runTransaction(async tx=>{
