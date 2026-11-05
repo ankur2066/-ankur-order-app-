@@ -9,7 +9,7 @@ def once(old,new,label):
     s=s.replace(old,new,1)
 
 once("            const shortId = ord.orderId.split('-').pop() || ord.orderId;",
-     "            const shortId = ord.orderId.split('-').pop() || ord.orderId;\n            const contactKey = (ord.billingVersion === 2 ? 'product_orders_' : 'orders_') + ord.orderId;",
+     "            const shortId = ord.orderId.split('-').pop() || ord.orderId;\n            const contactKey = (staffSource(ord) || 'unknown') + '_' + ord.orderId;",
      'one contact key')
 start=s.index("                    {ord.customerPhone && (")
 end=s.index("                  </div>\n\n                  {/* Quantity & Dispatch Note */}",start)
