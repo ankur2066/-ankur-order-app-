@@ -1,0 +1,6 @@
+Ankur Dryice 5-feature pilot PRIVATE QA v1.0.56.
+Customer feature tiles: Ice Calculator, Rate Card, FAQ/Safety, Support Hub, UP Service Area search.
+Preserve AI Video and owner/staff workflows; remaining feature modules present but not publicly enabled until approved.
+Build original-signed package com.ankurdryice.events versionCode=56 and Play AAB.
+Require same-commit client regression, Firestore staff privacy, optional feature suite, notification safety tests.
+This is NOT a public deployment or Firebase database/rules cutover. Do not publish live APK URL or manifest.
