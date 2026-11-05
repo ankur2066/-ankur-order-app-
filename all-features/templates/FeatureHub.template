@@ -10,6 +10,7 @@ import {displayPricePerKg} from '../../data/catalog';
 import {calculateDryIce} from '../../utils/dryIceCalc';
 import {PILOT_FIRST_FIVE,fetchPilotFeatures} from '../../utils/pilotRollout';
 import {ReferralSharePanel} from './ReferralSharePanel';
+import {ANDROID_VERSION_CODE} from '../../services/appUpdate';
 
 export type FeatureId = 'calculator'|'video'|'loyalty'|'catalog'|'partner'|'subscriptions'|'promotions'|'inventory'|'reports'|'faq'|'rates'|'support'|'service-area'|'referral';
 
@@ -92,8 +93,8 @@ function usePilotFeatureIds(){
       const nextController=new AbortController();controller=nextController;
       const deadline=window.setTimeout(()=>nextController.abort(),5000);
       try{
-        const next=await fetchPilotFeatures(fetch,57,nextController.signal);
-        if(active&&controller===nextController&&!nextController.signal.aborted)setEnabled(next??[...PILOT_FIRST_FIVE]);
+        const next=await fetchPilotFeatures(fetch,ANDROID_VERSION_CODE,nextController.signal);
+        if(active&&controller===nextController)setEnabled(next??[...PILOT_FIRST_FIVE]);
       }finally{window.clearTimeout(deadline);}
     };
     const foreground=()=>{void refresh();};

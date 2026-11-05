@@ -1,5 +1,12 @@
 /* ANKUR OWNER PREMIUM 1.0.48
    Owner-only theme; no hiding controls, tabs, records, or business forms. */
+/* v1.0.58: bounded mobile chat, with a scrollable message list. */
+.ankur-ai-chat {
+  height: clamp(260px, 45vh, 420px);
+  height: clamp(260px, 45dvh, 420px);
+  min-width: 0;
+}
+.ankur-ai-chat > :last-child { flex-shrink: 0; }
 .ankur-owner-dashboard {
   --owner-ink: #17243e;
   --owner-muted: #596984;

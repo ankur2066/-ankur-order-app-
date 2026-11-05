@@ -38,6 +38,18 @@ for needed in ["'new-entry'","'orders'","'insights'","'expenses'","'users'","'st
     assert needed in s,needed
 p.write_text(s,encoding="utf-8")
 
+# Keep Android 15+ system bars outside the WebView using Capacitor's own
+# inset handling, rather than guessing status-bar heights in CSS.
+config=Path('capacitor.config.ts')
+value=config.read_text()
+assert 'adjustMarginsForEdgeToEdge' not in value
+assert value.count("  webDir: 'dist',")==1
+config.write_text(value.replace("  webDir: 'dist',", "  webDir: 'dist',\n  android: { adjustMarginsForEdgeToEdge: 'auto' },",1))
+
+import shutil
+shutil.copy2('ui-fixes/AIChat.template','src/components/AIChat.tsx')
+shutil.copy2('ui-fixes/voiceInput.template','src/utils/voiceInput.ts')
+
 css=Path("src/index.css")
 old=css.read_text(encoding="utf-8")
 sheet=Path("ui-fixes/owner-premium-v148.css").read_text(encoding="utf-8")

@@ -1,0 +1,5 @@
+Screenshot fix: Capacitor Android edge-to-edge auto margins prevent system-bar overlap.
+Chat height follows viewport, message list scrolls, input and send remain visible.
+Referral Share from v57 retained; manifest compatibility uses app version constant.
+Physical Android visual verification still required.
+AI Chat microphone: permission-on-tap, Hindi speech to draft, explicit Send, cancellation cleanup and keyboard fallback.

@@ -59,7 +59,7 @@ jobs:
           python3 privacy/staff_contact_ui_v149.py
           python3 privacy/owner_assignment_ui_v149.py
           python3 winner/client_v150.py
-      - name: Confirm exact v1.0.57 winner, staff privacy and customer UI in signed app source
+      - name: Confirm exact v1.0.58 winner, staff privacy and customer UI in signed app source
         run: |
           set -euo pipefail
           # Fail closed if the Android job reconstructs older customer screens.
@@ -123,17 +123,19 @@ jobs:
           KEY_ALIAS: ${{ secrets.ANKUR_RELEASE_KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.ANKUR_RELEASE_KEY_PASSWORD }}
         run: |
-          npm install --save-exact --package-lock-only --ignore-scripts --no-audit --no-fund @capacitor-firebase/app-check@7.5.0 @capacitor/app@7 @capacitor/filesystem@7 @capacitor/share@7 @capacitor/push-notifications@7
+          npm install --save-exact --package-lock-only --ignore-scripts --no-audit --no-fund @capacitor-firebase/app-check@7.5.0 @capacitor/app@7 @capacitor-community/speech-recognition@7.0.1 @capacitor/filesystem@7 @capacitor/share@7 @capacitor/push-notifications@7
           npm ci --ignore-scripts --no-audit --no-fund
           npm run lint
           npm run android:sync
+          grep -q SpeechRecognition android/app/src/main/assets/capacitor.plugins.json
+          grep -q 'android.permission.RECORD_AUDIO' node_modules/@capacitor-community/speech-recognition/android/src/main/AndroidManifest.xml
           cp ci-fixes/MainActivity.java android/app/src/main/java/com/ankurdryice/events/MainActivity.java
           python3 - <<'PY'
           from pathlib import Path
           p=Path('android/app/build.gradle'); lines=p.read_text().splitlines()
           for i,x in enumerate(lines):
-            if x.strip().startswith('versionCode '): lines[i]='        versionCode 57'
-            if x.strip().startswith('versionName '): lines[i]='        versionName "1.0.57-private-test"'
+            if x.strip().startswith('versionCode '): lines[i]='        versionCode 58'
+            if x.strip().startswith('versionName '): lines[i]='        versionName "1.0.58-private-test"'
           p.write_text('\n'.join(lines)+'\n')
           PY
           cd android
@@ -147,10 +149,12 @@ jobs:
           # update in place; a mismatched package would install as a second app.
           BUILD_TOOLS="$ANDROID_HOME/build-tools/$(ls "$ANDROID_HOME/build-tools" | sort -V | tail -1)"
           BADGING=$("$BUILD_TOOLS/aapt" dump badging "$APK")
-          printf '%s\n' "$BADGING" | grep -F "package: name='com.ankurdryice.events' versionCode='57' versionName='1.0.57-private-test'"
+          printf '%s\n' "$BADGING" | grep -F "package: name='com.ankurdryice.events' versionCode='58' versionName='1.0.58-private-test'"
           # Update flow opens a consent-based external link; never request installer
           # or broad file-management privileges in the packaged manifest.
           PERMISSIONS=$("$BUILD_TOOLS/aapt" dump permissions "$APK")
+          printf '%s\n' "$PERMISSIONS" | grep -F 'android.permission.RECORD_AUDIO'
+          python3 -c 'import json; assert json.load(open("android/app/src/main/assets/capacitor.config.json"))["android"]["adjustMarginsForEdgeToEdge"] == "auto"'
           if printf '%s\n' "$PERMISSIONS" | grep -E 'android.permission.(REQUEST_INSTALL_PACKAGES|MANAGE_EXTERNAL_STORAGE|QUERY_ALL_PACKAGES)'; then
             echo 'BLOCKED: unexpected broad Android permission in signed APK'
             exit 1
@@ -177,7 +181,7 @@ jobs:
           sha256sum "$AAB" > aab-sha256.txt
       - uses: actions/upload-artifact@v4
         with:
-          name: Ankur-Dryice-v1.0.57-PRIVATE-PLAY-AAB
+          name: Ankur-Dryice-v1.0.58-PRIVATE-PLAY-AAB
           path: |
             android/app/build/outputs/bundle/release/app-release.aab
             aab-sha256.txt
@@ -185,7 +189,7 @@ jobs:
           retention-days: 14
       - uses: actions/upload-artifact@v4
         with:
-          name: Ankur-Dryice-v1.0.57-PRIVATE-TEST
+          name: Ankur-Dryice-v1.0.58-PRIVATE-TEST
           path: |
             android/app/build/outputs/apk/release/app-release.apk
             apk-sha256.txt

@@ -41,7 +41,7 @@ jobs:
       - name: Full React and TypeScript production compilation (review only)
         run: |
           cd /tmp/ankur-staff-source
-          npm install --save-exact --package-lock-only --ignore-scripts --no-audit --no-fund @capacitor-firebase/app-check@7.5.0 @capacitor/app@7 @capacitor/filesystem@7 @capacitor/share@7 @capacitor/push-notifications@7
+          npm install --save-exact --package-lock-only --ignore-scripts --no-audit --no-fund @capacitor-firebase/app-check@7.5.0 @capacitor/app@7 @capacitor-community/speech-recognition@7.0.1 @capacitor/filesystem@7 @capacitor/share@7 @capacitor/push-notifications@7
           npm ci --ignore-scripts --no-audit --no-fund
           npm run lint
           npm run build

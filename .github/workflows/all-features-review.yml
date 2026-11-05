@@ -65,9 +65,10 @@ jobs:
         run: |
           node --test all-features/referral-share.test.mjs all-features/feature-contract.test.mjs all-features/pilot-first-five.test.mjs all-features/backend/trustedOperations.test.mjs billing/language-coverage.test.mjs seasonal/catalogPolicy.test.mjs updates/appUpdate.test.mjs ui-fixes/contrast.test.mjs ui-fixes/customer-nav-v138.test.mjs ui-fixes/customer-dark-contrast-v138.test.mjs ui-fixes/customer-home-clean-v139.test.mjs ui-fixes/customer-features-v140.test.mjs ui-fixes/video-idea-profile-v141.test.mjs ui-fixes/customer-profile-contact-v145.test.mjs ui-fixes/customer-ai-video-cleanup-v146.test.mjs ui-fixes/dispatch-rules-privacy-v147.test.mjs ui-fixes/owner-staff-premium-v148.test.mjs ui-fixes/customer-home-language.test.mjs all-features/phone-links.test.mjs ui-fixes/mobileReport.test.mjs ui-fixes/monthlyReport.test.mjs all-features/reconstruct-contract.test.mjs ci-fixes/signing-cert.test.mjs winner/dailyWinnerService.test.mjs privacy/backfillCore.test.mjs release-readiness/nov9-feature-coverage.test.mjs release-readiness/nov9-ci-gate.test.mjs privacy/projectionAudit.test.mjs
           node --experimental-strip-types --test phase-a/phase-a.test.mjs
+          node --experimental-vm-modules --test ui-fixes/voice-input.test.mjs
       - name: Install and build
         run: |
-          npm install --save-exact --package-lock-only --ignore-scripts --no-audit --no-fund @capacitor-firebase/app-check@7.5.0 @capacitor/app@7 @capacitor/filesystem@7 @capacitor/share@7 @capacitor/push-notifications@7
+          npm install --save-exact --package-lock-only --ignore-scripts --no-audit --no-fund @capacitor-firebase/app-check@7.5.0 @capacitor/app@7 @capacitor-community/speech-recognition@7.0.1 @capacitor/filesystem@7 @capacitor/share@7 @capacitor/push-notifications@7
           npm ci --ignore-scripts --no-audit --no-fund
           npm run lint
           npm run build
