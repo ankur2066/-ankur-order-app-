@@ -104,6 +104,40 @@ test('staff view never carries emails or URLs in customer-provided labels',()=>{
  for (const forbidden of ['person@example.com','http://example.test/private','9876543210'])
    assert.equal(serialized.includes(forbidden),false);
 });
+test('staff projection hides phones with grouped, spaced, dotted or bracketed digits',()=>{
+ const cases=[
+   'Call 8896332000','Call +91 88963 32000',
+   'Call (+91) 889-633-2000','Call 8 8 9 6 3 3 2 0 0 0',
+   'Call 889.633.2000','Call 91   88963 32000',
+   'Call 8896(33)2000'
+ ];
+ for(const name of cases){
+   const p=staffSafeProjection('orders','ADI-TEST-1234',{
+     status:'pending',customerName:name,city:name,
+     productName:name,dispatchTiming:name,paymentStatus:name,
+     quantityKg:10,billing:{quantityUnits:10000}
+   },STAMP);
+   const fields=['customerName','city','productName','dispatchTiming','paymentStatus'];
+   for(const field of fields){
+     assert.match(p[field],/\[redacted\]/, 'missing phone redaction in '+field+': '+name);
+     assert.doesNotMatch(p[field],/(?:8896|889\.633|8 8 9 6)/);
+   }
+ }
+});
+test('untrusted numeric quantity resembling a phone is not exposed as staff operational data',()=>{
+ const p=staffSafeProjection('product_orders','APO-TEST-1234',{
+   status:'pending',customerName:'Buyer',city:'Lucknow',
+   quantityKg:8896332000,billing:{quantityUnits:8896332000,unit:'kg'}
+ },STAMP);
+ assert.equal(p.quantityKg,null);
+ assert.equal(p.quantityUnits,null);
+ assert.equal(p.quantityUnit,'kg');
+ const normal=staffSafeProjection('orders','ADI-TEST-1234',{
+   status:'pending',customerName:'Buyer',quantityKg:50000,billing:{quantityUnits:1000000}
+ },STAMP);
+ assert.equal(normal.quantityKg,50000);
+ assert.equal(normal.quantityUnits,1000000);
+});
 test('staff status moves forward only; owner handles terminal corrections',()=>{
  for(const current of ['pending','confirmed','in_packing','dispatched']){
    assert.equal(validStaffStatusTransition(current,'delivered'),true);
