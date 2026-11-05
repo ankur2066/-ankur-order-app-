@@ -19,6 +19,10 @@ export const ankurWinnerSettings=onCall({...base,enforceAppCheck:true},async req
  try{return await service.settings({auth:request.auth,app:request.app,data:request.data});}
  catch{throw new HttpsError('permission-denied','Daily Winner settings denied');}
 });
+export const ankurWinnerConsent=onCall({...base,enforceAppCheck:true},async request=>{
+ try{return await service.consent({auth:request.auth,app:request.app,data:request.data});}
+ catch{throw new HttpsError('failed-precondition','Winner participation could not be updated');}
+});
 export const ankurWinnerManualPick=onCall({...base,enforceAppCheck:true},async request=>{
  try{return await service.choose({auth:request.auth,app:request.app,data:request.data});}
  catch{throw new HttpsError('failed-precondition','Daily Winner selection unavailable');}
