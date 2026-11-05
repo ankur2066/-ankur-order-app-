@@ -27,7 +27,7 @@ const validOrderTimestamp = value => {
     const millis = value.toMillis();
     const date = value.toDate();
     return Number.isFinite(millis) && date instanceof Date &&
-      Number.isFinite(date.getTime()) && millis === date.getTime() ? value : null;
+      Number.isFinite(date.getTime()) && Math.abs(millis - date.getTime()) < 1 ? value : null;
   } catch { return null; }
 };
 const STATUS_RANK = {pending:0,confirmed:1,in_packing:2,dispatched:3,delivered:4};
