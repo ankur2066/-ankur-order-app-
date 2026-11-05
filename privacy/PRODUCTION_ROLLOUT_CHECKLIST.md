@@ -1,4 +1,4 @@
-# v1.0.52 staged privacy cutover — operator checklist (not executed)
+# Production privacy cutover — latest reviewed private release candidate (not executed)
 
 This is a **release gate**, not a production deployment instruction. GitHub CI has no permissions to inspect or modify the live named Firestore database; no production state is claimed by this document.
 
@@ -28,7 +28,7 @@ B. Run the read-only `privacy/backfill.mjs` dry run against the **explicit named
 
 C. Only after owner approval, verified backups and the typed environment gates may the backfill `--apply` run. It now **removes stale staff-safe projections of soft-deleted orders**, retains transaction watermarks against old event replay and preserves `sourceCollection` for legacy product orders. Validate parity: every eligible order has exactly one sanitized view; no trashed/deleted order has a view, and no view contains phone/email/tracking PIN/full address. Run `privacy/auditProjections.mjs --read-only` only with owner-authorized ADC and explicit `GOOGLE_CLOUD_PROJECT=ankur-dryice-app` plus `ANKUR_PRIVACY_AUDIT_APPROVED_DATABASE=ai-studio-ankurdryiceorder-f4d89318-c640-47a5-a9f7-98543eff2673` against the named database to classify each view as safe, orphan, stale, unsafe, or invalid; require ZERO anomalies, nonzero scanned rows where expected, and matching canonical source counts. The audit never changes records or prints customer data. It returns exit code 2 if any inspected view is unsafe, stale, invalid or orphaned (or no views exist). Use the exact target database with operator-granted read credentials. Never rely on a row-count match alone.
 
-D. Roll out the private signed v1.0.52 APK to designated owner/staff testers. Verify same package/signing certificate and in-place upgrade without uninstall or local data loss. New staff APK must use the safe projection only; older staff APKs must not be left in an unrestricted state.
+D. Roll out the latest source-matched, original-signer private APK to designated owner/staff testers. Verify same package/signing certificate and in-place upgrade without uninstall or local data loss. New staff APK must use the safe projection only; older staff APKs must not be left in an unrestricted state.
 
 E. Activate the reviewed named-DB Rules **in a coordinated access window**: remove all legacy staff direct raw-order read and direct order/tracking write grants, grant projection read for active explicit staff, and keep owner/customer access. Confirm using a signed-in staff SDK/REST direct read/write probe on *both* raw order collections and tracking collections; all must be DENIED, including from an old APK. Verify customer own-order and admin privileges still work.
 
