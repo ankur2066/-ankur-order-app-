@@ -83,6 +83,7 @@ function mock(){
     get:async()=>({docs:[...documents.entries()].filter(([path,data])=>{
       if(!path.startsWith(source+'/'))return false;
       return constraints.every(({key,op,value})=>{
+       if(op==='==')return data[key]===value;
        const left=data[key]?.toMillis?.()??0,right=value.getTime();
        return op==='>='?left>=right:left<right;
       });
@@ -92,8 +93,10 @@ function mock(){
   runTransaction:async fn=>{
    const modifications=[];
    const tx={
-    get:async ref=>({exists:documents.has(ref.path),data:()=>documents.get(ref.path)}),
-    set:(ref,value)=>modifications.push(()=>documents.set(ref.path,value)),
+    get:async ref=>typeof ref?.get==='function'&&!ref.path?ref.get():
+      ({exists:documents.has(ref.path),data:()=>documents.get(ref.path)}),
+    set:(ref,value,options)=>modifications.push(()=>documents.set(ref.path,
+      options?.merge?{...documents.get(ref.path),...value}:value)),
     create:(ref,value)=>modifications.push(()=>{if(documents.has(ref.path))throw Error('exists');documents.set(ref.path,value)})
    };
    const output=await fn(tx);
@@ -152,6 +155,40 @@ test('do not publish identifiable winner without explicit profile consent',async
  x.documents.set('userPrefs/A',{winnerPublicConsent:false});
  assert.deepEqual(await x.service.choose({automatic:true,data:{day:DATE}}),
   {skipped:'no_eligible_opted_in_retail_orders'});
+ assert.equal(x.documents.has('dailyWinners/'+DATE),false);
+});
+test('customer may opt in, withdraw and hide any previously published announcement',async()=>{
+ const x=mock(),first=order({uid:'A'});
+ x.documents.set('orders/'+first.orderId,first.order);
+ x.documents.set('userPrefs/A',{orderUpdates:true,promos:false,winnerPublicConsent:true});
+ const selected=await x.service.choose({automatic:true,data:{day:DATE}});
+ assert.equal(selected.ok,true);
+ const customer={uid:'A',token:{email:'demo@example.test'}};
+ await assert.rejects(()=>x.service.consent({auth:customer,app:null,data:{consent:false}}));
+ await assert.rejects(()=>x.service.consent({auth:customer,app:{},data:{consent:false,uid:'B'}}));
+ const changed=await x.service.consent({auth:customer,app:{},data:{consent:false}});
+ assert.equal(changed.ok,true);
+ assert.equal(changed.suppressed,1);
+ assert.equal(x.documents.get('dailyWinners/'+DATE).active,false);
+ assert.equal(x.documents.get('userPrefs/A').orderUpdates,true);
+ assert.equal(x.documents.get('userPrefs/A').winnerPublicConsent,false);
+ assert.deepEqual(await x.service.choose({automatic:true,data:{day:DATE}}),
+  {skipped:'no_eligible_opted_in_retail_orders'});
+ const rejoin=await x.service.consent({auth:customer,app:{},data:{consent:true}});
+ assert.equal(rejoin.consent,true);
+ assert.equal(x.documents.get('userPrefs/A').winnerPublicConsent,true);
+});
+test('auto-selection rechecks winner consent inside the publication transaction',async()=>{
+ const x=mock(),first=order({uid:'A'});
+ x.documents.set('orders/'+first.orderId,first.order);
+ x.documents.set('userPrefs/A',{winnerPublicConsent:true});
+ const original=x.db.runTransaction;
+ x.db.runTransaction=async callback=>{
+   x.documents.set('userPrefs/A',{winnerPublicConsent:false});
+   return original(callback);
+ };
+ const result=await x.service.choose({automatic:true,data:{day:DATE}});
+ assert.deepEqual(result,{skipped:'revoked_consent'});
  assert.equal(x.documents.has('dailyWinners/'+DATE),false);
 });
 test('no fake winner when only wholesale orders exist; future dates rejected',async()=>{
