@@ -75,5 +75,6 @@ export async function auditStaffProjections({db,pageSize=150,maxScan=50000}={}) 
     cursor=page.docs.at(-1);
     if(page.docs.length<pageSize)break;
   }
-  return {...out,ready:out.scanned===out.safe};
+  // No views could mean backfill has not run; never certify a zero-row cutover.
+  return {...out,ready:out.scanned>0 && out.scanned===out.safe};
 }
