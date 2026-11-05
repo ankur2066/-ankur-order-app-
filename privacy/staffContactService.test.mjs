@@ -189,8 +189,9 @@ test('backfill defaults to dry run and cannot apply without explicit named-DB si
  assert.match(script,/ANKUR_PRIVACY_BACKFILL_SIGNOFF/);
  assert.match(script,/OWNER_CONFIRMED_BACKUP_AND_ROLLBACK/);
  assert.match(script,/apply=false/);
- assert.match(script,/orderBy\('__name__'\)/);
- assert.match(script,/snap\.updateTime\?\.toMillis\(\)/);
+ assert.match(core,/orderBy\('__name__'\)/);
+ assert.match(core,/snap\.updateTime\?\.toMillis\(\)/);
+ assert.match(core,/after:view===null\?null:record/);
 });
 test('runtime declares correct named database and App Check, no deployment config',()=>{
  const runtime=readFileSync(new URL('./index.mjs',import.meta.url),'utf8');
