@@ -1,0 +1,14 @@
+ANKUR DRYICE — NOVEMBER 9 ALL-FEATURES PRIVATE LAUNCH CANDIDATE v1.0.55
+Current code is required to run the complete customer/owner/staff UI suite,
+all fourteen feature routes (role gated), real Firestore emulator for
+staff privacy/winner, optional feature-suite transaction/rules tests, and
+isolated FCM/privacy tests before building one signed APK and Play AAB.
+
+Target package: com.ankurdryice.events
+Android versionCode: 55; versionName: 1.0.55-private-test
+Original signer SHA256 pin: ebb60e0b13f7b5bfa814a619d5e4acc0ee65f0e12835ad5a282c072bc9976a6e
+
+PRIVATE QA artifact only — no production Firebase rules/functions, no backfill,
+no website version manifest update, no Play Console release or public APK link.
+A publicly releasable app additionally requires approved live server cutover,
+backup, real-device owner/staff/customer smoke tests, and explicit go decision.
