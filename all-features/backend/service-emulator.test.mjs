@@ -20,6 +20,21 @@ test('generic preferences cannot bypass winner consent suppression',async()=>{
  assert.equal((await db.doc('userPrefs/'+a.uid).get()).data().promos,true);
  // Only the winner consent callable can publish/unpublish the name and city.
 });
+
+test('partner approval and application status stay aligned; revoke immediately blocks new bulk requests',async()=>{
+ const applicant={uid:'reviewed-partner',token:{}};
+ await assert.rejects(()=>perform(owner,'partnerApprove',{userId:applicant.uid,approved:true}),/Application/);
+ await perform(applicant,'partnerApply',identity);
+ await assert.rejects(()=>perform(applicant,'partnerApprove',{userId:applicant.uid,approved:true}),/Owner/);
+ await assert.rejects(()=>perform(owner,'partnerApprove',{userId:applicant.uid,approved:'false'}),/Invalid/);
+ await perform(owner,'partnerApprove',{userId:applicant.uid,approved:true});
+ assert.equal((await db.doc('partnerApplications/'+applicant.uid).get()).data().status,'approved');
+ assert.equal((await db.doc('partnerApplications/'+applicant.uid).get()).data().reviewedBy,'owner');
+ await perform(owner,'partnerApprove',{userId:applicant.uid,approved:false});
+ assert.equal((await db.doc('partnerApplications/'+applicant.uid).get()).data().status,'revoked');
+ assert.equal((await db.doc('partners/'+applicant.uid).get()).data().status,'revoked');
+ await assert.rejects(()=>perform(applicant,'bulkRequest',identity),/Approved/);
+});
 test('preferences reject malformed booleans and marketing defaults explicit',async()=>{await assert.rejects(()=>perform(a,'preferences',{orderUpdates:'true',promos:false}),/Invalid/);await perform(a,'preferences',{orderUpdates:true,promos:false});assert.equal((await db.doc('userPrefs/'+a.uid).get()).data().promos,false);});
 test('guest promo bookings atomically respect usage cap; response-loss retry returns same order',async()=>{await db.doc('settings/rates').set({dryIceRate:73,thermocolRate:8,transportRate:2});await perform(owner,'promoSave',{code:'EMU',active:true,valuePaise:3000,minimumPaise:10000,usageLimit:1,startsAtMs:NOW-1000,endsAtMs:NOW+10000});const data={...identity,code:'EMU',dispatchTiming:'Tomorrow morning',expectedTotalPaise:80000};const outcomes=await Promise.allSettled([perform(null,'promoBooking',{...data,requestId:'a'.repeat(32)}),perform(null,'promoBooking',{...data,requestId:'b'.repeat(32)})]);assert.equal(outcomes.filter(x=>x.status==='fulfilled').length,1);const index=outcomes.findIndex(x=>x.status==='fulfilled'),result=outcomes[index].value;const retry=await perform(null,'promoBooking',{...data,requestId:(index===0?'a':'b').repeat(32)});assert.equal(retry.orderId,result.orderId);assert.equal(result.totalAmount,800);assert.equal((await db.doc('promos/EMU').get()).data().usageCount,1);const stored=(await db.doc('orders/'+result.orderId).get()).data();assert.equal(stored.dryIcePricePerKg,73);assert.equal(stored.discountAmount,30);assert.ok((await db.doc('order_tracking/'+result.orderId+'_'+result.trackingPin).get()).exists);});
 test('stock dispatch races produce one ledger movement and correct SKU deduction',async()=>{await perform(owner,'stockOpening',{sku:'DRY',unit:'kg',quantityUnits:30000,enabled:true});await perform(owner,'stockMapping',{legacyName:'Emulator Standard Ice',sku:'DRY'});await db.doc('orders/ADI-TEST-ONE').set({status:'confirmed',productName:'Emulator Standard Ice',quantityKg:10,trackingToken:'ADI-TEST-ONE_123456'});await db.doc('order_tracking/ADI-TEST-ONE_123456').set({status:'confirmed',orderId:'ADI-TEST-ONE'});await Promise.all([perform(owner,'stockDispatch',{orderId:'ADI-TEST-ONE',sku:'DRY'}),perform(owner,'stockDispatch',{orderId:'ADI-TEST-ONE',sku:'DRY'})]);assert.equal((await db.doc('stock/DRY').get()).data().availableUnits,20000);assert.equal((await db.collection('stockMovements').where('reason','==','dispatch').get()).size,1);assert.equal((await db.doc('orders/ADI-TEST-ONE').get()).data().status,'dispatched');});

@@ -55,7 +55,16 @@ export function createFeatureService({db,now=()=>Date.now(),timestamp=()=>new Da
    await db.runTransaction(async tx=>{const old=await tx.get(ref);if(old.exists)throw Error('Application already submitted');tx.create(ref,{...value,status:'pending',createdAt:timestamp()});});return{ok:true};
   }
   if(action==='partnerApprove'){
-   requireOwner(auth);const uid=text(data.userId,128);await db.doc('partners/'+uid).set({userId:uid,status:data.approved===true?'approved':'revoked',updatedAt:timestamp()});return{ok:true};
+   requireOwner(auth);const uid=text(data.userId,128);
+   if(!/^[A-Za-z0-9_-]{3,128}$/.test(uid)||typeof data.approved!=='boolean')throw Error('Invalid approval');
+   const application=db.doc('partnerApplications/'+uid),partner=db.doc('partners/'+uid);
+   await db.runTransaction(async tx=>{
+    const submitted=await tx.get(application);
+    if(data.approved&&!submitted.exists)throw Error('Application required');
+    const status=data.approved?'approved':'revoked',reviewedAt=timestamp();
+    tx.set(partner,{userId:uid,status,reviewedBy:auth.uid,updatedAt:reviewedAt});
+    if(submitted.exists)tx.update(application,{status,reviewedBy:auth.uid,reviewedAt});
+   });return{ok:true};
   }
   if(action==='bulkRequest'){
    const value=publicRequest(auth,data);const ref=db.collection('bulkOrders').doc();await db.runTransaction(async tx=>{const partner=await tx.get(db.doc('partners/'+auth.uid));if(partner.data()?.status!=='approved')throw Error('Approved partner required');tx.create(ref,{...value,note:String(data.note||'').slice(0,500),status:'pending_owner_quote',quotedTotalPaise:null,createdAt:timestamp()});});return{id:ref.id};
