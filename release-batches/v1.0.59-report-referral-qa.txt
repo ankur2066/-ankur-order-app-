@@ -1,0 +1,6 @@
+Private test release 1.0.59 (Android versionCode 59).
+Includes previous microphone and mobile CSV export.
+Monthly totals exclude cancelled orders and reject invalid numeric/date inputs.
+Customer referral sharing uses the native system chooser on Android.
+Permission and production backend configuration are unchanged.
+Physical Android microphone, CSV/PDF receiver and referral chooser verification remains pending.

@@ -27,3 +27,16 @@ export async function shareReferral(
     return 'copied';
   } catch { return 'manual'; }
 }
+
+/** Native chooser failures never trigger an unexpected clipboard write. */
+export async function shareNativeReferral(
+  details: ReturnType<typeof referralDetails>,
+  share: (details: ReturnType<typeof referralDetails>) => Promise<unknown>
+): Promise<'shared'|'cancelled'|'manual'> {
+  try { await share(details); return 'shared'; }
+  catch(error) {
+    const message=String((error as {message?:unknown})?.message||'');
+    return (error as {name?:string})?.name==='AbortError'||/cancel(?:led|ed)/i.test(message)
+      ? 'cancelled' : 'manual';
+  }
+}

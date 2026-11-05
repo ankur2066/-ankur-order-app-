@@ -66,6 +66,21 @@ test('monthly report includes all orders rather than silently truncating to 40',
  assert.equal(pdf.tables[0].body.length,75);
 });
 
+test('cancelled paid orders and invalid amounts never inflate monthly totals',async()=>{
+ await report.generateMonthlyPDF([
+  makeOrder('VALID','2026-10-20T13:00:00+05:30',10,600,{paymentStatus:'payment_verified'}),
+  makeOrder('CANCELLED','2026-10-20T13:00:00+05:30',50,3000,{status:'cancelled',paymentStatus:'payment_verified'}),
+  makeOrder('BAD','2026-10-20T13:00:00+05:30',-1,Infinity),
+  makeOrder('ADI-20261099-INVALID',null,20,1200),
+  {...makeOrder('BROKEN',null,20,1200),createdAt:{toDate(){throw Error('invalid timestamp');}}}
+ ],[]);
+ const {pdf}=observed.at(-1);
+ assert.ok(pdf.texts.some(t=>t.includes('Quantity: 10 KG | Booked: INR 600')));
+ assert.ok(pdf.texts.some(t=>t.includes('Payment verified: INR 600 | Unverified: INR 0')));
+ assert.ok(pdf.texts.includes('Cancelled orders excluded: 1'));
+ assert.deepEqual(pdf.tables[0].body.map(r=>r[0]),['VALID','BAD']);
+});
+
 test('PDF export failures surface to caller rather than reporting a completed download',async()=>{
  const previous=globalThis.__monthlyQa.exportPdf;
  globalThis.__monthlyQa.exportPdf=async()=>{throw Error('Android chooser unavailable');};

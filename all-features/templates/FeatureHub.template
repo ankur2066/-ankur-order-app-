@@ -69,7 +69,8 @@ const CalculatorPanel = () => {
   </section>;
 };
 
-const SafePanel: React.FC<{id:FeatureId; state?:string; user:User|null;role:string|null}> = ({id,state,user,role}) => {
+const SafePanel: React.FC<{id:FeatureId; state?:string; user:User|null;role:string|null;onOpenReports:()=>void}> = ({id,state,user,role,onOpenReports}) => {
+  if(id==='reports'&&role==='admin')return <ReportsHub user={user} onOpenReports={onOpenReports}/>;
   if(id==='referral'&&role!=='admin')return <ReferralSharePanel user={user}/>;
   if(['loyalty','partner','subscriptions','promotions','inventory','reports','referral'].includes(id))return <DataFeaturePanel id={id} user={user} role={role}/>;
   if(id==='calculator') return <CalculatorPanel/>;
@@ -81,6 +82,15 @@ const SafePanel: React.FC<{id:FeatureId; state?:string; user:User|null;role:stri
   if(id==='catalog') return <ApplicationCatalog/>;
   return <div className="rounded-xl c-soft p-4 text-sm font-bold">{state || 'This feature uses verified account and order data.'}</div>;
 };
+
+function ReportsHub({user,onOpenReports}:{user:User|null;onOpenReports:()=>void}) {
+  const {language}=useLanguage(),hi=language==='hi';
+  return <section className="space-y-4">
+    <p className="text-sm t-sub">{hi?'ओनर इनसाइट्स से सभी ऑर्डर की CSV और 15 तारीख से अगली 14 तारीख तक की मासिक PDF निकालें।':'Open Owner Insights for all-order CSV and the monthly PDF covering the 15th through the following 14th.'}</p>
+    <button type="button" className="min-h-11 rounded-xl c-brand p-3 w-full font-bold" onClick={onOpenReports}>{hi?'ऑर्डर और मासिक रिपोर्ट खोलें':'Open order and monthly reports'}</button>
+    <details className="border b-line rounded-xl p-3"><summary className="font-bold">{hi?'डिलीवरी की रसीदें':'Delivery receipts'}</summary><div className="mt-3"><DataFeaturePanel id="reports" user={user} role="admin"/></div></details>
+  </section>;
+}
 
 // Pilot display gate: a missing/unavailable website manifest never unlocks unfinished tools.
 function usePilotFeatureIds(){
@@ -120,7 +130,7 @@ export const FeatureHub: React.FC<{currentUser:User|null; role:string|null; init
     (!allowed||allowed.includes(f.id))&&
     (role==='admin'||f.id==='video'||pilotIds.includes(f.id))),[role,allowed,pilotIds]);
   const selected=visible.find(f=>f.id===active);
-  if(selected) return <div className="c-app min-h-screen page-with-bottom-nav"><header className="c-card border-b b-line px-3 py-3 flex items-center gap-2"><button aria-label={t('back')} onClick={()=>setActive(null)} className="w-11 h-11 rounded-full flex items-center justify-center"><ArrowLeft className="w-5 h-5"/></button><h1 className="font-black">{language==='hi'?selected.hi:selected.en}</h1></header><main className="p-4 max-w-lg mx-auto"><SafePanel id={selected.id} state={selected.state} user={currentUser} role={role}/>{selected.auth&&!currentUser&&<p className="mt-3 text-sm text-amber-700">Sign in is required to use account actions.</p>}</main></div>;
+  if(selected) return <div className="c-app min-h-screen page-with-bottom-nav"><header className="c-card border-b b-line px-3 py-3 flex items-center gap-2"><button aria-label={t('back')} onClick={()=>setActive(null)} className="w-11 h-11 rounded-full flex items-center justify-center"><ArrowLeft className="w-5 h-5"/></button><h1 className="font-black">{language==='hi'?selected.hi:selected.en}</h1></header><main className="p-4 max-w-lg mx-auto"><SafePanel id={selected.id} state={selected.state} user={currentUser} role={role} onOpenReports={()=>{setActive(null);window.dispatchEvent(new Event('ankur-owner-reports'));}}/>{selected.auth&&!currentUser&&<p className="mt-3 text-sm text-amber-700">Sign in is required to use account actions.</p>}</main></div>;
   return <section className="c-card border b-line rounded-2xl p-4"><div className="flex items-center justify-between"><h2 className="text-sm font-black">{t('features')}</h2>{onClose&&<button onClick={onClose} className="text-xs t-brand">Close</button>}</div><div className="grid grid-cols-2 gap-2 mt-3">{visible.map(({id,icon:Icon,en,hi})=><button key={id} type="button" onClick={()=>setActive(id)} className="focus-ring min-h-20 c-soft rounded-xl p-3 text-left"><Icon className="w-5 h-5 t-brand"/><span className="block mt-2 text-xs font-extrabold">{language==='hi'?hi:en}</span></button>)}</div></section>;
 };
 

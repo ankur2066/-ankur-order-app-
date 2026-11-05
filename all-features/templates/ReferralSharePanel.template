@@ -1,11 +1,14 @@
 import React, {useState} from 'react';
+import {Capacitor} from '@capacitor/core';
+import {Share} from '@capacitor/share';
 import type {User} from 'firebase/auth';
 import {useLanguage} from '../../context/LanguageContext';
-import {referralDetails, shareReferral} from '../../utils/referralShare';
+import {referralDetails, shareReferral, shareNativeReferral} from '../../utils/referralShare';
 
 export function ReferralSharePanel({user}:{user:User|null}) {
   const {language}=useLanguage(), hi=language==='hi';
   const [busy,setBusy]=useState(false),[notice,setNotice]=useState('');
+  const inFlight=React.useRef(false);
   if(!user) return <p role="status">{hi?'अपना रेफरल कोड पाने के लिए Profile से साइन इन करें।':'Sign in from Profile to get your referral code.'}</p>;
   const details=referralDetails(user.uid,hi);
   const messages={
@@ -15,11 +18,16 @@ export function ReferralSharePanel({user}:{user:User|null}) {
     manual:hi?'नीचे का संदेश चुनकर कॉपी करें।':'Select and copy the message below.'
   };
   const run=async(copyOnly:boolean)=>{
-    if(busy)return;setBusy(true);setNotice('');
-    try {setNotice(messages[await shareReferral(details,{
+    if(inFlight.current)return;inFlight.current=true;setBusy(true);setNotice('');
+    try {
+      if(!copyOnly&&Capacitor.isNativePlatform()) {
+        const result=await shareNativeReferral(details,data=>Share.share({...data,dialogTitle:hi?'रेफरल लिंक शेयर करें':'Share referral link'}));
+        setNotice(messages[result]);return;
+      }
+      setNotice(messages[await shareReferral(details,{
       share:!copyOnly&&navigator.share?navigator.share.bind(navigator):undefined,
       clipboard:navigator.clipboard
-    })]);} finally {setBusy(false);}
+    })]);} finally {inFlight.current=false;setBusy(false);}
   };
   return <section className="space-y-4" aria-label="Referral share">
     <p className="text-sm t-sub">{hi?'दोस्त को लिंक भेजें। वह बुकिंग करते समय आपका कोड बता सकता है। कोई ऑटोमैटिक इनाम या छूट नहीं जुड़ती।':'Send this link to a friend. They can mention your code when booking. No reward or discount is added automatically.'}</p>

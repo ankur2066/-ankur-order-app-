@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {stripTypeScriptTypes} from 'node:module';
 const source=readFileSync(new URL('./templates/referralShare.template',import.meta.url),'utf8');
-const {referralCode,referralDetails,shareReferral}=await import('data:text/javascript,'+encodeURIComponent(stripTypeScriptTypes(source)));
+const {referralCode,referralDetails,shareReferral,shareNativeReferral}=await import('data:text/javascript,'+encodeURIComponent(stripTypeScriptTypes(source)));
 test('referral links always use the public HTTPS landing page, never the WebView origin',()=>{
  for(const hi of [true,false]){
   const d=referralDetails('user_123-test',hi),u=new URL(d.url);
@@ -26,4 +26,13 @@ test('unsupported native share falls back to clipboard; denied clipboard offers 
  assert.ok(copied.includes(d.url));assert.ok(copied.includes(d.text));
  assert.equal(await shareReferral(d,{}),'manual');
  assert.equal(await shareReferral(d,{clipboard:{writeText:async()=>{throw Error('denied');}}}),'manual');
+});
+
+test('Android chooser receives public link and cancellation stays cancelled',async()=>{
+ const d=referralDetails('customer_123',true);let received;
+ assert.equal(await shareNativeReferral(d,async data=>{received=data;}),'shared');
+ assert.deepEqual(received,d);
+ for(const message of ['Share canceled','Share cancelled'])
+  assert.equal(await shareNativeReferral(d,async()=>{throw Error(message);}),'cancelled');
+ assert.equal(await shareNativeReferral(d,async()=>{throw Error('unavailable');}),'manual');
 });
