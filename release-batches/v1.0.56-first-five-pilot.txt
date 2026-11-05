@@ -1,0 +1,18 @@
+ANKUR DRYICE v1.0.56 — FIRST FIVE CUSTOMER FEATURES PRIVATE PILOT
+5 customer-ready AI Features tiles:
+1. Ice Calculator (estimate + original Home booking handoff)
+2. Rate Card (current app rates, no false final quote)
+3. Safety FAQ (Hindi/English safe handling, storage, order confirmation)
+4. Customer Support (verified separate Call and WhatsApp paths)
+5. Service Area (UP district search with delivery confirmation)
+Original AI Video tab and all other source/owner/staff functions preserved.
+
+The client parses HTTPS /app-updates/pilot-features.json when present, refreshes
+on app foreground and periodically, and refuses untrusted formats, redirects
+and arbitrary code. This is UI presentation only. Any new server-dependent
+features still require live backend deployment, owner approval and real testing.
+
+Signed PRIVATE TEST only. Retain original package/signing identity, increment
+versionCode to 56, require CI review, Firestore Rules and FCM security jobs.
+No production Firebase migration, public release, Play Store upload or live
+website change is authorized by this marker.
