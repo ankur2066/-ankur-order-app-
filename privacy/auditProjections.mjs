@@ -26,7 +26,14 @@ if(process.argv[1]&&import.meta.url===pathToFileURL(process.argv[1]).href){
   assertAuditOnly({argv:process.argv.slice(2),env:process.env});
   if(getApps().length===0)initializeApp({projectId:PROJECT});
   const db=getFirestore(getApp(),DATABASE);
-  const result=await auditStaffProjections({db});
-  console.log(JSON.stringify(result));
-  if(!result.ready)process.exitCode=2;
+  try {
+    const result=await auditStaffProjections({db});
+    // Only aggregate counters cross the process output boundary.
+    console.log(JSON.stringify(result));
+    if(!result.ready)process.exitCode=2;
+  } catch {
+    // SDK errors sometimes include sensitive document paths; do not echo them.
+    console.error('Read-only audit failed. Check access, data integrity and scan limits.');
+    process.exitCode=3;
+  }
 }
