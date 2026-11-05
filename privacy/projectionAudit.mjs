@@ -35,7 +35,12 @@ function equalPickup(a,b) {
 export async function auditStaffProjections({db,pageSize=150,maxScan=50000}={}) {
   if(!db || !Number.isSafeInteger(pageSize) || pageSize<1 || pageSize>500 ||
       !Number.isSafeInteger(maxScan)||maxScan<1)throw Error('Invalid audit options');
-  const out={mode:'read-only',scanned:0,safe:0,unsafe:0,orphan:0,stale:0,invalid:0};
+  const out={mode:'read-only',scanned:0,safe:0,unsafe:0,orphan:0,stale:0,invalid:0,
+    sourceScanned:0,eligible:0,excluded:0,missing:0,invalidSource:0,
+    sourceCounts:{orders:0,product_orders:0}};
+  // Count every inspected document across BOTH passes, not just safe views.
+  // The source pass prevents a partially completed backfill from being certified.
+  let inspected=0;
   let cursor=null;
   while(true){
     let query=db.collection('staffOrderViews').orderBy('__name__').limit(pageSize);
@@ -43,7 +48,8 @@ export async function auditStaffProjections({db,pageSize=150,maxScan=50000}={}) 
     const page=await query.get();
     if(page.empty)break;
     for(const snap of page.docs){
-      if(++out.scanned>maxScan)throw Error('Audit maximum scans exceeded');
+      if(++inspected>maxScan)throw Error('Audit maximum scans exceeded');
+      out.scanned++;
       const view=snap.data();
       let source,id;
       try {
@@ -75,6 +81,39 @@ export async function auditStaffProjections({db,pageSize=150,maxScan=50000}={}) 
     cursor=page.docs.at(-1);
     if(page.docs.length<pageSize)break;
   }
-  // No views could mean backfill has not run; never certify a zero-row cutover.
-  return {...out,ready:out.scanned>0 && out.scanned===out.safe};
+  // Second pass: verify that every eligible canonical record has a projection.
+  // A clean-looking subset of projections is NOT a complete backfill.
+  for(const source of ['orders','product_orders']){
+    let after=null;
+    while(true){
+      let query=db.collection(source).orderBy('__name__').limit(pageSize);
+      if(after)query=query.startAfter(after);
+      const page=await query.get();
+      if(page.empty)break;
+      for(const original of page.docs){
+        if(++inspected>maxScan)throw Error('Audit maximum scans exceeded');
+        out.sourceScanned++;
+        out.sourceCounts[source]++;
+        const data=original.data();
+        if(!data || data.isTrash===true) {out.excluded++;continue;}
+        let key,expected;
+        try {
+          key=projectionId(source,original.id);
+          expected=staffSafeProjection(source,original.id,data,new Date(0));
+        }catch{
+          out.invalidSource++;continue;
+        }
+        if(expected===null){out.excluded++;continue;}
+        out.eligible++;
+        const view=await db.doc('staffOrderViews/'+key).get();
+        if(!view.exists)out.missing++;
+      }
+      after=page.docs.at(-1);
+      if(page.docs.length<pageSize)break;
+    }
+  }
+  // Quiescence is required: these paginated reads aren't an atomic snapshot.
+  // A production operator must repeat after backfill until the counts stabilize.
+  return {...out,ready:out.scanned>0 && out.scanned===out.safe &&
+    out.missing===0 && out.invalidSource===0 && out.eligible===out.safe};
 }
