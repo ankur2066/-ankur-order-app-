@@ -54,6 +54,29 @@ test('projection uses a strict allowlist for both legacy and product orders',()=
  }
  assert.equal(staffSafeProjection('orders','ADI-TEST-1234',{...order,isTrash:true},STAMP),null);
 });
+test('malformed createdAt cannot smuggle phone, address or arbitrary objects into staff views',()=>{
+ const make=createdAt=>staffSafeProjection('orders','ADI-DATE-1234',{
+   status:'pending',customerName:'Sample Customer',city:'Lucknow',
+   customerPhone:'9000000010',createdAt
+ },new Date('2026-11-05T00:00:00Z'));
+ for(const payload of [
+   'Call 9000000010','https://unsafe.example/?phone=9000000010',
+   {phone:'9000000010',toString:()=>'+91 9000000010'},
+   ['9000000010'],42,null,undefined
+ ])assert.equal(make(payload).createdAt,null);
+ const date=new Date('2026-11-05T00:01:03Z');
+ assert.equal(make(date).createdAt,date);
+ const firestoreTimestamp={
+   toMillis:()=>date.getTime()+0.123,
+   toDate:()=>new Date(date)
+ };
+ assert.equal(make(firestoreTimestamp).createdAt,firestoreTimestamp);
+ const forged={toMillis:()=>date.getTime(),toDate:()=>new Date('2000-01-01T00:00:00Z'),
+  privatePhone:'9000000010'};
+ assert.equal(make(forged).createdAt,null);
+ const exposed=JSON.stringify(make({customerPhone:'9000000010'}));
+ assert.equal(exposed.includes('9000000010'),false);
+});
 test('legacy district may contain a complete street address and must never populate city',()=>{
  const p=staffSafeProjection('orders','ADI-LEGACY-1234',{
   status:'pending',customerName:'Buyer +91 8896332000',
