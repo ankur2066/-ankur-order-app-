@@ -8,14 +8,14 @@ const notice=readFileSync(new URL('./AppUpdateNotice.template',import.meta.url),
 const workflow=readFileSync(new URL('../.github/workflows/all-features-signed-test-apk.yml',import.meta.url),'utf8');
 const update=await import('data:text/javascript;charset=utf-8,'+encodeURIComponent(stripTypeScriptTypes(source)));
 const play='https://play.google.com/store/apps/details?id=com.ankurdryice.events';
-const apk='https://ankurdryice.store/app-releases/Ankur-Dryice-v1.0.51-signed.apk';
-const mk=(url,versionCode=51,channel='signed_apk')=>({versionCode,versionName:'1.0.51',channel,url,notes:'Booking and Tracking improvements'});
+const apk='https://ankurdryice.store/app-releases/Ankur-Dryice-v1.0.52-signed.apk';
+const mk=(url,versionCode=52,channel='signed_apk')=>({versionCode,versionName:'1.0.52',channel,url,notes:'Booking and Tracking improvements'});
 
 test('version checker accepts only newer known verified destinations',()=>{
- assert.equal(update.ANDROID_VERSION_CODE,50);
+ assert.equal(update.ANDROID_VERSION_CODE,51);
  assert.equal(update.validateUpdateManifest(mk(apk))?.url,apk);
- assert.equal(update.validateUpdateManifest(mk(play,51,'play'))?.url,play);
- assert.equal(update.validateUpdateManifest(mk(apk,50)),null);
+ assert.equal(update.validateUpdateManifest(mk(play,52,'play'))?.url,play);
+ assert.equal(update.validateUpdateManifest(mk(apk,51)),null);
  assert.equal(update.validateUpdateManifest(mk(apk,49)),null);
  assert.equal(update.validateUpdateManifest(mk(apk,50.5)),null);
  assert.equal(update.validateUpdateManifest(mk(apk,99999999)),null);
@@ -57,7 +57,7 @@ test('app-open update check fails closed when manifest is absent/offline and nev
  assert.equal(readBody,false,'oversized declared body must not be read');
  let requested;
  const out=await update.checkForUpdate(async(url,options)=>{requested={url,options};return{ok:true,text:async()=>JSON.stringify(mk(apk))};});
- assert.equal(out?.versionCode,51);
+ assert.equal(out?.versionCode,52);
  assert.equal(requested.url,'https://ankurdryice.store/app-updates/android-stable.json');
  assert.equal(requested.options.redirect,'error');
  assert.equal(requested.options.cache,'no-store');
@@ -76,6 +76,6 @@ test('native only, nonblocking, bilingual notice and no silent installer permiss
  assert.match(notice,/if\(!info\)\{setRelease\(null\);return;\}/,'withdrawn/invalid releases must clear stale notice');
  assert.match(notice,/rel="noopener noreferrer"/);
  assert.doesNotMatch(notice,/REQUEST_INSTALL_PACKAGES|ACTION_INSTALL_PACKAGE|PackageInstaller|download\(/);
- assert.match(workflow,/versionCode 50/);
- assert.match(workflow,/versionName "1\.0\.50-private-test"/);
+ assert.match(workflow,/versionCode 51/);
+ assert.match(workflow,/versionName "1\.0\.51-private-test"/);
 });
