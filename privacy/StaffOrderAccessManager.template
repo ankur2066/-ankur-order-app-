@@ -28,22 +28,23 @@ export const StaffOrderAccessManager: React.FC = () => {
   }, () => setNotice('स्टाफ की सुरक्षित सूची अभी लोड नहीं हो सकी।')), []);
   const selected = staff.find(person => person.uid === uid);
   const ready = isAndroidAppCheckReady();
-  const setAccess = async (active: boolean) => {
-    if (!selected) return;
+  // Phone-contact permission is independent of login and status permissions.
+  // Never activate an inactive staff account or grant viewOrders as a side effect.
+  const setAccess = async (allowContact: boolean) => {
+    if (!selected || busy) return;
+    if (allowContact && (!selected.active || selected.permissions.viewOrders !== true)) {
+      setNotice('पहले स्टाफ की सक्रिय स्थिति और ऑर्डर देखने की अनुमति अलग से जाँचें।');
+      return;
+    }
     setBusy(true);
     setNotice('');
     try {
-      await updateDoc(doc(db, 'users', selected.uid), active ? {
-        active: true,
-        'permissions.viewOrders': true,
-        'permissions.callCustomer': true
-      } : {
-        active: false,
-        'permissions.callCustomer': false
+      await updateDoc(doc(db, 'users', selected.uid), {
+        'permissions.callCustomer': allowContact
       });
-      setNotice(active ? 'कर्मचारी का नंबर-संपर्क अधिकार सक्रिय है।' : 'कर्मचारी का संपर्क अधिकार रोक दिया गया।');
+      setNotice(allowContact ? 'केवल ग्राहक नंबर-संपर्क की अनुमति चालू हुई।' : 'ग्राहक नंबर-संपर्क की अनुमति बंद हुई; स्टाफ लॉगिन चालू रहेगा।');
     } catch {
-      setNotice('अनुमति बदल नहीं सकी। मालिक का सत्यापित लॉगिन जाँचें।');
+      setNotice('नंबर-संपर्क की अनुमति नहीं बदली। मालिक का सत्यापित लॉगिन जाँचें।');
     } finally { setBusy(false); }
   };
   const assign = async (approved:boolean) => {
@@ -71,12 +72,12 @@ export const StaffOrderAccessManager: React.FC = () => {
           {staff.map(person=><option key={person.uid} value={person.uid}>{person.uid} ({person.role})</option>)}
         </select>
       </label>
-      {selected && <p className="text-xs text-slate-300">स्थिति: {selected.active ? 'सक्रिय' : 'निष्क्रिय'} · संपर्क अधिकार: {selected.permissions.callCustomer===true?'हाँ':'नहीं'}</p>}
+      {selected && <p className="text-xs text-slate-300">स्थिति: {selected.active ? 'सक्रिय' : 'निष्क्रिय'} · ऑर्डर देखने का अधिकार: {selected.permissions.viewOrders===true?'हाँ':'नहीं'} · नंबर-संपर्क अधिकार: {selected.permissions.callCustomer===true?'हाँ':'नहीं'}</p>}
       <div className="flex gap-2 flex-wrap">
-        <button type="button" disabled={busy||!selected} onClick={()=>void setAccess(true)}
+        <button type="button" disabled={busy||!selected||!selected.active||selected.permissions.viewOrders!==true||selected.permissions.callCustomer===true} onClick={()=>void setAccess(true)}
           className="rounded-xl bg-indigo-500 text-white px-3 py-2 text-xs font-bold disabled:opacity-50">संपर्क अधिकार चालू</button>
-        <button type="button" disabled={busy||!selected} onClick={()=>void setAccess(false)}
-          className="rounded-xl border border-rose-400 text-rose-100 px-3 py-2 text-xs font-bold disabled:opacity-50">स्टाफ एक्सेस बंद</button>
+        <button type="button" disabled={busy||!selected||selected.permissions.callCustomer!==true} onClick={()=>void setAccess(false)}
+          className="rounded-xl border border-rose-400 text-rose-100 px-3 py-2 text-xs font-bold disabled:opacity-50">केवल नंबर अधिकार बंद</button>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
         <label className="text-xs font-semibold">ऑर्डर प्रकार
