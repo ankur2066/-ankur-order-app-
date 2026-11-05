@@ -103,25 +103,45 @@ test('all three triggers target the existing named database and expected paths',
   assert.equal(api.notifyAnkurOrderProgress.options.document, 'order_tracking/{trackingToken}');
 });
 
-test('new orders reach owner, permitted staff, delivery and legacy staff; revoked roles are excluded', async () => {
+test('new orders reach only explicitly active permitted staff and delivery; revoke legacy recipients', async () => {
   const records = { 'push_owner_devices/owner': device(fcm('owner')) };
   for (const [id, data] of Object.entries({
-    allowed: { role: 'staff', permissions: { viewOrders: true } },
-    delivery: { role: 'delivery', permissions: { viewOrders: true } },
+    allowed: { role: 'staff', active: true, permissions: { viewOrders: true } },
+    delivery: { role: 'delivery', active: true, permissions: { viewOrders: true } },
     legacy: { role: 'staff' },
-    partial: { role: 'staff', permissions: { updateStatus: false } },
-    denied: { role: 'staff', permissions: { viewOrders: false } },
-    revoked: { role: 'customer', permissions: { viewOrders: true } },
-    impostor: { role: 'admin' },
+    partial: { role: 'staff', active: true, permissions: { updateStatus: false } },
+    disabled: { role: 'staff', active: false, permissions: { viewOrders: true } },
+    denied: { role: 'staff', active: true, permissions: { viewOrders: false } },
+    revoked: { role: 'customer', active: true, permissions: { viewOrders: true } },
+    impostor: { role: 'admin', active: true },
   })) {
     records['users/' + id] = data;
     records['push_team_devices/' + id + '/devices/phone'] = device(fcm(id));
   }
   const w = await worker({ records });
   await w.api.notifyNewAnkurOrder(created(order));
-  assert.deepEqual(w.messages[0].tokens.sort(), ['owner', 'allowed', 'delivery', 'legacy', 'partial'].map(fcm).sort());
+  assert.deepEqual(w.messages[0].tokens.sort(), ['owner', 'allowed', 'delivery'].map(fcm).sort());
 });
 
+test('FCM never echoes legacy address/phone in new order or free-form status messages',async()=>{
+ const records={
+  'push_owner_devices/owner':device(fcm('owner')),
+  'users/active':{role:'staff',active:true,permissions:{viewOrders:true}},
+  'push_team_devices/active/devices/phone':device(fcm('active'))
+ };
+ const w=await worker({records});
+ const privateOrder={...order,city:'My street 9988776655',district:'Secret address',quantityKg:'9988776655'};
+ await w.api.notifyNewAnkurOrder(created(privateOrder));
+ const raw=JSON.stringify({notification:w.messages[0].notification,data:w.messages[0].data});
+ for(const secret of ['9988776655','Secret address','My street'])assert.equal(raw.includes(secret),false);
+ await w.api.notifyAnkurOrderProgress(updated(tracking,{
+   ...tracking,status:'confirmed',
+   lastStatusUpdate:'Call private number 9988776655 at My street'
+ }));
+ const updatedBody=JSON.stringify(w.messages.at(-1).notification);
+ assert.equal(updatedBody.includes('9988776655'),false);
+ assert.equal(updatedBody.includes('My street'),false);
+});
 test('malformed permission values fail closed exactly like Firestore Rules', async () => {
   const records = {};
   for (const [index, value] of [null, 0, 1, 'true', 'false', {}, []].entries()) {
