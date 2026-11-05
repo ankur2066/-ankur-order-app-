@@ -17,17 +17,21 @@ const plain = (v, limit = 100) => typeof v === 'string'
   : '';
 const validStatus = value => STATUS.has(value);
 const validOrderTimestamp = value => {
-  if (value instanceof Date) return Number.isFinite(value.getTime()) ? value : null;
-  // Only Firestore Timestamp-like instances with finite millisecond epochs
-  // are allowed. Strings, arbitrary objects, maps, arrays and PII are denied.
+  // Always create a fresh Date, never return a caller-controlled object.
+  // A Timestamp-like object with extra enumerable keys could otherwise leak
+  // phone/address fields when written to a staff-visible Firestore document.
+  if (value instanceof Date) {
+    const ms=value.getTime();
+    return Number.isFinite(ms) ? new Date(ms) : null;
+  }
   if (!value || typeof value !== 'object' || Array.isArray(value) ||
       typeof value.toMillis !== 'function' || typeof value.toDate !== 'function')
     return null;
   try {
-    const millis = value.toMillis();
-    const date = value.toDate();
-    return Number.isFinite(millis) && date instanceof Date &&
-      Number.isFinite(date.getTime()) && Math.abs(millis - date.getTime()) < 1 ? value : null;
+    const ms=value.toMillis(), date=value.toDate();
+    return Number.isFinite(ms) && date instanceof Date &&
+      Number.isFinite(date.getTime()) && Math.abs(ms-date.getTime())<1
+        ? new Date(Math.trunc(ms)) : null;
   } catch { return null; }
 };
 const STATUS_RANK = {pending:0,confirmed:1,in_packing:2,dispatched:3,delivered:4};
