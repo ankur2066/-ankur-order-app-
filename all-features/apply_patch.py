@@ -22,7 +22,6 @@ def replace_once(path: Path, old: str, new: str):
 (SRC / 'context').mkdir(exist_ok=True)
 shutil.copy2(TEMPLATES / 'LanguageContext.template', SRC / 'context' / 'LanguageContext.tsx')
 shutil.copy2(TEMPLATES / 'FeatureHub.template', SRC / 'components' / 'customer' / 'FeatureHub.tsx')
-shutil.copy2(TEMPLATES / 'pilotRollout.template', SRC / 'utils' / 'pilotRollout.ts')
 shutil.copy2(TEMPLATES / 'FeatureDataPanels.template', SRC / 'components' / 'customer' / 'FeatureDataPanels.tsx')
 shutil.copy2(TEMPLATES / 'dryIceCalc.template', SRC / 'utils' / 'dryIceCalc.ts')
 shutil.copy2(TEMPLATES / 'commercialReceipt.template', SRC / 'utils' / 'commercialReceipt.ts')
