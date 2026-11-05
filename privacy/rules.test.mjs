@@ -23,6 +23,14 @@ before(async()=>{
    const db=ctx.firestore(DB);
    for(const [p,data] of Object.entries({
     ['orders/'+id]:legacy,['product_orders/'+productId]:product,
+    ['order_tracking/'+legacy.trackingToken]:{
+      orderId:id,userId:'buyer',status:'pending',trackingToken:legacy.trackingToken,
+      customerPhone:'9000000010',trackingPin:'123456',paymentStatus:'pending_verification'
+    },
+    ['product_order_tracking/'+product.trackingToken]:{
+      orderId:productId,userId:'buyer',status:'pending',trackingToken:product.trackingToken,
+      customerPhone:'9000000010',trackingPin:'123456',paymentStatus:'pending_verification'
+    },
     ['staffOrderViews/orders_'+id]:view('orders',id),
     ['staffOrderViews/product_orders_'+productId]:view('product_orders',productId),
     'users/activeStaff':{role:'staff',active:true,permissions:{viewOrders:true,callCustomer:true,updateStatus:true}},
@@ -85,7 +93,11 @@ test('staff cannot write raw order or tracking docs, even with updateStatus perm
    await assertFails(updateDoc(doc(db,path),{status:'confirmed',updatedAt:serverTimestamp()}));
  }
  // Direct tracking mutation is forbidden too; server callable updates both.
- for(const path of ['order_tracking/'+id+'_123456','product_order_tracking/'+productId+'_123456']) {
+ for(const path of ['order_tracking/'+legacy.trackingToken,'product_order_tracking/'+product.trackingToken]) {
+   // Fixtures must exist: failing an update on a missing document cannot prove denial.
+   const snapshot=await env.withSecurityRulesDisabled(async ctx=>
+     getDoc(doc(ctx.firestore(DB),path)));
+   assert.equal(snapshot.exists(),true,'tracking fixture must exist: '+path);
    await assertFails(updateDoc(doc(db,path),{status:'dispatched',updatedAt:serverTimestamp()}));
  }
 });
