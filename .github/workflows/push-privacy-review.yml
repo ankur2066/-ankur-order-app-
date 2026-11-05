@@ -1,5 +1,6 @@
 name: Push privacy hardening review (NO DEPLOY)
 on:
+  workflow_call:
   push:
     branches: [codex/staff-phone-server-privacy-v149]
     paths:

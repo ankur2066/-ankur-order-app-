@@ -1,0 +1,13 @@
+name: November 9 All-Features Security Gate (NO DEPLOY)
+on:
+  workflow_call:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  staff-privacy:
+    uses: ./.github/workflows/staff-privacy-review.yml
+  feature-suite:
+    uses: ./.github/workflows/feature-suite-security.yml
+  notification-privacy:
+    uses: ./.github/workflows/push-privacy-review.yml
