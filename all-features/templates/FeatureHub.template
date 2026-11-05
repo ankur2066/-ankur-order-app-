@@ -29,9 +29,41 @@ const FEATURES: Array<{id:FeatureId; icon:React.ComponentType<{className?:string
 ];
 
 const CalculatorPanel = () => {
-  const [minutes,setMinutes]=useState(3),[machines,setMachines]=useState(1),[hours,setHours]=useState(0);const[rates,setRates]=useState(getLocalRates);React.useEffect(()=>subscribeToRates(setRates),[]);
-  const result=calculateDryIce({mode:'entry',entryMinutes:minutes,entryUnits:machines,stageMinutes:0,stageUnits:0,hoursBeforeEvent:hours},rates);
-  return <div className="space-y-3"><p className="text-sm t-sub">Estimate only: 3 minutes of fog per KG per machine, with transit allowance and 10% cushion. Actual performance varies.</p>{[['Fog duration (minutes)',minutes,setMinutes,120],['Machines',machines,setMachines,20],['Hours before event',hours,setHours,12]].map(([label,value,setter,max]:any)=><label key={label} className="block">{label}<input className="w-full rounded-xl border p-3" type="number" min="0" max={max} value={value} onChange={e=>setter(Math.min(max,Math.max(0,Number(e.target.value)||0)))}/></label>)}<p className="font-bold">Suggested booking: {result.bookKg} KG · Estimated ₹{result.estimatedTotal}</p><button className="c-brand rounded-xl p-3" disabled={!result.bookKg} onClick={()=>window.dispatchEvent(new CustomEvent('ankur-estimated-quantity',{detail:result.bookKg}))}>Use this quantity in booking</button><p>This action fills KG only when you press the button.</p></div>;
+  const {language}=useLanguage();
+  const hi=language==='hi';
+  const [minutes,setMinutes]=useState(12),[machines,setMachines]=useState(1),[hours,setHours]=useState(0);
+  const [rates,setRates]=useState(getLocalRates);
+  React.useEffect(()=>subscribeToRates(setRates),[]);
+  const result=calculateDryIce({mode:'entry',entryMinutes:minutes,entryUnits:machines,
+    stageMinutes:0,stageUnits:0,hoursBeforeEvent:hours},rates);
+  const fields=[
+    {title:hi?'फॉग मिनट':'Fog minutes',value:minutes,onChange:setMinutes,max:120},
+    {title:hi?'मशीन / मटका':'Machines / matkas',value:machines,onChange:setMachines,max:20},
+    {title:hi?'इवेंट से पहले घंटे':'Hours before event',value:hours,onChange:setHours,max:12}
+  ];
+  return <section className="space-y-3" aria-label="Dry ice calculator">
+    <p className="text-sm t-sub">{hi
+      ?'लगभग 3 मिनट फॉग प्रति किलो प्रति मशीन, ट्रांसपोर्ट लॉस और 10% मार्जिन का अनुमान। वास्तविक समय अलग हो सकता है।'
+      :'Estimate uses about 3 fog minutes per kg per machine, transit loss and 10% margin. Actual output varies.'}</p>
+    {fields.map(f=><label className="block text-sm font-semibold" key={f.title}>{f.title}
+      <input type="number" min="0" max={f.max} step="1" value={f.value}
+        className="w-full rounded-xl border p-3 mt-1"
+        onChange={e=>{const n=Number(e.target.value);
+          f.onChange(Math.min(f.max,Math.max(0,Number.isFinite(n)?Math.round(n):0)));}}/>
+    </label>)}
+    <div className="c-soft rounded-xl p-3" role="status">
+      <p className="font-black">{hi?'बुक करने का अनुमान':'Suggested booking'}: {result.bookKg} KG</p>
+      <p className="text-sm">{hi?'अनुमानित राशि':'Estimated amount'}: ₹{result.estimatedTotal}</p>
+      {result.belowMinimum&&<p className="text-xs">{hi?'न्यूनतम बुकिंग 10 KG है।':'Minimum booking is 10 KG.'}</p>}
+      {result.aboveMaximum&&<p className="text-xs">{hi?'बड़ी मात्रा के लिए टीम से बात करें।':'Contact the team for large orders.'}</p>}
+    </div>
+    <button type="button" className="c-brand rounded-xl p-3 w-full font-bold"
+      disabled={!result.bookKg||result.aboveMaximum}
+      onClick={()=>window.dispatchEvent(new CustomEvent('ankur-open-calculator-booking',{detail:result.bookKg}))}>
+      {hi?'यही मात्रा बुकिंग में भरें':'Use quantity in booking'}
+    </button>
+    <p className="text-xs t-sub">{hi?'अंतिम राशि बुकिंग फॉर्म पर जाँचें।':'Check the final amount in the booking form.'}</p>
+  </section>;
 };
 
 const SafePanel: React.FC<{id:FeatureId; state?:string; user:User|null;role:string|null}> = ({id,state,user,role}) => {
@@ -39,8 +71,8 @@ const SafePanel: React.FC<{id:FeatureId; state?:string; user:User|null;role:stri
   if(id==='calculator') return <CalculatorPanel/>;
   if(id==='video') return <VideoIdeaPanel/>;
   if(id==='rates') return <LiveRateCard/>;
-  if(id==='support') return <div className="grid grid-cols-2 gap-3"><a className="c-brand rounded-xl p-3 text-center font-bold" href="tel:+919580882066">Call</a><a className="c-brand rounded-xl p-3 text-center font-bold" target="_blank" rel="noreferrer" href="https://wa.me/918896332066?text=Hello%20Ankur%20Dryice">WhatsApp</a></div>;
-  if(id==='faq') return <div className="space-y-3 text-sm"><p><b>How should dry ice be handled?</b><br/>Use insulated gloves, keep ventilation, and never seal it in an airtight container.</p><p><b>When is delivery confirmed?</b><br/>Only after the order status and owner confirmation shown in the app.</p></div>;
+  if(id==='support') return <SupportPanel/>;
+  if(id==='faq') return <FaqPanel/>;
   if(id==='service-area') return <ServiceAreaPanel/>;
   if(id==='catalog') return <ApplicationCatalog/>;
   return <div className="rounded-xl c-soft p-4 text-sm font-bold">{state || 'This feature uses verified account and order data.'}</div>;
@@ -91,6 +123,60 @@ export const FeatureHub: React.FC<{currentUser:User|null; role:string|null; init
 export const LanguageSettings = () => { const {language,setLanguage,t}=useLanguage(); return <section className="c-card border b-line rounded-2xl p-4"><h2 className="text-sm font-black flex items-center gap-2"><Languages className="w-5 h-5 t-brand"/>{t('settings')}</h2><p className="mt-3 text-xs font-bold t-sub">{t('language')}</p><div className="grid grid-cols-2 gap-2 mt-2"><button type="button" aria-pressed={language==='en'} onClick={()=>setLanguage('en')} className={`min-h-11 rounded-xl border ${language==='en'?'b-brand c-soft':'b-line c-card'} font-bold`}>{t('english')}</button><button type="button" aria-pressed={language==='hi'} onClick={()=>setLanguage('hi')} className={`min-h-11 rounded-xl border ${language==='hi'?'b-brand c-soft':'b-line c-card'} font-bold`}>{t('hindi')}</button></div></section> };
 
 function VideoIdeaPanel(){const[occasion,setOccasion]=useState(''),[duration,setDuration]=useState(15),[notice,setNotice]=useState('');const prompt=`Write a ${duration}-second video concept for ${occasion||'an event'} featuring Ankur Dryice. Describe scenes, captions and a call to action. Follow safe dry-ice handling. Do not claim a video has been generated.`;return <div className="space-y-3"><label className="block">Occasion<input className="w-full border rounded-xl p-3" value={occasion} onChange={e=>setOccasion(e.target.value.slice(0,200))}/></label><label className="block">Length in seconds<input className="w-full border rounded-xl p-3" type="number" min="5" max="120" value={duration} onChange={e=>setDuration(Math.min(120,Math.max(5,Number(e.target.value)||5)))}/></label><textarea readOnly aria-label="Generated prompt" className="w-full min-h-36 border rounded-xl p-3" value={prompt}/><button className="c-brand rounded-xl p-3" onClick={async()=>{try{await navigator.clipboard.writeText(prompt);setNotice('Prompt copied.');}catch{setNotice('Select and copy the prompt above.');}}}>Copy prompt</button><a className="block underline" href="https://gemini.google.com/app" target="_blank" rel="noopener noreferrer">Open Gemini</a><p role="status">{notice}</p></div>;}
-function ServiceAreaPanel(){const[search,setSearch]=useState('');return <div className="space-y-3"><p>Delivery availability and timing are confirmed for each order.</p><input className="w-full border rounded-xl p-3" aria-label="Search district" placeholder="Search Uttar Pradesh district" value={search} onChange={e=>setSearch(e.target.value)}/><ul>{UP_DISTRICTS.filter(d=>d.toLowerCase().includes(search.trim().toLowerCase())).map(d=><li className="border-b py-2" key={d}>{d}</li>)}</ul></div>;}
-function LiveRateCard(){const[rates,setRates]=useState(getLocalRates);React.useEffect(()=>subscribeToRates(setRates),[]);return <dl className="space-y-3"><div>Dry ice: ₹{rates.dryIceRate}/KG</div><div>Thermocol: ₹{rates.thermocolRate}/KG</div>{!!rates.transportRate&&<div>Transport: ₹{rates.transportRate}/KG under the current booking formula</div>}<p>Selected products may have their own unit and packing charges. Review the final booking bill.</p></dl>;}
+function FaqPanel(){
+ const {language}=useLanguage(),hi=language==='hi';
+ const questions=[
+  [hi?'ड्राई आइस को कैसे छुएँ?':'How should I handle dry ice?',hi?'मोटे इंसुलेटेड दस्ताने पहनें। नंगी त्वचा से छूने पर ठंडी जलन हो सकती है।':'Use insulated gloves. Bare skin contact can cause cold burns.'],
+  [hi?'क्या इसे पूरी तरह बंद डिब्बे में रखें?':'Can I seal it airtight?',hi?'कभी नहीं। गैस बनने से दबाव बढ़ सकता है।':'Never use an airtight container. Pressure can build up.'],
+  [hi?'कहाँ स्टोर करें?':'How should it be stored?',hi?'हवादार जगह, बच्चों से दूर। बंद कमरे या गाड़ी में कार्बन डाइऑक्साइड जमा हो सकती है।':'Keep ventilated and away from children. CO₂ can build up in closed rooms and vehicles.'],
+  [hi?'ऑर्डर कब कन्फर्म होगा?':'When is delivery confirmed?',hi?'ऐप के स्टेटस और टीम की पुष्टि से। केवल बुकिंग जमा करना डिलीवरी गारंटी नहीं है।':'After the app status and team confirmation; submitting a booking does not guarantee delivery.'],
+  [hi?'बस से डिलीवरी होगी?':'Can I request bus delivery?',hi?'जगह, पैकिंग और बस उपलब्धता के अनुसार टीम पुष्टि करेगी।':'The team confirms destination, packing and available transport.']
+ ];
+ return <div className="space-y-3 text-sm" aria-label="Dry ice FAQs">
+  {questions.map(([q,a])=><details className="rounded-xl border b-line p-3" key={q}>
+   <summary className="font-semibold cursor-pointer">{q}</summary>
+   <p className="mt-2 t-sub">{a}</p>
+  </details>)}
+ </div>;
+}
+function SupportPanel(){
+ const {language}=useLanguage(),hi=language==='hi';
+ return <div className="space-y-3" aria-label="Customer support">
+  <p className="text-sm t-sub">{hi?'बुकिंग, पैकिंग या डिलीवरी के सवाल? कॉल और WhatsApp के नंबर अलग हैं।':'Questions about booking, packing or delivery? Call and WhatsApp use separate numbers.'}</p>
+  <div className="grid grid-cols-2 gap-3">
+   <a className="c-brand rounded-xl p-3 text-center font-bold" href="tel:+919580882066">{hi?'कॉल':'Call'}<span className="block text-xs">95808 82066</span></a>
+   <a className="c-brand rounded-xl p-3 text-center font-bold" target="_blank" rel="noopener noreferrer"
+    href="https://wa.me/918896332066?text=Hello%20Ankur%20Dryice%2C%20I%20need%20order%20support.">WhatsApp<span className="block text-xs">88963 32066</span></a>
+  </div>
+  <p className="text-xs t-sub">{hi?'ऑर्डर ID बता सकते हैं; OTP या UPI PIN कभी न भेजें।':'Share an order ID if useful; never send OTPs or UPI PINs.'}</p>
+ </div>;
+}
+function ServiceAreaPanel(){
+ const {language}=useLanguage(),hi=language==='hi';const[search,setSearch]=useState('');
+ const districts=UP_DISTRICTS.filter(d=>d.toLocaleLowerCase().includes(search.trim().toLocaleLowerCase()));
+ return <section className="space-y-3" aria-label="Uttar Pradesh delivery enquiry">
+  <p className="text-sm t-sub">{hi?'पूरे उत्तर प्रदेश में डिलीवरी के लिए पूछताछ करें। जिला दिखना समय या उपलब्धता की पुष्टि नहीं है।':'Enquire across Uttar Pradesh. A listed district is not a delivery availability or timing guarantee.'}</p>
+  <label className="block text-sm font-bold">{hi?'जिला खोजें':'Search district'}
+   <input maxLength={80} value={search} onChange={e=>setSearch(e.target.value)}
+    className="w-full border rounded-xl p-3 mt-1" placeholder={hi?'जिले का नाम':'District name'} />
+  </label>
+  <p role="status" className="text-xs t-sub">{districts.length} {hi?'जिले मिले':'district matches'}</p>
+  <ul className="max-h-64 overflow-y-auto rounded-xl border b-line p-2">{districts.map(d=><li className="border-b b-line p-2" key={d}>{d}</li>)}</ul>
+  <p className="text-xs t-sub">{hi?'पैकिंग और पहुँचने का समय टीम से कन्फर्म करें।':'Confirm packing and arrival with the team.'}</p>
+ </section>;
+}
+function LiveRateCard(){
+ const {language}=useLanguage(),hi=language==='hi';const[rates,setRates]=useState(getLocalRates);
+ React.useEffect(()=>subscribeToRates(setRates),[]);
+ const display=(value:number)=>Number.isFinite(value)&&value>0?'₹'+value+' / KG':(hi?'रेट कन्फर्म करें':'Confirm rate');
+ return <section className="space-y-3" aria-label="Rate card">
+  <p className="text-sm t-sub">{hi?'यह ऐप में उपलब्ध रेट हैं, अंतिम कोटेशन नहीं।':'These are app rates, not a final quote.'}</p>
+  <dl className="space-y-3">
+   <div className="c-soft rounded-xl p-3 flex justify-between gap-2"><dt>{hi?'ड्राई आइस':'Dry ice'}</dt><dd className="font-bold">{display(rates.dryIceRate)}</dd></div>
+   <div className="c-soft rounded-xl p-3 flex justify-between gap-2"><dt>{hi?'थर्मोकोल':'Thermocol'}</dt><dd className="font-bold">{display(rates.thermocolRate)}</dd></div>
+   {Number.isFinite(rates.transportRate)&&rates.transportRate>0&&<div className="c-soft rounded-xl p-3 flex justify-between gap-2"><dt>{hi?'ट्रांसपोर्ट':'Transport'}</dt><dd className="font-bold">{display(rates.transportRate)}</dd></div>}
+  </dl>
+  <p className="text-xs t-sub">{hi?'असली मात्रा, पैकिंग और डिलीवरी के अनुसार बुकिंग में अंतिम बिल देखें।':'Check the final booking bill for quantity, packing and delivery.'}</p>
+ </section>;
+}
 function ApplicationCatalog(){const{products,loading,error}=useStorefrontProducts();const[category,setCategory]=useState('all');const[rates,setRates]=useState(getLocalRates);React.useEffect(()=>subscribeToRates(setRates),[]);return <div className="space-y-3"><label>Application / category<select className="w-full border rounded-xl p-3" value={category} onChange={e=>setCategory(e.target.value)}>{['all',...new Set(products.map(p=>p.category))].map(c=><option key={c}>{c}</option>)}</select></label>{loading&&<p>Loading…</p>}{error&&<p role="alert">{error}</p>}{products.filter(p=>p.active&&(category==='all'||p.category===category)).map(p=><article className="border rounded-xl p-3" key={p.id}><h3 className="font-bold">{p.name}</h3><p>₹{displayPricePerKg(p,rates)} / {p.unitProduct?.unit||'KG'}</p><button className="mt-2 c-brand rounded-xl p-3" onClick={()=>window.dispatchEvent(new CustomEvent('ankur-select-product',{detail:p.id}))}>Book this product</button></article>)}</div>;}
