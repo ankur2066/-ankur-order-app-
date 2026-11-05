@@ -95,9 +95,10 @@ test('staff cannot write raw order or tracking docs, even with updateStatus perm
  // Direct tracking mutation is forbidden too; server callable updates both.
  for(const path of ['order_tracking/'+legacy.trackingToken,'product_order_tracking/'+product.trackingToken]) {
    // Fixtures must exist: failing an update on a missing document cannot prove denial.
-   const snapshot=await env.withSecurityRulesDisabled(async ctx=>
-     getDoc(doc(ctx.firestore(DB),path)));
-   assert.equal(snapshot.exists(),true,'tracking fixture must exist: '+path);
+   await env.withSecurityRulesDisabled(async ctx=>{
+     const snapshot=await getDoc(doc(ctx.firestore(DB),path));
+     assert.equal(snapshot.exists(),true,'tracking fixture must exist: '+path);
+   });
    await assertFails(updateDoc(doc(db,path),{status:'dispatched',updatedAt:serverTimestamp()}));
  }
 });
