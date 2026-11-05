@@ -44,6 +44,10 @@ test('Staff gets no raw PII and obtains only one explicit short-lived contact',(
  assert.doesNotMatch(staff,/phoneMatch|batch\.commit\(\)|writeBatch\(/);
  assert.match(staff,/collection\(db, 'staffOrderViews'\)/);
  assert.match(staff,/onSnapshot\(/);
+ assert.match(staff,/sourceCollection: view.sourceCollection/);
+ assert.match(staff,/const sourceCollection = staffSource\(ord\)/);
+ assert.match(staff,/sourceCollection: staffSource\(ord\)/);
+ assert.doesNotMatch(staff,/sourceCollection: ord\.billingVersion === 2/);
  assert.match(staff,/ankurGetOneOrderContact/);
  assert.match(staff,/contact\?\.key === contactKey/);
  assert.match(staff,/aria-expanded=\{contact\?\.key === contactKey\}/);
