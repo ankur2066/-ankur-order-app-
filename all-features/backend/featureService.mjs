@@ -30,11 +30,14 @@ export function createFeatureService({db,now=()=>Date.now(),timestamp=()=>new Da
    });
   }
   if(action==='preferences'){
-   if(typeof data.orderUpdates!=='boolean'||typeof data.promos!=='boolean'||
-      (data.winnerPublicConsent!==undefined&&typeof data.winnerPublicConsent!=='boolean'))throw Error('Invalid preferences');
-   await db.doc('userPrefs/'+auth.uid).set({orderUpdates:data.orderUpdates,promos:data.promos,
-     ...(data.winnerPublicConsent===undefined?{}:{winnerPublicConsent:data.winnerPublicConsent}),
-     updatedAt:timestamp()},{merge:true});return {ok:true};
+   // Winner consent MUST go through ankurWinnerConsent: withdrawing it must
+   // atomically suppress any existing publicly announced winner record.
+   if(!data || Object.keys(data).some(k=>!['orderUpdates','promos'].includes(k)) ||
+      typeof data.orderUpdates!=='boolean'||typeof data.promos!=='boolean')
+      throw Error('Invalid preferences; Daily Winner consent has a separate callable');
+   await db.doc('userPrefs/'+auth.uid).set({
+     orderUpdates:data.orderUpdates,promos:data.promos,updatedAt:timestamp()
+   },{merge:true});return {ok:true};
   }
   if(action==='referralClaim'){
    const referrerId=code(data.referrerId);if(referrerId===auth.uid)throw Error('Self referral denied');
