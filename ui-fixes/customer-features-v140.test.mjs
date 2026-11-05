@@ -46,6 +46,16 @@ test('AI Features shows one full-width winner strip then existing two-column too
  assert.match(app,/false && currentTab === 'categories'/);
 });
 
+test('Daily Winner consent uses a single authenticated removal path',()=>{
+ const panel=readFileSync(new URL('../all-features/templates/FeatureDataPanels.template',import.meta.url),'utf8');
+ const service=readFileSync(new URL('../all-features/backend/featureService.mjs',import.meta.url),'utf8');
+ const winner=readFileSync(resolve(root,'src/components/customer/DailyWinner.tsx'),'utf8');
+ assert.doesNotMatch(panel,/key:'winnerPublicConsent'/,'generic preferences must not bypass public announcement removal');
+ assert.match(panel,/Daily Winner banner under AI Features/);
+ assert.match(service,/Object\.keys\(data\)\.some\(k=>!\['orderUpdates','promos'\]\.includes\(k\)\)/);
+ assert.match(winner,/ankurWinnerConsent/,'dedicated callable must handle opt-in and opt-out');
+});
+
 test('existing Home booking and owner/staff workflows remain routed unchanged',()=>{
  assert.match(home,/bookingForm\(null\)/);
  assert.doesNotMatch(home,/aqp-top-product-picker|Ice calculator and rate card/);
