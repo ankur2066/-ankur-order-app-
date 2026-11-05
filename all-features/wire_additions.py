@@ -8,7 +8,19 @@ effect="""  useEffect(() => {
     window.addEventListener('ankur-select-product',select);
     const track=(event:Event)=>{const r=(event as CustomEvent).detail;if(r?.orderId&&r?.trackingPin)handleGoToTrack(r.orderId,r.trackingPin);};
     window.addEventListener('ankur-track-order',track);
-    return()=>{window.removeEventListener('ankur-select-product',select);window.removeEventListener('ankur-track-order',track);};
+    const applyEstimate=(event:Event)=>{
+      const kg=(event as CustomEvent<number>).detail;
+      if(!Number.isInteger(kg)||kg<10||kg>5000)return;
+      try{window.sessionStorage.setItem('ankur.pending.calculated.kg',String(kg));}
+      catch{return;}
+      setCurrentTab('home');
+    };
+    window.addEventListener('ankur-open-calculator-booking',applyEstimate);
+    return()=>{
+      window.removeEventListener('ankur-select-product',select);
+      window.removeEventListener('ankur-track-order',track);
+      window.removeEventListener('ankur-open-calculator-booking',applyEstimate);
+    };
   },[products]);
   useEffect(()=>{const ref=new URLSearchParams(location.search).get('ref');if(ref&&/^[A-Za-z0-9_-]{3,128}$/.test(ref))localStorage.setItem('ankur.referrer',ref);},[]);
 """
@@ -30,7 +42,18 @@ p.write_text(s)
 for name in ['AdminDashboard','StaffDashboard']:
     p=Path('src/components')/(name+'.tsx');s=p.read_text();s=s.replace("statusMsg = 'ड्राई आइस बस / डिलीवरी बॉय को हैंडओवर कर दी गई है।';","statusMsg = ord.billingVersion===2?'Product handed over for delivery.':'ड्राई आइस बस / डिलीवरी बॉय को हैंडओवर कर दी गई है।';");p.write_text(s)
 p=Path('src/components/OrderForm.tsx');s=p.read_text();anchor='  const executeOrderSubmission = async () => {'
-effect="""  useEffect(()=>{const fill=(e:Event)=>{const qty=(e as CustomEvent<number>).detail;if(Number.isInteger(qty)&&qty>=10&&qty<=5000)setQuantityInput(String(qty));};window.addEventListener('ankur-estimated-quantity',fill);return()=>window.removeEventListener('ankur-estimated-quantity',fill);},[]);
+effect="""  useEffect(()=>{
+    const fill=(e:Event)=>{const kg=(e as CustomEvent<number>).detail;
+      if(Number.isInteger(kg)&&kg>=10&&kg<=5000)setQuantityInput(String(kg));};
+    try{
+      const raw=window.sessionStorage.getItem('ankur.pending.calculated.kg');
+      const kg=Number(raw);
+      if(raw&&Number.isInteger(kg)&&kg>=10&&kg<=5000)setQuantityInput(String(kg));
+      window.sessionStorage.removeItem('ankur.pending.calculated.kg');
+    }catch{}
+    window.addEventListener('ankur-estimated-quantity',fill);
+    return()=>window.removeEventListener('ankur-estimated-quantity',fill);
+  },[]);
 """
 assert s.count(anchor)==1;s=s.replace(anchor,effect+anchor);p.write_text(s)
 p=Path('src/components/customer/CustomerHome.tsx');s=p.read_text();s="import { FeatureHub } from './FeatureHub';\n"+s
