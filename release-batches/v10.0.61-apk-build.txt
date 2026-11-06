@@ -1,0 +1,4 @@
+Build private test candidate 10.0.61, Android versionCode 61.
+All review and emulator checks must pass before the signed Android package is produced.
+Candidate includes warehouse stock quantity display, IST subscription due cycles, safe wholesale quotes and issue 11 notification privacy review.
+This marker requests a private CI artifact only. No Firebase deployment or public release.
