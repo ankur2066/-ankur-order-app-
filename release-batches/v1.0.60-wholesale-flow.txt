@@ -1,4 +1,5 @@
 Private test release 10.0.60 (Android versionCode 60).
+Profile header shows v10.0.60 using the shared app version constant.
 Customers see pending wholesale applications after submit and reload.
 Owner application cards approve or revoke access.
 Owner quotes are attached to bulk request cards and visible to customers.

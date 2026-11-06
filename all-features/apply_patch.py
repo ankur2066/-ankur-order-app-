@@ -41,6 +41,7 @@ replace_once(app, '<SubPageBar title="ऑर्डर ट्रैकिंग"'
 replace_once(app, "  return (\n    <ThemeProvider>\n      <AppShell />\n    </ThemeProvider>\n  );\n}", "  return (\n    <LanguageProvider>\n      <ThemeProvider>\n        <AppUpdateNotice />\n        <AppShell />\n      </ThemeProvider>\n    </LanguageProvider>\n  );\n}")
 
 profile = SRC / 'components' / 'customer' / 'ProfileTab.tsx'
+replace_once(profile, "import React", "import { ANDROID_VERSION_NAME } from '../../services/appUpdate';\nimport React")
 replace_once(profile, "import { SignInScreen } from '../SignInScreen';", "import { SignInScreen } from '../SignInScreen';\nimport { FeatureHub, LanguageSettings } from './FeatureHub';\nimport { useLanguage } from '../../context/LanguageContext';")
 replace_once(profile, "export const ProfileTab: React.FC<ProfileTabProps> = ({ currentUser, role, onOpenOwnerDashboard }) => {\n", "export const ProfileTab: React.FC<ProfileTabProps> = ({ currentUser, role, onOpenOwnerDashboard }) => {\n  const { t } = useLanguage();\n")
 for old,new in [
@@ -53,6 +54,7 @@ for old,new in [
  ('<Phone className="w-4 h-4" /> कॉल','<Phone className="w-4 h-4" /> {t(\'call\')}'),
  ('<LogOut className="w-4 h-4" /> लॉगआउट','<LogOut className="w-4 h-4" /> {t(\'logout\')}'),
 ]: replace_once(profile, old, new)
+replace_once(profile, "<h1 className=\"text-xl font-black t-main\">{t('profile')}</h1>", "<h1 className=\"text-xl font-black t-main\">{t('profile')} <span className=\"ml-2 inline-block rounded-full border b-line px-2 py-0.5 text-xs font-semibold t-sub\">v{ANDROID_VERSION_NAME}</span></h1>")
 replace_once(profile, '        <section className="c-card border b-line rounded-2xl p-4">\n          <h2 className="text-sm font-black t-main">{t(\'contact\')}</h2>', '        <LanguageSettings />\n\n        <FeatureHub currentUser={currentUser} role={role} />\n\n        <section className="c-card border b-line rounded-2xl p-4">\n          <h2 className="text-sm font-black t-main">{t(\'contact\')}</h2>')
 
 print('Applied English-first language and 14-feature navigation overlay')
