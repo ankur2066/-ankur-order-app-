@@ -39,7 +39,8 @@ async function harness(){
   '../../data/rates':{getLocalRates:()=>({}),subscribeToRates:()=>()=>{}},
   '../../utils/commercialReceipt':{downloadCommercialReceipt:()=>{}},
   '../../services/orderPush':{subscribeNewOrderPush:()=>{}},
-  '../../billing/unitBilling':{parseMoney:value=>Math.round(Number(value)*100)}
+  '../../billing/unitBilling':{parseMoney:value=>Math.round(Number(value)*100)},
+  '../../utils/stockQuantity':{formatStockQuantity:(value,unit)=>String(Number(value)/(unit==='kg'?1000:1))+' '+unit,parseStockQuantity:(value,unit,signed=false)=>{const amount=Number(value),scaled=unit==='kg'?amount*1000:amount;if(!Number.isSafeInteger(scaled)||(!signed&&amount<0)||amount>100000)return NaN;return scaled;}}
  };
  const context=createContext({});
  const source=readFileSync(new URL('./templates/FeatureDataPanels.template',import.meta.url),'utf8');
