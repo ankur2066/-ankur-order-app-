@@ -1,5 +1,15 @@
 # ANKUR DRYICE — PROJECT PROGRESS / CHAT HANDOFF
 
+## 6 November 2026 — optional inventory integration completed in review source
+
+- Tracking follow-up committed at `5fd60d298f9b539c7b75f78e2652525729e3c6b6`; exact-head review CI PASS: https://github.com/ankur2066/-ankur-order-app-/actions/runs/42140935406 and https://github.com/ankur2066/-ankur-order-app-/actions/runs/42140929252. Security emulator PASS: https://github.com/ankur2066/-ankur-order-app-/actions/runs/42140929310.
+- Closed the previous inventory integration gap in staged source: both real owner/staff status handlers delegate Dispatch to `ankurFeatureAction` only when optional inventory mode is explicitly enabled. Read/call failures never fall back to the direct batch. Disabled/missing settings preserve the existing paired status update path.
+- Trusted dispatch resolves SKU from the stored order, validates staff permissions using the same missing-key defaults as Rules, balance/unit and zero-PII tracking consistency; transaction commits stock, immutable movement, private status and projection together. Retry/races cannot double-debit. New candidate Rules guard every overlapping allow branch, prevent direct dispatch/delivery and prevent status rewind while mode is on. ETA uses the same staff permission predicate.
+- Owner setup includes a separately saved off-by-default inventory switch, real opening stock, mapping and audited adjustment; no actual quantities, prices or switch values were invented or seeded. All current seasonal/Home/premium owner/staff/privacy/AI/update changes remain in the reconstruction chain.
+- Local verification of combined source: lint/build PASS; optional feature + product Rules and actual Firestore transaction emulator 41/41 PASS; UI/contracts 71/71 (phone-link test rerun from generated source cwd); actual client/checkout/tap/language/update/tracking + inventory helper/real dashboard handlers 72/72 PASS; Phase A 4/4; billing/listener/product push/receipt 25/25. Protected legacy booking submit, rates and original Rules hashes unchanged. No physical-device test is implied.
+- Remaining rollout gates: actual verified SKU/balances and owner-approved runtime/Rules/IAM rollout; every owner/staff client must use the reviewed app before inventory activation. Older APK files are untouched. Whole-app legacy localization, legacy push preference enforcement, real reward policy and physical acceptance remain incomplete.
+- No production deployment, feature activation, customer-data write, billing change, merge, installation or public release was performed. The next grouped private build may include this source only after successful same-commit review/security checks.
+
 ## 6 November 2026 — tracking language and contact follow-up
 
 - Continued from exact Work Mode-preserving head `b67dc7b79529f1efbeb2db3b9650a366f94268cd`, reconstructed the complete current chain, and kept the latest seasonal policy, five tabs, premium owner/staff screens and grouped-release gate.

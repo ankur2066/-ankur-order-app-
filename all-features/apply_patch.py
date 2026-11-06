@@ -25,6 +25,7 @@ shutil.copy2(TEMPLATES / 'FeatureHub.template', SRC / 'components' / 'customer' 
 shutil.copy2(TEMPLATES / 'FeatureDataPanels.template', SRC / 'components' / 'customer' / 'FeatureDataPanels.tsx')
 shutil.copy2(TEMPLATES / 'dryIceCalc.template', SRC / 'utils' / 'dryIceCalc.ts')
 shutil.copy2(TEMPLATES / 'commercialReceipt.template', SRC / 'utils' / 'commercialReceipt.ts')
+shutil.copy2(TEMPLATES / 'inventoryDispatch.template', SRC / 'services' / 'inventoryDispatch.ts')
 # Local review-only update check; no download/install permissions.
 shutil.copy2(ROOT / 'updates' / 'appUpdate.template', SRC / 'services' / 'appUpdate.ts')
 shutil.copy2(ROOT / 'updates' / 'AppUpdateNotice.template', SRC / 'components' / 'AppUpdateNotice.tsx')

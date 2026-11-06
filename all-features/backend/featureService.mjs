@@ -4,6 +4,7 @@ export function createFeatureService({db,now=()=>Date.now(),timestamp=()=>new Da
  const owner=auth=>auth?.token?.email===OWNER&&auth.token.email_verified===true;
  const requireUser=auth=>{if(!auth?.uid)throw Error('Sign in required');return auth.uid;};
  const requireOwner=auth=>{if(!owner(auth))throw Error('Owner access required');};
+ const statusPermission=team=>{const p=team?.permissions;return ['staff','delivery'].includes(team?.role)&&(p===undefined||(p!==null&&typeof p==='object'&&!Array.isArray(p)&&(!Object.hasOwn(p,'updateStatus')||p.updateStatus===true)));};
  const text=(value,max=300)=>{if(typeof value!=='string'||!value.trim()||value.trim().length>max)throw Error('Invalid text');return value.trim();};
  const integer=(v,min=0,max=9900000)=>{if(!Number.isSafeInteger(v)||v<min||v>max)throw Error('Invalid number');return v;};
  const code=v=>{if(typeof v!=='string'||! /^[A-Za-z0-9_-]{3,64}$/.test(v))throw Error('Invalid identifier');return v;};
@@ -81,23 +82,38 @@ export function createFeatureService({db,now=()=>Date.now(),timestamp=()=>new Da
     tx.create(execution,{orderId,period,userId:s.userId,createdAt:timestamp()});tx.update(ref,{nextDueMs:due.getTime(),updatedAt:timestamp()});return{orderId};});return result;
   }
   if(action==='stockOpening'){
-   requireOwner(auth);const sku=code(data.sku),quantityUnits=integer(data.quantityUnits,0,100000000);const ref=db.doc('stock/'+sku);await db.runTransaction(async tx=>{const old=await tx.get(ref);if(old.exists)throw Error('Opening already configured; use audited adjustment');tx.create(ref,{sku,availableUnits:quantityUnits,configured:true,enabled:data.enabled===true,unit:text(data.unit,16),updatedAt:timestamp()});tx.create(db.doc('stockMovements/opening_'+sku),{sku,deltaUnits:quantityUnits,reason:'opening',actor:auth.uid,createdAt:timestamp()});});return{ok:true};
+   requireOwner(auth);if(!['kg','piece','box','package'].includes(data.unit))throw Error('Invalid stock unit');const sku=code(data.sku),quantityUnits=integer(data.quantityUnits,0,100000000);const ref=db.doc('stock/'+sku);await db.runTransaction(async tx=>{const old=await tx.get(ref);if(old.exists)throw Error('Opening already configured; use audited adjustment');tx.create(ref,{sku,availableUnits:quantityUnits,configured:true,enabled:data.enabled===true,unit:text(data.unit,16),updatedAt:timestamp()});tx.create(db.doc('stockMovements/opening_'+sku),{sku,deltaUnits:quantityUnits,reason:'opening',actor:auth.uid,createdAt:timestamp()});});return{ok:true};
   }
   if(action==='stockAdjust'){
    requireOwner(auth);const sku=code(data.sku),key=code(data.requestId),delta=integer(data.deltaUnits,-100000000,100000000),reason=text(data.reason);return db.runTransaction(async tx=>{const ref=db.doc('stock/'+sku),movement=db.doc('stockMovements/adjust_'+key);const [stock,old]=await Promise.all([tx.get(ref),tx.get(movement)]);if(old.exists)return{ok:true};if(!stock.exists)throw Error('Stock not configured');const availableUnits=integer(stock.data().availableUnits+delta,0,100000000);tx.update(ref,{availableUnits,updatedAt:timestamp()});tx.create(movement,{sku,deltaUnits:delta,reason,actor:auth.uid,createdAt:timestamp()});return{ok:true};});
   }
+  if(action==='inventorySettings'){
+   requireOwner(auth);if(typeof data.inventoryEnabled!=='boolean')throw Error('Invalid inventory switch');
+   await db.doc('settings/featureSuite').set({inventoryEnabled:data.inventoryEnabled,inventoryUpdatedAt:timestamp(),inventoryUpdatedBy:auth.uid},{merge:true});return{ok:true};
+  }
   if(action==='stockDispatch'){
-   requireOwner(auth);const id=code(data.orderId),sku=code(data.sku);return db.runTransaction(async tx=>{
-    const orderRef=db.doc((id.startsWith('APO-')?'product_orders/':'orders/')+id),stockRef=db.doc('stock/'+sku),ledger=db.doc('stockMovements/dispatch_'+id);const [order,stock,movement]=await Promise.all([tx.get(orderRef),tx.get(stockRef),tx.get(ledger)]);
-    if(movement.exists)return{duplicate:true};const o=order.data(),s=stock.data();if(!o||o.isTrash||['dispatched','delivered','cancelled'].includes(o.status))throw Error('Order cannot dispatch');if(!s?.configured||!s.enabled)throw Error('Stock disabled');
-    const productKey=o.productId||'legacy_'+createHash('sha256').update(text(o.productName,100)).digest('hex').slice(0,20);
-    const mapping=await tx.get(db.doc('stockMappings/'+productKey));if(mapping.data()?.sku!==sku)throw Error('SKU mapping required');const units=o.billingVersion===2?o.billing.quantityUnits:Math.round(o.quantityKg*1000);if(s.unit!==(o.billingVersion===2?o.billing.unit:'kg'))throw Error('Unit mismatch');integer(units,1,100000000);if(s.availableUnits<units)throw Error('Insufficient stock');
-    const tracking=db.doc((id.startsWith('APO-')?'product_order_tracking/':'order_tracking/')+o.trackingToken);const projection=await tx.get(tracking);if(!projection.exists)throw Error('Tracking missing');
-    tx.update(stockRef,{availableUnits:s.availableUnits-units,updatedAt:timestamp()});tx.create(ledger,{orderId:id,sku,deltaUnits:-units,reason:'dispatch',actor:auth.uid,createdAt:timestamp()});tx.update(orderRef,{status:'dispatched',updatedAt:timestamp()});tx.update(tracking,{status:'dispatched',lastStatusUpdate:'Order dispatched.',updatedAt:timestamp()});return{ok:true};});
+   const id=code(data.orderId);return db.runTransaction(async tx=>{
+    const product=id.startsWith('APO-'),orderRef=db.doc((product?'product_orders/':'orders/')+id),ledger=db.doc('stockMovements/dispatch_'+id);
+    const [setting,order,movement,staff]=await Promise.all([tx.get(db.doc('settings/featureSuite')),tx.get(orderRef),tx.get(ledger),owner(auth)?Promise.resolve(null):tx.get(db.doc('users/'+auth.uid))]);
+    const config=setting.data();if(config?.enabled!==true||config.inventoryEnabled!==true)throw Error('Inventory dispatch not enabled');
+    if(!owner(auth)&&!statusPermission(staff.data()))throw Error('Dispatch access denied');
+    const o=order.data();if(!o||o.isTrash)throw Error('Order cannot dispatch');
+    if(movement.exists){if(movement.data().orderId!==id||!['dispatched','delivered'].includes(o.status))throw Error('Dispatch ledger requires reconciliation');return{duplicate:true};}
+    if(!['pending','confirmed','in_packing'].includes(o.status))throw Error('Order cannot dispatch');
+    const productKey=o.productId?code(o.productId):'legacy_'+createHash('sha256').update(text(o.productName,100)).digest('hex').slice(0,20);
+    const mapping=await tx.get(db.doc('stockMappings/'+productKey));if(!mapping.exists)throw Error('SKU mapping required');const sku=code(mapping.data().sku);
+    if(data.sku!==undefined&&code(data.sku)!==sku)throw Error('SKU mapping mismatch');
+    const stockRef=db.doc('stock/'+sku),stock=await tx.get(stockRef),s=stock.data();if(s?.configured!==true||s.enabled!==true)throw Error('Stock disabled');
+    const units=o.billingVersion===2?o.billing?.quantityUnits:Math.round(o.quantityKg*1000),unit=o.billingVersion===2?o.billing?.unit:'kg';
+    integer(units,1,100000000);const balance=integer(s.availableUnits,0,100000000);if(s.unit!==unit)throw Error('Unit mismatch');if(balance<units)throw Error('Insufficient stock');
+    if(typeof o.trackingToken!=='string'||!o.trackingToken.startsWith(id+'_')||!/^\d{6}$/.test(o.trackingToken.slice(id.length+1)))throw Error('Tracking missing');
+    const tracking=db.doc((product?'product_order_tracking/':'order_tracking/')+o.trackingToken),projection=await tx.get(tracking);
+    if(!projection.exists||projection.data().orderId!==id||projection.data().status!==o.status)throw Error('Tracking requires reconciliation');
+    tx.update(stockRef,{availableUnits:balance-units,updatedAt:timestamp()});tx.create(ledger,{orderId:id,sku,deltaUnits:-units,reason:'dispatch',actor:auth.uid,createdAt:timestamp()});tx.update(orderRef,{status:'dispatched',updatedAt:timestamp()});tx.update(tracking,{status:'dispatched',lastStatusUpdate:'Order dispatched.',updatedAt:timestamp()});return{ok:true};});
   }
   if(action==='stockMapping'){requireOwner(auth);const key=data.legacyName?'legacy_'+createHash('sha256').update(text(data.legacyName,100)).digest('hex').slice(0,20):code(data.productId);await db.doc('stockMappings/'+key).set({sku:code(data.sku),updatedAt:timestamp()});return{ok:true};}
   if(action==='eta'){
-   const id=code(data.orderId);if(!owner(auth)){const staff=await db.doc('users/'+auth.uid).get();const s=staff.data();if(!['staff','delivery'].includes(s?.role)||!(s.permissions===undefined||s.permissions?.updateStatus===true))throw Error('ETA access denied');}
+   const id=code(data.orderId);if(!owner(auth)){const staff=await db.doc('users/'+auth.uid).get();if(!statusPermission(staff.data()))throw Error('ETA access denied');}
    const etaMs=integer(data.etaMs,now(),now()+7*86400000),privateRef=db.doc((id.startsWith('APO-')?'product_orders/':'orders/')+id);await db.runTransaction(async tx=>{const order=await tx.get(privateRef);if(!order.exists)throw Error('Order not found');const token=order.data().trackingToken;const tracking=db.doc((id.startsWith('APO-')?'product_order_tracking/':'order_tracking/')+token);const p=await tx.get(tracking);if(!p.exists)throw Error('Tracking missing');const eta={etaMs,etaUpdatedAt:timestamp(),etaSource:'manual'};tx.update(privateRef,eta);tx.update(tracking,eta);});return{ok:true};
   }
   if(action==='promoSave'){

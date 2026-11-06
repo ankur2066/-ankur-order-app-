@@ -71,7 +71,7 @@ jobs:
       - name: Actual React client and tap regressions
         run: |
           npm install --no-save --ignore-scripts react-test-renderer@19
-          ANKUR_COMBINED_SOURCE=$PWD ANKUR_CLIENT_QA=$PWD ANKUR_CLIENT_APP=$PWD node --experimental-vm-modules --test notifications/client-fixes/client.test.mjs notifications/tap-fix/tap.test.mjs notifications/notificationPush.test.mjs all-features/language.test.mjs billing/checkout.test.mjs updates/notice.test.mjs ui-fixes/customer-home-live.test.mjs ui-fixes/tracking-language.test.mjs
+          ANKUR_COMBINED_SOURCE=$PWD ANKUR_CLIENT_QA=$PWD ANKUR_CLIENT_APP=$PWD node --experimental-vm-modules --test notifications/client-fixes/client.test.mjs notifications/tap-fix/tap.test.mjs notifications/notificationPush.test.mjs all-features/inventory-client.test.mjs all-features/inventory-dashboard.test.mjs all-features/language.test.mjs billing/checkout.test.mjs updates/notice.test.mjs ui-fixes/customer-home-live.test.mjs ui-fixes/tracking-language.test.mjs
       - name: Safety boundary
         run: |
           test -f dist/index.html

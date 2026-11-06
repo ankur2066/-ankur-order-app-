@@ -1,0 +1,13 @@
+import {doc,getDoc} from 'firebase/firestore';
+import {getFunctions,httpsCallable} from 'firebase/functions';
+import {app,db} from '../firebase';
+
+/** Return true only after trusted dispatch. Never fall back after a failed read/call. */
+export async function tryInventoryDispatch(orderId:string,status:string):Promise<boolean>{
+  if(status!=='dispatched')return false;
+  const setting=await getDoc(doc(db,'settings','featureSuite'));
+  const config=setting.data();
+  if(config?.enabled!==true||config?.inventoryEnabled!==true)return false;
+  await httpsCallable(getFunctions(app,'asia-southeast1'),'ankurFeatureAction')({action:'stockDispatch',data:{orderId}});
+  return true;
+}

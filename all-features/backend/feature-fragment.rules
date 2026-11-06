@@ -1,3 +1,26 @@
+    // Off until explicitly configured. Every client status path shares this guard.
+    function inventoryEnabled() {
+      return exists(/databases/$(database)/documents/settings/featureSuite) &&
+        get(/databases/$(database)/documents/settings/featureSuite).data.get('enabled',false) == true &&
+        get(/databases/$(database)/documents/settings/featureSuite).data.get('inventoryEnabled',false) == true;
+    }
+    function inventoryPrivateUpdateAllowed() {
+      return !inventoryEnabled() || (
+        !request.resource.data.diff(resource.data).affectedKeys().hasAny(['quantityKg','billing','productId','productName','trackingToken','orderId']) && (
+          request.resource.data.status == resource.data.status ||
+          (resource.data.status == 'dispatched' && request.resource.data.status == 'delivered' &&
+            exists(/databases/$(database)/documents/stockMovements/$("dispatch_" + resource.data.orderId))) ||
+          (!(resource.data.status in ['dispatched','delivered']) &&
+            !(request.resource.data.status in ['dispatched','delivered']))
+        )
+      );
+    }
+    function inventoryProjectionUpdateAllowed(privatePath) {
+      return !inventoryEnabled() || (
+        request.resource.data.status == getAfter(privatePath).data.status &&
+        !request.resource.data.diff(resource.data).affectedKeys().hasAny(['quantityKg','billing','productId','productName','trackingToken','orderId'])
+      );
+    }
     // Optional feature suite: trusted backend owns all mutations and counters.
     function validFeatureStatus(d) {
       return d.status in ['pending','confirmed','in_packing','dispatched','delivered','cancelled'] &&
@@ -6,7 +29,7 @@
     // Only the trusted server can introduce these fields: legacy create schemas forbid them.
     // Keep those snapshots immutable while permitting normal operational status/payment batches.
     match /orders/{id} {
-      allow update: if isValidId(id) && isOwner() &&
+      allow update: if inventoryPrivateUpdateAllowed() && isValidId(id) && isOwner() &&
         (resource.data.get('promoCode','') != '' || resource.data.get('subscriptionId','') != '' || resource.data.get('etaSource','') == 'manual') &&
         request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status','paymentStatus','paymentMethod','paymentNotes','isTrash','trashedAt','updatedAt']) &&
         request.resource.data.updatedAt == request.time && validFeatureStatus(request.resource.data) &&
@@ -18,7 +41,7 @@
         getAfter(/databases/$(database)/documents/order_tracking/$(resource.data.trackingToken)).data.paymentStatus == request.resource.data.paymentStatus;
     }
     function featureTrackingUpdate(privatePath) {
-      return resource.data.get('etaSource','') == 'manual' &&
+      return inventoryProjectionUpdateAllowed(privatePath) && resource.data.get('etaSource','') == 'manual' &&
         (isOwner() || canUpdateStatus()) &&
         request.resource.data.diff(resource.data).affectedKeys().hasOnly(isOwner()?['status','paymentStatus','lastStatusUpdate','updatedAt']:['status','lastStatusUpdate','updatedAt']) &&
         request.resource.data.updatedAt == request.time && validFeatureStatus(request.resource.data) &&

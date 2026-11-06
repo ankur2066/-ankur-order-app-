@@ -28,7 +28,13 @@ p=Path('src/utils/ownerReports.ts');s=p.read_text();s=s.replace("  const header 
 s=s.replace("    csvText(o.status),","    csvText(o.status),\n    ...(mixed?[String(o.billingVersion===2&&o.billing?o.billing.quantityUnits/(o.billing.unit==='kg'?1000:1):o.quantityKg||0),csvText(o.billingVersion===2?o.billing?.unit:'kg')]:[]),")
 p.write_text(s)
 for name in ['AdminDashboard','StaffDashboard']:
-    p=Path('src/components')/(name+'.tsx');s=p.read_text();s=s.replace("statusMsg = 'ड्राई आइस बस / डिलीवरी बॉय को हैंडओवर कर दी गई है।';","statusMsg = ord.billingVersion===2?'Product handed over for delivery.':'ड्राई आइस बस / डिलीवरी बॉय को हैंडओवर कर दी गई है।';");p.write_text(s)
+    p=Path('src/components')/(name+'.tsx');s=p.read_text();s=s.replace("statusMsg = 'ड्राई आइस बस / डिलीवरी बॉय को हैंडओवर कर दी गई है।';","statusMsg = ord.billingVersion===2?'Product handed over for delivery.':'ड्राई आइस बस / डिलीवरी बॉय को हैंडओवर कर दी गई है।';")
+    s="import {tryInventoryDispatch} from '../services/inventoryDispatch';\n"+s
+    start=s.index('  const handleUpdateStatus = async (ord: Order, newStatus: OrderStatus) => {')
+    finish=s.index('      await batch.commit();',start)+len('      await batch.commit();')
+    block=s[start:finish];anchor='      const batch = writeBatch(db);';assert block.count(anchor)==1
+    block=block.replace(anchor,"      if (!(await tryInventoryDispatch(ord.orderId,newStatus))) {\n"+anchor,1)+'\n      }'
+    s=s[:start]+block+s[finish:];p.write_text(s)
 p=Path('src/components/OrderForm.tsx');s=p.read_text();anchor='  const executeOrderSubmission = async () => {'
 effect="""  useEffect(()=>{const fill=(e:Event)=>{const qty=(e as CustomEvent<number>).detail;if(Number.isInteger(qty)&&qty>=10&&qty<=5000)setQuantityInput(String(qty));};window.addEventListener('ankur-estimated-quantity',fill);return()=>window.removeEventListener('ankur-estimated-quantity',fill);},[]);
 """
