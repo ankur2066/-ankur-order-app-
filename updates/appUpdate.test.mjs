@@ -77,6 +77,6 @@ test('native only, nonblocking, bilingual notice and no silent installer permiss
  assert.match(notice,/if\(!info\)\{setRelease\(null\);return;\}/,'withdrawn/invalid releases must clear stale notice');
  assert.match(notice,/rel="noopener noreferrer"/);
  assert.doesNotMatch(notice,/REQUEST_INSTALL_PACKAGES|ACTION_INSTALL_PACKAGE|PackageInstaller|download\(/);
- assert.match(workflow,/versionCode 61/);
- assert.match(workflow,/versionName "10\.0\.61-private-test"/);
+ assert.match(workflow,/versionCode 62/);
+ assert.match(workflow,/versionName "10\.0\.62-private-test"/);
 });
