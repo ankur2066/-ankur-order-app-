@@ -231,3 +231,46 @@
  .ankur-owner-dashboard .ankur-owner-nav{gap:5px!important}
  .ankur-owner-dashboard .ankur-owner-nav>button{font-size:10px!important;padding:7px 4px!important}
 }
+
++
++/* OWNER SERVICES DRAWER: let the command center lead and keep tools one tap away. */
++.ankur-owner-tools {
++  max-width: 1220px;
++  margin: 8px auto 12px;
++  padding: 0 12px;
++  color: #f2f7ff;
++}
++.ankur-owner-tools > summary {
++  display: flex;
++  align-items: center;
++  min-height: 48px;
++  padding: 10px 14px;
++  border: 1px solid #426080;
++  border-radius: 15px;
++  background: linear-gradient(120deg,#152945,#1c3555 68%,#242e51);
++  box-shadow: inset 0 1px #ffffff1d;
++  color: #f2f7ff;
++  font-size: 13px;
++  font-weight: 800;
++  cursor: pointer;
++  list-style: none;
++}
++.ankur-owner-tools > summary::-webkit-details-marker { display: none; }
++.ankur-owner-tools > summary::after { content: '＋'; margin-left: auto; color: #cbbaff; font-size: 18px; }
++.ankur-owner-tools[open] > summary::after { content: '−'; }
++.ankur-owner-tools[open] > section {
++  margin-top: 8px;
++  border: 1px solid #426080 !important;
++  border-radius: 18px !important;
++  background: linear-gradient(120deg,#152945,#1c3555 68%,#242e51) !important;
++  color: #f2f7ff !important;
++}
++.ankur-owner-tools[open] > section button.c-soft {
++  border: 1px solid #466683;
++  background: #1c3555 !important;
++  color: #edf4ff !important;
++}
++.ankur-owner-tools[open] > section button svg { color: #cbbaff !important; }
++.ankur-owner-tools :focus-visible { outline: 3px solid #bca9ff; outline-offset: 2px; }
++@media (prefers-reduced-motion: reduce) { .ankur-owner-tools * { transition-duration: .01ms !important; } }
++
