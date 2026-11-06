@@ -53,6 +53,18 @@ panel=s.index('<div className="space-y-4">',insights)
 s=s[:panel]+s[panel:].replace('<div className="space-y-4">','<div id="ankur-owner-report-panel" className="space-y-4">',1)
 p.write_text(s,encoding="utf-8")
 
+app=Path("src/App.tsx")
+value=app.read_text(encoding="utf-8")
+before='''          <FeatureHub currentUser={currentUser} role={role} allowed={["inventory","reports","catalog","partner","subscriptions","promotions","referral"]}/>
+          <AdminDashboard'''
+after='''          <details className="ankur-owner-tools">
+            <summary>सेवाएँ और टूल्स · Services and tools</summary>
+            <FeatureHub currentUser={currentUser} role={role} allowed={["inventory","reports","catalog","partner","subscriptions","promotions","referral"]}/>
+          </details>
+          <AdminDashboard'''
+assert value.count(before)==1, "Owner tools must stay available directly above the dashboard"
+app.write_text(value.replace(before,after,1),encoding="utf-8")
+
 # Keep Android 15+ system bars outside the WebView using Capacitor's own
 # inset handling, rather than guessing status-bar heights in CSS.
 config=Path('capacitor.config.ts')
