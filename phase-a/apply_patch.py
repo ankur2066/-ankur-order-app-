@@ -17,6 +17,7 @@ def add_file(src: str, dst: str):
     shutil.copyfile(HERE / src, target)
 
 add_file('ownerReports.template', 'src/utils/ownerReports.ts')
+add_file('mobileCsv.template', 'src/utils/mobileCsv.ts')
 add_file('expenseCycles.template', 'src/utils/expenseCycles.ts')
 
 # A1 + A2: Reuse already-authorized owner orders snapshot. No new Firestore reads.
@@ -27,21 +28,32 @@ assert s.count(anchor) == 1
 s = s.replace(anchor, anchor + "import { calculateOwnerOverview, downloadOrdersCsv } from '../utils/ownerReports';\n", 1)
 anchor = '  const trashedOrders = useMemo(() => orders.filter((o) => !!o.isTrash), [orders]);\n'
 assert s.count(anchor) == 1
-s = s.replace(anchor, anchor + '''  // Rolling 30-day overview from the same Firestore snapshot as the order list.
+s = s.replace(anchor, anchor + '''  const [csvBusy, setCsvBusy] = useState(false);
+  const [csvError, setCsvError] = useState('');
+  const csvInFlight = React.useRef(false);
+  const handleOrdersCsv = async () => {
+    if (csvInFlight.current || loading || errorMsg || !activeOrders.length) return;
+    csvInFlight.current = true; setCsvBusy(true); setCsvError('');
+    try { await downloadOrdersCsv(activeOrders); }
+    catch { setCsvError('CSV सेव / शेयर नहीं हुई। दोबारा कोशिश करें।'); }
+    finally { csvInFlight.current = false; setCsvBusy(false); }
+  };
+  // Rolling 30-day overview from the same Firestore snapshot as the order list.
   const ownerOverview = useMemo(() => calculateOwnerOverview(activeOrders), [activeOrders]);
 ''', 1)
 anchor = '''      {/* ========================================================================= */}
       {/* SECTION A: नई एंट्री (OWNER-ONLY ORDER ENTRY FORM) */}
 '''
 assert s.count(anchor) == 1
-snippet = '''      {/* PHASE A: read-only 30-day owner overview. No extra Firestore queries. */}
+snippet = '''      {csvError && <p role="alert" className="text-sm text-red-700 p-3">{csvError}</p>}
+      {/* PHASE A: read-only 30-day owner overview. No extra Firestore queries. */}
       {activeSection === 'orders' && (
         <section aria-label="पिछले 30 दिन का ऑर्डर सारांश" className="mb-4 border border-slate-200 rounded-2xl bg-sky-50/60 p-3 space-y-2">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <h3 className="text-sm font-bold text-slate-900">पिछले 30 दिन · ओनर ओवरव्यू</h3>
-            <button type="button" onClick={() => downloadOrdersCsv(activeOrders)} disabled={loading || !!errorMsg || activeOrders.length === 0}
+            <button type="button" onClick={() => { void handleOrdersCsv(); }} disabled={csvBusy || loading || !!errorMsg || activeOrders.length === 0}
               className="px-3 py-1.5 rounded-lg bg-sky-700 text-white text-xs font-bold disabled:opacity-50">
-              सभी ऑर्डर CSV
+              {csvBusy ? 'CSV तैयार हो रही है…' : 'सभी ऑर्डर CSV सेव / शेयर'}
             </button>
           </div>
           {loading ? (
@@ -82,7 +94,7 @@ insights_pos = s.index(insights)
 container_pos = s.index('<div className="space-y-4">', insights_pos)
 end_container = container_pos + len('<div className="space-y-4">')
 s = s[:end_container] + '''
-          <button type="button" onClick={() => downloadOrdersCsv(activeOrders)} disabled={loading || !!errorMsg || activeOrders.length === 0}
+          <button type="button" onClick={() => { void handleOrdersCsv(); }} disabled={csvBusy || loading || !!errorMsg || activeOrders.length === 0}
             className="bg-sky-700 text-white p-2 rounded disabled:opacity-50">
             ऑर्डर CSV (Excel / Sheets)
           </button>''' + s[end_container:]

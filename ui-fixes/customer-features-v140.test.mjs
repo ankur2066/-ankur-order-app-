@@ -26,12 +26,17 @@ test('customer bottom navigation includes a real fifth AI Features tab in the in
 
 test('AI Features shows one full-width winner strip then existing two-column tools without a fake result',()=>{
  const section=app.slice(app.indexOf("currentTab === 'ai-features'"),app.indexOf("currentTab === 'ai-video'"));
- assert.match(section,/ankur-daily-winner/);
- assert.match(section,/आज का Lucky Winner/);
- assert.match(section,/winner\?\.active/);
- assert.match(section,/winner\.name/);
- assert.match(section,/winner\.city/);
- assert.match(section,/विजेता घोषित होने पर/);
+ assert.match(section,/<DailyWinnerBanner currentUser=\{currentUser\} \/>/);
+ const banner=readFileSync(resolve(root,'src/components/customer/DailyWinner.tsx'),'utf8');
+ assert.match(banner,/ankur-daily-winner/);
+ assert.match(banner,/आज का Lucky Winner/);
+ assert.match(banner,/dailyWinners/);
+ assert.match(banner,/winner\.name/);
+ assert.match(banner,/winner\.city/);
+ assert.match(banner,/ankurWinnerConsent/);
+ assert.match(banner,/winnerPublicConsent/);
+ assert.match(banner,/सहमति वापस ले सकते हैं/);
+ assert.match(banner,/विजेता घोषित होने पर/);
  assert.match(section,/allowed=\{\['calculator'/);
  assert.doesNotMatch(section,/'inventory'|'reports'|'video'|'catalog'/);
  assert.match(section,/'rates'/);
@@ -39,6 +44,16 @@ test('AI Features shows one full-width winner strip then existing two-column too
  assert.match(featureHub,/id:'calculator'/);
  assert.match(app,/currentTab === 'ai-video'/);
  assert.match(app,/false && currentTab === 'categories'/);
+});
+
+test('Daily Winner consent uses a single authenticated removal path',()=>{
+ const panel=readFileSync(new URL('../all-features/templates/FeatureDataPanels.template',import.meta.url),'utf8');
+ const service=readFileSync(new URL('../all-features/backend/featureService.mjs',import.meta.url),'utf8');
+ const winner=readFileSync(resolve(root,'src/components/customer/DailyWinner.tsx'),'utf8');
+ assert.doesNotMatch(panel,/key:'winnerPublicConsent'/,'generic preferences must not bypass public announcement removal');
+ assert.match(panel,/Daily Winner banner under AI Features/);
+ assert.match(service,/Object\.keys\(data\)\.some\(k=>!\['orderUpdates','promos'\]\.includes\(k\)\)/);
+ assert.match(winner,/ankurWinnerConsent/,'dedicated callable must handle opt-in and opt-out');
 });
 
 test('existing Home booking and owner/staff workflows remain routed unchanged',()=>{
@@ -58,6 +73,6 @@ test('local reconstruction, private review and signed APK apply the same UI patc
  assert.equal(signed.split('python3 '+name).length-1,1);
  assert.ok(local.indexOf('customer_home_clean_v139.py')<local.indexOf(name));
  assert.match(signed,/paths: \['release-batches\/\*\.txt'\]/,'only explicit release batch triggers signed APK');
- assert.match(signed,/versionCode 47/);
- assert.match(signed,/versionName "1\.0\.47-season-test"/);
+ assert.match(signed,/versionCode 60/);
+ assert.match(signed,/versionName "10\.0\.60-private-test"/);
 });

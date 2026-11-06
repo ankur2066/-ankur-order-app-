@@ -1,0 +1,77 @@
+name: Staff phone privacy server review (NO DEPLOY)
+on:
+  workflow_call:
+  push:
+    branches: [codex/staff-phone-server-privacy-v149]
+    paths: ['privacy/**', 'winner/**', 'updates/**', 'all-features/**', 'ui-fixes/customer-features-v140.test.mjs', 'ci-fixes/signing-cert.test.mjs', '.github/workflows/staff-privacy-review.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  staff-privacy-checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - uses: actions/setup-java@v4
+        with: {distribution: temurin, java-version: '21'}
+      - name: Pure server policy tests (no external connections)
+        run: node --check winner/index.mjs
+          node --test privacy/staffContactService.test.mjs privacy/backfillCore.test.mjs privacy/projectionAudit.test.mjs winner/dailyWinnerService.test.mjs
+      - name: Inspect reconstructed staff client subscriptions (source only)
+        run: |
+          python3 -m py_compile all-features/reconstruct.py privacy/staff_data_cutover_v149.py privacy/staff_contact_ui_v149.py privacy/owner_assignment_ui_v149.py winner/client_v150.py
+          python3 all-features/reconstruct.py --output /tmp/ankur-staff-source
+          python3 - <<'PY'
+          from pathlib import Path
+          text=Path('/tmp/ankur-staff-source/src/components/StaffDashboard.tsx').read_text()
+          lines=text.splitlines()
+          for start,end in [(550,750)]:
+              print(f'BEGIN CLIENT SOURCE {start}-{end}')
+              print('\n'.join(f'{j+1}: {lines[j]}' for j in range(start-1,min(len(lines),end))))
+              print('END CLIENT SOURCE')
+          PY
+      - name: Reconstructed staff and owner source contract
+        run: |
+          ANKUR_CLIENT_APP=/tmp/ankur-staff-source node --test ui-fixes/owner-staff-premium-v148.test.mjs ui-fixes/customer-features-v140.test.mjs updates/appUpdate.test.mjs ci-fixes/signing-cert.test.mjs
+      - name: Full React and TypeScript production compilation (review only)
+        run: |
+          cd /tmp/ankur-staff-source
+          npm install --save-exact --package-lock-only --ignore-scripts --no-audit --no-fund @capacitor-firebase/app-check@7.5.0 @capacitor/app@7 @capacitor-community/speech-recognition@7.0.1 @capacitor/filesystem@7 @capacitor/share@7 @capacitor/push-notifications@7
+          npm ci --ignore-scripts --no-audit --no-fund
+          npm run lint
+          npm run build
+      - name: Build staged reviewed rules in isolated folders
+        run: |
+          python3 billing/review/build_rules.py
+          python3 all-features/backend/stage.py --output feature-review
+          python3 privacy/stage.py --base feature-review/firestore.rules --output staff-privacy-review
+          python3 winner/stage.py --base staff-privacy-review/firestore.rules --output winner-review
+          test -f staff-privacy-review/REVIEW_ONLY.json
+          test ! -e staff-privacy-review/firebase.json
+          test -f winner-review/REVIEW_ONLY.json
+          test ! -e winner-review/firebase.json
+      - name: Install isolated Firestore emulation SDK
+        run: |
+          mkdir -p rules-qa
+          npm install --prefix rules-qa --ignore-scripts --no-audit --no-fund firebase@11 @firebase/rules-unit-testing@4 firebase-tools@14
+      - name: Real named-database read/write authorization tests
+        env:
+          ANKUR_RULES_QA_ROOT: ${{ github.workspace }}/rules-qa
+          ANKUR_PRIVACY_RULES: ${{ github.workspace }}/staff-privacy-review/firestore.rules
+          ANKUR_WINNER_RULES: ${{ github.workspace }}/winner-review/firestore.rules
+        run: |
+          rules-qa/node_modules/.bin/firebase emulators:exec --project demo-ankur-staff-privacy --config billing/emulator.json --only firestore 'node --test privacy/rules.test.mjs winner/rules.test.mjs'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: StaffPhone-Privacy-REVIEW-NEVER-DEPLOY
+          path: |
+            staff-privacy-review/
+            !staff-privacy-review/functions/node_modules/**
+            winner-review/
+            !winner-review/functions/node_modules/**
+          retention-days: 7

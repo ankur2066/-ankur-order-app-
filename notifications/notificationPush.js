@@ -64,14 +64,11 @@ async function ownerDevices() {
 
 async function teamDevices() {
   const team = await store().collection('users').where('role', 'in', ['staff', 'delivery']).get();
-  const eligible = team.docs.filter(d => {
-    // Match hasPerm('viewOrders', true) in the existing Firestore Rules:
-    // missing legacy fields default to true; present values must be boolean true.
-    const p = d.data()?.permissions;
-    if (p === undefined) return true;
-    if (!p || typeof p !== 'object' || Array.isArray(p)) return false;
-    return !Object.hasOwn(p, 'viewOrders') || p.viewOrders === true;
-  });
+  // Match the new least-privilege rules: revoked or legacy users never
+  // receive order metadata through an old FCM token.
+  const eligible = team.docs.filter(d =>
+    d.data()?.active === true && d.data()?.permissions?.viewOrders === true
+  );
   const snapshots = await Promise.all(eligible.map(u =>
     store().collection('push_team_devices').doc(u.id).collection('devices').get()
   ));
@@ -172,12 +169,13 @@ export const notifyNewAnkurOrder = onDocumentCreated(
   async event => {
     const order = event.data?.data();
     if (!order || order.isTrash === true) return;
-    const orderId = stringify(order.orderId || event.params.orderId, 64);
+    const orderId = stringify(event.params.orderId, 64);
+    if(!/^[A-Za-z0-9_-]{4,64}$/.test(orderId))return;
     const recipients = [...await ownerDevices(), ...await teamDevices()];
     await sendNotification(
       recipients,
       'New Ankur Dryice Order',
-      'Order ' + orderId + ' • ' + stringify(order.quantityKg, 10) + ' KG • ' + stringify(order.city || order.district, 60),
+      'New Dry Ice booking received. Open the app for assigned details.',
       { type: 'new_order', orderId }, event
     );
   }
@@ -202,7 +200,8 @@ export const notifyAnkurOrderProgress = onDocumentUpdated(
     let body;
     if (statusChanged) {
       title = STATUS_LABELS[current.status] || 'Order Updated';
-      body = stringify(current.lastStatusUpdate || 'Your Ankur Dryice order status was updated.', 170);
+      // lastStatusUpdate is user-controlled legacy text: never echo it into FCM.
+      body = 'Your Ankur Dryice order status was updated.';
     } else {
       title = current.paymentStatus === 'payment_verified' ? 'Payment Verified' : 'Payment Update';
       body = current.paymentStatus === 'payment_verified'

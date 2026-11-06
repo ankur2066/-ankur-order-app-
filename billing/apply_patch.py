@@ -61,7 +61,7 @@ p=Path('src/components/OrderTrackingView.tsx');s=p.read_text().replace('{trackin
 replace('src/utils/monthlyReport.ts',"import type { Order } from '../types';","import type { Order } from '../types';\nimport { quantityTextEnglish } from '../billing/unitBilling';")
 replace('src/utils/monthlyReport.ts',"' | Quantity: ' + kg + ' KG | Booked: INR '","' | Dry-ice quantity: ' + kg + ' KG | Booked: INR '")
 replace('src/utils/monthlyReport.ts',"'Customer', 'KG', 'INR'","'Customer', 'Quantity / unit', 'INR'")
-replace('src/utils/monthlyReport.ts',"String(o.quantityKg || 0),",'quantityTextEnglish(o),')
+replace('src/utils/monthlyReport.ts',"String(amount(o.quantityKg)),",'quantityTextEnglish(o),')
 print('Separate unit catalog/orders/tracking integrated into review source. No production changes.')
 # Native registration and authenticated customer lookups include unit orders only after schema availability.
 replace('src/services/orderPush.ts',"import { rememberTrackingToken, orderedTrackingTokens, recordTime } from './notificationState';","import { rememberTrackingToken, orderedTrackingTokens, recordTime } from './notificationState';\nimport { ownOrderDocuments } from './productOrders';")

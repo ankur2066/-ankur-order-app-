@@ -1,0 +1,14 @@
+ANKUR DRYICE PRIVATE QA BATCH v1.0.51 — 05 NOVEMBER 2026
+
+Scope: v1.0.50 approved UI + owner premium dashboard + five customer tabs,
+AI Video prompt builder, one-day Daily Winner Auto/Manual schedule + 3/4 rotation,
+retail-only eligibility, explicit customer publication consent opt-in/withdrawal,
+and Firestore staff phone privacy frontend + proposed server-side projection.
+
+This source changes ONLY the private test branch.
+Do NOT auto-install or publish this APK to customers or staff.
+Pre-release gates: same SHA full review/lint/type tests, signed APK + AAB original
+certificate/package, private Android device QA, production Firestore Rules
+diff/backup/migration/AppCheck/IAM, real FCM/booking/tracking/in-place update tests.
+Production Firebase, customer history, main branch, website update manifest and
+Play Store are out of scope for this private signed BUILD.

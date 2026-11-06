@@ -1,0 +1,5 @@
+Referral Share: public HTTPS referral landing page, Hindi/English messages, share/copy fallback and no automatic reward promises.
+Pilot manifest uses canonical www domain and requires version 57 before exposing referral.
+Existing five tools remain fallback; all server-backed financial features retain their existing gates.
+Local TypeScript and production web build passed; referral and pilot tests passed. Signed APK still requires CI success and physical device QA.
+Version checker and all release-version assertions aligned to 57.

@@ -1,0 +1,27 @@
+import { Capacitor } from '@capacitor/core';
+
+/** Export only when the owner presses the report button. Native files stay in app cache. */
+export async function exportCsv(csv: string, fileName: string): Promise<void> {
+  if (!/^[A-Za-z0-9][A-Za-z0-9._-]{0,119}\.csv$/.test(fileName) || fileName.includes('..')) {
+    throw new Error('अमान्य CSV फ़ाइल नाम');
+  }
+  const text = '\uFEFF' + csv;
+  if (Capacitor.isNativePlatform()) {
+    const [{ Filesystem, Directory, Encoding }, { Share }] = await Promise.all([
+      import('@capacitor/filesystem'), import('@capacitor/share'),
+    ]);
+    const result = await Filesystem.writeFile({path:fileName, data:text,
+      directory:Directory.Cache, encoding:Encoding.UTF8, recursive:false});
+    await Share.share({title:'Ankur Dryice Order Report', files:[result.uri],
+      dialogTitle:'ऑर्डर CSV सेव या शेयर करें'});
+    return;
+  }
+  const url = URL.createObjectURL(new Blob([text], {type:'text/csv;charset=utf-8'}));
+  const a = document.createElement('a');
+  try {
+    a.href=url; a.download=fileName; a.style.display='none';
+    document.body.appendChild(a); a.click();
+  } finally {
+    a.remove(); window.setTimeout(()=>URL.revokeObjectURL(url),1000);
+  }
+}

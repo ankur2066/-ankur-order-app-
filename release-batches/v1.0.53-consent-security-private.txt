@@ -1,0 +1,20 @@
+ANKUR DRYICE v1.0.53 PRIVATE SECURITY QA — 05 NOV 2026
+
+Only this one consolidated private build. The existing v1.0.52 APK does
+not contain the latest Daily Winner opt-out security fix.
+
+Included:
+- Explicit verified server-callable consent control is the ONLY way to change
+  winnerPublicConsent. General notification preferences cannot bypass the
+  atomic published-name suppression on opt-out.
+- New notification security source-only CI and active-staff-only FCM handling.
+- Existing staff privacy client, sourceCollection correction, dry-run-first
+  migration, owner dashboard, booking, tracking, AI Video and customer tools.
+
+Require same-SHA full source review and exact original signer certificate,
+package com.ankurdryice.events, versionCode 53, no forbidden installer perms.
+
+NO production Firebase Rules/Functions update, no live backfill, no data changes,
+no public APK distribution, no website manifest or Play Store upload.
+Before release: fresh live inventory and backups, named-DB rules diff,
+App Check/IAM and old-staff-client denial, device QA and owner approval.

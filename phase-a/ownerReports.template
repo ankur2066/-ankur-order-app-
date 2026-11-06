@@ -81,15 +81,7 @@ export function ordersToCsv(orders: Order[]): string {
   return [header, ...rows].join('\r\n') + '\r\n';
 }
 
-export function downloadOrdersCsv(orders: Order[]): void {
-  const blob = new Blob(['\uFEFF', ordersToCsv(orders)], { type: 'text/csv;charset=utf-8' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `ankur-orders-${new Date().toISOString().slice(0, 10)}.csv`;
-  a.style.display = 'none';
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+export async function downloadOrdersCsv(orders: Order[]): Promise<void> {
+  const {exportCsv} = await import('./mobileCsv');
+  await exportCsv(ordersToCsv(orders), `ankur-orders-${new Date().toISOString().slice(0, 10)}.csv`);
 }

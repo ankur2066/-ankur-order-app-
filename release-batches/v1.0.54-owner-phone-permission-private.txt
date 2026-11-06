@@ -1,0 +1,17 @@
+ANKUR DRYICE APP v1.0.54 PRIVATE QA RELEASE CANDIDATE — 05 NOV 2026
+
+Includes previous v1.0.53 booking, staff safe projection, Daily Winner consent,
+AI Video, Owner Dashboard, FCM hardening and customer functionality.
+Owner staff contact permission control now edits ONLY permissions.callCustomer:
+turning it off never sets active=false and never revokes staff login, while turning
+it on never silently grants active=true or permissions.viewOrders=true.
+A new reconstructed Owner manager static regression tests those invariants.
+
+Run complete React/TS and native regressions; sign using the existing original
+Android key, versionCode=54, versionName 1.0.54-private-test; validate package,
+original certificate and AAB.
+
+PRIVATE QA ONLY: no live Firebase updates, no customer/order writes, no main merge,
+no website manifest or Play publication, and no customer/staff distribution.
+Before production, require live Firebase current snapshot, verified backup,
+explicit owner approval, staged staff and winner backfill, and physical-device QA.

@@ -30,8 +30,14 @@ export function createFeatureService({db,now=()=>Date.now(),timestamp=()=>new Da
    });
   }
   if(action==='preferences'){
-   if(typeof data.orderUpdates!=='boolean'||typeof data.promos!=='boolean')throw Error('Invalid preferences');
-   await db.doc('userPrefs/'+auth.uid).set({orderUpdates:data.orderUpdates,promos:data.promos,updatedAt:timestamp()});return {ok:true};
+   // Winner consent MUST go through ankurWinnerConsent: withdrawing it must
+   // atomically suppress any existing publicly announced winner record.
+   if(!data || Object.keys(data).some(k=>!['orderUpdates','promos'].includes(k)) ||
+      typeof data.orderUpdates!=='boolean'||typeof data.promos!=='boolean')
+      throw Error('Invalid preferences; Daily Winner consent has a separate callable');
+   await db.doc('userPrefs/'+auth.uid).set({
+     orderUpdates:data.orderUpdates,promos:data.promos,updatedAt:timestamp()
+   },{merge:true});return {ok:true};
   }
   if(action==='referralClaim'){
    const referrerId=code(data.referrerId);if(referrerId===auth.uid)throw Error('Self referral denied');
@@ -49,7 +55,16 @@ export function createFeatureService({db,now=()=>Date.now(),timestamp=()=>new Da
    await db.runTransaction(async tx=>{const old=await tx.get(ref);if(old.exists)throw Error('Application already submitted');tx.create(ref,{...value,status:'pending',createdAt:timestamp()});});return{ok:true};
   }
   if(action==='partnerApprove'){
-   requireOwner(auth);const uid=text(data.userId,128);await db.doc('partners/'+uid).set({userId:uid,status:data.approved===true?'approved':'revoked',updatedAt:timestamp()});return{ok:true};
+   requireOwner(auth);const uid=text(data.userId,128);
+   if(!/^[A-Za-z0-9_-]{3,128}$/.test(uid)||typeof data.approved!=='boolean')throw Error('Invalid approval');
+   const application=db.doc('partnerApplications/'+uid),partner=db.doc('partners/'+uid);
+   await db.runTransaction(async tx=>{
+    const submitted=await tx.get(application);
+    if(data.approved&&!submitted.exists)throw Error('Application required');
+    const status=data.approved?'approved':'revoked',reviewedAt=timestamp();
+    tx.set(partner,{userId:uid,status,reviewedBy:auth.uid,updatedAt:reviewedAt});
+    if(submitted.exists)tx.update(application,{status,reviewedBy:auth.uid,reviewedAt});
+   });return{ok:true};
   }
   if(action==='bulkRequest'){
    const value=publicRequest(auth,data);const ref=db.collection('bulkOrders').doc();await db.runTransaction(async tx=>{const partner=await tx.get(db.doc('partners/'+auth.uid));if(partner.data()?.status!=='approved')throw Error('Approved partner required');tx.create(ref,{...value,note:String(data.note||'').slice(0,500),status:'pending_owner_quote',quotedTotalPaise:null,createdAt:timestamp()});});return{id:ref.id};
@@ -81,10 +96,14 @@ export function createFeatureService({db,now=()=>Date.now(),timestamp=()=>new Da
     tx.create(execution,{orderId,period,userId:s.userId,createdAt:timestamp()});tx.update(ref,{nextDueMs:due.getTime(),updatedAt:timestamp()});return{orderId};});return result;
   }
   if(action==='stockOpening'){
-   requireOwner(auth);const sku=code(data.sku),quantityUnits=integer(data.quantityUnits,0,100000000);const ref=db.doc('stock/'+sku);await db.runTransaction(async tx=>{const old=await tx.get(ref);if(old.exists)throw Error('Opening already configured; use audited adjustment');tx.create(ref,{sku,availableUnits:quantityUnits,configured:true,enabled:data.enabled===true,unit:text(data.unit,16),updatedAt:timestamp()});tx.create(db.doc('stockMovements/opening_'+sku),{sku,deltaUnits:quantityUnits,reason:'opening',actor:auth.uid,createdAt:timestamp()});});return{ok:true};
+   requireOwner(auth);const sku=code(data.sku),quantityUnits=integer(data.quantityUnits,0,100000000);
+   if(!['kg','piece','box','package'].includes(data.unit)||typeof data.enabled!=='boolean')throw Error('Invalid stock setup');
+   const ref=db.doc('stock/'+sku);await db.runTransaction(async tx=>{const old=await tx.get(ref);if(old.exists)throw Error('Opening already configured; use audited adjustment');tx.create(ref,{sku,availableUnits:quantityUnits,configured:true,enabled:data.enabled,unit:data.unit,updatedAt:timestamp()});tx.create(db.doc('stockMovements/opening_'+sku),{sku,deltaUnits:quantityUnits,reason:'opening',actor:auth.uid,createdAt:timestamp()});});return{ok:true};
   }
   if(action==='stockAdjust'){
-   requireOwner(auth);const sku=code(data.sku),key=code(data.requestId),delta=integer(data.deltaUnits,-100000000,100000000),reason=text(data.reason);return db.runTransaction(async tx=>{const ref=db.doc('stock/'+sku),movement=db.doc('stockMovements/adjust_'+key);const [stock,old]=await Promise.all([tx.get(ref),tx.get(movement)]);if(old.exists)return{ok:true};if(!stock.exists)throw Error('Stock not configured');const availableUnits=integer(stock.data().availableUnits+delta,0,100000000);tx.update(ref,{availableUnits,updatedAt:timestamp()});tx.create(movement,{sku,deltaUnits:delta,reason,actor:auth.uid,createdAt:timestamp()});return{ok:true};});
+   requireOwner(auth);const sku=code(data.sku),key=code(data.requestId),delta=integer(data.deltaUnits,-100000000,100000000),reason=text(data.reason);return db.runTransaction(async tx=>{const ref=db.doc('stock/'+sku),movement=db.doc('stockMovements/adjust_'+key);const [stock,old]=await Promise.all([tx.get(ref),tx.get(movement)]);
+    if(old.exists){const prior=old.data();if(prior.sku!==sku||prior.deltaUnits!==delta||prior.reason!==reason)throw Error('Adjustment ID already used for different details');return{ok:true};}
+    if(!stock.exists)throw Error('Stock not configured');const availableUnits=integer(stock.data().availableUnits+delta,0,100000000);tx.update(ref,{availableUnits,updatedAt:timestamp()});tx.create(movement,{sku,deltaUnits:delta,reason,actor:auth.uid,createdAt:timestamp()});return{ok:true};});
   }
   if(action==='stockDispatch'){
    requireOwner(auth);const id=code(data.orderId),sku=code(data.sku);return db.runTransaction(async tx=>{
@@ -97,8 +116,25 @@ export function createFeatureService({db,now=()=>Date.now(),timestamp=()=>new Da
   }
   if(action==='stockMapping'){requireOwner(auth);const key=data.legacyName?'legacy_'+createHash('sha256').update(text(data.legacyName,100)).digest('hex').slice(0,20):code(data.productId);await db.doc('stockMappings/'+key).set({sku:code(data.sku),updatedAt:timestamp()});return{ok:true};}
   if(action==='eta'){
-   const id=code(data.orderId);if(!owner(auth)){const staff=await db.doc('users/'+auth.uid).get();const s=staff.data();if(!['staff','delivery'].includes(s?.role)||!(s.permissions===undefined||s.permissions?.updateStatus===true))throw Error('ETA access denied');}
-   const etaMs=integer(data.etaMs,now(),now()+7*86400000),privateRef=db.doc((id.startsWith('APO-')?'product_orders/':'orders/')+id);await db.runTransaction(async tx=>{const order=await tx.get(privateRef);if(!order.exists)throw Error('Order not found');const token=order.data().trackingToken;const tracking=db.doc((id.startsWith('APO-')?'product_order_tracking/':'order_tracking/')+token);const p=await tx.get(tracking);if(!p.exists)throw Error('Tracking missing');const eta={etaMs,etaUpdatedAt:timestamp(),etaSource:'manual'};tx.update(privateRef,eta);tx.update(tracking,eta);});return{ok:true};
+   const id=code(data.orderId),unit=id.startsWith('APO-'),source=unit?'product_orders':'orders';
+   const etaMs=integer(data.etaMs,now(),now()+7*86400000),privateRef=db.doc(source+'/'+id);
+   await db.runTransaction(async tx=>{
+    const order=await tx.get(privateRef);
+    if(!order.exists || order.data()?.isTrash === true || order.data()?.status === 'cancelled')throw Error('Order not found');
+    if(!owner(auth)){
+     const staffRef=db.doc('users/'+auth.uid),scopeRef=db.doc('staffOrderAssignments/'+source+'_'+id+'_'+auth.uid);
+     const [staff,scope]=await Promise.all([tx.get(staffRef),tx.get(scopeRef)]),s=staff.data(),a=scope.data();
+     if(!['staff','delivery'].includes(s?.role)||s?.active!==true||s?.permissions?.viewOrders!==true||
+        s?.permissions?.updateStatus!==true||!scope.exists||a?.approved!==true||
+        a?.staffUid!==auth.uid||a?.orderId!==id||a?.sourceCollection!==source||
+        !Number.isSafeInteger(a?.expiresAtMs)||a.expiresAtMs<=now())throw Error('ETA access denied');
+    }
+    const token=order.data().trackingToken;
+    const tracking=db.doc((unit?'product_order_tracking/':'order_tracking/')+token);
+    const p=await tx.get(tracking);if(!p.exists||p.data()?.orderId!==id)throw Error('Tracking missing');
+    const eta={etaMs,etaUpdatedAt:timestamp(),etaSource:'manual'};
+    tx.update(privateRef,eta);tx.update(tracking,eta);
+   });return{ok:true};
   }
   if(action==='promoSave'){
    requireOwner(auth);const promoCode=code(data.code.toUpperCase());const payload={code:promoCode,active:data.active===true,kind:'fixed',valuePaise:integer(data.valuePaise,1),minimumPaise:integer(data.minimumPaise),maximumPaise:integer(data.valuePaise,1),usageLimit:integer(data.usageLimit,1,1000000),startsAtMs:integer(data.startsAtMs,0,Number.MAX_SAFE_INTEGER),endsAtMs:integer(data.endsAtMs,0,Number.MAX_SAFE_INTEGER),updatedAt:timestamp()};if(payload.endsAtMs<=payload.startsAtMs)throw Error('Invalid promo period');await db.runTransaction(async tx=>{const ref=db.doc('promos/'+promoCode),old=await tx.get(ref);tx.set(ref,{...payload,usageCount:old.data()?.usageCount||0});});return{ok:true};

@@ -1,0 +1,22 @@
+export type FeatureKey='calculator'|'video'|'loyalty'|'catalog'|'partner'|'subscriptions'|'promotions'|'inventory'|'reports'|'faq'|'rates'|'support'|'service-area'|'referral';
+export type RolloutConfig={pilotEnabled?:boolean;enabledIds?:unknown;testerUids?:unknown;serverReady?:boolean};
+export const FIRST_FIVE:readonly FeatureKey[]=['calculator','video','faq','support','service-area'];
+export const CUSTOMER_LATER:readonly FeatureKey[]=['rates','loyalty','partner','subscriptions','promotions','referral'];
+export const BACKEND_REQUIRED:readonly FeatureKey[]=['loyalty','partner','subscriptions','promotions','referral'];
+const PUBLIC_IDS=new Set<FeatureKey>([...FIRST_FIVE,...CUSTOMER_LATER]);
+export function resolvedCustomerFeatures(input:{rollout?:RolloutConfig|null;uid?:string|null;isOwner?:boolean;suiteEnabled?:boolean}):Set<FeatureKey>{
+ const enabled=new Set<FeatureKey>(FIRST_FIVE);
+ const {rollout,uid,isOwner=false,suiteEnabled=false}=input;
+ if(!rollout||rollout.pilotEnabled!==true||!Array.isArray(rollout.enabledIds))return enabled;
+ // Test scope is explicit. Never publish a staged extra to everyone by accident.
+ const allowedPilot=isOwner||(typeof uid==='string'&&Array.isArray(rollout.testerUids)&&
+   rollout.testerUids.some((v:unknown)=>v===uid));
+ if(!allowedPilot)return enabled;
+ for(const id of rollout.enabledIds){
+   if(typeof id!=='string'||!PUBLIC_IDS.has(id as FeatureKey))continue;
+   const key=id as FeatureKey;
+   if(BACKEND_REQUIRED.includes(key)&&!(rollout.serverReady===true&&suiteEnabled))continue;
+   enabled.add(key);
+ }
+ return enabled;
+}

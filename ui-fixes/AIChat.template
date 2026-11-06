@@ -1,0 +1,115 @@
+import React, { useEffect, useRef, useState } from 'react';
+import { Loader2, Send, Mic, Square } from 'lucide-react';
+import { captureSpeech } from '../utils/voiceInput';
+import { authHeaders, getApiBase } from '../utils/apiBase';
+
+export const AIChat: React.FC<{ context: string }> = ({ context }) => {
+  const [messages, setMessages] = useState<{ role: 'user' | 'ai', text: string }[]>([
+    { role: 'ai', text: 'नमस्ते! मैं आपकी ऑर्डर डिटेल्स का विश्लेषण कर सकता हूँ। आप क्या जानना चाहेंगे?' }
+  ]);
+  const [input, setInput] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const [listening,setListening]=useState(false),[voiceNotice,setVoiceNotice]=useState('');
+  const voiceSession=useRef<AbortController|null>(null);
+  const sending=useRef(false);
+  useEffect(()=>()=>{voiceSession.current?.abort();voiceSession.current=null;},[]);
+  const dictate=async()=>{
+    if(voiceSession.current){voiceSession.current.abort();voiceSession.current=null;setListening(false);setVoiceNotice('माइक बंद है।');return;}
+    if(loading)return;
+    const controller=new AbortController();voiceSession.current=controller;
+    const before=input.trim();setListening(true);setVoiceNotice('सुन रहा हूँ… अपना सवाल बोलें।');
+    try {
+      const spoken=await captureSpeech(controller.signal);
+      if(voiceSession.current!==controller||controller.signal.aborted)return;
+      if(spoken){setInput([before,spoken].filter(Boolean).join(' ').slice(0,2000));setVoiceNotice('सवाल जाँचकर भेजने वाला बटन दबाएँ।');}
+      else setVoiceNotice('आवाज़ समझ नहीं आई। दोबारा बोलें या टाइप करें।');
+    }catch(error){
+      if(voiceSession.current!==controller||controller.signal.aborted)return;
+      const reason=(error as Error).message;
+      setVoiceNotice(reason==='permission'?'माइक की अनुमति नहीं मिली। फोन की ऐप सेटिंग में Microphone चालू करें।':reason==='unavailable'?'इस डिवाइस पर बोलकर लिखना उपलब्ध नहीं है। कीबोर्ड से सवाल लिखें।':'माइक से सवाल नहीं मिला। दोबारा बोलें या टाइप करें।');
+    }finally{if(voiceSession.current===controller){voiceSession.current=null;setListening(false);}}
+  };
+
+  const sendMessage = async () => {
+    if (!input.trim() || sending.current || voiceSession.current) return;
+    sending.current=true;
+    
+    const userMessage = input;
+    setInput('');
+    setMessages(prev => [...prev, { role: 'user', text: userMessage }]);
+    setLoading(true);
+
+    try {
+      const base = getApiBase();
+      if (base === null) {
+        setMessages(prev => [...prev, { role: 'ai', text: 'AI चैट सर्वर इस ऐप में जुड़ा नहीं है (VITE_API_BASE_URL सेट नहीं)।' }]);
+        return;
+      }
+      const response = await fetch(`${base}/api/gemini/chat`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...(await authHeaders()) },
+        body: JSON.stringify({ message: userMessage, context }),
+      });
+      if (response.status === 401 || response.status === 403) {
+        setMessages(prev => [...prev, { role: 'ai', text: 'यह सुविधा सिर्फ़ मालिक के लॉगिन से चलती है।' }]);
+        return;
+      }
+      const data = await response.json();
+      setMessages(prev => [...prev, { role: 'ai', text: data.response || 'क्षमा करें, मैं अभी जवाब देने में असमर्थ हूँ।' }]);
+    } catch (error) {
+      setMessages(prev => [...prev, { role: 'ai', text: 'सर्वर त्रुटि। कृपया पुनः प्रयास करें।' }]);
+    } finally {
+      sending.current=false;
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="ankur-ai-chat flex flex-col border border-slate-200 rounded-2xl bg-slate-50 p-3 sm:p-4 shadow-xs">
+      <div className="min-h-0 flex-1 overflow-y-auto space-y-2.5 mb-3 pr-1">
+        {messages.map((msg, i) => (
+          <div 
+            key={i} 
+            className={`p-3 rounded-2xl text-xs sm:text-sm max-w-[85%] leading-relaxed whitespace-pre-wrap ${
+              msg.role === 'user' 
+                ? 'bg-sky-500 text-white ml-auto shadow-2xs rounded-br-xs' 
+                : 'bg-white border border-slate-200 text-slate-800 shadow-2xs rounded-bl-xs'
+            }`}
+          >
+            {msg.text}
+          </div>
+        ))}
+        {loading && (
+          <div className="p-3 text-slate-500 bg-white border border-slate-200 rounded-2xl max-w-[80px] flex items-center justify-center">
+            <Loader2 className="animate-spin w-4 h-4 text-sky-600" />
+          </div>
+        )}
+      </div>
+      <p role="status" aria-live="polite" className="text-xs mb-2">{voiceNotice || 'माइक दबाकर बोलें या सवाल लिखें। जवाब टेक्स्ट में मिलेगा।'}</p>
+      <div className="flex items-center gap-2 pt-2 border-t border-slate-200/80">
+        <input 
+          value={input}
+          maxLength={2000}
+          disabled={listening}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && !e.nativeEvent.isComposing && sendMessage()}
+          aria-label="ऑर्डर के बारे में सवाल" className="min-w-0 flex-1 px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl text-xs sm:text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-sky-500"
+          placeholder="ऑर्डर्स के बारे में कुछ भी पूछें (उदा. आज कुल कितनी बुकिंग हुई?)..."
+        />
+        <button type="button" aria-label={listening?'माइक बंद करें':'बोलकर सवाल लिखें'} aria-pressed={listening}
+          disabled={loading} onClick={()=>void dictate()}
+          className="min-w-11 min-h-11 p-2.5 rounded-xl bg-sky-600 text-white shrink-0 disabled:opacity-50">
+          {listening?<Square className="w-4 h-4"/>:<Mic className="w-4 h-4"/>}
+        </button>
+        <button type="button"
+          aria-label="संदेश भेजें" onClick={sendMessage} 
+          disabled={loading || listening || !input.trim()}
+          className="p-2.5 bg-sky-600 hover:bg-sky-700 disabled:opacity-50 text-white rounded-xl cursor-pointer transition-colors shadow-2xs shrink-0"
+        >
+          <Send className="w-4 h-4" />
+        </button>
+      </div>
+    </div>
+  );
+};

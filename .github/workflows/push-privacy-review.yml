@@ -1,0 +1,51 @@
+name: Push privacy hardening review (NO DEPLOY)
+on:
+  workflow_call:
+  push:
+    branches: [codex/staff-phone-server-privacy-v149]
+    paths:
+      - 'notifications/notificationPush.js'
+      - 'notifications/notificationPush.test.mjs'
+      - 'notifications/push_privacy_candidate.py'
+      - '.github/workflows/push-privacy-review.yml'
+  workflow_dispatch:
+permissions: {contents: read}
+jobs:
+  offline-notification-review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - name: Verify isolated worker and active-staff-only FCM tests
+        run: |
+          set -euo pipefail
+          node --check notifications/notificationPush.js
+          node --experimental-vm-modules --test notifications/notificationPush.test.mjs
+      - name: Generate a non-deployable source-only review bundle
+        run: |
+          set -euo pipefail
+          python3 notifications/push_privacy_candidate.py --output push-privacy-review
+          test -f push-privacy-review/REVIEW_ONLY.json
+          test ! -e push-privacy-review/firebase.json
+          test ! -e push-privacy-review/source/package.json
+          test ! -e push-privacy-review/source/google-services.json
+          node --check push-privacy-review/source/index.js
+          node --check push-privacy-review/source/notificationPush.js
+          python3 - <<'PY'
+          import hashlib,json
+          from pathlib import Path
+          data=json.loads(Path('push-privacy-review/REVIEW_ONLY.json').read_text())
+          assert data['deploymentApproved'] is False
+          assert data['productionModified'] is False
+          assert data['codebase']=='orderpush'
+          assert data['notificationWorkerSha256']==hashlib.sha256(
+            Path('notifications/notificationPush.js').read_bytes()).hexdigest()
+          print('PASS: only reviewed notification worker bytes and no deployment config')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Push-Privacy-REVIEW-NOT-DEPLOYED
+          path: push-privacy-review/
+          retention-days: 7

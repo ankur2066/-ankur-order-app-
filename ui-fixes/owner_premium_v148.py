@@ -36,7 +36,34 @@ s=s[:a]+segment+s[b:]
 assert s.count('ankur-owner-nav')==1 and s.count('ankur-owner-masthead')==1
 for needed in ["'new-entry'","'orders'","'insights'","'expenses'","'users'","'storefront'","'ai-chat'","<OwnerStorefrontManager","<UserManagement","<ExpensesView","<AIChat"]:
     assert needed in s,needed
+anchor="  const [activeSection, setActiveSection] = useState<'new-entry' | 'orders' | 'insights' | 'expenses' | 'users' | 'ai-chat' | 'storefront'>('orders');"
+assert s.count(anchor)==1
+s=s.replace(anchor,anchor+'''
+  useEffect(() => {
+    const openReports = () => {
+      setActiveSection('insights');
+      window.setTimeout(() => document.getElementById('ankur-owner-report-panel')?.scrollIntoView({behavior:'smooth',block:'start'}), 0);
+    };
+    window.addEventListener('ankur-owner-reports', openReports);
+    return () => window.removeEventListener('ankur-owner-reports', openReports);
+  }, []);
+''',1)
+insights=s.index("activeSection === 'insights' && (")
+panel=s.index('<div className="space-y-4">',insights)
+s=s[:panel]+s[panel:].replace('<div className="space-y-4">','<div id="ankur-owner-report-panel" className="space-y-4">',1)
 p.write_text(s,encoding="utf-8")
+
+# Keep Android 15+ system bars outside the WebView using Capacitor's own
+# inset handling, rather than guessing status-bar heights in CSS.
+config=Path('capacitor.config.ts')
+value=config.read_text()
+assert 'adjustMarginsForEdgeToEdge' not in value
+assert value.count("  webDir: 'dist',")==1
+config.write_text(value.replace("  webDir: 'dist',", "  webDir: 'dist',\n  android: { adjustMarginsForEdgeToEdge: 'auto' },",1))
+
+import shutil
+shutil.copy2('ui-fixes/AIChat.template','src/components/AIChat.tsx')
+shutil.copy2('ui-fixes/voiceInput.template','src/utils/voiceInput.ts')
 
 css=Path("src/index.css")
 old=css.read_text(encoding="utf-8")

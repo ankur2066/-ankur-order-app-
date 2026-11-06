@@ -1,7 +1,8 @@
 name: Optional feature suite security emulator (no deployment)
 on:
+  workflow_call:
   push:
-    branches: [codex/all-14-phase-bc-english]
+    branches: [codex/all-14-phase-bc-english, codex/staff-phone-server-privacy-v149]
     paths: ['all-features/**', 'billing/**', '.github/workflows/feature-suite-security.yml']
   workflow_dispatch:
 permissions: {contents: read}

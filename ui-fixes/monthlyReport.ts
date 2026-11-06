@@ -24,10 +24,12 @@ function cycle(): { start: string; end: string } {
 }
 function timestampDate(value: any): Date | null {
   if (!value) return null;
+  try {
   const date = typeof value.toDate === 'function' ? value.toDate() :
     typeof value.seconds === 'number' ? new Date(value.seconds * 1000) :
     value instanceof Date ? value : new Date(value);
-  return Number.isFinite(date.getTime()) ? date : null;
+  return date instanceof Date && Number.isFinite(date.getTime()) ? date : null;
+  } catch { return null; }
 }
 function orderDate(order: Order): string | null {
   const date = timestampDate(order.createdAt);
@@ -37,7 +39,11 @@ function orderDate(order: Order): string | null {
   }
   // Legacy orders sometimes have no Firestore timestamp; use the embedded order date.
   const m = (order.orderId || '').match(/^ADI-(\d{4})(\d{2})(\d{2})-/);
-  return m ? key(Number(m[1]), Number(m[2]), Number(m[3])) : null;
+  if (!m) return null;
+  const y=Number(m[1]), month=Number(m[2]), day=Number(m[3]);
+  const legacy=new Date(Date.UTC(y,month-1,day));
+  return legacy.getUTCFullYear()===y && legacy.getUTCMonth()+1===month && legacy.getUTCDate()===day
+    ? key(y,month,day) : null;
 }
 function expenseDate(expense: any): string | null {
   const date = timestampDate(expense.date);
@@ -49,13 +55,18 @@ export async function generateMonthlyPDF(orders: Order[], expenses: any[]): Prom
   // Owner-defined accounting month runs from the 15th through the following 14th, IST.
   const period = cycle();
   const inPeriod = (d: string | null) => !!d && d >= period.start && d <= period.end;
-  const sales = orders.filter(o => !o.isTrash && inPeriod(orderDate(o)));
+  const periodOrders = orders.filter(o => !o.isTrash && inPeriod(orderDate(o)));
+  const sales = periodOrders.filter(o => o.status !== 'cancelled');
   const costs = expenses.filter(e => inPeriod(expenseDate(e)));
-  const sum = (items: any[], field: string) => items.reduce((acc, row) => acc + (Number(row[field]) || 0), 0);
+  const amount = (value: unknown) => {
+    const n=Number(value);
+    return Number.isFinite(n) && n>=0 ? n : 0;
+  };
+  const sum = (items: any[], field: string) => Math.round(items.reduce((acc, row) => acc + amount(row[field]), 0)*100)/100;
   const booked = sum(sales, 'totalAmount');
   const kg = sum(sales, 'quantityKg');
   const totalCosts = sum(costs, 'amount');
-  const verified = sales.filter(o => o.paymentStatus === 'payment_verified').reduce((acc, o) => acc + (Number(o.totalAmount) || 0), 0);
+  const verified = sum(sales.filter(o => o.paymentStatus === 'payment_verified'), 'totalAmount');
   const pdf = new jsPDF();
   pdf.setFontSize(15);
   pdf.text('Ankur Dryice and Events - Accounting Report', 14, 17);
@@ -66,13 +77,14 @@ export async function generateMonthlyPDF(orders: Order[], expenses: any[]): Prom
   pdf.text('Expenses: INR ' + totalCosts + ' | Booked less expenses: INR ' + (booked - totalCosts), 14, 47);
   pdf.setFontSize(8);
   pdf.text('Note: Booked value is not the same as verified cash received.', 14, 53);
+  pdf.text('Cancelled orders excluded: ' + (periodOrders.length-sales.length), 14, 58);
   // Call the v5 function directly. The legacy doc.autoTable was undefined and its error was swallowed.
   autoTable(pdf, {
     startY: 62,
     head: [['Order ID', 'Customer', 'KG', 'INR', 'Status', 'Payment']],
     body: sales.map(o => [
-      o.orderId || '', o.customerName || '', String(o.quantityKg || 0),
-      String(o.totalAmount || 0), o.status || '', o.paymentStatus === 'payment_verified' ? 'Verified' : 'Unverified',
+      o.orderId || '', o.customerName || '', String(amount(o.quantityKg)),
+      String(amount(o.totalAmount)), o.status || '', o.paymentStatus === 'payment_verified' ? 'Verified' : 'Unverified',
     ]),
     styles: { fontSize: 7, overflow: 'linebreak' },
   });
@@ -83,7 +95,7 @@ export async function generateMonthlyPDF(orders: Order[], expenses: any[]): Prom
   autoTable(pdf, {
     startY: nextStart + 6,
     head: [['Date (IST)', 'Category', 'Description', 'INR']],
-    body: costs.map(e => [expenseDate(e) || '', e.category || '', e.description || '', String(e.amount || 0)]),
+    body: costs.map(e => [expenseDate(e) || '', e.category || '', e.description || '', String(amount(e.amount))]),
     styles: { fontSize: 7, overflow: 'linebreak' },
   });
   await exportPdf(pdf, 'Ankur_Monthly_' + period.start + '_to_' + period.end + '.pdf');

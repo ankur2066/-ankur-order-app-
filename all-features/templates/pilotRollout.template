@@ -1,0 +1,33 @@
+// Presentation-only rollout flags; never override Firestore/Cloud Function permissions.
+export const PILOT_MANIFEST_URL='https://www.ankurdryice.store/app-updates/pilot-features.json';
+export const PILOT_FIRST_FIVE=['calculator','rates','faq','support','service-area'] as const;
+export const PILOT_ALL_IDS=[
+  'calculator','video','loyalty','catalog','partner','subscriptions','promotions',
+  'inventory','reports','faq','rates','support','service-area','referral'
+] as const;
+export type PilotId=typeof PILOT_ALL_IDS[number];
+const validIds:ReadonlySet<string>=new Set<string>(PILOT_ALL_IDS);
+export function parsePilotManifest(value:unknown,version=56):PilotId[]|null{
+  if(!value||typeof value!=='object'||Array.isArray(value))return null;
+  const v=value as Record<string,unknown>;
+  if(v.schemaVersion!==1||v.channel!=='pilot'||!Number.isSafeInteger(v.minVersionCode)||
+     (v.minVersionCode as number)<56||(v.minVersionCode as number)>version||
+     !Array.isArray(v.enabledFeatureIds)||v.enabledFeatureIds.length>14)return null;
+  if(!v.enabledFeatureIds.every((id:unknown)=>typeof id==='string'&&validIds.has(id)))return null;
+  const ids=v.enabledFeatureIds as PilotId[];
+  return new Set(ids).size===ids.length?ids.slice():null;
+}
+export async function fetchPilotFeatures(fetcher:typeof fetch=fetch,version=56,signal?:AbortSignal):
+  Promise<PilotId[]|null>{
+  try{
+    const res=await fetcher(PILOT_MANIFEST_URL,{
+      cache:'no-store',credentials:'omit',redirect:'error',signal
+    });
+    if(!res.ok||res.redirected)return null;
+    const size=res.headers?.get?.('content-length');
+    if(size&&/^\d+$/.test(size)&&Number(size)>4096)return null;
+    const raw=await res.text();
+    if(raw.length>4096)return null;
+    return parsePilotManifest(JSON.parse(raw),version);
+  }catch{return null;}
+}

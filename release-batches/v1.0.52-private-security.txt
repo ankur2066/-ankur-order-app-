@@ -1,0 +1,15 @@
+ANKUR DRYICE v1.0.52 PRIVATE QA BUILD — 2026-11-05
+
+This batch includes the exact latest reviewed source in PR #22: staff raw-data
+denial staging, canonical sourceCollection mapping for legacy product_orders,
+safe projection soft-delete backfill, FCM staff opt-in permissions and PII-free
+message bodies, Daily Winner customer consent, Owner Dashboard and AI tools.
+
+Run the same-commit complete source review, React/TypeScript tests, Firestore
+emulator checks and original-key signed Android APK/AAB build. Verify package,
+versionCode 52, pinned SHA256 signing identity, and permissions. The result
+is a PRIVATE TEST artifact only.
+
+STOP: No production rules/functions, no live backfill, no customer distribution,
+no website update manifest publication, no public Play upload or main merge.
+Production named-DB backup, live IAM/App Check and actual device QA remain required.

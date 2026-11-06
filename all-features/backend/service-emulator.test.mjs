@@ -10,12 +10,57 @@ const perform=(auth,action,data)=>service(auth,{action,data});
 const identity={customerName:'Emulator Customer',customerPhone:'9000000001',address:'Emulator test address',quantityKg:10};
 test('feature switch fails closed and customer cannot impersonate owner',async()=>{await assert.rejects(()=>perform(a,'stockOpening',{sku:'DRY',quantityUnits:10000,unit:'kg'}),/Owner/);await db.doc('settings/featureSuite').set({enabled:false});await assert.rejects(()=>perform(a,'preferences',{orderUpdates:true,promos:false}),/not enabled/);await db.doc('settings/featureSuite').set({enabled:true});});
 test('partner request is immutable and bulk needs server approval',async()=>{await perform(a,'partnerApply',identity);await assert.rejects(()=>perform(a,'partnerApply',identity),/already/);await assert.rejects(()=>perform(a,'bulkRequest',identity),/Approved/);await perform(owner,'partnerApprove',{userId:a.uid,approved:true});const r=await perform(a,'bulkRequest',{...identity,totalPaise:1,status:'approved'});const data=(await db.doc('bulkOrders/'+r.id).get()).data();assert.equal(data.quotedTotalPaise,null);assert.equal(data.status,'pending_owner_quote');await assert.rejects(()=>perform(b,'bulkQuote',{id:r.id,totalPaise:1}),/Owner/);});
+test('generic preferences cannot bypass winner consent suppression',async()=>{
+ await assert.rejects(()=>perform(a,'preferences',{orderUpdates:true,promos:false,winnerPublicConsent:'yes'}),/Invalid/);
+ await assert.rejects(()=>perform(a,'preferences',{orderUpdates:true,promos:false,winnerPublicConsent:true}),/Invalid/);
+ await assert.rejects(()=>perform(a,'preferences',{orderUpdates:true,promos:false,winnerPublicConsent:false}),/Invalid/);
+ await db.doc('userPrefs/'+a.uid).set({winnerPublicConsent:true});
+ await perform(a,'preferences',{orderUpdates:false,promos:true});
+ assert.equal((await db.doc('userPrefs/'+a.uid).get()).data().winnerPublicConsent,true);
+ assert.equal((await db.doc('userPrefs/'+a.uid).get()).data().promos,true);
+ // Only the winner consent callable can publish/unpublish the name and city.
+});
+
+test('partner approval and application status stay aligned; revoke immediately blocks new bulk requests',async()=>{
+ const applicant={uid:'reviewed-partner',token:{}};
+ await assert.rejects(()=>perform(owner,'partnerApprove',{userId:applicant.uid,approved:true}),/Application/);
+ await perform(applicant,'partnerApply',identity);
+ await assert.rejects(()=>perform(applicant,'partnerApprove',{userId:applicant.uid,approved:true}),/Owner/);
+ await assert.rejects(()=>perform(owner,'partnerApprove',{userId:applicant.uid,approved:'false'}),/Invalid/);
+ await perform(owner,'partnerApprove',{userId:applicant.uid,approved:true});
+ assert.equal((await db.doc('partnerApplications/'+applicant.uid).get()).data().status,'approved');
+ assert.equal((await db.doc('partnerApplications/'+applicant.uid).get()).data().reviewedBy,'owner');
+ await perform(owner,'partnerApprove',{userId:applicant.uid,approved:false});
+ assert.equal((await db.doc('partnerApplications/'+applicant.uid).get()).data().status,'revoked');
+ assert.equal((await db.doc('partners/'+applicant.uid).get()).data().status,'revoked');
+ await assert.rejects(()=>perform(applicant,'bulkRequest',identity),/Approved/);
+});
 test('preferences reject malformed booleans and marketing defaults explicit',async()=>{await assert.rejects(()=>perform(a,'preferences',{orderUpdates:'true',promos:false}),/Invalid/);await perform(a,'preferences',{orderUpdates:true,promos:false});assert.equal((await db.doc('userPrefs/'+a.uid).get()).data().promos,false);});
 test('guest promo bookings atomically respect usage cap; response-loss retry returns same order',async()=>{await db.doc('settings/rates').set({dryIceRate:73,thermocolRate:8,transportRate:2});await perform(owner,'promoSave',{code:'EMU',active:true,valuePaise:3000,minimumPaise:10000,usageLimit:1,startsAtMs:NOW-1000,endsAtMs:NOW+10000});const data={...identity,code:'EMU',dispatchTiming:'Tomorrow morning',expectedTotalPaise:80000};const outcomes=await Promise.allSettled([perform(null,'promoBooking',{...data,requestId:'a'.repeat(32)}),perform(null,'promoBooking',{...data,requestId:'b'.repeat(32)})]);assert.equal(outcomes.filter(x=>x.status==='fulfilled').length,1);const index=outcomes.findIndex(x=>x.status==='fulfilled'),result=outcomes[index].value;const retry=await perform(null,'promoBooking',{...data,requestId:(index===0?'a':'b').repeat(32)});assert.equal(retry.orderId,result.orderId);assert.equal(result.totalAmount,800);assert.equal((await db.doc('promos/EMU').get()).data().usageCount,1);const stored=(await db.doc('orders/'+result.orderId).get()).data();assert.equal(stored.dryIcePricePerKg,73);assert.equal(stored.discountAmount,30);assert.ok((await db.doc('order_tracking/'+result.orderId+'_'+result.trackingPin).get()).exists);});
-test('stock dispatch races produce one ledger movement and correct SKU deduction',async()=>{await perform(owner,'stockOpening',{sku:'DRY',unit:'kg',quantityUnits:30000,enabled:true});await perform(owner,'stockMapping',{legacyName:'Emulator Standard Ice',sku:'DRY'});await db.doc('orders/ADI-TEST-ONE').set({status:'confirmed',productName:'Emulator Standard Ice',quantityKg:10,trackingToken:'ADI-TEST-ONE_123456'});await db.doc('order_tracking/ADI-TEST-ONE_123456').set({status:'confirmed'});await Promise.all([perform(owner,'stockDispatch',{orderId:'ADI-TEST-ONE',sku:'DRY'}),perform(owner,'stockDispatch',{orderId:'ADI-TEST-ONE',sku:'DRY'})]);assert.equal((await db.doc('stock/DRY').get()).data().availableUnits,20000);assert.equal((await db.collection('stockMovements').where('reason','==','dispatch').get()).size,1);assert.equal((await db.doc('orders/ADI-TEST-ONE').get()).data().status,'dispatched');});
+test('stock dispatch races produce one ledger movement and correct SKU deduction',async()=>{await perform(owner,'stockOpening',{sku:'DRY',unit:'kg',quantityUnits:30000,enabled:true});await perform(owner,'stockMapping',{legacyName:'Emulator Standard Ice',sku:'DRY'});await db.doc('orders/ADI-TEST-ONE').set({status:'confirmed',productName:'Emulator Standard Ice',quantityKg:10,trackingToken:'ADI-TEST-ONE_123456'});await db.doc('order_tracking/ADI-TEST-ONE_123456').set({status:'confirmed',orderId:'ADI-TEST-ONE'});await Promise.all([perform(owner,'stockDispatch',{orderId:'ADI-TEST-ONE',sku:'DRY'}),perform(owner,'stockDispatch',{orderId:'ADI-TEST-ONE',sku:'DRY'})]);assert.equal((await db.doc('stock/DRY').get()).data().availableUnits,20000);assert.equal((await db.collection('stockMovements').where('reason','==','dispatch').get()).size,1);assert.equal((await db.doc('orders/ADI-TEST-ONE').get()).data().status,'dispatched');});
 test('audited adjustments are replay safe and cannot hide negative stock',async()=>{await perform(owner,'stockAdjust',{sku:'DRY',requestId:'adjust1',deltaUnits:1000,reason:'Verified receipt'});await perform(owner,'stockAdjust',{sku:'DRY',requestId:'adjust1',deltaUnits:1000,reason:'Verified receipt'});assert.equal((await db.doc('stock/DRY').get()).data().availableUnits,21000);await assert.rejects(()=>perform(owner,'stockAdjust',{sku:'DRY',requestId:'adjust2',deltaUnits:-30000,reason:'Too much'}),/Invalid/);});
+test('inventory rejects invalid units and reuse of an adjustment ID for different details',async()=>{
+ await assert.rejects(()=>perform(owner,'stockOpening',{sku:'INVALID',unit:'kilogram',quantityUnits:500,enabled:true}),/Invalid stock/);
+ assert.equal((await db.doc('stock/INVALID').get()).exists,false);
+ const before=(await db.doc('stock/DRY').get()).data().availableUnits;
+ await assert.rejects(()=>perform(owner,'stockAdjust',{sku:'DRY',requestId:'adjust1',deltaUnits:2000,reason:'Verified receipt'}),/already used/);
+ await assert.rejects(()=>perform(owner,'stockAdjust',{sku:'DRY',requestId:'adjust1',deltaUnits:1000,reason:'Different receipt'}),/already used/);
+ assert.equal((await db.doc('stock/DRY').get()).data().availableUnits,before);
+});
 test('subscription requires approval; concurrent execution creates one tracked order with real rates',async()=>{const r=await perform(a,'subscriptionRequest',{...identity,cadence:'monthly'});await assert.rejects(()=>perform(owner,'runSubscription',{id:r.id}),/not due/);await perform(owner,'subscriptionApprove',{id:r.id,nextDueMs:NOW,dispatchTiming:'Tomorrow morning',executionEnabled:true});await db.doc('settings/rates').set({dryIceRate:73,thermocolRate:8,transportRate:2});const results=await Promise.allSettled([perform(owner,'runSubscription',{id:r.id}),perform(owner,'runSubscription',{id:r.id})]);assert.ok(results.some(x=>x.status==='fulfilled'));const runs=await db.collection('subscriptionExecutions').get();assert.equal(runs.size,1);const order=(await db.doc('orders/'+runs.docs[0].data().orderId).get()).data();assert.equal(order.totalAmount,830);assert.match(order.trackingPin,/^\d{6}$/);assert.ok((await db.doc('order_tracking/'+order.trackingToken).get()).exists);assert.equal(order.customerPhone,identity.customerPhone);assert.equal(order.paymentStatus,'pending_verification');await assert.rejects(()=>perform(b,'subscriptionPause',{id:r.id}),/unavailable/);});
 test('referral self award denied; first delivered order produces pending zero-credit attribution',async()=>{await assert.rejects(()=>perform(b,'referralClaim',{referrerId:b.uid}),/Self/);await db.doc('orders/ADI-BUYER-B').set({userId:b.uid,status:'delivered'});await perform(b,'referralClaim',{referrerId:a.uid});await perform(b,'referralClaim',{referrerId:a.uid});const r=(await db.doc('referrals/'+b.uid).get()).data();assert.equal(r.creditPaise,0);assert.equal(r.status,'pending_owner_review');});
+test('ETA staff access is owner-scoped per order, and revocation takes effect immediately',async()=>{
+ const uid='eta-staff';
+ const staff={uid,token:{}};
+ const orderId='ADI-TEST-ONE',sourceCollection='orders';
+ await db.doc('users/'+uid).set({role:'staff',active:true,permissions:{viewOrders:true,updateStatus:true}});
+ await assert.rejects(()=>perform(staff,'eta',{orderId,etaMs:NOW+3600000}),/denied/);
+ const ref=db.doc('staffOrderAssignments/'+sourceCollection+'_'+orderId+'_'+uid);
+ await ref.set({staffUid:uid,sourceCollection,orderId,approved:true,expiresAtMs:NOW+86400000});
+ await perform(staff,'eta',{orderId,etaMs:NOW+3600000});
+ await ref.update({approved:false});
+ await assert.rejects(()=>perform(staff,'eta',{orderId,etaMs:NOW+7200000}),/denied/);
+});
 test('ETA requires staff permission and updates zero-PII projection atomically',async()=>{await assert.rejects(()=>perform(b,'eta',{orderId:'ADI-TEST-ONE',etaMs:NOW+3600000}),/denied/);await perform(owner,'eta',{orderId:'ADI-TEST-ONE',etaMs:NOW+3600000});const p=(await db.doc('order_tracking/ADI-TEST-ONE_123456').get()).data();assert.equal(p.etaMs,NOW+3600000);assert.equal(p.customerPhone,undefined);});
 test('only owner reviews referral; attribution and zero credit remain immutable',async()=>{await assert.rejects(()=>perform(a,'referralReview',{userId:b.uid,status:'verified'}),/Owner/);await perform(owner,'referralReview',{userId:b.uid,status:'verified'});const r=(await db.doc('referrals/'+b.uid).get()).data();assert.equal(r.status,'verified');assert.equal(r.referrerId,a.uid);assert.equal(r.creditPaise,0);});
 test('unmapped legacy product never silently decrements standard dry-ice stock',async()=>{await db.doc('orders/ADI-OTHER-PRODUCT').set({status:'confirmed',productName:'Emulator Blocks',quantityKg:10,trackingToken:'ADI-OTHER-PRODUCT_123456'});const before=(await db.doc('stock/DRY').get()).data().availableUnits;await assert.rejects(()=>perform(owner,'stockDispatch',{orderId:'ADI-OTHER-PRODUCT',sku:'DRY'}),/mapping/);assert.equal((await db.doc('stock/DRY').get()).data().availableUnits,before);});
