@@ -1,5 +1,14 @@
 import {randomInt,randomBytes,createHash} from 'node:crypto';
 const OWNER='ankurdryicewholesalers@gmail.com';
+const IST_OFFSET_MS=330*60*1000;
+function nextMonthlySupplyMs(currentMs,anchorDay){
+ const india=new Date(currentMs+IST_OFFSET_MS);
+ let year=india.getUTCFullYear(),month=india.getUTCMonth()+1;
+ if(month===12){year++;month=0;}
+ const lastDay=new Date(Date.UTC(year,month+1,0)).getUTCDate();
+ const day=Math.min(anchorDay,lastDay);
+ return Date.UTC(year,month,day,india.getUTCHours(),india.getUTCMinutes(),india.getUTCSeconds(),india.getUTCMilliseconds())-IST_OFFSET_MS;
+}
 export function createFeatureService({db,now=()=>Date.now(),timestamp=()=>new Date()}){
  const owner=auth=>auth?.token?.email===OWNER&&auth.token.email_verified===true;
  const requireUser=auth=>{if(!auth?.uid)throw Error('Sign in required');return auth.uid;};
@@ -80,20 +89,25 @@ export function createFeatureService({db,now=()=>Date.now(),timestamp=()=>new Da
   }
   if(action==='subscriptionApprove'){
    requireOwner(auth);const ref=db.doc('subscriptions/'+code(data.id));const nextDueMs=integer(data.nextDueMs,now(),now()+366*86400000);
-   await ref.update({approved:true,executionEnabled:data.executionEnabled===true,nextDueMs,dispatchTiming:text(data.dispatchTiming,100),updatedAt:timestamp()});return{ok:true};
+   const current=await ref.get();if(!current.exists)throw Error('Subscription unavailable');
+   const cadence=current.data().cadence;
+   await ref.update({approved:true,executionEnabled:data.executionEnabled===true,nextDueMs,...(cadence==='monthly'?{monthlyAnchorDay:new Date(nextDueMs+IST_OFFSET_MS).getUTCDate()}:{monthlyAnchorDay:null}),dispatchTiming:text(data.dispatchTiming,100),updatedAt:timestamp()});return{ok:true};
   }
   if(action==='runSubscription'){
    requireOwner(auth);const ref=db.doc('subscriptions/'+code(data.id));const result=await db.runTransaction(async tx=>{
-    const snap=await tx.get(ref),s=snap.data();if(!s?.approved||!s.active||!s.executionEnabled||s.nextDueMs>now())throw Error('Subscription not due');
-    const period=String(s.nextDueMs),execution=db.doc('subscriptionExecutions/'+ref.id+'_'+period);const old=await tx.get(execution);if(old.exists)return old.data();
+    const expectedDueMs=integer(data.expectedDueMs,0,Number.MAX_SAFE_INTEGER);
+    const period=String(expectedDueMs),execution=db.doc('subscriptionExecutions/'+ref.id+'_'+period);
+    const snap=await tx.get(ref),old=await tx.get(execution);
+    if(old.exists)return old.data();
+    const s=snap.data();if(!s?.approved||!s.active||!s.executionEnabled||s.nextDueMs!==expectedDueMs||expectedDueMs>now())throw Error('Subscription not due or cycle changed');
     const ratesSnap=await tx.get(db.doc('settings/rates'));if(!ratesSnap.exists)throw Error('Approved rates unavailable');const r=ratesSnap.data();for(const k of ['dryIceRate','thermocolRate'])if(!Number.isFinite(r[k])||r[k]<0)throw Error('Invalid rates');
     const qty=integer(s.quantityKg,10,5000),transport=r.transportRate||0;if(!Number.isFinite(transport)||transport<0)throw Error('Invalid transport rate');
     const total=Math.round(qty*(r.dryIceRate+r.thermocolRate+transport)*100)/100;if(total<=0||total>99000)throw Error('Invalid total');
     const orderId='ADI-'+new Date(now()).toISOString().slice(0,10).replaceAll('-','')+'-'+randomBytes(4).toString('hex').toUpperCase();const trackingPin=String(randomInt(100000,1000000)),trackingToken=orderId+'_'+trackingPin;
     const order={subscriptionId:ref.id,subscriptionPeriod:period,orderId,trackingPin,trackingToken,customerName:s.customerName,customerPhone:s.customerPhone,address:s.address,district:s.address.slice(0,100),city:s.address.slice(0,100),quantityKg:qty,dispatchTiming:s.dispatchTiming,productName:'Dry Ice',dryIcePricePerKg:r.dryIceRate,thermocolPricePerKg:r.thermocolRate,transportPrice:transport,dryIceSubtotal:Math.round(qty*r.dryIceRate*100)/100,thermocolSubtotal:Math.round(qty*r.thermocolRate*100)/100,totalAmount:total,status:'pending',paymentStatus:'pending_verification',paymentMethod:'paytm_business_upi',userId:s.userId,createdAt:timestamp(),updatedAt:timestamp()};
-    const due=new Date(s.nextDueMs);if(s.cadence==='weekly')due.setUTCDate(due.getUTCDate()+7);else{const day=due.getUTCDate();due.setUTCDate(1);due.setUTCMonth(due.getUTCMonth()+1);const end=new Date(Date.UTC(due.getUTCFullYear(),due.getUTCMonth()+1,0)).getUTCDate();due.setUTCDate(Math.min(day,end));}
+    const nextDueMs=s.cadence==='weekly'?s.nextDueMs+7*86400000:nextMonthlySupplyMs(s.nextDueMs,s.monthlyAnchorDay||new Date(s.nextDueMs+IST_OFFSET_MS).getUTCDate());
     tx.create(db.doc('orders/'+orderId),order);tx.create(db.doc('order_tracking/'+trackingToken),{orderId,trackingToken,quantityKg:qty,productName:'Dry Ice',district:order.district,dispatchTiming:s.dispatchTiming,status:'pending',paymentStatus:'pending_verification',lastStatusUpdate:'Order received.',createdAt:timestamp(),updatedAt:timestamp()});
-    tx.create(execution,{orderId,period,userId:s.userId,createdAt:timestamp()});tx.update(ref,{nextDueMs:due.getTime(),updatedAt:timestamp()});return{orderId};});return result;
+    tx.create(execution,{orderId,period,userId:s.userId,createdAt:timestamp()});tx.update(ref,{nextDueMs,updatedAt:timestamp()});return{orderId};});return result;
   }
   if(action==='stockOpening'){
    requireOwner(auth);const sku=code(data.sku),quantityUnits=integer(data.quantityUnits,0,100000000);

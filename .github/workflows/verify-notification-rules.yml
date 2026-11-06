@@ -5,6 +5,7 @@ on:
     branches:
       - feature/notification-verification-v130
       - codex/issue-11-notification-audit
+      - codex/staff-phone-server-privacy-v149
     paths:
       - 'security-qa/**'
       - 'notifications/**'

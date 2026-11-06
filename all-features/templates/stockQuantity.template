@@ -1,0 +1,21 @@
+export const STOCK_UNITS = ['kg','piece','box','package'] as const;
+export type StockUnit = typeof STOCK_UNITS[number];
+
+export function parseStockQuantity(input:string,unit:string,signed=false):number {
+ if(!STOCK_UNITS.includes(unit as StockUnit))throw Error('Select a stock unit.');
+ const value=input.trim();
+ const negative=signed&&value.startsWith('-');
+ const absolute=negative?value.slice(1):value;
+ const pattern=unit==='kg'?/^\d+(?:\.\d{1,3})?$/:/^\d+$/;
+ if(!pattern.test(absolute))throw Error('Enter KG to 3 decimal places, or a whole item count.');
+ const [whole,fraction='']=absolute.split('.');
+ const quantity=unit==='kg'?Number(whole)*1000+Number(fraction.padEnd(3,'0')):Number(whole);
+ if(!Number.isSafeInteger(quantity)||quantity>100000000)throw Error('Stock quantity is too large.');
+ if(signed&&quantity===0)throw Error('Enter a nonzero adjustment.');
+ return negative?-quantity:quantity;
+}
+
+export function formatStockQuantity(quantity:unknown,unit:string):string {
+ if(!Number.isSafeInteger(quantity)||Number(quantity)<0||!STOCK_UNITS.includes(unit as StockUnit))return 'Unavailable';
+ return String(Number(quantity)/(unit==='kg'?1000:1))+' '+(unit==='kg'?'KG':unit);
+}

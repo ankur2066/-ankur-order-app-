@@ -24,6 +24,7 @@ shutil.copy2(TEMPLATES / 'LanguageContext.template', SRC / 'context' / 'Language
 shutil.copy2(TEMPLATES / 'FeatureHub.template', SRC / 'components' / 'customer' / 'FeatureHub.tsx')
 shutil.copy2(TEMPLATES / 'FeatureDataPanels.template', SRC / 'components' / 'customer' / 'FeatureDataPanels.tsx')
 shutil.copy2(TEMPLATES / 'dryIceCalc.template', SRC / 'utils' / 'dryIceCalc.ts')
+shutil.copy2(TEMPLATES / 'stockQuantity.template', SRC / 'utils' / 'stockQuantity.ts')
 shutil.copy2(TEMPLATES / 'pilotRollout.template', SRC / 'utils' / 'pilotRollout.ts')
 shutil.copy2(TEMPLATES / 'referralShare.template', SRC / 'utils' / 'referralShare.ts')
 shutil.copy2(TEMPLATES / 'ReferralSharePanel.template', SRC / 'components' / 'customer' / 'ReferralSharePanel.tsx')

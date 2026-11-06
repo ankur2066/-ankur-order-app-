@@ -1,0 +1,9 @@
+Private test release 10.0.61 (Android versionCode 61).
+Inventory opening and adjustment quantities use KG on screen and integer grams in the stock ledger.
+Owner stock balances display in the selected unit, with reasoned corrections and dispatch mapping.
+Monthly manual supply keeps its original India-calendar anchor day.
+Each approved subscription due cycle is idempotent and rejects stale cycle requests.
+Wholesale cards carry approval status and per-request owner quote.
+Customer profile shows app version 10.0.61.
+Notification emulator review runs on this branch without deploying Firebase.
+No live rules, Functions, customer records, or public app listing are changed by this test build.
