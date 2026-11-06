@@ -14,7 +14,7 @@ effect="""  useEffect(() => {
 """
 assert s.count(anchor)==1;s=s.replace(anchor,effect+anchor)
 s=s.replace("{currentTab === 'ai-video' && <AIVideoStudio currentUser={currentUser} />}","{currentTab === 'ai-video' && <><FeatureHub currentUser={currentUser} role={role} initial=\"video\" allowed={['video']}/><AIVideoStudio currentUser={currentUser} /></>}")
-anchor='          <AdminDashboard\n';assert s.count(anchor)==1;s=s.replace(anchor,'          <FeatureHub currentUser={currentUser} role={role} allowed={["inventory","reports","catalog","partner","subscriptions","promotions","referral"]}/>\n'+anchor,1)
+anchor='          <AdminDashboard\n';assert s.count(anchor)==1;s=s.replace(anchor,'          <FeatureHub currentUser={currentUser} role={role} allowed={["inventory","reports","catalog","partner","subscriptions","promotions","referral","loyalty"]}/>\n'+anchor,1)
 anchor='          <StaffDashboard ';assert s.count(anchor)==1;s=s.replace(anchor,'          {access.permissions.updateStatus && <DataFeaturePanel id="eta" user={currentUser} role={role}/>}\n'+anchor,1)
 anchor='          <CustomerOrders\n';assert s.count(anchor)==1;s=s.replace(anchor,'          <details><summary>Regular Supply</summary><FeatureHub currentUser={currentUser} role={role} initial="subscriptions" allowed={["subscriptions"]}/></details>\n'+anchor,1)
 # Keep the original Categories bottom tab but DO NOT inject a duplicate Other Products page.

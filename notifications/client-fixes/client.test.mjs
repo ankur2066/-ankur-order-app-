@@ -35,12 +35,14 @@ async function harness(initial={}) {
     onSnapshot:(ref,options,callback)=>{const next=typeof options==='function'?options:callback;const l={ref,callback:next,active:true};listeners.push(l);if(ref.path==='settings/unitBilling')Promise.resolve().then(()=>{if(l.active)next({exists:()=>false});});return ()=>{l.active=false;};},
     setDoc:async(ref,data)=>{writes.push({path:ref.path,data});},deleteDoc:async ref=>{deletes.push(ref.path);}
   };
-  const PushNotifications={addListener:async(name,cb)=>{nativeListeners[name]=cb;},createChannel:async()=>{},checkPermissions:async()=>({receive:'granted'}),requestPermissions:async()=>({receive:'granted'}),register:async()=>{}};
+  const PushNotifications={addListener:async(name,cb)=>{nativeListeners[name]=cb;},createChannel:async()=>{},checkPermissions:async()=>({receive:'granted'}),requestPermissions:async()=>({receive:'granted'}),register:async()=>{},unregister:async()=>{deletes.push('native-fcm-token');}};
   const context=vm.createContext({console,Map,Set,Date:Clock,Event,CustomEvent,window,localStorage,crypto:globalThis.crypto});
   const modules=new Map();
   function synthetic(key,exports){const m=new vm.SyntheticModule(Object.keys(exports),function(){for(const [k,v] of Object.entries(exports))this.setExport(k,v);},{context,identifier:key});modules.set(key,m);return m;}
   synthetic('react',React);synthetic('firebase/firestore',fs);synthetic('../firebase',{db:{},auth});
   synthetic('@capacitor/core',{Capacitor:{isNativePlatform:()=>true}});synthetic('@capacitor/push-notifications',{PushNotifications});
+  modules.set('prefs',new vm.SourceTextModule(stripTypeScriptTypes(readFileSync(new URL('../preferences/preferenceStore.template',import.meta.url),'utf8')),{context,identifier:'prefs'}));
+  modules.set('accountPrefs',new vm.SourceTextModule(stripTypeScriptTypes(readFileSync(new URL('../preferences/accountPreferences.template',import.meta.url),'utf8')),{context,identifier:'accountPrefs'}));
   const sources={state:'notificationState.template',hook:'useOrderNotifications.template',native:'pushClient.template'};
   for(const [key,file] of Object.entries(sources)) {
     const actual=process.env.ANKUR_COMBINED_SOURCE;
@@ -49,15 +51,16 @@ async function harness(initial={}) {
   }
   if(process.env.ANKUR_COMBINED_SOURCE)for(const [key,path]of Object.entries({unitBilling:'src/billing/unitBilling.ts',productOrders:'src/services/productOrders.ts'}))modules.set(key,new vm.SourceTextModule(stripTypeScriptTypes(readFileSync(resolve(process.env.ANKUR_COMBINED_SOURCE,path),'utf8')),{context,identifier:key}));
   const linker=specifier=>{
-    const key=specifier.endsWith('notificationState')?'state':specifier.endsWith('useOrderNotifications')?'hook':specifier.endsWith('productOrders')?'productOrders':specifier.endsWith('unitBilling')?'unitBilling':specifier;
+    const key=specifier.endsWith('notificationPreferences')?'prefs':specifier.endsWith('notificationState')?'state':specifier.endsWith('useOrderNotifications')?'hook':specifier.endsWith('productOrders')?'productOrders':specifier.endsWith('unitBilling')?'unitBilling':specifier;
     if(!modules.has(key))throw Error('Unmocked boundary: '+specifier);
     return modules.get(key);
   };
+  await modules.get('accountPrefs').link(linker);await modules.get('accountPrefs').evaluate();
   await modules.get('native').link(linker);await modules.get('native').evaluate();
   const hook=modules.get('hook').namespace, native=modules.get('native').namespace, state=modules.get('state').namespace;
   let latest,root;
   function Host({user,team}){latest=hook.useOrderNotifications(user,team);return null;}
-  return {native,state,auth,writes,deletes,nativeListeners,storage,listeners,opened,
+  return {native,prefs:modules.get('prefs').namespace,accountPrefs:modules.get('accountPrefs').namespace,state,auth,writes,deletes,nativeListeners,storage,listeners,opened,
     tick:n=>{clock+=n;},setOwn:rows=>{own=rows;},setDeferred:cb=>{deferred=cb;},
     async mount(user=owner,team=true){await act(async()=>{root=create(React.createElement(Host,{user,team}));});},
     async update(user,team){await act(async()=>root.update(React.createElement(Host,{user,team})));},
@@ -182,4 +185,21 @@ test('data-only payment/pickup action titles retain their actual event meaning',
  await h.receive('pushNotificationActionPerformed',{notification:{data:{...event(),type:'payment_status',paymentStatus:'payment_verified'}}});
  await h.receive('pushNotificationActionPerformed',{notification:{data:{...event(2),type:'self_pickup',status:'pickup_completed'}}});
  assert.equal(h.result.notices.length,2);assert.equal(h.result.notices[0].title,'Pickup Completed');assert.equal(h.result.notices[1].title,'Payment Verified');await h.close();
+});
+
+test('customer opt-out suppresses Firestore/FCM toasts, unregisters native token and keeps placed orders',async()=>{
+ const prefs='ankur.notification.prefs.v1:guest',h=await harness({[prefs]:{orderUpdates:false,promos:false},[placedKey]:[order(1)]});h.auth.currentUser=null;await h.mount(null,false);await h.native.configureOrderPush(null,null,false);assert.equal(h.native.pushRegistrationStatus(),'opted_out');assert.ok(h.deletes.includes('native-fcm-token'));await h.dispatch('ankur-push-arrived',event());assert.equal(h.result.notices.length,0);assert.ok(h.storage.has(placedKey));assert.equal(h.writes.length,0);await h.close();
+});
+test('owner alerts survive customer opt-out; another account does not inherit it',async()=>{
+ const h=await harness({'ankur.notification.prefs.v1:owner':{orderUpdates:false,promos:false}});await h.mount(owner,true);await h.native.configureOrderPush(owner,'admin',true);await h.receive('registration',{value:'test_fcm_new_owner_token'});assert.ok(h.writes.some(w=>w.path.startsWith('push_owner_devices/')));await h.dispatch('ankur-push-arrived',event());assert.equal(h.result.notices.length,1);assert.ok(!h.deletes.includes('native-fcm-token'));await h.update({uid:'another',email:'another@example.test'},false);await h.dispatch('ankur-push-arrived',event(2));assert.equal(h.result.notices.length,1);await h.close();
+});
+
+test('customer waits for account preferences before native registration or in-app alerts',async()=>{
+ const user={uid:'buyer',email:'buyer@example.test'},h=await harness({[placedKey]:[order(1)]});h.auth.currentUser=user;const stop=h.accountPrefs.watchAccountPreferences(user.uid);await h.mount(user,false);await h.native.configureOrderPush(user,null,false);assert.equal(h.native.pushRegistrationStatus(),'registering');assert.equal(h.writes.length,0);await h.dispatch('ankur-push-arrived',event());assert.equal(h.result.notices.length,0);await h.emit('settings/featureSuite',{enabled:true});await h.emit('userPrefs/buyer',{orderUpdates:false,promos:false});assert.equal(h.native.pushRegistrationStatus(),'opted_out');assert.equal(h.writes.length,0);stop();await h.close();
+});
+test('stale account preference callbacks cannot opt out a newly signed-in account',async()=>{
+ const h=await harness();h.auth.currentUser={uid:'account-a'};const stop=h.accountPrefs.watchAccountPreferences('account-a');await h.emit('settings/featureSuite',{enabled:true});const old=h.listeners.find(l=>l.ref.path==='userPrefs/account-a');h.auth.currentUser={uid:'account-b'};await h.native.configureOrderPush(h.auth.currentUser,null,false);stop();await old.callback({exists:()=>true,data:()=>({orderUpdates:false,promos:false})});assert.equal(h.prefs.readDevicePreferences('account-b').orderUpdates,true);assert.ok(!h.deletes.includes('native-fcm-token'));await h.close();
+});
+test('owner registration bypasses customer preference loading so operational alerts remain available',async()=>{
+ const h=await harness();const stop=h.accountPrefs.watchAccountPreferences(owner.uid);await h.native.configureOrderPush(owner,'admin',true);await h.receive('registration',{value:'test_fcm_owner_still_active'});assert.ok(h.writes.some(w=>w.path.startsWith('push_owner_devices/')));stop();await h.close();
 });

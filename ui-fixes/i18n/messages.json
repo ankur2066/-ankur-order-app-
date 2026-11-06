@@ -1,0 +1,5954 @@
+{
+  "वापस": {
+    "en": "Back",
+    "hi": "वापस"
+  },
+  "यह जाँच वाला TEST संदेश है। परीक्षण order साफ किया गया है या कोई वास्तविक order बनाया ही नहीं गया था।": {
+    "en": "This is a TEST message. The test order has been cleared or no actual order was created.",
+    "hi": "यह जाँच वाला TEST संदेश है। परीक्षण order साफ किया गया है या कोई वास्तविक order बनाया ही नहीं गया था।"
+  },
+  "इस order को देखने की अनुमति नहीं है।": {
+    "en": "Viewing of this order is not allowed.",
+    "hi": "इस order को देखने की अनुमति नहीं है।"
+  },
+  "इस संदेश में वैध order number नहीं है।": {
+    "en": "This message does not contain a valid order number.",
+    "hi": "इस संदेश में वैध order number नहीं है।"
+  },
+  "यह प्रोडक्ट अभी booking के लिए उपलब्ध नहीं है।": {
+    "en": "This product is not currently available for booking.",
+    "hi": "यह प्रोडक्ट अभी booking के लिए उपलब्ध नहीं है।"
+  },
+  "ड्राई आइस (Dry Ice)": {
+    "en": "Dry Ice",
+    "hi": "ड्राई आइस (Dry Ice)"
+  },
+  "लोड हो रहा है…": {
+    "en": "It's loading…",
+    "hi": "लोड हो रहा है…"
+  },
+  "ड्राई आइस बुकिंग": {
+    "en": "dry ice booking",
+    "hi": "ड्राई आइस बुकिंग"
+  },
+  "ऑर्डर ट्रैकिंग": {
+    "en": "order tracking",
+    "hi": "ऑर्डर ट्रैकिंग"
+  },
+  "Regular Supply": {
+    "en": "Regular Supply",
+    "hi": "नियमित आपूर्ति"
+  },
+  "आज का Lucky Winner": {
+    "en": "Today's Lucky Winner",
+    "hi": "आज का Lucky Winner"
+  },
+  "विजेता घोषित होने पर यहाँ दिखाई देगा।": {
+    "en": "The winner will appear here when announced.",
+    "hi": "विजेता घोषित होने पर यहाँ दिखाई देगा।"
+  },
+  "ओनर पैनल": {
+    "en": "owner panel",
+    "hi": "ओनर पैनल"
+  },
+  "ग्राहक ऐप देखें": {
+    "en": "View Customer App",
+    "hi": "ग्राहक ऐप देखें"
+  },
+  "नमस्ते! मैं आपकी ऑर्डर डिटेल्स का विश्लेषण कर सकता हूँ। आप क्या जानना चाहेंगे?": {
+    "en": "hello! I can analyze your order details. What would you like to know?",
+    "hi": "नमस्ते! मैं आपकी ऑर्डर डिटेल्स का विश्लेषण कर सकता हूँ। आप क्या जानना चाहेंगे?"
+  },
+  "AI चैट सर्वर इस ऐप में जुड़ा नहीं है (VITE_API_BASE_URL सेट नहीं)।": {
+    "en": "AI chat server is not connected in this app (VITE_API_BASE_URL not set).",
+    "hi": "AI चैट सर्वर इस ऐप में जुड़ा नहीं है (VITE_API_BASE_URL सेट नहीं)।"
+  },
+  "यह सुविधा सिर्फ़ मालिक के लॉगिन से चलती है।": {
+    "en": "This feature works only with the owner's login.",
+    "hi": "यह सुविधा सिर्फ़ मालिक के लॉगिन से चलती है।"
+  },
+  "क्षमा करें, मैं अभी जवाब देने में असमर्थ हूँ।": {
+    "en": "Sorry, I am unable to respond right now.",
+    "hi": "क्षमा करें, मैं अभी जवाब देने में असमर्थ हूँ।"
+  },
+  "सर्वर त्रुटि। कृपया पुनः प्रयास करें।": {
+    "en": "Server Error. Please try again.",
+    "hi": "सर्वर त्रुटि। कृपया पुनः प्रयास करें।"
+  },
+  "ऑर्डर्स के बारे में कुछ भी पूछें (उदा. आज कुल कितनी बुकिंग हुई?)...": {
+    "en": "Ask anything about orders (e.g. how many total bookings were made today?)...",
+    "hi": "ऑर्डर्स के बारे में कुछ भी पूछें (उदा. आज कुल कितनी बुकिंग हुई?)..."
+  },
+  "दूल्हा-दुल्हन की वरमाला एंट्री, ज़मीन पर घना ड्राई आइस फॉग, सुनहरी रोशनी, सिनेमैटिक": {
+    "en": "Varmala entry of bride and groom, dense dry ice fog on the ground, golden light, cinematic",
+    "hi": "दूल्हा-दुल्हन की वरमाला एंट्री, ज़मीन पर घना ड्राई आइस फॉग, सुनहरी रोशनी, सिनेमैटिक"
+  },
+  "संगीत नाइट का डांस फ्लोर, ठंडा सफ़ेद धुआँ, रंगीन लेज़र लाइट्स": {
+    "en": "Music night dance floor, cool white smoke, colorful laser lights",
+    "hi": "संगीत नाइट का डांस फ्लोर, ठंडा सफ़ेद धुआँ, रंगीन लेज़र लाइट्स"
+  },
+  "ड्राई आइस पेलेट्स पर पानी डालते ही उठता धुआँ, क्लोज़-अप, स्लो मोशन": {
+    "en": "Smoke rising when water is poured on dry ice pellets, close-up, slow motion",
+    "hi": "ड्राई आइस पेलेट्स पर पानी डालते ही उठता धुआँ, क्लोज़-अप, स्लो मोशन"
+  },
+  "फ़ाइल पढ़ी नहीं जा सकी": {
+    "en": "file could not be read",
+    "hi": "फ़ाइल पढ़ी नहीं जा सकी"
+  },
+  "सिर्फ़ फोटो चुनें (रेफ़रेंस के रूप में)।": {
+    "en": "Select only photo (as reference).",
+    "hi": "सिर्फ़ फोटो चुनें (रेफ़रेंस के रूप में)।"
+  },
+  "फोटो जोड़ी नहीं जा सकी": {
+    "en": "Photo could not be added",
+    "hi": "फोटो जोड़ी नहीं जा सकी"
+  },
+  "कृपया वीडियो का थोड़ा विस्तार से विवरण लिखें (कम से कम 10 अक्षर)।": {
+    "en": "Please write a detailed description of the video (minimum 10 characters).",
+    "hi": "कृपया वीडियो का थोड़ा विस्तार से विवरण लिखें (कम से कम 10 अक्षर)।"
+  },
+  "वीडियो बनने में बहुत समय लग रहा है। कुछ देर बाद दोबारा कोशिश करें।": {
+    "en": "It is taking a lot of time to make the video. Try again after some time.",
+    "hi": "वीडियो बनने में बहुत समय लग रहा है। कुछ देर बाद दोबारा कोशिश करें।"
+  },
+  "वीडियो नहीं बन सका।": {
+    "en": "Video could not be made.",
+    "hi": "वीडियो नहीं बन सका।"
+  },
+  "वीडियो की स्थिति नहीं मिल सकी।": {
+    "en": "Video status could not be found.",
+    "hi": "वीडियो की स्थिति नहीं मिल सकी।"
+  },
+  "वीडियो शुरू नहीं हो सका।": {
+    "en": "Video could not start.",
+    "hi": "वीडियो शुरू नहीं हो सका।"
+  },
+  "अंकुर ड्राई आइस एंड इवेंट्स": {
+    "en": "Ankur Dry Ice and Events",
+    "hi": "अंकुर ड्राई आइस एंड इवेंट्स"
+  },
+  "इस डिवाइस पर सीधे शेयर उपलब्ध नहीं है। पहले “डाउनलोड” करें, फिर गैलरी से WhatsApp पर भेजें।": {
+    "en": "Direct Share is not available on this device. First tap “Download”, then send from Gallery to WhatsApp.",
+    "hi": "इस डिवाइस पर सीधे शेयर उपलब्ध नहीं है। पहले “डाउनलोड” करें, फिर गैलरी से WhatsApp पर भेजें।"
+  },
+  "शेयर नहीं हो सका। डाउनलोड करके गैलरी से भेजें।": {
+    "en": "Could not share. Download and send from gallery.",
+    "hi": "शेयर नहीं हो सका। डाउनलोड करके गैलरी से भेजें।"
+  },
+  "AI वीडियो": {
+    "en": "AI video",
+    "hi": "AI वीडियो"
+  },
+  "वीडियो का तरीका": {
+    "en": "video method",
+    "hi": "वीडियो का तरीका"
+  },
+  "AI वीडियो (सर्वर)": {
+    "en": "AI Video (Server)",
+    "hi": "AI वीडियो (सर्वर)"
+  },
+  "स्टेज वीडियो मेकर": {
+    "en": "stage video maker",
+    "hi": "स्टेज वीडियो मेकर"
+  },
+  "वीडियो सर्वर जाँचा जा रहा है…": {
+    "en": "Checking video server…",
+    "hi": "वीडियो सर्वर जाँचा जा रहा है…"
+  },
+  "AI वीडियो अभी उपलब्ध नहीं है": {
+    "en": "AI video not available yet",
+    "hi": "AI वीडियो अभी उपलब्ध नहीं है"
+  },
+  "तब तक “स्टेज वीडियो मेकर” से अपने डिवाइस पर ही धुएँ वाली एंट्री का वीडियो बनाकर डाउनलोड कर सकते हैं।": {
+    "en": "Till then, you can create a video of smoke entry and download it on your device with “Stage Video Maker”.",
+    "hi": "तब तक “स्टेज वीडियो मेकर” से अपने डिवाइस पर ही धुएँ वाली एंट्री का वीडियो बनाकर डाउनलोड कर सकते हैं।"
+  },
+  "स्टेज वीडियो मेकर खोलें": {
+    "en": "Open Stage Video Maker",
+    "hi": "स्टेज वीडियो मेकर खोलें"
+  },
+  "वीडियो बनाने के लिए लॉगिन करें": {
+    "en": "Login to make video",
+    "hi": "वीडियो बनाने के लिए लॉगिन करें"
+  },
+  "AI वीडियो पर रोज़ की सीमा लगती है, इसलिए Google लॉगिन ज़रूरी है।": {
+    "en": "There is a daily limit on AI videos, so Google login is required.",
+    "hi": "AI वीडियो पर रोज़ की सीमा लगती है, इसलिए Google लॉगिन ज़रूरी है।"
+  },
+  "आप कैसा वीडियो चाहते हैं?": {
+    "en": "What kind of video do you want?",
+    "hi": "आप कैसा वीडियो चाहते हैं?"
+  },
+  "जैसे: वरमाला के समय स्टेज पर ड्राई आइस फॉग, सुनहरी रोशनी…": {
+    "en": "Like: Dry ice fog, golden lights on the stage at the time of varmala…",
+    "hi": "जैसे: वरमाला के समय स्टेज पर ड्राई आइस फॉग, सुनहरी रोशनी…"
+  },
+  "वीडियो का आकार": {
+    "en": "video size",
+    "hi": "वीडियो का आकार"
+  },
+  "WhatsApp स्टेटस (खड़ा)": {
+    "en": "WhatsApp Status (Standing)",
+    "hi": "WhatsApp स्टेटस (खड़ा)"
+  },
+  "चौड़ा (TV / LED)": {
+    "en": "Wide (TV / LED)",
+    "hi": "चौड़ा (TV / LED)"
+  },
+  "रेफ़रेंस फोटो (वैकल्पिक)": {
+    "en": "Reference photo (optional)",
+    "hi": "रेफ़रेंस फोटो (वैकल्पिक)"
+  },
+  "फोटो सिर्फ़ वीडियो के लिए रेफ़रेंस की तरह इस्तेमाल होती है।": {
+    "en": "Photo is only used as reference for the video.",
+    "hi": "फोटो सिर्फ़ वीडियो के लिए रेफ़रेंस की तरह इस्तेमाल होती है।"
+  },
+  "रेफ़रेंस": {
+    "en": "reference",
+    "hi": "रेफ़रेंस"
+  },
+  "हटाएँ": {
+    "en": "delete",
+    "hi": "हटाएँ"
+  },
+  "फोटो चुनें": {
+    "en": "select photo",
+    "hi": "फोटो चुनें"
+  },
+  "भेजा जा रहा है…": {
+    "en": "Being sent…",
+    "hi": "भेजा जा रहा है…"
+  },
+  "वीडियो बन रहा है…": {
+    "en": "Video is being made…",
+    "hi": "वीडियो बन रहा है…"
+  },
+  "वीडियो बनाएँ": {
+    "en": "create video",
+    "hi": "वीडियो बनाएँ"
+  },
+  "इसमें कुछ मिनट लग सकते हैं। इस स्क्रीन को खुला रखें।": {
+    "en": "This may take a few minutes. Keep this screen open.",
+    "hi": "इसमें कुछ मिनट लग सकते हैं। इस स्क्रीन को खुला रखें।"
+  },
+  "आपका वीडियो": {
+    "en": "your video",
+    "hi": "आपका वीडियो"
+  },
+  "डाउनलोड": {
+    "en": "download",
+    "hi": "डाउनलोड"
+  },
+  "शेयर": {
+    "en": "share",
+    "hi": "शेयर"
+  },
+  "डाउनलोड/शेयर आपके फोन और Android सेटिंग पर निर्भर करता है। न चले तो इसी वीडियो को ब्राउज़र वर्ज़न में खोलकर सेव करें।": {
+    "en": "Download/Share depends on your phone and Android settings. If it doesn't work, open this video in the browser version and save it.",
+    "hi": "डाउनलोड/शेयर आपके फोन और Android सेटिंग पर निर्भर करता है। न चले तो इसी वीडियो को ब्राउज़र वर्ज़न में खोलकर सेव करें।"
+  },
+  "आज सुबह": {
+    "en": "Today morning",
+    "hi": "आज सुबह"
+  },
+  "आज शाम": {
+    "en": "Today evening",
+    "hi": "आज शाम"
+  },
+  "कल सुबह": {
+    "en": "Tomorrow morning",
+    "hi": "कल सुबह"
+  },
+  "कल शाम": {
+    "en": "Tomorrow evening",
+    "hi": "कल शाम"
+  },
+  "आज सुबह 12 AM–12 PM": {
+    "en": "Today morning 12 AM–12 PM",
+    "hi": "आज सुबह 12 AM–12 PM"
+  },
+  "ऑर्डर लोड करने में समस्या आई: {0}": {
+    "en": "There was a problem loading order: {0}",
+    "hi": "ऑर्डर लोड करने में समस्या आई: {0}"
+  },
+  "ऑर्डर लोड करने में समस्या आई:": {
+    "en": "There was a problem loading the order:",
+    "hi": "ऑर्डर लोड करने में समस्या आई:"
+  },
+  "ऑर्डर रियल-टाइम सिंक हो रहे हैं": {
+    "en": "Orders are syncing real-time",
+    "hi": "ऑर्डर रियल-टाइम सिंक हो रहे हैं"
+  },
+  "फोन कॉन्टैक्ट से जानकारी भरी गई।": {
+    "en": "Information filled from phone contact.",
+    "hi": "फोन कॉन्टैक्ट से जानकारी भरी गई।"
+  },
+  "इस ब्राउज़र/डिवाइस में कॉन्टैक्ट पिकर समर्थित नहीं है। कृपया ग्राहक खोज का उपयोग करें।": {
+    "en": "Contact picker is not supported in this browser/device. Please use customer search.",
+    "hi": "इस ब्राउज़र/डिवाइस में कॉन्टैक्ट पिकर समर्थित नहीं है। कृपया ग्राहक खोज का उपयोग करें।"
+  },
+  "ऑर्डर कन्फर्म हुआ। डिलीवरी की तैयारी जारी है।": {
+    "en": "Order confirmed. Preparations for delivery are underway.",
+    "hi": "ऑर्डर कन्फर्म हुआ। डिलीवरी की तैयारी जारी है।"
+  },
+  "प्रोडक्ट की पैकिंग जारी है।": {
+    "en": "Packing of the product is in progress.",
+    "hi": "प्रोडक्ट की पैकिंग जारी है।"
+  },
+  "ड्राई आइस और थर्मोकोल पैकिंग जारी है।": {
+    "en": "Dry ice and thermocol packing continues.",
+    "hi": "ड्राई आइस और थर्मोकोल पैकिंग जारी है।"
+  },
+  "ड्राई आइस बस / ट्रांसपोर्टर को हैंडओवर कर दी गई है।": {
+    "en": "Dry ice has been handed over to the bus/transporter.",
+    "hi": "ड्राई आइस बस / ट्रांसपोर्टर को हैंडओवर कर दी गई है।"
+  },
+  "ऑर्डर सफलतापूर्वक डिलीवर हो गया।": {
+    "en": "Order successfully delivered.",
+    "hi": "ऑर्डर सफलतापूर्वक डिलीवर हो गया।"
+  },
+  "ऑर्डर #{0} की स्थिति '{1}' अपडेट हो गई।": {
+    "en": "Status of order #{0} updated to '{1}'.",
+    "hi": "ऑर्डर #{0} की स्थिति '{1}' अपडेट हो गई।"
+  },
+  "स्थिति अपडेट करने में त्रुटि: {0}": {
+    "en": "Error updating status: {0}",
+    "hi": "स्थिति अपडेट करने में त्रुटि: {0}"
+  },
+  "स्थिति अपडेट करने में त्रुटि:": {
+    "en": "Error updating status:",
+    "hi": "स्थिति अपडेट करने में त्रुटि:"
+  },
+  "ऑर्डर #{0} पेमेंट: {1}": {
+    "en": "Order #{0} Payment: {1}",
+    "hi": "ऑर्डर #{0} पेमेंट: {1}"
+  },
+  "वेरीफाइड (Paid)": {
+    "en": "Verified (Paid)",
+    "hi": "वेरीफाइड (Paid)"
+  },
+  "पेंडिंग (Pending)": {
+    "en": "Pending",
+    "hi": "पेंडिंग (Pending)"
+  },
+  "पेमेंट स्थिति अपडेट करने में त्रुटि: {0}": {
+    "en": "Error updating payment status: {0}",
+    "hi": "पेमेंट स्थिति अपडेट करने में त्रुटि: {0}"
+  },
+  "पेमेंट स्थिति अपडेट करने में त्रुटि:": {
+    "en": "Error updating payment status:",
+    "hi": "पेमेंट स्थिति अपडेट करने में त्रुटि:"
+  },
+  "ऑर्डर #{0} को ट्रैश में स्थानांतरित किया गया।": {
+    "en": "Order #{0} moved to trash.",
+    "hi": "ऑर्डर #{0} को ट्रैश में स्थानांतरित किया गया।"
+  },
+  "ऑर्डर ट्रैश करने में त्रुटि: {0}": {
+    "en": "Error trashing order: {0}",
+    "hi": "ऑर्डर ट्रैश करने में त्रुटि: {0}"
+  },
+  "ऑर्डर ट्रैश करने में त्रुटि:": {
+    "en": "Error trashing order:",
+    "hi": "ऑर्डर ट्रैश करने में त्रुटि:"
+  },
+  "ऑर्डर #{0} को सफलतापूर्वक रीस्टोर कर दिया गया।": {
+    "en": "Order #{0} has been successfully restored.",
+    "hi": "ऑर्डर #{0} को सफलतापूर्वक रीस्टोर कर दिया गया।"
+  },
+  "ऑर्डर रीस्टोर करने में त्रुटि: {0}": {
+    "en": "Error restoring order: {0}",
+    "hi": "ऑर्डर रीस्टोर करने में त्रुटि: {0}"
+  },
+  "ऑर्डर रीस्टोर करने में त्रुटि:": {
+    "en": "Error restoring order:",
+    "hi": "ऑर्डर रीस्टोर करने में त्रुटि:"
+  },
+  "कृपया ग्राहक का नाम दर्ज करें (कम से कम 2 अक्षर)।": {
+    "en": "Please enter customer name (minimum 2 characters).",
+    "hi": "कृपया ग्राहक का नाम दर्ज करें (कम से कम 2 अक्षर)।"
+  },
+  "कृपया 10 अंकों का मान्य मोबाइल नंबर दर्ज करें।": {
+    "en": "Please enter a valid 10 digit mobile number.",
+    "hi": "कृपया 10 अंकों का मान्य मोबाइल नंबर दर्ज करें।"
+  },
+  "कृपया शहर दर्ज करें।": {
+    "en": "Please enter city.",
+    "hi": "कृपया शहर दर्ज करें।"
+  },
+  "कृपया सही मात्रा (KG) दर्ज करें (शून्य से अधिक)।": {
+    "en": "Please enter correct quantity (KG) (greater than zero).",
+    "hi": "कृपया सही मात्रा (KG) दर्ज करें (शून्य से अधिक)।"
+  },
+  "मालिक द्वारा नई एंट्री": {
+    "en": "New entry by owner",
+    "hi": "मालिक द्वारा नई एंट्री"
+  },
+  "मालिक द्वारा ऑर्डर दर्ज किया गया।": {
+    "en": "Order entered by owner.",
+    "hi": "मालिक द्वारा ऑर्डर दर्ज किया गया।"
+  },
+  "ऑर्डर सेव करने में त्रुटि: {0}": {
+    "en": "Error saving order: {0}",
+    "hi": "ऑर्डर सेव करने में त्रुटि: {0}"
+  },
+  "ऑर्डर सेव करने में त्रुटि:": {
+    "en": "Error saving order:",
+    "hi": "ऑर्डर सेव करने में त्रुटि:"
+  },
+  "दरें और क्षमता सफलतापूर्वक अपडेट की गईं: दर ₹{0}/kg | क्षमता: {1} KG": {
+    "en": "Rates and capacity updated successfully: Rate ₹{0}/kg | Capacity: {1} KG",
+    "hi": "दरें और क्षमता सफलतापूर्वक अपडेट की गईं: दर ₹{0}/kg | क्षमता: {1} KG"
+  },
+  "दरें सहेजने में त्रुटि: {0}": {
+    "en": "Error saving rates: {0}",
+    "hi": "दरें सहेजने में त्रुटि: {0}"
+  },
+  "दरें सहेजने में त्रुटि:": {
+    "en": "Error saving rates:",
+    "hi": "दरें सहेजने में त्रुटि:"
+  },
+  "अज्ञात": {
+    "en": "unknown",
+    "hi": "अज्ञात"
+  },
+  "अन्य": {
+    "en": "Other",
+    "hi": "अन्य"
+  },
+  "ओनर डैशबोर्ड सिर्फ़ मालिक के लिए है": {
+    "en": "Owner Dashboard is for owners only",
+    "hi": "ओनर डैशबोर्ड सिर्फ़ मालिक के लिए है"
+  },
+  "इस Google अकाउंट को ओनर एक्सेस नहीं है। मालिक के अकाउंट से लॉगिन करें।": {
+    "en": "This Google Account doesn't have owner access. Login with the owner's account.",
+    "hi": "इस Google अकाउंट को ओनर एक्सेस नहीं है। मालिक के अकाउंट से लॉगिन करें।"
+  },
+  "मालिक के Google अकाउंट से साइन इन करें।": {
+    "en": "Sign in with the owner's Google Account.",
+    "hi": "मालिक के Google अकाउंट से साइन इन करें।"
+  },
+  "ग्राहक ऐप पर लौटें": {
+    "en": "Return to customer app",
+    "hi": "ग्राहक ऐप पर लौटें"
+  },
+  "अंकुर सिंह — मालिक डैशबोर्ड": {
+    "en": "Ankur Singh – Owner Dashboard",
+    "hi": "अंकुर सिंह — मालिक डैशबोर्ड"
+  },
+  "BUSINESS COMMAND CENTER": {
+    "en": "BUSINESS COMMAND CENTER",
+    "hi": "बिजनेस कमांड सेंटर"
+  },
+  "Ankur Dryice and Events": {
+    "en": "Ankur Dryice and Events",
+    "hi": "अंकुर ड्राईइस और इवेंट्स"
+  },
+  "अधिकृत:": {
+    "en": "Authorized:",
+    "hi": "अधिकृत:"
+  },
+  "&bull;": {
+    "en": "&bull;",
+    "hi": "•"
+  },
+  "दर: ₹": {
+    "en": "Rate: ₹",
+    "hi": "दर: ₹"
+  },
+  "/kg (बदलें)": {
+    "en": "/kg (change)",
+    "hi": "/kg (बदलें)"
+  },
+  "ग्राहक बुकिंग फ़ॉर्म पर जाएं": {
+    "en": "Go to customer booking form",
+    "hi": "ग्राहक बुकिंग फ़ॉर्म पर जाएं"
+  },
+  "ग्राहक फ़ॉर्म": {
+    "en": "customer form",
+    "hi": "ग्राहक फ़ॉर्म"
+  },
+  "ऑर्डर रिफ्रेश करें": {
+    "en": "refresh order",
+    "hi": "ऑर्डर रिफ्रेश करें"
+  },
+  "लॉगआउट करें": {
+    "en": "log out",
+    "hi": "लॉगआउट करें"
+  },
+  "लॉगआउट": {
+    "en": "logout",
+    "hi": "लॉगआउट"
+  },
+  "मालिक डैशबोर्ड के सभी सेक्शन": {
+    "en": "All sections of owner dashboard",
+    "hi": "मालिक डैशबोर्ड के सभी सेक्शन"
+  },
+  "नई एंट्री": {
+    "en": "new entry",
+    "hi": "नई एंट्री"
+  },
+  "ऑर्डर (": {
+    "en": "order (",
+    "hi": "ऑर्डर ("
+  },
+  "इनसाइट्स": {
+    "en": "Insights",
+    "hi": "इनसाइट्स"
+  },
+  "खर्च": {
+    "en": "Expenditure",
+    "hi": "खर्च"
+  },
+  "यूज़र्स": {
+    "en": "users",
+    "hi": "यूज़र्स"
+  },
+  "स्टोर / थीम": {
+    "en": "Store / Theme",
+    "hi": "स्टोर / थीम"
+  },
+  "AI चैट": {
+    "en": "AI chat",
+    "hi": "AI चैट"
+  },
+  "⚠️ स्टॉक समाप्त / क्षमता सीमा पार (Low Stock / Capacity Reached):": {
+    "en": "⚠️ Low Stock / Capacity Reached:",
+    "hi": "⚠️ स्टॉक समाप्त / क्षमता सीमा पार (Low Stock / Capacity Reached):"
+  },
+  "⚠️ स्टॉक / क्षमता चेतावनी (Capacity Alert):": {
+    "en": "⚠️ Stock / Capacity Alert:",
+    "hi": "⚠️ स्टॉक / क्षमता चेतावनी (Capacity Alert):"
+  },
+  "आज की कुल ड्राई आइस बुकिंग": {
+    "en": "Today's Total Dry Ice Bookings",
+    "hi": "आज की कुल ड्राई आइस बुकिंग"
+  },
+  "KG": {
+    "en": "KG",
+    "hi": "के.जी"
+  },
+  "हो चुकी है (निर्धारित दैनिक क्षमता:": {
+    "en": "Done (Prescribed Daily Capacity:",
+    "hi": "हो चुकी है (निर्धारित दैनिक क्षमता:"
+  },
+  "का": {
+    "en": "Of",
+    "hi": "का"
+  },
+  "%)। कृपया नया स्टॉक सुनिश्चित करें।": {
+    "en": "%). Please ensure new stock.",
+    "hi": "%)। कृपया नया स्टॉक सुनिश्चित करें।"
+  },
+  "पिछले 30 दिन का ऑर्डर सारांश": {
+    "en": "Last 30 Days Order Summary",
+    "hi": "पिछले 30 दिन का ऑर्डर सारांश"
+  },
+  "पिछले 30 दिन · ओनर ओवरव्यू": {
+    "en": "Last 30 Days · Owner Overview",
+    "hi": "पिछले 30 दिन · ओनर ओवरव्यू"
+  },
+  "सभी ऑर्डर CSV": {
+    "en": "All Orders CSV",
+    "hi": "सभी ऑर्डर CSV"
+  },
+  "ऑर्डर का सारांश लोड हो रहा है…": {
+    "en": "Loading Order Summary…",
+    "hi": "ऑर्डर का सारांश लोड हो रहा है…"
+  },
+  "ऑर्डर लोड नहीं हुए, सारांश उपलब्ध नहीं है।": {
+    "en": "Orders not loaded, summary not available.",
+    "hi": "ऑर्डर लोड नहीं हुए, सारांश उपलब्ध नहीं है।"
+  },
+  "ऑर्डर": {
+    "en": "Order",
+    "hi": "ऑर्डर"
+  },
+  "पेंडिंग": {
+    "en": "pending",
+    "hi": "पेंडिंग"
+  },
+  "भेजे गए": {
+    "en": "sent",
+    "hi": "भेजे गए"
+  },
+  "अनुमानित ऑर्डर मूल्य": {
+    "en": "Estimated Order Value",
+    "hi": "अनुमानित ऑर्डर मूल्य"
+  },
+  "सिर्फ पिछले 30 दिन के गैर-ट्रैश ऑर्डर। अनुमानित मूल्य में रद्द ऑर्डर शामिल नहीं; यह प्राप्त भुगतान नहीं है।": {
+    "en": "Only non-trash orders in the last 30 days. Estimated price does not include canceled orders; This is not payment received.",
+    "hi": "सिर्फ पिछले 30 दिन के गैर-ट्रैश ऑर्डर। अनुमानित मूल्य में रद्द ऑर्डर शामिल नहीं; यह प्राप्त भुगतान नहीं है।"
+  },
+  "{0} बिना तारीख वाले ऑर्डर इस सारांश में नहीं जोड़े गए।": {
+    "en": "{0} Orders without dates were not added to this summary.",
+    "hi": "{0} बिना तारीख वाले ऑर्डर इस सारांश में नहीं जोड़े गए।"
+  },
+  "इस अवधि में कोई ऑर्डर नहीं मिला।": {
+    "en": "No orders were received during this period.",
+    "hi": "इस अवधि में कोई ऑर्डर नहीं मिला।"
+  },
+  "मालिक द्वारा नई ऑर्डर एंट्री": {
+    "en": "New order entry by owner",
+    "hi": "मालिक द्वारा नई ऑर्डर एंट्री"
+  },
+  "फोन या सीधे संपर्क से प्राप्त ग्राहक का ऑर्डर यहाँ दर्ज करें।": {
+    "en": "Enter customer orders received by phone or direct contact here.",
+    "hi": "फोन या सीधे संपर्क से प्राप्त ग्राहक का ऑर्डर यहाँ दर्ज करें।"
+  },
+  "लागू दर": {
+    "en": "applicable rate",
+    "hi": "लागू दर"
+  },
+  "/kg": {
+    "en": "/kg",
+    "hi": "/किलो"
+  },
+  "ऑर्डर सफलतापूर्वक सेव हो गया!": {
+    "en": "Order saved successfully!",
+    "hi": "ऑर्डर सफलतापूर्वक सेव हो गया!"
+  },
+  "ऑर्डर ID:": {
+    "en": "Order ID:",
+    "hi": "ऑर्डर ID:"
+  },
+  "&bull; पिन:": {
+    "en": "• Pin:",
+    "hi": "&bull; पिन:"
+  },
+  "ट्रैकिंग देखें &rarr;": {
+    "en": "View Tracking →",
+    "hi": "ट्रैकिंग देखें &rarr;"
+  },
+  "नई एंट्री करें": {
+    "en": "make new entry",
+    "hi": "नई एंट्री करें"
+  },
+  "सहेजे गए ग्राहक खोजें": {
+    "en": "Search Saved Customers",
+    "hi": "सहेजे गए ग्राहक खोजें"
+  },
+  "डिवाइस के फोन कॉन्टैक्ट से चुनें": {
+    "en": "Select from device's phone contacts",
+    "hi": "डिवाइस के फोन कॉन्टैक्ट से चुनें"
+  },
+  "📱 फोन कॉन्टैक्ट": {
+    "en": "📱 Phone Contact",
+    "hi": "📱 फोन कॉन्टैक्ट"
+  },
+  "नाम, मोबाइल या शहर से पुराने ग्राहक खोजें...": {
+    "en": "Search past customers by name, mobile or city...",
+    "hi": "नाम, मोबाइल या शहर से पुराने ग्राहक खोजें..."
+  },
+  "शहर नहीं": {
+    "en": "not a city",
+    "hi": "शहर नहीं"
+  },
+  "ग्राहक का नाम": {
+    "en": "customer name",
+    "hi": "ग्राहक का नाम"
+  },
+  "उदा. राहुल शर्मा": {
+    "en": "E.g. Rahul Sharma",
+    "hi": "उदा. राहुल शर्मा"
+  },
+  "मोबाइल नंबर (10 अंक)": {
+    "en": "Mobile Number (10 digits)",
+    "hi": "मोबाइल नंबर (10 अंक)"
+  },
+  "उदा. 9876543210": {
+    "en": "E.g. 9876543210",
+    "hi": "उदा. 9876543210"
+  },
+  "शहर": {
+    "en": "City ",
+    "hi": "शहर"
+  },
+  "उदा. लखनऊ, कानपुर, गोरखपुर, वाराणसी": {
+    "en": "Ex. Lucknow, Kanpur, Gorakhpur, Varanasi",
+    "hi": "उदा. लखनऊ, कानपुर, गोरखपुर, वाराणसी"
+  },
+  "ड्राई आइस की मात्रा (KG)": {
+    "en": "Dry Ice Quantity(KG)",
+    "hi": "ड्राई आइस की मात्रा (KG)"
+  },
+  "मात्रा लिखें": {
+    "en": "write quantity",
+    "hi": "मात्रा लिखें"
+  },
+  "उदा. 2, 7, 10, 15, 27.5 या 50": {
+    "en": "E.g. 2, 7, 10, 15, 27.5 or 50",
+    "hi": "उदा. 2, 7, 10, 15, 27.5 या 50"
+  },
+  "कस्टम मात्रा दर्ज करें (दशमलव स्वीकार्य है)।": {
+    "en": "Enter custom quantity (decimal is acceptable).",
+    "hi": "कस्टम मात्रा दर्ज करें (दशमलव स्वीकार्य है)।"
+  },
+  "डिस्पैच स्लॉट (IST)": {
+    "en": "Dispatch Slot (IST)",
+    "hi": "डिस्पैच स्लॉट (IST)"
+  },
+  "ड्राई आइस (": {
+    "en": "dry ice (",
+    "hi": "ड्राई आइस ("
+  },
+  "kg × ₹": {
+    "en": "kg × ₹",
+    "hi": "किलो × ₹"
+  },
+  "थर्मोकोल पैकिंग (": {
+    "en": "thermocol packing(",
+    "hi": "थर्मोकोल पैकिंग ("
+  },
+  "कुल देय राशि:": {
+    "en": "total amount payable:",
+    "hi": "कुल देय राशि:"
+  },
+  "मालिक नोट्स (Owner Notes - वैकल्पिक)": {
+    "en": "Owner Notes (Optional)",
+    "hi": "मालिक नोट्स (Owner Notes - वैकल्पिक)"
+  },
+  "उदा. बस डिपो से रिसीव करेंगे / टोकन नंबर 4": {
+    "en": "Ex. Will receive from bus depot / token number 4",
+    "hi": "उदा. बस डिपो से रिसीव करेंगे / टोकन नंबर 4"
+  },
+  "ऑर्डर सेव हो रहा है...": {
+    "en": "Saving the order...",
+    "hi": "ऑर्डर सेव हो रहा है..."
+  },
+  "ऑर्डर सेव करें (₹": {
+    "en": "Save Order (₹",
+    "hi": "ऑर्डर सेव करें (₹"
+  },
+  "AI चैट - ऑर्डर इनसाइट्स": {
+    "en": "AI Chat - Order Insights",
+    "hi": "AI चैट - ऑर्डर इनसाइट्स"
+  },
+  "Today Morning": {
+    "en": "Today Morning",
+    "hi": "आज सुबह"
+  },
+  "आज सुबह डिस्पैच स्लॉट": {
+    "en": "dispatch slot this morning",
+    "hi": "आज सुबह डिस्पैच स्लॉट"
+  },
+  "Today Evening": {
+    "en": "Today Evening",
+    "hi": "आज शाम"
+  },
+  "आज शाम डिस्पैच स्लॉट": {
+    "en": "dispatch slot this evening",
+    "hi": "आज शाम डिस्पैच स्लॉट"
+  },
+  "Tomorrow Morning": {
+    "en": "Tomorrow Morning",
+    "hi": "कल सुबह"
+  },
+  "कल सुबह डिस्पैच स्लॉट": {
+    "en": "tomorrow morning dispatch slot",
+    "hi": "कल सुबह डिस्पैच स्लॉट"
+  },
+  "Tomorrow Evening": {
+    "en": "Tomorrow Evening",
+    "hi": "कल शाम"
+  },
+  "कल शाम डिस्पैच स्लॉट": {
+    "en": "tomorrow evening dispatch slot",
+    "hi": "कल शाम डिस्पैच स्लॉट"
+  },
+  "सभी ऑर्डर": {
+    "en": "all orders",
+    "hi": "सभी ऑर्डर"
+  },
+  "कुल ऑर्डर &rarr;": {
+    "en": "Total Order →",
+    "hi": "कुल ऑर्डर &rarr;"
+  },
+  "चयनित स्लॉट के ऑर्डर (": {
+    "en": "Order of selected slots (",
+    "hi": "चयनित स्लॉट के ऑर्डर ("
+  },
+  "इस डिस्पैच स्लॉट में कोई ऑर्डर नहीं है।": {
+    "en": "There are no orders in this dispatch slot.",
+    "hi": "इस डिस्पैच स्लॉट में कोई ऑर्डर नहीं है।"
+  },
+  "उत्तर प्रदेश": {
+    "en": "Uttar Pradesh",
+    "hi": "उत्तर प्रदेश"
+  },
+  "PIN:": {
+    "en": "PIN:",
+    "hi": "नत्थी करना:"
+  },
+  "अधिक विकल्प": {
+    "en": "more options",
+    "hi": "अधिक विकल्प"
+  },
+  "Restore Order": {
+    "en": "Restore Order",
+    "hi": "व्यवस्था बहाल"
+  },
+  "Delete Order": {
+    "en": "Delete Order",
+    "hi": "ऑर्डर हटाएं"
+  },
+  "ट्रैकिंग देखें": {
+    "en": "View Tracking",
+    "hi": "ट्रैकिंग देखें"
+  },
+  "Payment:": {
+    "en": "Payment:",
+    "hi": "भुगतान:"
+  },
+  "नमस्ते {0}, अंकुर ड्राई आइस से आपके ऑर्डर #{1} (कुल राशि: ₹{2}) के भुगतान की पुष्टि के लिए कृपया पेमेंट का स्क्रीनशॉट यहाँ भेजें।": {
+    "en": "Hello {0}, Please send screenshot of payment here to confirm payment for your order #{1} (Total amount: ₹{2}) from Ankur Dry Ice.",
+    "hi": "नमस्ते {0}, अंकुर ड्राई आइस से आपके ऑर्डर #{1} (कुल राशि: ₹{2}) के भुगतान की पुष्टि के लिए कृपया पेमेंट का स्क्रीनशॉट यहाँ भेजें।"
+  },
+  "ग्राहक से WhatsApp पर स्क्रीनशॉट मांगें": {
+    "en": "Ask customer for screenshot on WhatsApp",
+    "hi": "ग्राहक से WhatsApp पर स्क्रीनशॉट मांगें"
+  },
+  "स्क्रीनशॉट मांगें": {
+    "en": "ask for screenshot",
+    "hi": "स्क्रीनशॉट मांगें"
+  },
+  "Pending करें": {
+    "en": "Pending",
+    "hi": "Pending करें"
+  },
+  "Paid मार्क करें": {
+    "en": "Mark Paid",
+    "hi": "Paid मार्क करें"
+  },
+  "Confirm": {
+    "en": "Confirm",
+    "hi": "पुष्टि करना"
+  },
+  "Packing": {
+    "en": "Packing",
+    "hi": "पैकिंग"
+  },
+  "Dispatch": {
+    "en": "Dispatch",
+    "hi": "प्रेषण"
+  },
+  "Deliver": {
+    "en": "Deliver",
+    "hi": "बाँटना"
+  },
+  "ग्राहक:": {
+    "en": "Customer:",
+    "hi": "ग्राहक:"
+  },
+  "मात्रा:": {
+    "en": "amount:",
+    "hi": "मात्रा:"
+  },
+  "जिला:": {
+    "en": "District:",
+    "hi": "जिला:"
+  },
+  "कुल राशि:": {
+    "en": "Total amount:",
+    "hi": "कुल राशि:"
+  },
+  "डिस्पैच:": {
+    "en": "Dispatch:",
+    "hi": "डिस्पैच:"
+  },
+  "नोट:": {
+    "en": "Note:",
+    "hi": "नोट:"
+  },
+  "कॉल करें": {
+    "en": "make a call",
+    "hi": "कॉल करें"
+  },
+  "Call": {
+    "en": "Call",
+    "hi": "कॉल"
+  },
+  "नमस्ते {0}, अंकुर ड्राई आइस से आपके ऑर्डर #{1} ({2}) के संबंध में।": {
+    "en": "Hello {0}, regarding your order #{1} ({2}) from Ankur Dry Ice.",
+    "hi": "नमस्ते {0}, अंकुर ड्राई आइस से आपके ऑर्डर #{1} ({2}) के संबंध में।"
+  },
+  "WhatsApp पर चैट करें": {
+    "en": "chat on whatsapp",
+    "hi": "WhatsApp पर चैट करें"
+  },
+  "WhatsApp": {
+    "en": "WhatsApp",
+    "hi": "व्हाट्सएप"
+  },
+  "ऑर्डर ट्रैश में है": {
+    "en": "The order is in the trash",
+    "hi": "ऑर्डर ट्रैश में है"
+  },
+  "Restore": {
+    "en": "Restore",
+    "hi": "पुनर्स्थापित करना"
+  },
+  "&larr; डिस्पैच स्लॉट व्यू पर वापस जाएं": {
+    "en": "← Back to Dispatch Slot View",
+    "hi": "&larr; डिस्पैच स्लॉट व्यू पर वापस जाएं"
+  },
+  "Total": {
+    "en": "Total",
+    "hi": "कुल"
+  },
+  "Pending": {
+    "en": "Pending",
+    "hi": "लंबित"
+  },
+  "Confirmed": {
+    "en": "Confirmed",
+    "hi": "की पुष्टि"
+  },
+  "Dispatched": {
+    "en": "Dispatched",
+    "hi": "भेजा गया"
+  },
+  "Delivered": {
+    "en": "Delivered",
+    "hi": "डिलीवर हो गया"
+  },
+  "सभी (": {
+    "en": "All (",
+    "hi": "सभी ("
+  },
+  "Trash (": {
+    "en": "Trash (",
+    "hi": "कचरा ("
+  },
+  "Pending (": {
+    "en": "Pending (",
+    "hi": "लंबित ("
+  },
+  "Confirmed (": {
+    "en": "Confirmed (",
+    "hi": "की पुष्टि ("
+  },
+  "Packing (": {
+    "en": "Packing (",
+    "hi": "पैकिंग ("
+  },
+  "Dispatched (": {
+    "en": "Dispatched (",
+    "hi": "भेजा गया ("
+  },
+  "सभी Payment": {
+    "en": "All payments",
+    "hi": "सभी Payment"
+  },
+  "Payment Pending": {
+    "en": "Payment Pending",
+    "hi": "भुगतान लंबित है"
+  },
+  "ऑर्डर ID, ग्राहक नाम, मोबाइल या जिला...": {
+    "en": "Order ID, Customer Name, Mobile or District...",
+    "hi": "ऑर्डर ID, ग्राहक नाम, मोबाइल या जिला..."
+  },
+  "जिला या शहर चुनें": {
+    "en": "Select District or City",
+    "hi": "जिला या शहर चुनें"
+  },
+  "सभी जिले / शहर": {
+    "en": "All Districts/Cities",
+    "hi": "सभी जिले / शहर"
+  },
+  "ट्रैश में कोई ऑर्डर नहीं है।": {
+    "en": "There is no order in the trash.",
+    "hi": "ट्रैश में कोई ऑर्डर नहीं है।"
+  },
+  "कोई ऑर्डर नहीं मिला।": {
+    "en": "No order received.",
+    "hi": "कोई ऑर्डर नहीं मिला।"
+  },
+  "ऑर्डर CSV (Excel / Sheets)": {
+    "en": "Order CSV (Excel / Sheets)",
+    "hi": "ऑर्डर CSV (Excel / Sheets)"
+  },
+  "रिपोर्ट डाउनलोड नहीं हुई:": {
+    "en": "Report not downloaded:",
+    "hi": "रिपोर्ट डाउनलोड नहीं हुई:"
+  },
+  "मासिक रिपोर्ट बन रही है...": {
+    "en": "Monthly report is being prepared...",
+    "hi": "मासिक रिपोर्ट बन रही है..."
+  },
+  "मासिक रिपोर्ट PDF डाउनलोड / शेयर करें": {
+    "en": "Download/Share Monthly Report PDF",
+    "hi": "मासिक रिपोर्ट PDF डाउनलोड / शेयर करें"
+  },
+  "रिपोर्ट की अवधि: हर महीने 15 तारीख से अगले महीने की 14 तारीख। Android पर PDF सेव/शेयर का विकल्प खुलेगा।": {
+    "en": "Report period: 15th of every month to 14th of the next month. The PDF save/share option will open on Android.",
+    "hi": "रिपोर्ट की अवधि: हर महीने 15 तारीख से अगले महीने की 14 तारीख। Android पर PDF सेव/शेयर का विकल्प खुलेगा।"
+  },
+  "आज का विवरण": {
+    "en": "today's details",
+    "hi": "आज का विवरण"
+  },
+  "(Today IST &bull; 12 AM–11:59 PM)": {
+    "en": "(Today IST &bull; 12 AM–11:59 PM)",
+    "hi": "(आज IST • 12 पूर्वाह्न - 11:59 अपराह्न)"
+  },
+  "Today's Orders": {
+    "en": "Today's Orders",
+    "hi": "आज के आदेश"
+  },
+  "आज के कुल ऑर्डर": {
+    "en": "total orders today",
+    "hi": "आज के कुल ऑर्डर"
+  },
+  "&rarr;": {
+    "en": "&rarr;",
+    "hi": "→"
+  },
+  "Today's Total KG": {
+    "en": "Today's Total KG",
+    "hi": "आज का कुल केजी"
+  },
+  "आज कुल मात्रा": {
+    "en": "total quantity today",
+    "hi": "आज कुल मात्रा"
+  },
+  "Order Value": {
+    "en": "Order Value",
+    "hi": "ऑर्डर मूल्य"
+  },
+  "कुल बुकिंग मूल्य": {
+    "en": "Total Booking Price",
+    "hi": "कुल बुकिंग मूल्य"
+  },
+  "Payment Received": {
+    "en": "Payment Received",
+    "hi": "भुगतान प्राप्त"
+  },
+  "प्राप्त भुगतान (Verified)": {
+    "en": "Payment Received (Verified)",
+    "hi": "प्राप्त भुगतान (Verified)"
+  },
+  "बकाया भुगतान (Payment Due)": {
+    "en": "Payment Due",
+    "hi": "बकाया भुगतान (Payment Due)"
+  },
+  "Pending Orders": {
+    "en": "Pending Orders",
+    "hi": "लंबित ऑर्डर"
+  },
+  "पेंडिंग ऑर्डर": {
+    "en": "pending order",
+    "hi": "पेंडिंग ऑर्डर"
+  },
+  "Today (आज)": {
+    "en": "Today",
+    "hi": "Today (आज)"
+  },
+  "7 दिन": {
+    "en": "7 days",
+    "hi": "7 दिन"
+  },
+  "10 दिन": {
+    "en": "10 days",
+    "hi": "10 दिन"
+  },
+  "15 दिन": {
+    "en": "15 days",
+    "hi": "15 दिन"
+  },
+  "30 दिन": {
+    "en": "30 days",
+    "hi": "30 दिन"
+  },
+  "कस्टम रेंज": {
+    "en": "custom range",
+    "hi": "कस्टम रेंज"
+  },
+  "से": {
+    "en": "From",
+    "hi": "से"
+  },
+  "कुल ऑर्डर": {
+    "en": "total order",
+    "hi": "कुल ऑर्डर"
+  },
+  "औसत:": {
+    "en": "average:",
+    "hi": "औसत:"
+  },
+  "KG/ऑर्डर": {
+    "en": "KG/order",
+    "hi": "KG/ऑर्डर"
+  },
+  "कुल ड्राई आइस (KG)": {
+    "en": "Total Dry Ice (KG)",
+    "hi": "कुल ड्राई आइस (KG)"
+  },
+  "कुल बिकी मात्रा": {
+    "en": "total quantity sold",
+    "hi": "कुल बिकी मात्रा"
+  },
+  "बुक किया गया मूल्य (₹)": {
+    "en": "Booked Price (₹)",
+    "hi": "बुक किया गया मूल्य (₹)"
+  },
+  "औसत: ₹": {
+    "en": "Average: ₹",
+    "hi": "औसत: ₹"
+  },
+  "/ऑर्डर": {
+    "en": "/order",
+    "hi": "/ऑर्डर"
+  },
+  "पेंडिंग (Due): ₹": {
+    "en": "Pending (Due): ₹",
+    "hi": "पेंडिंग (Due): ₹"
+  },
+  "कन्फर्म (Confirmed)": {
+    "en": "Confirmed",
+    "hi": "कन्फर्म (Confirmed)"
+  },
+  "डिस्पैच (Dispatched)": {
+    "en": "Dispatched",
+    "hi": "डिस्पैच (Dispatched)"
+  },
+  "डिलीवर (Delivered)": {
+    "en": "Delivered",
+    "hi": "डिलीवर (Delivered)"
+  },
+  "दैनिक मात्रा प्रवृत्ति (KG by Day)": {
+    "en": "Daily Volume Trend (KG by Day)",
+    "hi": "दैनिक मात्रा प्रवृत्ति (KG by Day)"
+  },
+  "इस समयावधि में कोई डेटा उपलब्ध नहीं है।": {
+    "en": "There is no data available in this time period.",
+    "hi": "इस समयावधि में कोई डेटा उपलब्ध नहीं है।"
+  },
+  "ऑर्डर:": {
+    "en": "Order:",
+    "hi": "ऑर्डर:"
+  },
+  "बुकिंग:": {
+    "en": "Booking:",
+    "hi": "बुकिंग:"
+  },
+  "प्राप्त:": {
+    "en": "get:",
+    "hi": "प्राप्त:"
+  },
+  "दिन-वार विवरण (Date | Orders | KG | Order Value | Payment Received)": {
+    "en": "Day wise details (Date | Orders | KG | Order Value | Payment Received)",
+    "hi": "दिन-वार विवरण (Date | Orders | KG | Order Value | Payment Received)"
+  },
+  "तारीख (Date)": {
+    "en": "Date",
+    "hi": "तारीख (Date)"
+  },
+  "ऑर्डर संख्या": {
+    "en": "order number",
+    "hi": "ऑर्डर संख्या"
+  },
+  "कुल मात्रा (KG)": {
+    "en": "Total quantity(KG)",
+    "hi": "कुल मात्रा (KG)"
+  },
+  "कोई रिकॉर्ड नहीं मिला।": {
+    "en": "No records found.",
+    "hi": "कोई रिकॉर्ड नहीं मिला।"
+  },
+  "जिला-वार वितरण (District-wise)": {
+    "en": "District-wise distribution",
+    "hi": "जिला-वार वितरण (District-wise)"
+  },
+  "KG (": {
+    "en": "KG (",
+    "hi": "केजी ("
+  },
+  "डिस्पैच स्लॉट विश्लेषण": {
+    "en": "dispatch slot analysis",
+    "hi": "डिस्पैच स्लॉट विश्लेषण"
+  },
+  "ऑर्डर ट्रैश में स्थानांतरित करें?": {
+    "en": "Move order to trash?",
+    "hi": "ऑर्डर ट्रैश में स्थानांतरित करें?"
+  },
+  ") को सामान्य सूची से हटाकर ट्रैश में रखा जाएगा। आप इसे कभी भी रीस्टोर कर सकते हैं।": {
+    "en": ") will be removed from the general list and placed in the trash. You can restore it anytime.",
+    "hi": ") को सामान्य सूची से हटाकर ट्रैश में रखा जाएगा। आप इसे कभी भी रीस्टोर कर सकते हैं।"
+  },
+  "रद्द करें": {
+    "en": "cancel",
+    "hi": "रद्द करें"
+  },
+  "हाँ, ट्रैश करें": {
+    "en": "yes, trash",
+    "hi": "हाँ, ट्रैश करें"
+  },
+  "ग्राहक दर नियंत्रण (Rate Control)": {
+    "en": "Customer Rate Control",
+    "hi": "ग्राहक दर नियंत्रण (Rate Control)"
+  },
+  "यहाँ से बदली गई दरें केवल नए ऑर्डरों पर लागू होंगी। पुराने ऑर्डरों की बुक की गई राशि सुरक्षित रहेगी।": {
+    "en": "The rates changed hereunder will be applicable to new orders only. The booked amount of old orders will remain safe.",
+    "hi": "यहाँ से बदली गई दरें केवल नए ऑर्डरों पर लागू होंगी। पुराने ऑर्डरों की बुक की गई राशि सुरक्षित रहेगी।"
+  },
+  "ड्राई आइस दर (₹/KG):": {
+    "en": "Dry Ice Rate(₹/KG):",
+    "hi": "ड्राई आइस दर (₹/KG):"
+  },
+  "थर्मोकोल पैकिंग दर (₹/KG):": {
+    "en": "Thermocol Packing Rate(₹/KG):",
+    "hi": "थर्मोकोल पैकिंग दर (₹/KG):"
+  },
+  "दैनिक ड्राई आइस क्षमता (Daily Capacity KG):": {
+    "en": "Daily Dry Ice Capacity (Daily Capacity KG):",
+    "hi": "दैनिक ड्राई आइस क्षमता (Daily Capacity KG):"
+  },
+  "ग्राहक के लिए कुल दर:": {
+    "en": "Total Rate for Customer:",
+    "hi": "ग्राहक के लिए कुल दर:"
+  },
+  "/KG": {
+    "en": "/KG",
+    "hi": "/के.जी"
+  },
+  "सेव हो रहा है...": {
+    "en": "Saving...",
+    "hi": "सेव हो रहा है..."
+  },
+  "दरें सेव करें": {
+    "en": "save rates",
+    "hi": "दरें सेव करें"
+  },
+  "शाही वरमाला स्टेज एंट्री": {
+    "en": "royal varmala stage entry",
+    "hi": "शाही वरमाला स्टेज एंट्री"
+  },
+  "★ सुपर हिट": {
+    "en": "★ super hit",
+    "hi": "★ सुपर हिट"
+  },
+  "रॉयल पैलेस मंडप, सुनहरी मेहराब, वरमाला और भारी घना सफेद क्लाउड फॉग": {
+    "en": "Royal Palace Pavilion, Golden Arches, Garland and heavy dense white cloud fog",
+    "hi": "रॉयल पैलेस मंडप, सुनहरी मेहराब, वरमाला और भारी घना सफेद क्लाउड फॉग"
+  },
+  "जयमाला क्लाउड डांस": {
+    "en": "Jayamala Cloud Dance",
+    "hi": "जयमाला क्लाउड डांस"
+  },
+  "♥ रोमांटिक एंट्री": {
+    "en": "♥ Romantic Entry",
+    "hi": "♥ रोमांटिक एंट्री"
+  },
+  "बादलों पर चलने जैसा दिव्य एहसास (Walking on Clouds) और तारों भरी लाइटिंग": {
+    "en": "Walking on Clouds and starry lighting",
+    "hi": "बादलों पर चलने जैसा दिव्य एहसास (Walking on Clouds) और तारों भरी लाइटिंग"
+  },
+  "कोल्ड पायरो आतिशबाजी": {
+    "en": "cold pyro fireworks",
+    "hi": "कोल्ड पायरो आतिशबाजी"
+  },
+  "⚡ फुल धमाका": {
+    "en": "⚡ Full blast",
+    "hi": "⚡ फुल धमाका"
+  },
+  "स्टेज के दोनों पंखों से आसमान छूती सुरक्षित इनडोर गोल्डन स्पार्कलर आतिशबाजी": {
+    "en": "Safe indoor golden sparkler fireworks skyrocket from both wings of the stage",
+    "hi": "स्टेज के दोनों पंखों से आसमान छूती सुरक्षित इनडोर गोल्डन स्पार्कलर आतिशबाजी"
+  },
+  "संगीत & डीजे लेज़र शो": {
+    "en": "Music & DJ Laser Show",
+    "hi": "संगीत & डीजे लेज़र शो"
+  },
+  "♫ पार्टी स्पेशल": {
+    "en": "♫ Party Special",
+    "hi": "♫ पार्टी स्पेशल"
+  },
+  "इलेक्ट्रिक नियॉन लेज़र बीम्स, पार्टी लाइट्स और स्विरलिंग स्मोक इफेक्ट्स": {
+    "en": "Electric neon laser beams, party lights and swirling smoke effects",
+    "hi": "इलेक्ट्रिक नियॉन लेज़र बीम्स, पार्टी लाइट्स और स्विरलिंग स्मोक इफेक्ट्स"
+  },
+  "रॉयल बारात & दूल्हा एंट्री": {
+    "en": "Royal procession & groom entry",
+    "hi": "रॉयल बारात & दूल्हा एंट्री"
+  },
+  "👑 शाही ठाठ": {
+    "en": "👑 royal chic",
+    "hi": "👑 शाही ठाठ"
+  },
+  "विंटेज बग्गी / रॉयल कार के साथ दूल्हे की बादलों के बीच रोबदार ग्रैंड एंट्री": {
+    "en": "Grand entry of the groom amidst the clouds with vintage buggy/royal car",
+    "hi": "विंटेज बग्गी / रॉयल कार के साथ दूल्हे की बादलों के बीच रोबदार ग्रैंड एंट्री"
+  },
+  "दुल्हन डोली स्मोक वॉक": {
+    "en": "Dulhan Doli Smoke Walk",
+    "hi": "दुल्हन डोली स्मोक वॉक"
+  },
+  "✨ परीकथा एंट्री": {
+    "en": "❤Fairytale Entry",
+    "hi": "✨ परीकथा एंट्री"
+  },
+  "फूलों की चादर और डोली के नीचे तैरता हुआ प्योर वाइट ड्रीम क्लाउड वॉक": {
+    "en": "Pure white dream cloud walk floating under flower bed and doli",
+    "hi": "फूलों की चादर और डोली के नीचे तैरता हुआ प्योर वाइट ड्रीम क्लाउड वॉक"
+  },
+  "अंकुर ड्राई आइस & स्पेशल इवेंट्स": {
+    "en": "Ankur Dry Ice & Special Events",
+    "hi": "अंकुर ड्राई आइस & स्पेशल इवेंट्स"
+  },
+  "रोहन 💖 अंजलि": {
+    "en": "Rohan 💖 Anjali",
+    "hi": "रोहन 💖 अंजलि"
+  },
+  "28 नवम्बर 2026": {
+    "en": "28 November 2026",
+    "hi": "28 नवम्बर 2026"
+  },
+  "गोरखपुर पैलेस": {
+    "en": "Gorakhpur Palace",
+    "hi": "गोरखपुर पैलेस"
+  },
+  "शुभ विवाह": {
+    "en": "Happy marriage",
+    "hi": "शुभ विवाह"
+  },
+  "👑 {0} थीम लागू हो गई!": {
+    "en": "👑 {0} Theme applied!",
+    "hi": "👑 {0} थीम लागू हो गई!"
+  },
+  "🎬 आपका वीडियो सफलतापूर्वक लोड हो गया!": {
+    "en": "🎬 Your video loaded successfully!",
+    "hi": "🎬 आपका वीडियो सफलतापूर्वक लोड हो गया!"
+  },
+  "यहाँ सिर्फ़ वीडियो अपलोड होता है। फोटो को रेफ़रेंस के रूप में AI वीडियो टैब में जोड़ें।": {
+    "en": "Only videos are uploaded here. Add the photo to the AI ​​Video tab as a reference.",
+    "hi": "यहाँ सिर्फ़ वीडियो अपलोड होता है। फोटो को रेफ़रेंस के रूप में AI वीडियो टैब में जोड़ें।"
+  },
+  "इस डिवाइस में वीडियो रिकॉर्डिंग उपलब्ध नहीं है। Chrome में कोशिश करें।": {
+    "en": "Video recording is not available in this device. Try in Chrome.",
+    "hi": "इस डिवाइस में वीडियो रिकॉर्डिंग उपलब्ध नहीं है। Chrome में कोशिश करें।"
+  },
+  "इस ब्राउज़र में WebM वीडियो डाउनलोड समर्थित नहीं है।": {
+    "en": "WebM video download is not supported in this browser.",
+    "hi": "इस ब्राउज़र में WebM वीडियो डाउनलोड समर्थित नहीं है।"
+  },
+  "वीडियो रिकॉर्डिंग में त्रुटि आई।": {
+    "en": "An error occurred while recording video.",
+    "hi": "वीडियो रिकॉर्डिंग में त्रुटि आई।"
+  },
+  "वीडियो रिकॉर्ड नहीं हो सका।": {
+    "en": "Video could not be recorded.",
+    "hi": "वीडियो रिकॉर्ड नहीं हो सका।"
+  },
+  "वीडियो डाउनलोड शुरू हो गया है (WebM)।": {
+    "en": "Video download has started (WebM).",
+    "hi": "वीडियो डाउनलोड शुरू हो गया है (WebM)।"
+  },
+  "15 सेकंड का वीडियो रिकॉर्ड हो रहा है…": {
+    "en": "A 15 second video is being recorded…",
+    "hi": "15 सेकंड का वीडियो रिकॉर्ड हो रहा है…"
+  },
+  "वीडियो रिकॉर्डिंग शुरू नहीं हो सकी।": {
+    "en": "Video recording could not start.",
+    "hi": "वीडियो रिकॉर्डिंग शुरू नहीं हो सकी।"
+  },
+  "👑 *{0} - शाही वेडिंग स्टेज स्पेशल*": {
+    "en": "👑 *{0} - Royal Wedding Stage Special*",
+    "hi": "👑 *{0} - शाही वेडिंग स्टेज स्पेशल*"
+  },
+  "📅 तारीख: {0}": {
+    "en": "📅 Date: {0}",
+    "hi": "📅 तारीख: {0}"
+  },
+  "📍 वेन्यू: {0}": {
+    "en": "📍 Venue: {0}",
+    "hi": "📍 वेन्यू: {0}"
+  },
+  "🌟 भव्य लो-फॉग एंट्री, जयमाला क्लाउड डांस और कोल्ड पायरो स्पेशल इफेक्ट्स!": {
+    "en": "🌟 Gorgeous low-fog entry, Jaymala cloud dance and cold pyro special effects!",
+    "hi": "🌟 भव्य लो-फॉग एंट्री, जयमाला क्लाउड डांस और कोल्ड पायरो स्पेशल इफेक्ट्स!"
+  },
+  "ड्राई आइस स्मोक & फॉग एंट्री विज़ुअलाइज़र": {
+    "en": "Dry Ice Smoke & Fog Entry Visualizer",
+    "hi": "ड्राई आइस स्मोक & फॉग एंट्री विज़ुअलाइज़र"
+  },
+  "इवेंट प्लानर/फर्म:": {
+    "en": "Event Planner/Firm:",
+    "hi": "इवेंट प्लानर/फर्म:"
+  },
+  "अंकुर ड्राई आइस & इवेंट्स": {
+    "en": "Ankur Dry Ice & Events",
+    "hi": "अंकुर ड्राई आइस & इवेंट्स"
+  },
+  "डेकोरेटर पोर्टल": {
+    "en": "decorator portal",
+    "hi": "डेकोरेटर पोर्टल"
+  },
+  "व्हाट्सएप स्टेटस के लिए स्मोक & फॉग एंट्री वीडियो मेकर": {
+    "en": "Smoke & Fog Entry Video Maker for WhatsApp Status",
+    "hi": "व्हाट्सएप स्टेटस के लिए स्मोक & फॉग एंट्री वीडियो मेकर"
+  },
+  "आप अपने क्लाइंट्स (दूल्हा-दुल्हन) के लिए": {
+    "en": "For your clients (bride and groom)",
+    "hi": "आप अपने क्लाइंट्स (दूल्हा-दुल्हन) के लिए"
+  },
+  "ड्राई आइस फॉग, वरमाला एंट्री और कोल्ड पायरो": {
+    "en": "Dry Ice Fog, Varmala Entry and Cold Pyro",
+    "hi": "ड्राई आइस फॉग, वरमाला एंट्री और कोल्ड पायरो"
+  },
+  "की शानदार फोटो और वीडियो यहाँ बनाएं, जिसपर आपकी डेकोरेशन फर्म का नाम चमकता रहे ताकि क्लाइंट WhatsApp स्टेटस पर लगाकर आपका काम प्रमोट कर सकें!": {
+    "en": "Create stunning photos and videos here that showcase your decoration firm's name so clients can promote your work by posting them on WhatsApp status!",
+    "hi": "की शानदार फोटो और वीडियो यहाँ बनाएं, जिसपर आपकी डेकोरेशन फर्म का नाम चमकता रहे ताकि क्लाइंट WhatsApp स्टेटस पर लगाकर आपका काम प्रमोट कर सकें!"
+  },
+  "लाइव स्टेज वीडियो सिमुलेटर": {
+    "en": "live stage video simulator",
+    "hi": "लाइव स्टेज वीडियो सिमुलेटर"
+  },
+  "अपना वीडियो अपलोड": {
+    "en": "upload your video",
+    "hi": "अपना वीडियो अपलोड"
+  },
+  "अपना स्टेज वीडियो अपलोड करें": {
+    "en": "Upload your stage video",
+    "hi": "अपना स्टेज वीडियो अपलोड करें"
+  },
+  "अपने मोबाइल या कंप्यूटर से अपनी स्टेज का वीडियो चुनें। उस पर आपके नाम का जगमगाता बैनर, वर-वधू का नाम और फॉग/पायरो इफेक्ट्स अपने आप फिट हो जाएंगे!": {
+    "en": "Select a video of your stage from your mobile or computer. A glowing banner with your name, bride and groom's names and fog/pyro effects will automatically fit on it!",
+    "hi": "अपने मोबाइल या कंप्यूटर से अपनी स्टेज का वीडियो चुनें। उस पर आपके नाम का जगमगाता बैनर, वर-वधू का नाम और फॉग/पायरो इफेक्ट्स अपने आप फिट हो जाएंगे!"
+  },
+  "वीडियो चुनने के लिए यहाँ क्लिक करें": {
+    "en": "Click here to select video",
+    "hi": "वीडियो चुनने के लिए यहाँ क्लिक करें"
+  },
+  "MP4, MOV सपोर्टेड": {
+    "en": "MP4, MOV supported",
+    "hi": "MP4, MOV सपोर्टेड"
+  },
+  "वीडियो लोड है": {
+    "en": "video is loaded",
+    "hi": "वीडियो लोड है"
+  },
+  "फोटो लोड है": {
+    "en": "photo is loaded",
+    "hi": "फोटो लोड है"
+  },
+  "हटाएं": {
+    "en": "delete",
+    "hi": "हटाएं"
+  },
+  "1. शादी का अवसर / ग्रैंड थीम चुनें": {
+    "en": "1. Choose the wedding occasion/grand theme",
+    "hi": "1. शादी का अवसर / ग्रैंड थीम चुनें"
+  },
+  "6 शाही विकल्प": {
+    "en": "6 royal options",
+    "hi": "6 शाही विकल्प"
+  },
+  "2. अपना नाम व बैकड्रॉप कस्टमाइज़ करें": {
+    "en": "2. Customize your name and backdrop",
+    "hi": "2. अपना नाम व बैकड्रॉप कस्टमाइज़ करें"
+  },
+  "कॉपी हो गया": {
+    "en": "copied",
+    "hi": "कॉपी हो गया"
+  },
+  "कॉपी": {
+    "en": "copy",
+    "hi": "कॉपी"
+  },
+  "वर व वधू का नाम (Bride & Groom Names):": {
+    "en": "Bride & Groom Names:",
+    "hi": "वर व वधू का नाम (Bride & Groom Names):"
+  },
+  "उदा: रोहन 💖 अंजलि / Rahul weds Simran": {
+    "en": "Ex: Rohan 💖 Anjali / Rahul weds Simran",
+    "hi": "उदा: रोहन 💖 अंजलि / Rahul weds Simran"
+  },
+  "स्टेज के पीछे LED बैकड्रॉप बैनर पर क्या लिखें?": {
+    "en": "What to write on LED backdrop banner behind the stage?",
+    "hi": "स्टेज के पीछे LED बैकड्रॉप बैनर पर क्या लिखें?"
+  },
+  "उदा: शुभ विवाह • THE ROYAL WEDDING": {
+    "en": "Ex: Auspicious marriage • THE ROYAL WEDDING",
+    "hi": "उदा: शुभ विवाह • THE ROYAL WEDDING"
+  },
+  "इवेंट प्लानर / डेकोरेटर फर्म का नाम (जो WhatsApp स्टेटस पर दिखेगा):": {
+    "en": "Event Planner/Decorator Firm Name (which will appear on WhatsApp Status):",
+    "hi": "इवेंट प्लानर / डेकोरेटर फर्म का नाम (जो WhatsApp स्टेटस पर दिखेगा):"
+  },
+  "तारीख:": {
+    "en": "date:",
+    "hi": "तारीख:"
+  },
+  "स्थान / वेन्यू:": {
+    "en": "Location/Venue:",
+    "hi": "स्थान / वेन्यू:"
+  },
+  "साइज / रेश्यो (Aspect Ratio):": {
+    "en": "Size / Ratio (Aspect Ratio):",
+    "hi": "साइज / रेश्यो (Aspect Ratio):"
+  },
+  "1:1 चौकोर": {
+    "en": "1:1 square",
+    "hi": "1:1 चौकोर"
+  },
+  "9:16 स्टेटस/रील्स": {
+    "en": "9:16 Status/Reels",
+    "hi": "9:16 स्टेटस/रील्स"
+  },
+  "16:9 स्टेज LED": {
+    "en": "16:9 stage led",
+    "hi": "16:9 स्टेज LED"
+  },
+  "लाइव स्टेज वीडियो व इफेक्ट्स सेटिंग्स": {
+    "en": "Live Stage Video & Effects Settings",
+    "hi": "लाइव स्टेज वीडियो व इफेक्ट्स सेटिंग्स"
+  },
+  "लो-लाइंग स्टेज फॉग स्तर:": {
+    "en": "Low-lying stage fog level:",
+    "hi": "लो-लाइंग स्टेज फॉग स्तर:"
+  },
+  "मीडियम फॉग": {
+    "en": "medium fog",
+    "hi": "मीडियम फॉग"
+  },
+  "डेंस फॉग": {
+    "en": "dense fog",
+    "hi": "डेंस फॉग"
+  },
+  "अल्ट्रा क्लाउड": {
+    "en": "ultra cloud",
+    "hi": "अल्ट्रा क्लाउड"
+  },
+  "स्टेज लाइट कलर:": {
+    "en": "Stage Light Color:",
+    "hi": "स्टेज लाइट कलर:"
+  },
+  "रॉयल गोल्ड": {
+    "en": "royal gold",
+    "hi": "रॉयल गोल्ड"
+  },
+  "वायलेट": {
+    "en": "violet",
+    "hi": "वायलेट"
+  },
+  "रेड": {
+    "en": "Red",
+    "hi": "रेड"
+  },
+  "ब्लू": {
+    "en": "Blue",
+    "hi": "ब्लू"
+  },
+  "✨ कोल्ड पायरो: चालू": {
+    "en": "▪ Cold Pyro: On",
+    "hi": "✨ कोल्ड पायरो: चालू"
+  },
+  "कोल्ड पायरो: बंद": {
+    "en": "Cold Pyro: Off",
+    "hi": "कोल्ड पायरो: बंद"
+  },
+  "पॉज़": {
+    "en": "pause",
+    "hi": "पॉज़"
+  },
+  "प्ले": {
+    "en": "Play",
+    "hi": "प्ले"
+  },
+  "कस्टमर वीडियो प्लेयर (ब्रांडेड ओवरले)": {
+    "en": "Custom Video Player (Branded Overlay)",
+    "hi": "कस्टमर वीडियो प्लेयर (ब्रांडेड ओवरले)"
+  },
+  "लाइव 60 FPS स्टेज वीडियो सिमुलेटर": {
+    "en": "Live 60 FPS Stage Video Simulator",
+    "hi": "लाइव 60 FPS स्टेज वीडियो सिमुलेटर"
+  },
+  "15 सेकंड का वीडियो बन रहा है…": {
+    "en": "A 15 second video is being made…",
+    "hi": "15 सेकंड का वीडियो बन रहा है…"
+  },
+  "15 सेकंड का वीडियो डाउनलोड करें (WebM)": {
+    "en": "Download 15 second video (WebM)",
+    "hi": "15 सेकंड का वीडियो डाउनलोड करें (WebM)"
+  },
+  "WhatsApp शेयर": {
+    "en": "whatsapp share",
+    "hi": "WhatsApp शेयर"
+  },
+  "रीफ्रेश स्टेज": {
+    "en": "refresh stage",
+    "hi": "रीफ्रेश स्टेज"
+  },
+  "ऑर्डर लोड करने में त्रुटि आई। कृपया पुनः प्रयास करें।": {
+    "en": "There was an error loading the order. Please try again.",
+    "hi": "ऑर्डर लोड करने में त्रुटि आई। कृपया पुनः प्रयास करें।"
+  },
+  "लॉगिन करने में त्रुटि आई। कृपया पुनः प्रयास करें।": {
+    "en": "There was an error logging in. Please try again.",
+    "hi": "लॉगिन करने में त्रुटि आई। कृपया पुनः प्रयास करें।"
+  },
+  "Pending (प्रतीक्षित)": {
+    "en": "Pending",
+    "hi": "Pending (प्रतीक्षित)"
+  },
+  "Confirmed (पुष्ट)": {
+    "en": "Confirmed",
+    "hi": "Confirmed (पुष्ट)"
+  },
+  "In Packing (पैकिंग में)": {
+    "en": "In Packing",
+    "hi": "In Packing (पैकिंग में)"
+  },
+  "Dispatched (रवाना)": {
+    "en": "Dispatched",
+    "hi": "Dispatched (रवाना)"
+  },
+  "Delivered (डिलीवर)": {
+    "en": "Delivered",
+    "hi": "Delivered (डिलीवर)"
+  },
+  "Cancelled (रद्द)": {
+    "en": "Canceled",
+    "hi": "Cancelled (रद्द)"
+  },
+  "मेरे ऑर्डर (My Orders)": {
+    "en": "My Orders",
+    "hi": "मेरे ऑर्डर (My Orders)"
+  },
+  "अपने पिछले सभी ड्राई आइस ऑर्डर देखने और 1-क्लिक में लाइव स्थिति ट्रैक करने के लिए Google से लॉगिन करें।": {
+    "en": "Login with Google to view all your past dry ice orders and track live status in 1-click.",
+    "hi": "अपने पिछले सभी ड्राई आइस ऑर्डर देखने और 1-क्लिक में लाइव स्थिति ट्रैक करने के लिए Google से लॉगिन करें।"
+  },
+  "लॉगिन हो रहा है...": {
+    "en": "Logging in...",
+    "hi": "लॉगिन हो रहा है..."
+  },
+  "Google से लॉगिन करें": {
+    "en": "Login with Google",
+    "hi": "Google से लॉगिन करें"
+  },
+  "पुराना गेस्ट ऑर्डर ट्रैक करना है?": {
+    "en": "Want to track an old guest order?",
+    "hi": "पुराना गेस्ट ऑर्डर ट्रैक करना है?"
+  },
+  "यदि आपने बिना लॉगिन किए (गेस्ट) ऑर्डर दिया था, तो आप ऑर्डर ID और गोपनीय पिन डालकर कभी भी स्थिति देख सकते हैं।": {
+    "en": "If you placed the order without logging in (Guest), you can check the status anytime by entering the Order ID and Secret PIN.",
+    "hi": "यदि आपने बिना लॉगिन किए (गेस्ट) ऑर्डर दिया था, तो आप ऑर्डर ID और गोपनीय पिन डालकर कभी भी स्थिति देख सकते हैं।"
+  },
+  "Order ID + पिन से ट्रैक करें": {
+    "en": "Track with Order ID + PIN",
+    "hi": "Order ID + पिन से ट्रैक करें"
+  },
+  "नया ऑर्डर बुक करें": {
+    "en": "book new order",
+    "hi": "नया ऑर्डर बुक करें"
+  },
+  "गोपनीयता सुरक्षा: केवल फ़ोन नंबर के आधार पर किसी भी ग्राहक का निजी डेटा प्रदर्शित नहीं किया जाता।": {
+    "en": "Privacy Protection: No personal data of any customer is displayed based on phone number alone.",
+    "hi": "गोपनीयता सुरक्षा: केवल फ़ोन नंबर के आधार पर किसी भी ग्राहक का निजी डेटा प्रदर्शित नहीं किया जाता।"
+  },
+  "मेरे ऑर्डर": {
+    "en": "my orders",
+    "hi": "मेरे ऑर्डर"
+  },
+  "ऑर्डर रीफ्रेश करें": {
+    "en": "refresh order",
+    "hi": "ऑर्डर रीफ्रेश करें"
+  },
+  "रीफ्रेश": {
+    "en": "Refresh",
+    "hi": "रीफ्रेश"
+  },
+  "आपके ऑर्डर लोड हो रहे हैं...": {
+    "en": "Loading your orders...",
+    "hi": "आपके ऑर्डर लोड हो रहे हैं..."
+  },
+  "अभी तक कोई ऑर्डर नहीं मिला": {
+    "en": "No order received yet",
+    "hi": "अभी तक कोई ऑर्डर नहीं मिला"
+  },
+  "आपने इस Google खाते से अभी तक कोई ड्राई आइस ऑर्डर बुक नहीं किया है।": {
+    "en": "You have not booked any dry ice orders with this Google Account yet.",
+    "hi": "आपने इस Google खाते से अभी तक कोई ड्राई आइस ऑर्डर बुक नहीं किया है।"
+  },
+  "नया ड्राई आइस ऑर्डर बुक करें (₹60/kg)": {
+    "en": "Book a New Dry Ice Order (₹60/kg)",
+    "hi": "नया ड्राई आइस ऑर्डर बुक करें (₹60/kg)"
+  },
+  "गेस्ट ऑर्डर ट्रैक करें (ID + पिन)": {
+    "en": "Track Guest Order (ID + PIN)",
+    "hi": "गेस्ट ऑर्डर ट्रैक करें (ID + पिन)"
+  },
+  "पूरा ऑर्डर नंबर कॉपी करें: {0}": {
+    "en": "Copy complete order number: {0}",
+    "hi": "पूरा ऑर्डर नंबर कॉपी करें: {0}"
+  },
+  "पूरा ऑर्डर नंबर कॉपी करें": {
+    "en": "Copy complete order number",
+    "hi": "पूरा ऑर्डर नंबर कॉपी करें"
+  },
+  "पिन:": {
+    "en": "Pin:",
+    "hi": "पिन:"
+  },
+  "मात्रा": {
+    "en": "Quantity",
+    "hi": "मात्रा"
+  },
+  "कुल राशि": {
+    "en": "Total amount",
+    "hi": "कुल राशि"
+  },
+  "पेमेंट स्थिति": {
+    "en": "payment status",
+    "hi": "पेमेंट स्थिति"
+  },
+  "वेरीफाइड": {
+    "en": "Verified",
+    "hi": "वेरीफाइड"
+  },
+  "वेरिफिकेशन प्रतीक्षित": {
+    "en": "Awaiting Verification",
+    "hi": "वेरिफिकेशन प्रतीक्षित"
+  },
+  "Download Self Pickup Receipt (PDF)": {
+    "en": "Download Self Pickup Receipt (PDF)",
+    "hi": "सेल्फ पिकअप रसीद डाउनलोड करें (पीडीएफ)"
+  },
+  "दोबारा ऑर्डर": {
+    "en": "reorder",
+    "hi": "दोबारा ऑर्डर"
+  },
+  "लाइव ट्रैक": {
+    "en": "live track",
+    "hi": "लाइव ट्रैक"
+  },
+  "खर्च की सूची अभी लोड नहीं हो सकी। पुराना डेटा नहीं बदला है।": {
+    "en": "Expense list could not be loaded yet. Old data has not changed.",
+    "hi": "खर्च की सूची अभी लोड नहीं हो सकी। पुराना डेटा नहीं बदला है।"
+  },
+  "खर्च सेव नहीं हो सका। दोबारा कोशिश करें।": {
+    "en": "Expenses could not be saved. Try again.",
+    "hi": "खर्च सेव नहीं हो सका। दोबारा कोशिश करें।"
+  },
+  "खर्च हटाया नहीं जा सका।": {
+    "en": "Expenses could not be removed.",
+    "hi": "खर्च हटाया नहीं जा सका।"
+  },
+  "खर्च ट्रैकिंग (Expense Tracking)": {
+    "en": "Expense Tracking",
+    "hi": "खर्च ट्रैकिंग (Expense Tracking)"
+  },
+  "मासिक हिसाब: हर महीने की 15 तारीख से अगले महीने की 14 तारीख तक": {
+    "en": "Monthly calculation: From 15th of every month to 14th of the next month",
+    "hi": "मासिक हिसाब: हर महीने की 15 तारीख से अगले महीने की 14 तारीख तक"
+  },
+  "इस हिसाब चक्र का खर्च": {
+    "en": "cost of this calculation cycle",
+    "hi": "इस हिसाब चक्र का खर्च"
+  },
+  "खर्च राशि": {
+    "en": "amount spent",
+    "hi": "खर्च राशि"
+  },
+  "राशि (Amount)": {
+    "en": "Amount",
+    "hi": "राशि (Amount)"
+  },
+  "खर्च श्रेणी": {
+    "en": "expense category",
+    "hi": "खर्च श्रेणी"
+  },
+  "Transport": {
+    "en": "Transport",
+    "hi": "परिवहन"
+  },
+  "Dry Ice Purchase": {
+    "en": "Dry Ice Purchase",
+    "hi": "सूखी बर्फ की खरीद"
+  },
+  "Other": {
+    "en": "Other",
+    "hi": "अन्य"
+  },
+  "खर्च विवरण": {
+    "en": "expense details",
+    "hi": "खर्च विवरण"
+  },
+  "विवरण (Description)": {
+    "en": "Description",
+    "hi": "विवरण (Description)"
+  },
+  "सेव हो रहा है…": {
+    "en": "Saving...",
+    "hi": "सेव हो रहा है…"
+  },
+  "खर्च जोड़ें": {
+    "en": "add expenses",
+    "hi": "खर्च जोड़ें"
+  },
+  "पुराने खर्च लोड हो रहे हैं…": {
+    "en": "Loading old expenses…",
+    "hi": "पुराने खर्च लोड हो रहे हैं…"
+  },
+  "अभी कोई खर्च दर्ज नहीं है।": {
+    "en": "No expenses recorded yet.",
+    "hi": "अभी कोई खर्च दर्ज नहीं है।"
+  },
+  "महीनेवार खर्च": {
+    "en": "Monthly expenses",
+    "hi": "महीनेवार खर्च"
+  },
+  "खर्च हटाएँ": {
+    "en": "remove expenses",
+    "hi": "खर्च हटाएँ"
+  },
+  "त्वरित संपर्क": {
+    "en": "Immediate contact",
+    "hi": "त्वरित संपर्क"
+  },
+  "WhatsApp पर संपर्क करें": {
+    "en": "Contact on WhatsApp",
+    "hi": "WhatsApp पर संपर्क करें"
+  },
+  "WhatsApp पर चैट करें (+91 8896332066)": {
+    "en": "Chat on WhatsApp (+91 8896332066)",
+    "hi": "WhatsApp पर चैट करें (+91 8896332066)"
+  },
+  "कॉल करें (+91 8896332066)": {
+    "en": "Call (+91 8896332066)",
+    "hi": "कॉल करें (+91 8896332066)"
+  },
+  "अंकुर ड्राई आइस": {
+    "en": "Ankur Dry Ice",
+    "hi": "अंकुर ड्राई आइस"
+  },
+  "डिलीवरी": {
+    "en": "delivery",
+    "hi": "डिलीवरी"
+  },
+  "स्टाफ": {
+    "en": "staff",
+    "hi": "स्टाफ"
+  },
+  "सीमित स्टेटस अपडेट पोर्टल": {
+    "en": "Limited Status Update Portal",
+    "hi": "सीमित स्टेटस अपडेट पोर्टल"
+  },
+  "ऑर्डर अपडेट": {
+    "en": "Order updates",
+    "hi": "ऑर्डर अपडेट"
+  },
+  "ऑर्डर्स सूची": {
+    "en": "List of orders",
+    "hi": "ऑर्डर्स सूची"
+  },
+  "प्रतीक्षित (Pending)": {
+    "en": "Pending",
+    "hi": "प्रतीक्षित (Pending)"
+  },
+  "पैकिंग जारी (In Packing)": {
+    "en": "Packing continues (In Packing)",
+    "hi": "पैकिंग जारी (In Packing)"
+  },
+  "डिस्पैच हो गया (Dispatched)": {
+    "en": "Dispatched",
+    "hi": "डिस्पैच हो गया (Dispatched)"
+  },
+  "डिलीवर हो गया (Delivered)": {
+    "en": "Delivered",
+    "hi": "डिलीवर हो गया (Delivered)"
+  },
+  "रद्द (Cancelled)": {
+    "en": "Canceled",
+    "hi": "रद्द (Cancelled)"
+  },
+  "Google से लॉगिन करने में त्रुटि आई। कृपया पुनः प्रयास करें।": {
+    "en": "There was an error logging in to Google. Please try again.",
+    "hi": "Google से लॉगिन करने में त्रुटि आई। कृपया पुनः प्रयास करें।"
+  },
+  "पिछले ऑर्डर {0} ({1} kg) की जानकारी भरी गई है।": {
+    "en": "Information from previous order {0} ({1} kg) has been filled.",
+    "hi": "पिछले ऑर्डर {0} ({1} kg) की जानकारी भरी गई है।"
+  },
+  "ग्राहक": {
+    "en": "Customer",
+    "hi": "ग्राहक"
+  },
+  "भुगतान संपन्न (स्क्रीनशॉट चैट में संलग्न)": {
+    "en": "Payment completed (screenshot attached in chat)",
+    "hi": "भुगतान संपन्न (स्क्रीनशॉट चैट में संलग्न)"
+  },
+  "भुगतान संपन्न (स्क्रीनशॉट चैट में भेज रहा हूँ)": {
+    "en": "Payment completed (sending screenshot in chat)",
+    "hi": "भुगतान संपन्न (स्क्रीनशॉट चैट में भेज रहा हूँ)"
+  },
+  "*अंकुर ड्राई आइस (Ankur Dry Ice)*": {
+    "en": "*Ankur Dry Ice*",
+    "hi": "*अंकुर ड्राई आइस (Ankur Dry Ice)*"
+  },
+  "*ऑर्डर एवं पेमेंट विवरण (Order & Payment Confirmation)*": {
+    "en": "*Order & Payment Confirmation*",
+    "hi": "*ऑर्डर एवं पेमेंट विवरण (Order & Payment Confirmation)*"
+  },
+  "नमस्ते, मैंने ऑर्डर #{0} का भुगतान पूरा कर दिया है। कृपया ऑर्डर विवरण एवं भुगतान स्वीकार करें:": {
+    "en": "Hello, I have completed the payment for order #{0}. Please accept order details and payment:",
+    "hi": "नमस्ते, मैंने ऑर्डर #{0} का भुगतान पूरा कर दिया है। कृपया ऑर्डर विवरण एवं भुगतान स्वीकार करें:"
+  },
+  "📋 *ऑर्डर विवरण (Order Details):*": {
+    "en": "📋 *Order Details:*",
+    "hi": "📋 *ऑर्डर विवरण (Order Details):*"
+  },
+  "• ऑर्डर ID: #{0}": {
+    "en": "• Order ID: #{0}",
+    "hi": "• ऑर्डर ID: #{0}"
+  },
+  "• गोपनीय ट्रैकिंग PIN: {0}": {
+    "en": "• Confidential Tracking PIN: {0}",
+    "hi": "• गोपनीय ट्रैकिंग PIN: {0}"
+  },
+  "• ग्राहक का नाम: {0}": {
+    "en": "• Customer Name: {0}",
+    "hi": "• ग्राहक का नाम: {0}"
+  },
+  "• मोबाइल नंबर: {0}": {
+    "en": "• Mobile number: {0}",
+    "hi": "• मोबाइल नंबर: {0}"
+  },
+  "• City / जगह: {0} (पता/Address)": {
+    "en": "• City/Place: {0} (Address)",
+    "hi": "• City / जगह: {0} (पता/Address)"
+  },
+  "• उत्पाद: ड्राई आइस (Dry Ice)": {
+    "en": "• Product: Dry Ice",
+    "hi": "• उत्पाद: ड्राई आइस (Dry Ice)"
+  },
+  "• मात्रा: {0} KG": {
+    "en": "• Quantity: {0} KG",
+    "hi": "• मात्रा: {0} KG"
+  },
+  "• कुल राशि: ₹{0}": {
+    "en": "• Total amount: ₹{0}",
+    "hi": "• कुल राशि: ₹{0}"
+  },
+  "• पेमेंट स्थिति: {0}": {
+    "en": "• Payment Status: {0}",
+    "hi": "• पेमेंट स्थिति: {0}"
+  },
+  "📸 [नोट: पेमेंट स्क्रीनशॉट चैट में अटैच करके भेजा जा रहा है]": {
+    "en": "📸 [Note: Payment screenshot is being sent attached in the chat]",
+    "hi": "📸 [नोट: पेमेंट स्क्रीनशॉट चैट में अटैच करके भेजा जा रहा है]"
+  },
+  "📸 [नोट: कृपया इस चैट में पेमेंट का स्क्रीनशॉट अटैच करके भेजें]": {
+    "en": "📸 [Note: Please attach a screenshot of the payment in this chat and send it]",
+    "hi": "📸 [नोट: कृपया इस चैट में पेमेंट का स्क्रीनशॉट अटैच करके भेजें]"
+  },
+  "नमस्ते अंकुर ड्राई आइस,": {
+    "en": "Hello Ankur Dry Ice,",
+    "hi": "नमस्ते अंकुर ड्राई आइस,"
+  },
+  "मुझे ड्राई आइस ऑर्डर के संबंध में पूछताछ / बुकिंग करनी है:": {
+    "en": "I would like to make an enquiry/booking regarding a dry ice order:",
+    "hi": "मुझे ड्राई आइस ऑर्डर के संबंध में पूछताछ / बुकिंग करनी है:"
+  },
+  "📋 *ऑर्डर विवरण:*": {
+    "en": "📋 *Order Details:*",
+    "hi": "📋 *ऑर्डर विवरण:*"
+  },
+  "• City / पता: {0}": {
+    "en": "• City / Address: {0}",
+    "hi": "• City / पता: {0}"
+  },
+  "WhatsApp चैट (+91 8896332066) खुल रही है। कृपया चैट में अटैचमेंट (+) आइकन से अपना चुना हुआ पेमेंट स्क्रीनशॉट भेजें।": {
+    "en": "WhatsApp chat (+91 8896332066) is opening. Please send a screenshot of your chosen payment using the attachment (+) icon in chat.",
+    "hi": "WhatsApp चैट (+91 8896332066) खुल रही है। कृपया चैट में अटैचमेंट (+) आइकन से अपना चुना हुआ पेमेंट स्क्रीनशॉट भेजें।"
+  },
+  "WhatsApp चैट (+91 8896332066) खुल रही है। कृपया चैट में अपने पेमेंट का स्क्रीनशॉट अटैच करके भेजें।": {
+    "en": "WhatsApp chat (+91 8896332066) is opening. Please attach a screenshot of your payment and send it in the chat.",
+    "hi": "WhatsApp चैट (+91 8896332066) खुल रही है। कृपया चैट में अपने पेमेंट का स्क्रीनशॉट अटैच करके भेजें।"
+  },
+  "Promo codes apply to standard Dry Ice without additional requests.": {
+    "en": "Promo codes apply to standard Dry Ice without additional requests.",
+    "hi": "प्रोमो कोड बिना किसी अतिरिक्त अनुरोध के मानक सूखी बर्फ पर लागू होते हैं।"
+  },
+  "Promo booking could not complete. Apply the code again if rates changed; retry with the same original details.": {
+    "en": "Promo booking could not complete. Apply the code again if rates changed; retry with the same original details.",
+    "hi": "प्रोमो बुकिंग पूरी नहीं हो सकी. यदि दरें बदल गईं तो कोड दोबारा लागू करें; उसी मूल विवरण के साथ पुनः प्रयास करें।"
+  },
+  "ऑर्डर प्राप्त हुआ। पैकिंग शेड्यूल्ड।": {
+    "en": "Order received. Packing scheduled.",
+    "hi": "ऑर्डर प्राप्त हुआ। पैकिंग शेड्यूल्ड।"
+  },
+  "डेटाबेस में ऑर्डर सेव करने में त्रुटि आई। कृपया दोबारा प्रयास करें या कॉल करें।": {
+    "en": "There was an error saving the order in the database. Please try again or call.",
+    "hi": "डेटाबेस में ऑर्डर सेव करने में त्रुटि आई। कृपया दोबारा प्रयास करें या कॉल करें।"
+  },
+  "कृपया अपना सही नाम दर्ज करें (कम से कम 2 अक्षर)।": {
+    "en": "Please enter your correct name (minimum 2 characters).",
+    "hi": "कृपया अपना सही नाम दर्ज करें (कम से कम 2 अक्षर)।"
+  },
+  "कृपया 10 अंकों का मान्य भारतीय मोबाइल नंबर दर्ज करें (शुरुआत 6, 7, 8 या 9 से)।": {
+    "en": "Please enter a valid 10 digit Indian mobile number (starting with 6, 7, 8 or 9).",
+    "hi": "कृपया 10 अंकों का मान्य भारतीय मोबाइल नंबर दर्ज करें (शुरुआत 6, 7, 8 या 9 से)।"
+  },
+  "कृपया अपना City दर्ज करें (कम से कम 2 अक्षर)।": {
+    "en": "Please enter your City (minimum 2 characters).",
+    "hi": "कृपया अपना City दर्ज करें (कम से कम 2 अक्षर)।"
+  },
+  "Minimum 10 KG order. कृपया कम से कम 10 KG मात्रा दर्ज करें।": {
+    "en": "Minimum 10 KG order. Please enter minimum quantity of 10 KG.",
+    "hi": "Minimum 10 KG order. कृपया कम से कम 10 KG मात्रा दर्ज करें।"
+  },
+  "अधिकतम ऑर्डर मात्रा 5,000 kg तक है। बड़ी मात्रा के लिए कृपया सीधे कॉल करें।": {
+    "en": "Maximum order quantity is up to 5,000 kg. For larger quantities please call directly.",
+    "hi": "अधिकतम ऑर्डर मात्रा 5,000 kg तक है। बड़ी मात्रा के लिए कृपया सीधे कॉल करें।"
+  },
+  "यह Dispatch Time अब समाप्त हो चुका है। कृपया दूसरा उपलब्ध समय चुनें।": {
+    "en": "This dispatch time has now ended. Please select another available time.",
+    "hi": "यह Dispatch Time अब समाप्त हो चुका है। कृपया दूसरा उपलब्ध समय चुनें।"
+  },
+  "डुप्लीकेट ऑर्डर चेतावनी (Duplicate Order Warning)": {
+    "en": "Duplicate Order Warning",
+    "hi": "डुप्लीकेट ऑर्डर चेतावनी (Duplicate Order Warning)"
+  },
+  "पिछले 3 घंटों में आपका एक मिलता-जुलता ऑर्डर पहले से दर्ज है": {
+    "en": "You have a similar order already placed in the last 3 hours",
+    "hi": "पिछले 3 घंटों में आपका एक मिलता-जुलता ऑर्डर पहले से दर्ज है"
+  },
+  "बंद करें": {
+    "en": "Close",
+    "hi": "बंद करें"
+  },
+  "गलती से डबल बुकिंग होने से बचाने के लिए यह जांच की गई है। आपके मोबाइल नंबर (": {
+    "en": "This check has been done to avoid double booking by mistake. Your mobile number (",
+    "hi": "गलती से डबल बुकिंग होने से बचाने के लिए यह जांच की गई है। आपके मोबाइल नंबर ("
+  },
+  ") पर दर्ज पिछले ऑर्डर का विवरण:": {
+    "en": ") Details of previous orders placed on:",
+    "hi": ") पर दर्ज पिछले ऑर्डर का विवरण:"
+  },
+  "Previous Order ID:": {
+    "en": "Previous Order ID:",
+    "hi": "पिछला ऑर्डर आईडी:"
+  },
+  "Customer Name (ग्राहक का नाम):": {
+    "en": "Customer Name:",
+    "hi": "Customer Name (ग्राहक का नाम):"
+  },
+  "Customer Place/City/Address (जगह):": {
+    "en": "Customer place / city / address:",
+    "hi": "Customer Place/City/Address (जगह):"
+  },
+  "Product & Quantity:": {
+    "en": "Product & Quantity:",
+    "hi": "उत्पाद गुणवत्ता:"
+  },
+  "Total Amount:": {
+    "en": "Total Amount:",
+    "hi": "कुल राशि:"
+  },
+  "Order Status:": {
+    "en": "Order Status:",
+    "hi": "आदेश की स्थिति:"
+  },
+  "पिछला ऑर्डर जारी रखें / ट्रैक करें (Continue Previous Order)": {
+    "en": "Continue/Track Previous Order",
+    "hi": "पिछला ऑर्डर जारी रखें / ट्रैक करें (Continue Previous Order)"
+  },
+  "ऑर्डर बुक हो रहा है...": {
+    "en": "Order is being booked...",
+    "hi": "ऑर्डर बुक हो रहा है..."
+  },
+  "हाँ, नया (दूसरा) ऑर्डर बुक करें (Confirm Genuine Second Order)": {
+    "en": "Yes, book a new (second) order (Confirm Genuine Second Order)",
+    "hi": "हाँ, नया (दूसरा) ऑर्डर बुक करें (Confirm Genuine Second Order)"
+  },
+  "आज की ड्राई आइस कीमत": {
+    "en": "today's dry ice price",
+    "hi": "आज की ड्राई आइस कीमत"
+  },
+  "ANKUR DRYICE": {
+    "en": "ANKUR DRYICE",
+    "hi": "ANKUR DRYICE"
+  },
+  "आज का रेट": {
+    "en": "today's rate",
+    "hi": "आज का रेट"
+  },
+  "ड्राई आइस व सुरक्षित पैकिंग": {
+    "en": "Dry ice and safe packing",
+    "hi": "ड्राई आइस व सुरक्षित पैकिंग"
+  },
+  "ड्राई आइस": {
+    "en": "Dry Ice",
+    "hi": "ड्राई आइस"
+  },
+  "थर्मोकोल पैकिंग": {
+    "en": "thermocol packing",
+    "hi": "थर्मोकोल पैकिंग"
+  },
+  "अतिरिक्त परिवहन": {
+    "en": "additional transportation",
+    "hi": "अतिरिक्त परिवहन"
+  },
+  "ऊपर दिखाए गए सभी शुल्क कुल रेट में शामिल हैं।": {
+    "en": "All charges shown above are included in the total rate.",
+    "hi": "ऊपर दिखाए गए सभी शुल्क कुल रेट में शामिल हैं।"
+  },
+  "ड्राई आइस बुकिंग के लिए लॉगिन करें": {
+    "en": "Login for Dry Ice Booking",
+    "hi": "ड्राई आइस बुकिंग के लिए लॉगिन करें"
+  },
+  "ऑर्डर बुक करने और ट्रैकिंग देखने के लिए कृपया अपने Google (Gmail) अकाउंट से सुरक्षित रूप से लॉगिन करें।": {
+    "en": "Please login securely with your Google (Gmail) account to book orders and view tracking.",
+    "hi": "ऑर्डर बुक करने और ट्रैकिंग देखने के लिए कृपया अपने Google (Gmail) अकाउंट से सुरक्षित रूप से लॉगिन करें।"
+  },
+  "नमस्ते,": {
+    "en": "hi,",
+    "hi": "नमस्ते,"
+  },
+  "लॉगिन": {
+    "en": "login",
+    "hi": "लॉगिन"
+  },
+  "&bull; आपका खाता सुरक्षित है": {
+    "en": "• Your account is secure",
+    "hi": "&bull; आपका खाता सुरक्षित है"
+  },
+  "चुना गया प्रोडक्ट:": {
+    "en": "Selected Product:",
+    "hi": "चुना गया प्रोडक्ट:"
+  },
+  "/kg (थर्मोकोल पैकिंग सहित)": {
+    "en": "/kg(including thermocol packing)",
+    "hi": "/kg (थर्मोकोल पैकिंग सहित)"
+  },
+  "बदलें": {
+    "en": "change",
+    "hi": "बदलें"
+  },
+  "ऑर्डर सफलतापूर्वक बुक हुआ!": {
+    "en": "Order booked successfully!",
+    "hi": "ऑर्डर सफलतापूर्वक बुक हुआ!"
+  },
+  "आपका ड्राई आइस ऑर्डर सुरक्षित रूप से दर्ज कर लिया गया है।": {
+    "en": "Your dry ice order has been securely entered.",
+    "hi": "आपका ड्राई आइस ऑर्डर सुरक्षित रूप से दर्ज कर लिया गया है।"
+  },
+  "ऑर्डर नंबर (Order ID)": {
+    "en": "Order ID",
+    "hi": "ऑर्डर नंबर (Order ID)"
+  },
+  "कॉपी करें": {
+    "en": "copy",
+    "hi": "कॉपी करें"
+  },
+  "गोपनीय ट्रैकिंग पिन (Tracking PIN)": {
+    "en": "Confidential Tracking PIN",
+    "hi": "गोपनीय ट्रैकिंग पिन (Tracking PIN)"
+  },
+  "सुरक्षित रखें": {
+    "en": "keep safe",
+    "hi": "सुरक्षित रखें"
+  },
+  "पेमेंट स्थिति: वेरिफिकेशन प्रतीक्षित (ओनर द्वारा बैंक/UPI वेरीफाई होने पर अपडेट होगा)": {
+    "en": "Payment Status: Verification Pending (Will be updated once Bank/UPI is verified by the owner)",
+    "hi": "पेमेंट स्थिति: वेरिफिकेशन प्रतीक्षित (ओनर द्वारा बैंक/UPI वेरीफाई होने पर अपडेट होगा)"
+  },
+  "UPI / QR से भुगतान करें": {
+    "en": "Pay with UPI/QR",
+    "hi": "UPI / QR से भुगतान करें"
+  },
+  "Paytm / PhonePe / GPay": {
+    "en": "Paytm / PhonePe / GPay",
+    "hi": "Paytm / PhonePe / GPay"
+  },
+  "पेमेंट बारकोड / QR स्कैन करें (Google Pay / any UPI)": {
+    "en": "Scan Payment Barcode / QR (Google Pay / any UPI)",
+    "hi": "पेमेंट बारकोड / QR स्कैन करें (Google Pay / any UPI)"
+  },
+  "स्कैन करने पर UPI ID और प्राप्तकर्ता का नाम जाँचें; फिर कुल देय राशि भरें।": {
+    "en": "Check UPI ID and recipient name upon scanning; Then fill the total amount payable.",
+    "hi": "स्कैन करने पर UPI ID और प्राप्तकर्ता का नाम जाँचें; फिर कुल देय राशि भरें।"
+  },
+  "UPI ID / Paytm नंबर:": {
+    "en": "UPI ID/Paytm Number:",
+    "hi": "UPI ID / Paytm नंबर:"
+  },
+  "UPI ID कॉपी करें": {
+    "en": "Copy UPI ID",
+    "hi": "UPI ID कॉपी करें"
+  },
+  "कॉपी हुआ": {
+    "en": "copied",
+    "hi": "कॉपी हुआ"
+  },
+  "Paytm Business या किसी भी UPI ऐप से राशि": {
+    "en": "Amount from Paytm Business or any UPI app",
+    "hi": "Paytm Business या किसी भी UPI ऐप से राशि"
+  },
+  "का भुगतान करें। भुगतान के बाद नीचे से स्क्रीनशॉट चुनकर ओनर (+91 8896332066) को WhatsApp पर भेजें।": {
+    "en": "Pay Rs. After payment select screenshot from below and send it to owner (+91 8896332066) on WhatsApp.",
+    "hi": "का भुगतान करें। भुगतान के बाद नीचे से स्क्रीनशॉट चुनकर ओनर (+91 8896332066) को WhatsApp पर भेजें।"
+  },
+  "पेमेंट का स्क्रीनशॉट चुनें (वैकल्पिक):": {
+    "en": "Select payment screenshot (optional):",
+    "hi": "पेमेंट का स्क्रीनशॉट चुनें (वैकल्पिक):"
+  },
+  "दूसरा स्क्रीनशॉट चुनें": {
+    "en": "Select another screenshot",
+    "hi": "दूसरा स्क्रीनशॉट चुनें"
+  },
+  "पेमेंट का स्क्रीनशॉट चुनें": {
+    "en": "Select Payment Screenshot",
+    "hi": "पेमेंट का स्क्रीनशॉट चुनें"
+  },
+  "Payment Preview": {
+    "en": "Payment Preview",
+    "hi": "भुगतान पूर्वावलोकन"
+  },
+  "स्क्रीनशॉट चुना गया": {
+    "en": "Screenshot selected",
+    "hi": "स्क्रीनशॉट चुना गया"
+  },
+  "निर्देश:": {
+    "en": "Instruction:",
+    "hi": "निर्देश:"
+  },
+  "नीचे \"WhatsApp पर पेमेंट फोटो भेजें\" दबाने पर": {
+    "en": "By clicking \"Send payment photo on WhatsApp\" below",
+    "hi": "नीचे \"WhatsApp पर पेमेंट फोटो भेजें\" दबाने पर"
+  },
+  "की चैट खुलेगी। वहां": {
+    "en": "The chat will open. There",
+    "hi": "की चैट खुलेगी। वहां"
+  },
+  "Attach (+) / गैलरी": {
+    "en": "Attach (+) / Gallery",
+    "hi": "Attach (+) / गैलरी"
+  },
+  "से यही स्क्रीनशॉट सेंड करें।": {
+    "en": "Send this screenshot from.",
+    "hi": "से यही स्क्रीनशॉट सेंड करें।"
+  },
+  "WhatsApp पर पेमेंट फोटो भेजें": {
+    "en": "Send payment photo on WhatsApp",
+    "hi": "WhatsApp पर पेमेंट फोटो भेजें"
+  },
+  "WhatsApp चैट लिंक (+91 8896332066)": {
+    "en": "WhatsApp Chat Link (+91 8896332066)",
+    "hi": "WhatsApp चैट लिंक (+91 8896332066)"
+  },
+  "नोट: स्क्रीनशॉट सर्वर पर स्टोर नहीं किया जाता — केवल ओनर को WhatsApp (+91 8896332066) सत्यापन हेतु भेजा जाता है।": {
+    "en": "Note: The screenshot is not stored on the server — only sent to the owner for verification via WhatsApp (+91 8896332066).",
+    "hi": "नोट: स्क्रीनशॉट सर्वर पर स्टोर नहीं किया जाता — केवल ओनर को WhatsApp (+91 8896332066) सत्यापन हेतु भेजा जाता है।"
+  },
+  "मेरे सभी ऑर्डर देखें": {
+    "en": "View all my orders",
+    "hi": "मेरे सभी ऑर्डर देखें"
+  },
+  "Dry Ice Booking Form": {
+    "en": "Dry Ice Booking Form",
+    "hi": "सूखी बर्फ बुकिंग फॉर्म"
+  },
+  "/kg ऑल-इन": {
+    "en": "/kg all-in",
+    "hi": "/kg ऑल-इन"
+  },
+  "Customer Name": {
+    "en": "Customer Name",
+    "hi": "ग्राहक का नाम"
+  },
+  "Mobile (10 digits)": {
+    "en": "Mobile (10 digits)",
+    "hi": "मोबाइल (10 अंक)"
+  },
+  "City": {
+    "en": "City",
+    "hi": "शहर"
+  },
+  "e.g. Lucknow": {
+    "en": "e.g. Lucknow",
+    "hi": "जैसे लखनऊ"
+  },
+  "Quantity (KG)": {
+    "en": "Quantity (KG)",
+    "hi": "मात्रा (केजी)"
+  },
+  "e.g. 10, 25": {
+    "en": "e.g. 10, 25",
+    "hi": "जैसे 10, 25"
+  },
+  "Minimum 10 KG order.": {
+    "en": "Minimum 10 KG order.",
+    "hi": "न्यूनतम 10 KG ऑर्डर."
+  },
+  "डिस्पैच का समय (IST)": {
+    "en": "Dispatch Time (IST)",
+    "hi": "डिस्पैच का समय (IST)"
+  },
+  "Optional promo code": {
+    "en": "Optional promo code",
+    "hi": "वैकल्पिक प्रोमो कोड"
+  },
+  "Promo code (optional)": {
+    "en": "Promo code (optional)",
+    "hi": "प्रोमो कोड (वैकल्पिक)"
+  },
+  "Apply code": {
+    "en": "Apply code",
+    "hi": "कोड लागू करें"
+  },
+  "Standard Dry Ice only; additional requests need a separate owner quote.": {
+    "en": "Standard Dry Ice only; additional requests need a separate owner quote.",
+    "hi": "केवल मानक सूखी बर्फ; अतिरिक्त अनुरोधों के लिए एक अलग स्वामी उद्धरण की आवश्यकता होती है।"
+  },
+  "Price Breakdown": {
+    "en": "Price Breakdown",
+    "hi": "मूल्य विभाजन"
+  },
+  "थर्मोकोल फुल पैकिंग (": {
+    "en": "Thermocol Full Packing(",
+    "hi": "थर्मोकोल फुल पैकिंग ("
+  },
+  "परिवहन (": {
+    "en": "transportation (",
+    "hi": "परिवहन ("
+  },
+  "Base amount: ₹": {
+    "en": "Base amount: ₹",
+    "hi": "आधार राशि: ₹"
+  },
+  "Promo discount: −₹": {
+    "en": "Promo discount: −₹",
+    "hi": "प्रोमो छूट: −₹"
+  },
+  "After promo: ₹": {
+    "en": "After promo: ₹",
+    "hi": "प्रोमो के बाद: ₹"
+  },
+  "Requested total amount": {
+    "en": "Requested total amount",
+    "hi": "कुल राशि का अनुरोध किया गया"
+  },
+  "Edit total amount for extras": {
+    "en": "Edit total amount for extras",
+    "hi": "अतिरिक्त के लिए कुल राशि संपादित करें"
+  },
+  "/kg, सभी लागू शुल्क सहित)": {
+    "en": "/kg, including all applicable charges)",
+    "hi": "/kg, सभी लागू शुल्क सहित)"
+  },
+  "Extra Product / Reason for Amount Change": {
+    "en": "Extra Product / Reason for Amount Change",
+    "hi": "अतिरिक्त उत्पाद/राशि परिवर्तन का कारण"
+  },
+  "e.g. Add Pyro, event supplies or other products": {
+    "en": "e.g. Add Pyro, event supplies or other products",
+    "hi": "जैसे पायरो, इवेंट सप्लाई या अन्य उत्पाद जोड़ें"
+  },
+  "Base dry ice price cannot be reduced. Extra amounts need owner confirmation.": {
+    "en": "Base dry ice price cannot be reduced. Extra amounts need owner confirmation.",
+    "hi": "बेस सूखी बर्फ की कीमत कम नहीं की जा सकती। अतिरिक्त राशि के लिए मालिक की पुष्टि की आवश्यकता होती है।"
+  },
+  "पेमेंट निर्देश": {
+    "en": "Payment Instructions",
+    "hi": "पेमेंट निर्देश"
+  },
+  "पेमेंट: Paytm Business / किसी भी UPI ऐप द्वारा भुगतान करें। ऑर्डर बुक होने के बाद आप पेमेंट का स्क्रीनशॉट WhatsApp पर ओनर को भेज सकते हैं। ओनर द्वारा मैन्युअल सत्यापन के बाद पेमेंट वेरीफाई होगा।": {
+    "en": "Payment: Pay by Paytm Business / Any UPI App. After the order is booked, you can send the screenshot of the payment to the owner on WhatsApp. Payment will be verified after manual verification by the owner.",
+    "hi": "पेमेंट: Paytm Business / किसी भी UPI ऐप द्वारा भुगतान करें। ऑर्डर बुक होने के बाद आप पेमेंट का स्क्रीनशॉट WhatsApp पर ओनर को भेज सकते हैं। ओनर द्वारा मैन्युअल सत्यापन के बाद पेमेंट वेरीफाई होगा।"
+  },
+  "ऑर्डर बुक करें (₹": {
+    "en": "Book Order (₹",
+    "hi": "ऑर्डर बुक करें (₹"
+  },
+  "सहायता के लिए संपर्क करें:": {
+    "en": "For assistance contact:",
+    "hi": "सहायता के लिए संपर्क करें:"
+  },
+  "कॉल करें ({0})": {
+    "en": "call ({0})",
+    "hi": "कॉल करें ({0})"
+  },
+  "कॉल (": {
+    "en": "Call (",
+    "hi": "कॉल ("
+  },
+  "व्हाट्सएप": {
+    "en": "WhatsApp",
+    "hi": "व्हाट्सएप"
+  },
+  "बुकिंग खोलें": {
+    "en": "open booking",
+    "hi": "बुकिंग खोलें"
+  },
+  "कैटेगरी खोलें": {
+    "en": "open category",
+    "hi": "कैटेगरी खोलें"
+  },
+  "WhatsApp खोलें": {
+    "en": "Open WhatsApp",
+    "hi": "WhatsApp खोलें"
+  },
+  "कुछ नहीं": {
+    "en": "Nothing",
+    "hi": "कुछ नहीं"
+  },
+  "स्टोर, थीम और होम स्क्रीन": {
+    "en": "Store, themes and home screen",
+    "hi": "स्टोर, थीम और होम स्क्रीन"
+  },
+  "ग्राहकों को दिखने वाले प्रोडक्ट, रंग, ऑफ़र बैनर और लकी विनर यहाँ से बदलें।": {
+    "en": "Change the products, colors, offer banners and lucky winners that customers see from here.",
+    "hi": "ग्राहकों को दिखने वाले प्रोडक्ट, रंग, ऑफ़र बैनर और लकी विनर यहाँ से बदलें।"
+  },
+  "प्रोडक्ट": {
+    "en": "product",
+    "hi": "प्रोडक्ट"
+  },
+  "थीम": {
+    "en": "theme",
+    "hi": "थीम"
+  },
+  "होम / लकी विनर": {
+    "en": "Home / Lucky Winner",
+    "hi": "होम / लकी विनर"
+  },
+  "{0} मौजूदा प्रोडक्ट कैटलॉग में सेव हो गए।": {
+    "en": "{0} Saved to the current product catalog.",
+    "hi": "{0} मौजूदा प्रोडक्ट कैटलॉग में सेव हो गए।"
+  },
+  "कैटलॉग पहले से सेव था; जाँच पूरी।": {
+    "en": "The catalog was already saved; Investigation completed.",
+    "hi": "कैटलॉग पहले से सेव था; जाँच पूरी।"
+  },
+  "कैटलॉग सेव नहीं हो सका:": {
+    "en": "Catalog could not be saved:",
+    "hi": "कैटलॉग सेव नहीं हो सका:"
+  },
+  "स्टेटस बदलने में त्रुटि:": {
+    "en": "Error changing status:",
+    "hi": "स्टेटस बदलने में त्रुटि:"
+  },
+  "मौजूदा प्रोडक्ट हटाए नहीं जाते। उसे “बंद” कर दें।": {
+    "en": "Existing products are not removed. call it off.",
+    "hi": "मौजूदा प्रोडक्ट हटाए नहीं जाते। उसे “बंद” कर दें।"
+  },
+  "“{0}” हमेशा के लिए हटाएँ? (पुराने ऑर्डर प्रभावित नहीं होंगे)": {
+    "en": "Delete “{0}” permanently? (Old orders will not be affected)",
+    "hi": "“{0}” हमेशा के लिए हटाएँ? (पुराने ऑर्डर प्रभावित नहीं होंगे)"
+  },
+  "प्रोडक्ट हटा दिया गया।": {
+    "en": "Product removed.",
+    "hi": "प्रोडक्ट हटा दिया गया।"
+  },
+  "हटाने में त्रुटि:": {
+    "en": "Error in deletion:",
+    "hi": "हटाने में त्रुटि:"
+  },
+  "कृपया इमेज फ़ाइल चुनें।": {
+    "en": "Please select image file.",
+    "hi": "कृपया इमेज फ़ाइल चुनें।"
+  },
+  "इमेज अपलोड हो गई। नीचे “सहेजें” दबाना न भूलें।": {
+    "en": "Image uploaded. Don't forget to hit “Save” at the bottom.",
+    "hi": "इमेज अपलोड हो गई। नीचे “सहेजें” दबाना न भूलें।"
+  },
+  "इमेज अपलोड नहीं हो सकी:": {
+    "en": "Image could not be uploaded:",
+    "hi": "इमेज अपलोड नहीं हो सकी:"
+  },
+  "— जाँचें कि Firebase Storage चालू है और storage.rules लगे हैं। चाहें तो नीचे https:// इमेज लिंक चिपका दें।": {
+    "en": "— Verify that Firebase Storage is enabled and storage.rules is in place. If you want, paste the https:// image link below.",
+    "hi": "— जाँचें कि Firebase Storage चालू है और storage.rules लगे हैं। चाहें तो नीचे https:// इमेज लिंक चिपका दें।"
+  },
+  "प्रोडक्ट का हिंदी और अंग्रेज़ी नाम दोनों भरें।": {
+    "en": "Fill both Hindi and English name of the product.",
+    "hi": "प्रोडक्ट का हिंदी और अंग्रेज़ी नाम दोनों भरें।"
+  },
+  "सही कीमत भरें (ड्राई आइस की कीमत 0 से ज़्यादा होनी चाहिए)।": {
+    "en": "Enter the correct price (dry ice price must be greater than 0).",
+    "hi": "सही कीमत भरें (ड्राई आइस की कीमत 0 से ज़्यादा होनी चाहिए)।"
+  },
+  "इमेज लिंक https:// से शुरू होना चाहिए।": {
+    "en": "Image link must start with https://.",
+    "hi": "इमेज लिंक https:// से शुरू होना चाहिए।"
+  },
+  "प्रोडक्ट अपडेट हो गया।": {
+    "en": "Product updated.",
+    "hi": "प्रोडक्ट अपडेट हो गया।"
+  },
+  "नया प्रोडक्ट जुड़ गया": {
+    "en": "new product added",
+    "hi": "नया प्रोडक्ट जुड़ गया"
+  },
+  "।": {
+    "en": ".",
+    "hi": "।"
+  },
+  "(अभी ग्राहकों से छिपा है)।": {
+    "en": "(Right now hidden from customers).",
+    "hi": "(अभी ग्राहकों से छिपा है)।"
+  },
+  "सहेजने में त्रुटि:": {
+    "en": "Error saving:",
+    "hi": "सहेजने में त्रुटि:"
+  },
+  "अभी ग्राहकों को ऐप में बने 3 मौजूदा प्रोडक्ट दिख रहे हैं। इन्हें Firestore में सेव करने पर आप इन्हें एडिट, बंद या इमेज के साथ मैनेज कर पाएँगे। कोई पुराना डेटा बदला या मिटाया नहीं जाएगा।": {
+    "en": "Currently, customers are seeing 3 existing products made in the app. By saving them to Firestore, you'll be able to edit, close, or manage them along with the images. No old data will be changed or deleted.",
+    "hi": "अभी ग्राहकों को ऐप में बने 3 मौजूदा प्रोडक्ट दिख रहे हैं। इन्हें Firestore में सेव करने पर आप इन्हें एडिट, बंद या इमेज के साथ मैनेज कर पाएँगे। कोई पुराना डेटा बदला या मिटाया नहीं जाएगा।"
+  },
+  "मौजूदा 3 प्रोडक्ट कैटलॉग में सेव करें": {
+    "en": "Save current 3 products to catalog",
+    "hi": "मौजूदा 3 प्रोडक्ट कैटलॉग में सेव करें"
+  },
+  "प्रोडक्ट लोड नहीं हुए:": {
+    "en": "Products not loaded:",
+    "hi": "प्रोडक्ट लोड नहीं हुए:"
+  },
+  "नया प्रोडक्ट जोड़ें": {
+    "en": "Add new product",
+    "hi": "नया प्रोडक्ट जोड़ें"
+  },
+  "प्रोडक्ट एडिट करें": {
+    "en": "Edit Product",
+    "hi": "प्रोडक्ट एडिट करें"
+  },
+  "नया प्रोडक्ट": {
+    "en": "new product",
+    "hi": "नया प्रोडक्ट"
+  },
+  "हिंदी नाम (जैसे ड्राई आइस पेलेट्स)": {
+    "en": "Hindi name (like dry ice pellets)",
+    "hi": "हिंदी नाम (जैसे ड्राई आइस पेलेट्स)"
+  },
+  "English name": {
+    "en": "English name",
+    "hi": "अंग्रेज़ी नाम"
+  },
+  "कैटेगरी": {
+    "en": "category",
+    "hi": "कैटेगरी"
+  },
+  "इस प्रोडक्ट की अपनी कीमत रखें": {
+    "en": "Keep your price for this product",
+    "hi": "इस प्रोडक्ट की अपनी कीमत रखें"
+  },
+  "यह प्रोडक्ट “रेट” सेटिंग वाला सामान्य रेट इस्तेमाल करेगा (पहले जैसा व्यवहार)।": {
+    "en": "This product will use the normal rate with the “Rate” setting (same behavior as before).",
+    "hi": "यह प्रोडक्ट “रेट” सेटिंग वाला सामान्य रेट इस्तेमाल करेगा (पहले जैसा व्यवहार)।"
+  },
+  "ड्राई आइस ₹/kg": {
+    "en": "Dry Ice ₹/kg",
+    "hi": "ड्राई आइस ₹/kg"
+  },
+  "थर्मोकोल ₹/kg": {
+    "en": "Thermocol ₹/kg",
+    "hi": "थर्मोकोल ₹/kg"
+  },
+  "कटा हुआ MRP (वैकल्पिक)": {
+    "en": "Chopped MRP (optional)",
+    "hi": "कटा हुआ MRP (वैकल्पिक)"
+  },
+  "यूनिट (kg)": {
+    "en": "unit(kg)",
+    "hi": "यूनिट (kg)"
+  },
+  "बैज (जैसे बेस्ट सेलर)": {
+    "en": "Badges (e.g. Best Seller)",
+    "hi": "बैज (जैसे बेस्ट सेलर)"
+  },
+  "छोटा विवरण (वैकल्पिक)": {
+    "en": "Short description (optional)",
+    "hi": "छोटा विवरण (वैकल्पिक)"
+  },
+  "अपलोड हो रही है…": {
+    "en": "Uploading...",
+    "hi": "अपलोड हो रही है…"
+  },
+  "इमेज अपलोड करें": {
+    "en": "upload image",
+    "hi": "इमेज अपलोड करें"
+  },
+  "या https:// इमेज लिंक चिपकाएँ": {
+    "en": "Or paste https:// image link",
+    "hi": "या https:// इमेज लिंक चिपकाएँ"
+  },
+  "ग्राहकों को दिखाएँ (चालू)": {
+    "en": "Show to Customers (On)",
+    "hi": "ग्राहकों को दिखाएँ (चालू)"
+  },
+  "सहेजें": {
+    "en": "Save",
+    "hi": "सहेजें"
+  },
+  "कैटलॉग में अभी कोई प्रोडक्ट नहीं है।": {
+    "en": "There are no products in the catalog yet.",
+    "hi": "कैटलॉग में अभी कोई प्रोडक्ट नहीं है।"
+  },
+  "सामान्य रेट": {
+    "en": "normal rate",
+    "hi": "सामान्य रेट"
+  },
+  "ग्राहकों को दिखता है": {
+    "en": "visible to customers",
+    "hi": "ग्राहकों को दिखता है"
+  },
+  "छिपा हुआ": {
+    "en": "hidden",
+    "hi": "छिपा हुआ"
+  },
+  "चालू करें": {
+    "en": "turn on",
+    "hi": "चालू करें"
+  },
+  "एडिट करें": {
+    "en": "Edit",
+    "hi": "एडिट करें"
+  },
+  "थीम सेव हो गई। ग्राहक, स्टाफ और ओनर सबको अगली बार ऐप खुलने पर (या लाइव) यही दिखेगी।": {
+    "en": "Theme saved. This is what customers, staff and owners will see the next time they open the app (or go live).",
+    "hi": "थीम सेव हो गई। ग्राहक, स्टाफ और ओनर सबको अगली बार ऐप खुलने पर (या लाइव) यही दिखेगी।"
+  },
+  "थीम सेव नहीं हो सकी:": {
+    "en": "Could not save theme:",
+    "hi": "थीम सेव नहीं हो सकी:"
+  },
+  "चुनते ही थीम सबके लिए सेव हो जाती है। पुरानी स्क्रीनों (ओनर/स्टाफ डैशबोर्ड) में मुख्य रंग बदलता है; डार्क थीम पुरानी स्क्रीनों में आंशिक रूप से लागू होती है।": {
+    "en": "Once selected, the theme is saved for everyone. Changes main color in older screens (Owner/Staff dashboard); The dark theme is partially implemented in older screens.",
+    "hi": "चुनते ही थीम सबके लिए सेव हो जाती है। पुरानी स्क्रीनों (ओनर/स्टाफ डैशबोर्ड) में मुख्य रंग बदलता है; डार्क थीम पुरानी स्क्रीनों में आंशिक रूप से लागू होती है।"
+  },
+  "अभी चालू:": {
+    "en": "Now on:",
+    "hi": "अभी चालू:"
+  },
+  "आज": {
+    "en": "Today",
+    "hi": "आज"
+  },
+  "सेटिंग्स लोड नहीं हुईं:": {
+    "en": "Settings not loaded:",
+    "hi": "सेटिंग्स लोड नहीं हुईं:"
+  },
+  "लकी विनर होम स्क्रीन पर दिखने लगा।": {
+    "en": "The lucky winner started appearing on the home screen.",
+    "hi": "लकी विनर होम स्क्रीन पर दिखने लगा।"
+  },
+  "लकी विनर कार्ड छिपा दिया गया।": {
+    "en": "The lucky winner card was hidden.",
+    "hi": "लकी विनर कार्ड छिपा दिया गया।"
+  },
+  "लकी विनर सेव नहीं हुआ:": {
+    "en": "Lucky winner not saved:",
+    "hi": "लकी विनर सेव नहीं हुआ:"
+  },
+  "ऑफ़र बैनर सेव हो गए।": {
+    "en": "Offer banner saved.",
+    "hi": "ऑफ़र बैनर सेव हो गए।"
+  },
+  "बैनर सेव नहीं हुए:": {
+    "en": "Banners not saved:",
+    "hi": "बैनर सेव नहीं हुए:"
+  },
+  "डिफ़ॉल्ट बैनर वापस लग गए।": {
+    "en": "Default banners are back.",
+    "hi": "डिफ़ॉल्ट बैनर वापस लग गए।"
+  },
+  "रीसेट नहीं हुआ:": {
+    "en": "Reset did not happen:",
+    "hi": "रीसेट नहीं हुआ:"
+  },
+  "लकी विनर": {
+    "en": "lucky winner",
+    "hi": "लकी विनर"
+  },
+  "ग्राहकों को सिर्फ़ नाम, शहर और “खास गिफ्ट” लिखा दिखता है। गिफ्ट क्या है, यह आप अलग से विजेता को बताएँ। निजता के लिए पूरा नाम या फोन नंबर न डालें (सिर्फ़ पहला नाम काफ़ी है)।": {
+    "en": "All customers see is name, city, and “special gift.” You should tell the winner separately what the gift is. For privacy, do not enter a full name or phone number (first name is sufficient).",
+    "hi": "ग्राहकों को सिर्फ़ नाम, शहर और “खास गिफ्ट” लिखा दिखता है। गिफ्ट क्या है, यह आप अलग से विजेता को बताएँ। निजता के लिए पूरा नाम या फोन नंबर न डालें (सिर्फ़ पहला नाम काफ़ी है)।"
+  },
+  "विजेता का नाम": {
+    "en": "winner name",
+    "hi": "विजेता का नाम"
+  },
+  "कब का (जैसे आज / 29 अक्टूबर)": {
+    "en": "When (e.g. today/October 29)",
+    "hi": "कब का (जैसे आज / 29 अक्टूबर)"
+  },
+  "दिखाएँ": {
+    "en": "show",
+    "hi": "दिखाएँ"
+  },
+  "छिपाएँ": {
+    "en": "hide",
+    "hi": "छिपाएँ"
+  },
+  "पूर्वावलोकन": {
+    "en": "preview",
+    "hi": "पूर्वावलोकन"
+  },
+  "ऑफ़र बैनर (होम स्क्रीन कैरोसेल)": {
+    "en": "Offer Banner (Home Screen Carousel)",
+    "hi": "ऑफ़र बैनर (होम स्क्रीन कैरोसेल)"
+  },
+  "शीर्षक": {
+    "en": "title",
+    "hi": "शीर्षक"
+  },
+  "छोटी लाइन": {
+    "en": "short line",
+    "hi": "छोटी लाइन"
+  },
+  "टैप पर:": {
+    "en": "On tap:",
+    "hi": "टैप पर:"
+  },
+  "बैनर हटाएँ": {
+    "en": "remove banner",
+    "hi": "बैनर हटाएँ"
+  },
+  "बैनर जोड़ें": {
+    "en": "add banner",
+    "hi": "बैनर जोड़ें"
+  },
+  "सेव करें": {
+    "en": "save",
+    "hi": "सेव करें"
+  },
+  "डिफ़ॉल्ट पर लौटें": {
+    "en": "return to default",
+    "hi": "डिफ़ॉल्ट पर लौटें"
+  },
+  "ऑर्डर हिस्ट्री, रीऑर्डर और प्रोफ़ाइल के लिए लॉगिन करें। बुकिंग और ट्रैकिंग बिना लॉगिन भी हो सकती है।": {
+    "en": "Login for order history, reorders and profile. Booking and tracking can also be done without login.",
+    "hi": "ऑर्डर हिस्ट्री, रीऑर्डर और प्रोफ़ाइल के लिए लॉगिन करें। बुकिंग और ट्रैकिंग बिना लॉगिन भी हो सकती है।"
+  },
+  "लॉगिन नहीं हो सका: {0}": {
+    "en": "Could not login: {0}",
+    "hi": "लॉगिन नहीं हो सका: {0}"
+  },
+  "लॉगिन नहीं हो सका:": {
+    "en": "Could not login:",
+    "hi": "लॉगिन नहीं हो सका:"
+  },
+  "अज्ञात त्रुटि": {
+    "en": "unknown error",
+    "hi": "अज्ञात त्रुटि"
+  },
+  "Google से साइन इन करें": {
+    "en": "Sign in with Google",
+    "hi": "Google से साइन इन करें"
+  },
+  "मालिक और स्टाफ भी यहीं से लॉगिन करते हैं। स्टाफ एक्सेस मालिक की मंज़ूरी के बाद मिलता है।": {
+    "en": "The owner and staff also login from here. Staff access is subject to owner approval.",
+    "hi": "मालिक और स्टाफ भी यहीं से लॉगिन करते हैं। स्टाफ एक्सेस मालिक की मंज़ूरी के बाद मिलता है।"
+  },
+  "Self Pickup के लिए App Check सत्यापित Android ऐप चाहिए। बाकी काम जारी रख सकते हैं।": {
+    "en": "Self Pickup requires App Check verified Android app. Can continue the rest of the work.",
+    "hi": "Self Pickup के लिए App Check सत्यापित Android ऐप चाहिए। बाकी काम जारी रख सकते हैं।"
+  },
+  "आपको ऑर्डर देखने की अनुमति नहीं है। कृपया मालिक से संपर्क करें।": {
+    "en": "You are not allowed to view the orders. Please contact the owner.",
+    "hi": "आपको ऑर्डर देखने की अनुमति नहीं है। कृपया मालिक से संपर्क करें।"
+  },
+  "ऑर्डर लोड करने में समस्या: {0}": {
+    "en": "Problem loading order: {0}",
+    "hi": "ऑर्डर लोड करने में समस्या: {0}"
+  },
+  "ऑर्डर लोड करने में समस्या:": {
+    "en": "Problem loading order:",
+    "hi": "ऑर्डर लोड करने में समस्या:"
+  },
+  "आपको ऑर्डर का स्टेटस बदलने की अनुमति नहीं है।": {
+    "en": "You are not allowed to change the status of the order.",
+    "hi": "आपको ऑर्डर का स्टेटस बदलने की अनुमति नहीं है।"
+  },
+  "ऑर्डर स्टाफ द्वारा कन्फर्म किया गया।": {
+    "en": "Order confirmed by staff.",
+    "hi": "ऑर्डर स्टाफ द्वारा कन्फर्म किया गया।"
+  },
+  "ड्राई आइस बस / डिलीवरी बॉय को हैंडओवर कर दी गई है।": {
+    "en": "Dry ice has been handed over to the bus/delivery boy.",
+    "hi": "ड्राई आइस बस / डिलीवरी बॉय को हैंडओवर कर दी गई है।"
+  },
+  "ऑर्डर ग्राहक को सफलतापूर्वक डिलीवर हो गया।": {
+    "en": "The order was successfully delivered to the customer.",
+    "hi": "ऑर्डर ग्राहक को सफलतापूर्वक डिलीवर हो गया।"
+  },
+  "ऑर्डर रद्द किया गया।": {
+    "en": "Order cancelled.",
+    "hi": "ऑर्डर रद्द किया गया।"
+  },
+  "ऑर्डर #{0} का स्टेटस '{1}' अपडेट हो गया!": {
+    "en": "Status of order #{0} updated to '{1}'!",
+    "hi": "ऑर्डर #{0} का स्टेटस '{1}' अपडेट हो गया!"
+  },
+  "स्टेटस अपडेट करने में समस्या: {0}": {
+    "en": "Problem updating status: {0}",
+    "hi": "स्टेटस अपडेट करने में समस्या: {0}"
+  },
+  "स्टेटस अपडेट करने में समस्या:": {
+    "en": "Problem updating status:",
+    "hi": "स्टेटस अपडेट करने में समस्या:"
+  },
+  "त्रुटि": {
+    "en": "error",
+    "hi": "त्रुटि"
+  },
+  "पैकिंग में (In Packing)": {
+    "en": "In Packing",
+    "hi": "पैकिंग में (In Packing)"
+  },
+  "डिस्पैच / रवाना (Dispatched)": {
+    "en": "Dispatched",
+    "hi": "डिस्पैच / रवाना (Dispatched)"
+  },
+  "डिलीवरी पार्टनर डैशबोर्ड": {
+    "en": "Delivery Partner Dashboard",
+    "hi": "डिलीवरी पार्टनर डैशबोर्ड"
+  },
+  "स्टाफ ऑपरेशनल डैशबोर्ड": {
+    "en": "Staff Operational Dashboard",
+    "hi": "स्टाफ ऑपरेशनल डैशबोर्ड"
+  },
+  "सीमित एक्सेस: केवल डिस्पैच और ऑर्डर स्टेटस अपडेट करने की अनुमति है।": {
+    "en": "Limited Access: Only dispatch and order status updates are allowed.",
+    "hi": "सीमित एक्सेस: केवल डिस्पैच और ऑर्डर स्टेटस अपडेट करने की अनुमति है।"
+  },
+  "कुल सक्रिय ऑर्डर्स": {
+    "en": "Total Active Orders",
+    "hi": "कुल सक्रिय ऑर्डर्स"
+  },
+  "ऑर्डर्स": {
+    "en": "orders",
+    "hi": "ऑर्डर्स"
+  },
+  "पैकिंग/पेंडिंग": {
+    "en": "packing/pending",
+    "hi": "पैकिंग/पेंडिंग"
+  },
+  "रास्ते में (Dispatched)": {
+    "en": "On the way (Dispatched)",
+    "hi": "रास्ते में (Dispatched)"
+  },
+  "ऑर्डर ID, ग्राहक का नाम, मोबाइल नंबर या शहर खोजें...": {
+    "en": "Search order ID, customer name, mobile number or city...",
+    "hi": "ऑर्डर ID, ग्राहक का नाम, मोबाइल नंबर या शहर खोजें..."
+  },
+  "डिस्पैच स्लॉट के अनुसार:": {
+    "en": "As per dispatch slot:",
+    "hi": "डिस्पैच स्लॉट के अनुसार:"
+  },
+  "सभी स्लॉट": {
+    "en": "all slots",
+    "hi": "सभी स्लॉट"
+  },
+  "🌅 आज सुबह": {
+    "en": "🌅 this morning",
+    "hi": "🌅 आज सुबह"
+  },
+  "🌇 आज शाम": {
+    "en": "🌇 this evening",
+    "hi": "🌇 आज शाम"
+  },
+  "🌄 कल सुबह": {
+    "en": "🌄 tomorrow morning",
+    "hi": "🌄 कल सुबह"
+  },
+  "🌆 कल शाम": {
+    "en": "🌆 tomorrow evening",
+    "hi": "🌆 कल शाम"
+  },
+  "सभी ({0})": {
+    "en": "all ({0})",
+    "hi": "सभी ({0})"
+  },
+  "कन्फर्म": {
+    "en": "confirmed",
+    "hi": "कन्फर्म"
+  },
+  "पैकिंग जारी": {
+    "en": "packing continues",
+    "hi": "पैकिंग जारी"
+  },
+  "डिस्पैच / रवाना": {
+    "en": "Dispatch",
+    "hi": "डिस्पैच / रवाना"
+  },
+  "डिलीवर": {
+    "en": "delivered",
+    "hi": "डिलीवर"
+  },
+  "सभी ज़िले / शहर": {
+    "en": "All Districts/Cities",
+    "hi": "सभी ज़िले / शहर"
+  },
+  "ऑर्डर लोड हो रहे हैं...": {
+    "en": "Loading orders...",
+    "hi": "ऑर्डर लोड हो रहे हैं..."
+  },
+  "कोई ऑर्डर नहीं मिला": {
+    "en": "no orders received",
+    "hi": "कोई ऑर्डर नहीं मिला"
+  },
+  "चयनित फ़िल्टर के अनुसार कोई सक्रिय ऑर्डर उपलब्ध नहीं है।": {
+    "en": "There are no active orders available as per the selected filter.",
+    "hi": "चयनित फ़िल्टर के अनुसार कोई सक्रिय ऑर्डर उपलब्ध नहीं है।"
+  },
+  "पता दर्ज नहीं": {
+    "en": "Address not entered",
+    "hi": "पता दर्ज नहीं"
+  },
+  "इस एक ऑर्डर के ग्राहक को कॉल करें": {
+    "en": "Call the customer of this one order",
+    "hi": "इस एक ऑर्डर के ग्राहक को कॉल करें"
+  },
+  "ग्राहक संपर्क छिपाएँ": {
+    "en": "Hide Customer Contact",
+    "hi": "ग्राहक संपर्क छिपाएँ"
+  },
+  "केवल चयनित ऑर्डर का संपर्क": {
+    "en": "Contact of selected order only",
+    "hi": "केवल चयनित ऑर्डर का संपर्क"
+  },
+  "केवल इस ऑर्डर का नंबर — 15 सेकंड में अपने-आप छिपेगा।": {
+    "en": "Only this order number will be automatically hidden within 15 seconds.",
+    "hi": "केवल इस ऑर्डर का नंबर — 15 सेकंड में अपने-आप छिपेगा।"
+  },
+  "डायल करें": {
+    "en": "dial up",
+    "hi": "डायल करें"
+  },
+  "नमस्ते {0} जी, Ankur Dryice से आपके ऑर्डर #{1} ({2}) के संबंध में सूचना।": {
+    "en": "Hello {0} Yes, Information regarding your order #{1} ({2}) from Ankur Dryice.",
+    "hi": "नमस्ते {0} जी, Ankur Dryice से आपके ऑर्डर #{1} ({2}) के संबंध में सूचना।"
+  },
+  "आइटम व मात्रा:": {
+    "en": "Item & Quantity:",
+    "hi": "आइटम व मात्रा:"
+  },
+  "🧊 ड्राई आइस": {
+    "en": "🧊 dry ice",
+    "hi": "🧊 ड्राई आइस"
+  },
+  "+ थर्मोकोल बॉक्स सुरक्षित पैकिंग": {
+    "en": "+ Thermocol box safe packing",
+    "hi": "+ थर्मोकोल बॉक्स सुरक्षित पैकिंग"
+  },
+  "Self Pickup status": {
+    "en": "Self Pickup status",
+    "hi": "स्व पिकअप स्थिति"
+  },
+  "Self Pickup": {
+    "en": "Self Pickup",
+    "hi": "स्व चयन"
+  },
+  "Confirm Pickup": {
+    "en": "Confirm Pickup",
+    "hi": "पिकअप की पुष्टि करें"
+  },
+  "Undo Pickup": {
+    "en": "Undo Pickup",
+    "hi": "पिकअप पूर्ववत करें"
+  },
+  "Actions require the deployed Firebase callable backend; authorization and undo timing are checked server-side.": {
+    "en": "Actions require the deployed Firebase callable backend; authorization and undo timing are checked server-side.",
+    "hi": "कार्रवाइयों के लिए तैनात फायरबेस कॉल करने योग्य बैकएंड की आवश्यकता होती है; प्राधिकरण और पूर्ववत समय की जाँच सर्वर-साइड की जाती है।"
+  },
+  "स्टेटस अपडेट करें:": {
+    "en": "Update Status:",
+    "hi": "स्टेटस अपडेट करें:"
+  },
+  "अपडेट हो रहा है...": {
+    "en": "Updating...",
+    "hi": "अपडेट हो रहा है..."
+  },
+  "स्टेटस बदलने की अनुमति मालिक ने नहीं दी है।": {
+    "en": "The owner has not given permission to change the status.",
+    "hi": "स्टेटस बदलने की अनुमति मालिक ने नहीं दी है।"
+  },
+  "1. कन्फर्म करें": {
+    "en": "1. Confirm",
+    "hi": "1. कन्फर्म करें"
+  },
+  "2. पैकिंग जारी": {
+    "en": "2. Packing continues",
+    "hi": "2. पैकिंग जारी"
+  },
+  "3. बस/डिस्पैच": {
+    "en": "3. Bus/Dispatch",
+    "hi": "3. बस/डिस्पैच"
+  },
+  "4. डिलीवर हुआ": {
+    "en": "4. delivered",
+    "hi": "4. डिलीवर हुआ"
+  },
+  "ऑर्डर देख सकता है": {
+    "en": "can see the order",
+    "hi": "ऑर्डर देख सकता है"
+  },
+  "ऑर्डर का स्टेटस बदल सकता है": {
+    "en": "Order status may change",
+    "hi": "ऑर्डर का स्टेटस बदल सकता है"
+  },
+  "प्रोडक्ट चालू/बंद कर सकता है": {
+    "en": "The product can turn on/off",
+    "hi": "प्रोडक्ट चालू/बंद कर सकता है"
+  },
+  "यूज़र लोड नहीं हो सके: {0}": {
+    "en": "Could not load user: {0}",
+    "hi": "यूज़र लोड नहीं हो सके: {0}"
+  },
+  "यूज़र लोड नहीं हो सके:": {
+    "en": "Could not load user:",
+    "hi": "यूज़र लोड नहीं हो सके:"
+  },
+  "{0} को {1} एक्सेस मिल गया।": {
+    "en": "{0} got access to {1}.",
+    "hi": "{0} को {1} एक्सेस मिल गया।"
+  },
+  "मंज़ूरी में त्रुटि: {0}": {
+    "en": "Approval error: {0}",
+    "hi": "मंज़ूरी में त्रुटि: {0}"
+  },
+  "मंज़ूरी में त्रुटि:": {
+    "en": "Error in approval:",
+    "hi": "मंज़ूरी में त्रुटि:"
+  },
+  "{0} का अनुरोध हटाएँ?": {
+    "en": "Delete request for {0}?",
+    "hi": "{0} का अनुरोध हटाएँ?"
+  },
+  "अनुरोध हटा दिया गया।": {
+    "en": "Request removed.",
+    "hi": "अनुरोध हटा दिया गया।"
+  },
+  "अनुरोध हटाने में त्रुटि: {0}": {
+    "en": "Error deleting request: {0}",
+    "hi": "अनुरोध हटाने में त्रुटि: {0}"
+  },
+  "अनुरोध हटाने में त्रुटि:": {
+    "en": "Error deleting request:",
+    "hi": "अनुरोध हटाने में त्रुटि:"
+  },
+  "कृपया यूजर यूआईडी (UID) दर्ज करें।": {
+    "en": "Please enter User UID.",
+    "hi": "कृपया यूजर यूआईडी (UID) दर्ज करें।"
+  },
+  "स्टाफ सदस्य": {
+    "en": "staff member",
+    "hi": "स्टाफ सदस्य"
+  },
+  "स्टाफ सदस्य सफलतापूर्वक सहेजा गया!": {
+    "en": "Staff member saved successfully!",
+    "hi": "स्टाफ सदस्य सफलतापूर्वक सहेजा गया!"
+  },
+  "यूज़र सहेजने में त्रुटि: {0}": {
+    "en": "Error saving user: {0}",
+    "hi": "यूज़र सहेजने में त्रुटि: {0}"
+  },
+  "यूज़र सहेजने में त्रुटि:": {
+    "en": "Error saving user:",
+    "hi": "यूज़र सहेजने में त्रुटि:"
+  },
+  "अनुमति बदलने में त्रुटि: {0}": {
+    "en": "Error changing permission: {0}",
+    "hi": "अनुमति बदलने में त्रुटि: {0}"
+  },
+  "अनुमति बदलने में त्रुटि:": {
+    "en": "Error changing permission:",
+    "hi": "अनुमति बदलने में त्रुटि:"
+  },
+  "रोल बदलने में त्रुटि: {0}": {
+    "en": "Error changing role: {0}",
+    "hi": "रोल बदलने में त्रुटि: {0}"
+  },
+  "रोल बदलने में त्रुटि:": {
+    "en": "Error changing role:",
+    "hi": "रोल बदलने में त्रुटि:"
+  },
+  "स्टेटस अपडेट करने में त्रुटि: {0}": {
+    "en": "Error updating status: {0}",
+    "hi": "स्टेटस अपडेट करने में त्रुटि: {0}"
+  },
+  "स्टेटस अपडेट करने में त्रुटि:": {
+    "en": "Error updating status:",
+    "hi": "स्टेटस अपडेट करने में त्रुटि:"
+  },
+  "{0} का एक्सेस हटाएँ? वह फिर सिर्फ़ ग्राहक की तरह ऐप इस्तेमाल कर पाएगा।": {
+    "en": "Remove access to {0}? He will then be able to use the app only as a customer.",
+    "hi": "{0} का एक्सेस हटाएँ? वह फिर सिर्फ़ ग्राहक की तरह ऐप इस्तेमाल कर पाएगा।"
+  },
+  "एक्सेस हटा दिया गया।": {
+    "en": "Access removed.",
+    "hi": "एक्सेस हटा दिया गया।"
+  },
+  "एक्सेस हटाने में त्रुटि: {0}": {
+    "en": "Error deleting access: {0}",
+    "hi": "एक्सेस हटाने में त्रुटि: {0}"
+  },
+  "एक्सेस हटाने में त्रुटि:": {
+    "en": "Error removing access:",
+    "hi": "एक्सेस हटाने में त्रुटि:"
+  },
+  "स्टाफ मंज़ूरी, रोल और अनुमतियाँ": {
+    "en": "Staff approvals, roles and permissions",
+    "hi": "स्टाफ मंज़ूरी, रोल और अनुमतियाँ"
+  },
+  "सिर्फ़ मालिक स्टाफ को मंज़ूर कर सकता है, रोल दे सकता है और अनुमतियाँ बदल सकता है। यह सर्वर के सिक्योरिटी रूल्स से भी लागू है।": {
+    "en": "Only the owner can approve staff, assign roles, and change permissions. This is also enforced by the security rules of the server.",
+    "hi": "सिर्फ़ मालिक स्टाफ को मंज़ूर कर सकता है, रोल दे सकता है और अनुमतियाँ बदल सकता है। यह सर्वर के सिक्योरिटी रूल्स से भी लागू है।"
+  },
+  "स्टाफ एक्सेस के अनुरोध (": {
+    "en": "Staff access requests (",
+    "hi": "स्टाफ एक्सेस के अनुरोध ("
+  },
+  "कोई नया अनुरोध नहीं। स्टाफ को अपने Google अकाउंट से ऐप में लॉगिन करके “स्टाफ एक्सेस माँगें” दबाना होगा।": {
+    "en": "No new requests. Staff must log in to the app with their Google Account and press “Request Staff Access.”",
+    "hi": "कोई नया अनुरोध नहीं। स्टाफ को अपने Google अकाउंट से ऐप में लॉगिन करके “स्टाफ एक्सेस माँगें” दबाना होगा।"
+  },
+  "नाम नहीं दिया": {
+    "en": "name not given",
+    "hi": "नाम नहीं दिया"
+  },
+  "रोल:": {
+    "en": "Roll:",
+    "hi": "रोल:"
+  },
+  "डिलीवरी बॉय": {
+    "en": "delivery boy",
+    "hi": "डिलीवरी बॉय"
+  },
+  "मंज़ूर करें": {
+    "en": "approve",
+    "hi": "मंज़ूर करें"
+  },
+  "अस्वीकार करें": {
+    "en": "turn down",
+    "hi": "अस्वीकार करें"
+  },
+  "मौजूदा टीम (": {
+    "en": "current team (",
+    "hi": "मौजूदा टीम ("
+  },
+  "अभी कोई स्टाफ या डिलीवरी सदस्य नहीं है।": {
+    "en": "There is no staff or delivery member right now.",
+    "hi": "अभी कोई स्टाफ या डिलीवरी सदस्य नहीं है।"
+  },
+  "रोल बदलें": {
+    "en": "change roll",
+    "hi": "रोल बदलें"
+  },
+  "WhatsApp सूचना": {
+    "en": "WhatsApp information",
+    "hi": "WhatsApp सूचना"
+  },
+  "बंद": {
+    "en": "off",
+    "hi": "बंद"
+  },
+  "चालू": {
+    "en": "on",
+    "hi": "चालू"
+  },
+  "एक्सेस हटाएँ": {
+    "en": "remove access",
+    "hi": "एक्सेस हटाएँ"
+  },
+  "पुराने “admin” रोल वाले अकाउंट": {
+    "en": "Accounts with old “admin” role",
+    "hi": "पुराने “admin” रोल वाले अकाउंट"
+  },
+  "इन दस्तावेज़ों में पुराना admin रोल लिखा है। नए सिक्योरिटी रूल्स में सिर्फ़ मालिक का verified Google अकाउंट ही ओनर है, इसलिए इनसे कोई विशेष अधिकार नहीं मिलता।": {
+    "en": "The old admin role is written in these documents. In the new security rules, only the verified Google account of the owner is the owner, hence it does not give any special rights.",
+    "hi": "इन दस्तावेज़ों में पुराना admin रोल लिखा है। नए सिक्योरिटी रूल्स में सिर्फ़ मालिक का verified Google अकाउंट ही ओनर है, इसलिए इनसे कोई विशेष अधिकार नहीं मिलता।"
+  },
+  "रोल हटाएँ": {
+    "en": "remove roll",
+    "hi": "रोल हटाएँ"
+  },
+  "UID से सीधे जोड़ें": {
+    "en": "Add directly from UID",
+    "hi": "UID से सीधे जोड़ें"
+  },
+  "यूज़र UID (Firebase Auth)": {
+    "en": "User UID (Firebase Auth)",
+    "hi": "यूज़र UID (Firebase Auth)"
+  },
+  "नाम": {
+    "en": "Name",
+    "hi": "नाम"
+  },
+  "फोन": {
+    "en": "Phone",
+    "hi": "फोन"
+  },
+  "WhatsApp सूचनाएँ चालू": {
+    "en": "WhatsApp notifications on",
+    "hi": "WhatsApp सूचनाएँ चालू"
+  },
+  "Main navigation": {
+    "en": "Main navigation",
+    "hi": "मुख्य नेविगेशन"
+  },
+  "सिर्फ़ वही प्रोडक्ट दिखते हैं जो अभी उपलब्ध हैं।": {
+    "en": "Only products that are currently available appear.",
+    "hi": "सिर्फ़ वही प्रोडक्ट दिखते हैं जो अभी उपलब्ध हैं।"
+  },
+  "कैटेगरी सूची": {
+    "en": "category list",
+    "hi": "कैटेगरी सूची"
+  },
+  "सभी": {
+    "en": "All",
+    "hi": "सभी"
+  },
+  "सभी प्रोडक्ट": {
+    "en": "all products",
+    "hi": "सभी प्रोडक्ट"
+  },
+  "इस कैटेगरी में अभी कुछ उपलब्ध नहीं है।": {
+    "en": "There is nothing currently available in this category.",
+    "hi": "इस कैटेगरी में अभी कुछ उपलब्ध नहीं है।"
+  },
+  "ड्राई आइस बुक करें": {
+    "en": "Book Dry Ice",
+    "hi": "ड्राई आइस बुक करें"
+  },
+  "Saved successfully.": {
+    "en": "Saved successfully.",
+    "hi": "सफलतापूर्वक बचाया।"
+  },
+  "Could not save. Check access, values and feature setup.": {
+    "en": "Could not save. Check access, values and feature setup.",
+    "hi": "सहेजा नहीं जा सका. पहुंच, मान और सुविधा सेटअप की जाँच करें।"
+  },
+  "Records are unavailable. Check feature setup and permissions.": {
+    "en": "Records are unavailable. Check feature setup and permissions.",
+    "hi": "अभिलेख अनुपलब्ध हैं. सुविधा सेटअप और अनुमतियाँ जाँचें।"
+  },
+  "Sign in from Profile to use your account features.": {
+    "en": "Sign in from Profile to use your account features.",
+    "hi": "अपनी खाता सुविधाओं का उपयोग करने के लिए प्रोफ़ाइल से साइन इन करें।"
+  },
+  "Loading…": {
+    "en": "Loading…",
+    "hi": "लोड हो रहा है..."
+  },
+  "Feature setup is pending. Existing booking and tracking remain available.": {
+    "en": "Feature setup is pending. Existing booking and tracking remain available.",
+    "hi": "सुविधा सेटअप लंबित है. मौजूदा बुकिंग और ट्रैकिंग उपलब्ध रहेगी।"
+  },
+  "Only your verified ledger is shown. No points or reward value is assumed.": {
+    "en": "Only your verified ledger is shown. No points or reward value is assumed.",
+    "hi": "केवल आपका सत्यापित खाता दिखाया गया है। कोई अंक या इनाम मूल्य नहीं माना जाता है।"
+  },
+  "Bulk requests need owner-approved partner access. Prices are quoted by the owner.": {
+    "en": "Bulk requests need owner-approved partner access. Prices are quoted by the owner.",
+    "hi": "थोक अनुरोधों के लिए स्वामी-अनुमोदित भागीदार पहुंच की आवश्यकता होती है। कीमतें मालिक द्वारा उद्धृत की जाती हैं।"
+  },
+  "Save partner approval": {
+    "en": "Save partner approval",
+    "hi": "भागीदार अनुमोदन सहेजें"
+  },
+  "Save owner quote": {
+    "en": "Save owner quote",
+    "hi": "स्वामी उद्धरण सहेजें"
+  },
+  "Regular supply needs owner approval. There is no automatic charge. Cadence: weekly or monthly.": {
+    "en": "Regular supply needs owner approval. There is no automatic charge. Cadence: weekly or monthly.",
+    "hi": "नियमित आपूर्ति के लिए मालिक की मंजूरी की आवश्यकता होती है। कोई स्वचालित शुल्क नहीं है. ताल: साप्ताहिक या मासिक."
+  },
+  "Approve manual execution": {
+    "en": "Approve manual execution",
+    "hi": "मैन्युअल निष्पादन को मंजूरी दें"
+  },
+  "Run approved due supply once": {
+    "en": "Run approved due supply once",
+    "hi": "स्वीकृत देय आपूर्ति एक बार चलायें"
+  },
+  "Save promotion configuration": {
+    "en": "Save promotion configuration",
+    "hi": "प्रमोशन कॉन्फ़िगरेशन सहेजें"
+  },
+  "Enter actual stock only. KG balances use grams; other units use counts. Configure and map every sellable SKU before enabling inventory mode. Dispatch then uses the stock ledger from both owner and staff order lists. Delivery requires a previous dispatch; corrections require an audited stock adjustment.": {
+    "en": "Enter actual stock only. KG balances use grams; other units use counts. Configure and map every sellable SKU before enabling inventory mode. Dispatch then uses the stock ledger from both owner and staff order lists. Delivery requires a previous dispatch; corrections require an audited stock adjustment.",
+    "hi": "केवल वास्तविक स्टॉक ही दर्ज करें। केजी संतुलन में ग्राम का उपयोग होता है; अन्य इकाइयाँ गिनती का उपयोग करती हैं। इन्वेंट्री मोड सक्षम करने से पहले प्रत्येक बिक्री योग्य SKU को कॉन्फ़िगर और मैप करें। इसके बाद डिस्पैच मालिक और कर्मचारी दोनों ऑर्डर सूचियों से स्टॉक लेज़र का उपयोग करता है। डिलीवरी के लिए पिछले प्रेषण की आवश्यकता होती है; सुधार के लिए ऑडिटेड स्टॉक समायोजन की आवश्यकता होती है।"
+  },
+  "Save optional inventory mode": {
+    "en": "Save optional inventory mode",
+    "hi": "वैकल्पिक इन्वेंट्री मोड सहेजें"
+  },
+  "Set verified opening stock": {
+    "en": "Set verified opening stock",
+    "hi": "सत्यापित आरंभिक स्टॉक सेट करें"
+  },
+  "Save SKU mapping": {
+    "en": "Save SKU mapping",
+    "hi": "SKU मैपिंग सहेजें"
+  },
+  "Apply audited adjustment": {
+    "en": "Apply audited adjustment",
+    "hi": "लेखापरीक्षित समायोजन लागू करें"
+  },
+  "Dispatch with stock ledger": {
+    "en": "Dispatch with stock ledger",
+    "hi": "स्टॉक लेजर के साथ प्रेषण"
+  },
+  "Rewards require owner review. No automatic credit is awarded.": {
+    "en": "Rewards require owner review. No automatic credit is awarded.",
+    "hi": "पुरस्कारों के लिए स्वामी की समीक्षा की आवश्यकता होती है। कोई स्वचालित क्रेडिट नहीं दिया जाता."
+  },
+  "Submit first-order attribution": {
+    "en": "Submit first-order attribution",
+    "hi": "प्रथम-क्रम एट्रिब्यूशन सबमिट करें"
+  },
+  "Record referral review (no credit)": {
+    "en": "Record referral review (no credit)",
+    "hi": "रेफ़रल समीक्षा रिकॉर्ड करें (कोई क्रेडिट नहीं)"
+  },
+  "Save preferences": {
+    "en": "Save preferences",
+    "hi": "प्राथमिकताएँ सहेजें"
+  },
+  "Commercial receipts are generated after delivery. No GST registration or tax is assumed. Order CSV and expense reports remain in Owner Dashboard → Insights.": {
+    "en": "Commercial receipts are generated after delivery. No GST registration or tax is assumed. Order CSV and expense reports remain in Owner Dashboard → Insights.",
+    "hi": "डिलीवरी के बाद वाणिज्यिक रसीदें उत्पन्न होती हैं। कोई जीएसटी पंजीकरण या कर नहीं माना जाता है। ऑर्डर सीएसवी और व्यय रिपोर्ट स्वामी डैशबोर्ड → अंतर्दृष्टि में रहती हैं।"
+  },
+  "Update delivery ETA": {
+    "en": "Update delivery ETA",
+    "hi": "डिलीवरी ईटीए अपडेट करें"
+  },
+  "No records configured.": {
+    "en": "No records configured.",
+    "hi": "कोई रिकॉर्ड कॉन्फ़िगर नहीं किया गया."
+  },
+  "Verified balance:": {
+    "en": "Verified balance:",
+    "hi": "सत्यापित शेष:"
+  },
+  "Pause supply": {
+    "en": "Pause supply",
+    "hi": "आपूर्ति रोकें"
+  },
+  "Request resume (new owner approval required)": {
+    "en": "Request resume (new owner approval required)",
+    "hi": "बायोडाटा का अनुरोध करें (नए मालिक की मंजूरी आवश्यक)"
+  },
+  "Download PDF receipt": {
+    "en": "Download PDF receipt",
+    "hi": "पीडीएफ रसीद डाउनलोड करें"
+  },
+  "Your referral link": {
+    "en": "Your referral link",
+    "hi": "आपका रेफरल लिंक"
+  },
+  "Link shared or copied.": {
+    "en": "Link shared or copied.",
+    "hi": "लिंक साझा किया गया या कॉपी किया गया."
+  },
+  "Sharing cancelled or unavailable. Copy the link above.": {
+    "en": "Sharing cancelled or unavailable. Copy the link above.",
+    "hi": "साझाकरण रद्द या अनुपलब्ध. ऊपर दिए गए लिंक को कॉपी करें."
+  },
+  "Share referral link": {
+    "en": "Share referral link",
+    "hi": "रेफ़रल लिंक साझा करें"
+  },
+  "Order received. Payment needs owner verification.": {
+    "en": "Order received. Payment needs owner verification.",
+    "hi": "आदेश प्राप्त हुआ. भुगतान के लिए स्वामी का सत्यापन आवश्यक है."
+  },
+  "Booking could not complete. Check availability, code limit and current rates. Retry keeps the same request key.": {
+    "en": "Booking could not complete. Check availability, code limit and current rates. Retry keeps the same request key.",
+    "hi": "बुकिंग पूरी नहीं हो सकी. उपलब्धता, कोड सीमा और वर्तमान दरें जांचें। पुनः प्रयास वही अनुरोध कुंजी रखता है।"
+  },
+  "Dry Ice booking ·": {
+    "en": "Dry Ice booking ·",
+    "hi": "सूखी बर्फ की बुकिंग ·"
+  },
+  "Base ₹": {
+    "en": "Base ₹",
+    "hi": "आधार ₹"
+  },
+  "− code discount ₹": {
+    "en": "− code discount ₹",
+    "hi": "− कोड छूट ₹"
+  },
+  ". The server confirms the amount.": {
+    "en": ". The server confirms the amount.",
+    "hi": ". सर्वर राशि की पुष्टि करता है."
+  },
+  "Order": {
+    "en": "Order",
+    "hi": "आदेश"
+  },
+  "Private tracking PIN:": {
+    "en": "Private tracking PIN:",
+    "hi": "गुप्त tracking PIN:"
+  },
+  "Total: ₹": {
+    "en": "Total: ₹",
+    "hi": "कुल: ₹"
+  },
+  "Track order": {
+    "en": "Track order",
+    "hi": "ऑर्डर ट्रैक करें"
+  },
+  "आइस कैलकुलेटर": {
+    "en": "ice calculator",
+    "hi": "आइस कैलकुलेटर"
+  },
+  "वीडियो आइडिया बिल्डर": {
+    "en": "video idea builder",
+    "hi": "वीडियो आइडिया बिल्डर"
+  },
+  "लॉयल्टी रिवार्ड": {
+    "en": "Loyalty Reward",
+    "hi": "लॉयल्टी रिवार्ड"
+  },
+  "एप्लिकेशन कैटलॉग": {
+    "en": "Application Catalog",
+    "hi": "एप्लिकेशन कैटलॉग"
+  },
+  "होलसेल पार्टनर": {
+    "en": "wholesale partner",
+    "hi": "होलसेल पार्टनर"
+  },
+  "नियमित सप्लाई": {
+    "en": "Regular supply",
+    "hi": "नियमित सप्लाई"
+  },
+  "प्रमोशन": {
+    "en": "promotion",
+    "hi": "प्रमोशन"
+  },
+  "इन्वेंटरी": {
+    "en": "inventory",
+    "hi": "इन्वेंटरी"
+  },
+  "रिपोर्ट हब": {
+    "en": "report hub",
+    "hi": "रिपोर्ट हब"
+  },
+  "सवाल और तरीका": {
+    "en": "question and method",
+    "hi": "सवाल और तरीका"
+  },
+  "रेट कार्ड": {
+    "en": "rate card",
+    "hi": "रेट कार्ड"
+  },
+  "सपोर्ट हब": {
+    "en": "support hub",
+    "hi": "सपोर्ट हब"
+  },
+  "सेवा क्षेत्र": {
+    "en": "service area",
+    "hi": "सेवा क्षेत्र"
+  },
+  "रेफरल शेयर": {
+    "en": "referral share",
+    "hi": "रेफरल शेयर"
+  },
+  "Estimate only: 3 minutes of fog per KG per machine, with transit allowance and 10% cushion. Actual performance varies.": {
+    "en": "Estimate only: 3 minutes of fog per KG per machine, with transit allowance and 10% cushion. Actual performance varies.",
+    "hi": "केवल अनुमान: प्रति मशीन प्रति किलोग्राम 3 मिनट कोहरा, पारगमन भत्ता और 10% कुशन के साथ। वास्तविक प्रदर्शन भिन्न होता है."
+  },
+  "Suggested booking:": {
+    "en": "Suggested booking:",
+    "hi": "सुझाई गई बुकिंग:"
+  },
+  "KG · Estimated ₹": {
+    "en": "KG · Estimated ₹",
+    "hi": "किलोग्राम · अनुमानित ₹"
+  },
+  "Use this quantity in booking": {
+    "en": "Use this quantity in booking",
+    "hi": "इस मात्रा का उपयोग बुकिंग में करें"
+  },
+  "This action fills KG only when you press the button.": {
+    "en": "This action fills KG only when you press the button.",
+    "hi": "यह क्रिया केजी तभी भरती है जब आप बटन दबाते हैं।"
+  },
+  "How should dry ice be handled?": {
+    "en": "How should dry ice be handled?",
+    "hi": "सूखी बर्फ को कैसे संभालना चाहिए?"
+  },
+  "Use insulated gloves, keep ventilation, and never seal it in an airtight container.": {
+    "en": "Use insulated gloves, keep ventilation, and never seal it in an airtight container.",
+    "hi": "इंसुलेटेड दस्ताने का उपयोग करें, वेंटिलेशन रखें और इसे कभी भी एयरटाइट कंटेनर में बंद न करें।"
+  },
+  "When is delivery confirmed?": {
+    "en": "When is delivery confirmed?",
+    "hi": "डिलीवरी की पुष्टि कब होती है?"
+  },
+  "Only after the order status and owner confirmation shown in the app.": {
+    "en": "Only after the order status and owner confirmation shown in the app.",
+    "hi": "ऐप में दिखाए गए ऑर्डर की स्थिति और मालिक की पुष्टि के बाद ही।"
+  },
+  "Sign in is required to use account actions.": {
+    "en": "Sign in is required to use account actions.",
+    "hi": "खाता क्रियाओं का उपयोग करने के लिए साइन इन करना आवश्यक है।"
+  },
+  "Close": {
+    "en": "Close",
+    "hi": "बंद करना"
+  },
+  "Wedding Entry / शादी की एंट्री": {
+    "en": "Wedding Entry",
+    "hi": "Wedding Entry / शादी की एंट्री"
+  },
+  "शादी एंट्री": {
+    "en": "wedding entry",
+    "hi": "शादी एंट्री"
+  },
+  "Stage Fog / स्टेज फॉग": {
+    "en": "Stage Fog",
+    "hi": "Stage Fog / स्टेज फॉग"
+  },
+  "स्टेज फॉग": {
+    "en": "stage fog",
+    "hi": "स्टेज फॉग"
+  },
+  "Engagement / सगाई": {
+    "en": "Engagement",
+    "hi": "Engagement / सगाई"
+  },
+  "सगाई": {
+    "en": "Engagement",
+    "hi": "सगाई"
+  },
+  "Birthday / जन्मदिन": {
+    "en": "Birthday",
+    "hi": "Birthday / जन्मदिन"
+  },
+  "जन्मदिन": {
+    "en": "birthday",
+    "hi": "जन्मदिन"
+  },
+  "Cocktail / बार फॉग": {
+    "en": "Cocktail / Bar Fog",
+    "hi": "Cocktail / बार फॉग"
+  },
+  "बार फॉग": {
+    "en": "bar fog",
+    "hi": "बार फॉग"
+  },
+  "Reception / रिसेप्शन": {
+    "en": "Reception",
+    "hi": "Reception / रिसेप्शन"
+  },
+  "रिसेप्शन": {
+    "en": "reception",
+    "hi": "रिसेप्शन"
+  },
+  "Haldi / हल्दी": {
+    "en": "Haldi",
+    "hi": "Haldi / हल्दी"
+  },
+  "हल्दी": {
+    "en": "Turmeric",
+    "hi": "हल्दी"
+  },
+  "Mehndi / मेहंदी": {
+    "en": "Mehndi",
+    "hi": "Mehndi / मेहंदी"
+  },
+  "मेहंदी": {
+    "en": "Mehndi",
+    "hi": "मेहंदी"
+  },
+  "Sangeet / संगीत": {
+    "en": "Sangeet / Music",
+    "hi": "Sangeet / संगीत"
+  },
+  "संगीत": {
+    "en": "music",
+    "hi": "संगीत"
+  },
+  "DJ Night / डीजे नाइट": {
+    "en": "DJ Night",
+    "hi": "DJ Night / डीजे नाइट"
+  },
+  "डीजे नाइट": {
+    "en": "dj night",
+    "hi": "डीजे नाइट"
+  },
+  "Corporate Event / कॉर्पोरेट इवेंट": {
+    "en": "Corporate Event",
+    "hi": "Corporate Event / कॉर्पोरेट इवेंट"
+  },
+  "कॉर्पोरेट": {
+    "en": "Corporate",
+    "hi": "कॉर्पोरेट"
+  },
+  "Anniversary / सालगिरह": {
+    "en": "Anniversary",
+    "hi": "Anniversary / सालगिरह"
+  },
+  "सालगिरह": {
+    "en": "Birthday",
+    "hi": "सालगिरह"
+  },
+  "Baby Shower / गोद भराई": {
+    "en": "Baby Shower",
+    "hi": "Baby Shower / गोद भराई"
+  },
+  "गोद भराई": {
+    "en": "baby shower",
+    "hi": "गोद भराई"
+  },
+  "Bridal Entry / दुल्हन एंट्री": {
+    "en": "Bridal Entry",
+    "hi": "Bridal Entry / दुल्हन एंट्री"
+  },
+  "दुल्हन एंट्री": {
+    "en": "bridal entry",
+    "hi": "दुल्हन एंट्री"
+  },
+  "Groom Entry / दूल्हा एंट्री": {
+    "en": "Groom Entry",
+    "hi": "Groom Entry / दूल्हा एंट्री"
+  },
+  "दूल्हा एंट्री": {
+    "en": "groom entry",
+    "hi": "दूल्हा एंट्री"
+  },
+  "Varmala / वरमाला": {
+    "en": "Varmala / Varmala",
+    "hi": "Varmala / वरमाला"
+  },
+  "वरमाला": {
+    "en": "Garland",
+    "hi": "वरमाला"
+  },
+  "First Dance / पहला डांस": {
+    "en": "First Dance",
+    "hi": "First Dance / पहला डांस"
+  },
+  "पहला डांस": {
+    "en": "first dance",
+    "hi": "पहला डांस"
+  },
+  "Ring Ceremony / रिंग सेरेमनी": {
+    "en": "Ring Ceremony",
+    "hi": "Ring Ceremony / रिंग सेरेमनी"
+  },
+  "रिंग सेरेमनी": {
+    "en": "ring ceremony",
+    "hi": "रिंग सेरेमनी"
+  },
+  "Grand Opening / भव्य उद्घाटन": {
+    "en": "Grand Opening",
+    "hi": "Grand Opening / भव्य उद्घाटन"
+  },
+  "उद्घाटन": {
+    "en": "opening",
+    "hi": "उद्घाटन"
+  },
+  "Award Ceremony / पुरस्कार समारोह": {
+    "en": "Award Ceremony",
+    "hi": "Award Ceremony / पुरस्कार समारोह"
+  },
+  "पुरस्कार": {
+    "en": "award",
+    "hi": "पुरस्कार"
+  },
+  "Fashion Show / फैशन शो": {
+    "en": "Fashion Show",
+    "hi": "Fashion Show / फैशन शो"
+  },
+  "फैशन शो": {
+    "en": "fashion show",
+    "hi": "फैशन शो"
+  },
+  "College Fest / कॉलेज फेस्ट": {
+    "en": "College Fest",
+    "hi": "College Fest / कॉलेज फेस्ट"
+  },
+  "कॉलेज फेस्ट": {
+    "en": "college fest",
+    "hi": "कॉलेज फेस्ट"
+  },
+  "Product Launch / प्रोडक्ट लॉन्च": {
+    "en": "Product Launch",
+    "hi": "Product Launch / प्रोडक्ट लॉन्च"
+  },
+  "प्रोडक्ट लॉन्च": {
+    "en": "product launch",
+    "hi": "प्रोडक्ट लॉन्च"
+  },
+  "Baraat Entry / बारात एंट्री": {
+    "en": "Baraat Entry / Baraat Entry",
+    "hi": "Baraat Entry / बारात एंट्री"
+  },
+  "बारात": {
+    "en": "procession",
+    "hi": "बारात"
+  },
+  "Pool Party / पूल पार्टी": {
+    "en": "Pool Party",
+    "hi": "Pool Party / पूल पार्टी"
+  },
+  "पूल पार्टी": {
+    "en": "pool party",
+    "hi": "पूल पार्टी"
+  },
+  "Diwali Party / दिवाली पार्टी": {
+    "en": "Diwali Party",
+    "hi": "Diwali Party / दिवाली पार्टी"
+  },
+  "दिवाली": {
+    "en": "Diwali",
+    "hi": "दिवाली"
+  },
+  "New Year Party / नया साल": {
+    "en": "New Year Party",
+    "hi": "New Year Party / नया साल"
+  },
+  "नया साल": {
+    "en": "New Year",
+    "hi": "नया साल"
+  },
+  "Live Concert / लाइव कॉन्सर्ट": {
+    "en": "Live Concert",
+    "hi": "Live Concert / लाइव कॉन्सर्ट"
+  },
+  "कॉन्सर्ट": {
+    "en": "concert",
+    "hi": "कॉन्सर्ट"
+  },
+  "Other Event / अन्य कार्यक्रम": {
+    "en": "Other Event",
+    "hi": "Other Event / अन्य कार्यक्रम"
+  },
+  "अन्य कार्यक्रम": {
+    "en": "other programs",
+    "hi": "अन्य कार्यक्रम"
+  },
+  "Details are available for this session but could not be saved on this device.": {
+    "en": "Details are available for this session but could not be saved on this device.",
+    "hi": "इस सत्र के लिए विवरण उपलब्ध हैं लेकिन इस डिवाइस पर सहेजा नहीं जा सका।"
+  },
+  "Prompt copied. Paste it into Gemini.": {
+    "en": "Prompt copied. Paste it into Gemini.",
+    "hi": "शीघ्र प्रतिलिपि बनाई गई. इसे मिथुन राशि में चिपकाएँ."
+  },
+  "Copy unavailable. Select and copy the prompt above.": {
+    "en": "Copy unavailable. Select and copy the prompt above.",
+    "hi": "प्रतिलिपि अनुपलब्ध है. ऊपर दिए गए प्रॉम्प्ट को चुनें और कॉपी करें।"
+  },
+  "Occasion / Function": {
+    "en": "Occasion / Function",
+    "hi": "अवसर/कार्यक्रम"
+  },
+  "Choose occasion": {
+    "en": "Choose occasion",
+    "hi": "अवसर चुनें"
+  },
+  "Function name": {
+    "en": "Function name",
+    "hi": "फ़ंक्शन का नाम"
+  },
+  "Length in seconds": {
+    "en": "Length in seconds",
+    "hi": "लंबाई सेकंड में"
+  },
+  "Prompt": {
+    "en": "Prompt",
+    "hi": "तत्पर"
+  },
+  "Generated prompt": {
+    "en": "Generated prompt",
+    "hi": "उत्पन्न संकेत"
+  },
+  "Copy Prompt": {
+    "en": "Copy Prompt",
+    "hi": "प्रॉम्प्ट कॉपी करें"
+  },
+  "Open Gemini": {
+    "en": "Open Gemini",
+    "hi": "मिथुन राशि खोलें"
+  },
+  "Saved video contact details": {
+    "en": "Saved video contact details",
+    "hi": "सहेजे गए वीडियो संपर्क विवरण"
+  },
+  "Your details (saved on this device)": {
+    "en": "Your details (saved on this device)",
+    "hi": "आपका विवरण (इस डिवाइस पर सहेजा गया)"
+  },
+  "Fill once. These details stay on this phone for this account until app data is cleared. They are included only when you copy the prompt.": {
+    "en": "Fill once. These details stay on this phone for this account until app data is cleared. They are included only when you copy the prompt.",
+    "hi": "एक बार भरें. ऐप डेटा साफ़ होने तक ये विवरण इस खाते के लिए इस फ़ोन पर रहते हैं। वे तभी शामिल होते हैं जब आप प्रॉम्प्ट की प्रतिलिपि बनाते हैं।"
+  },
+  "Name / Brand": {
+    "en": "Name / Brand",
+    "hi": "नाम/ब्रांड"
+  },
+  "City / Place": {
+    "en": "City / Place",
+    "hi": "शहर/स्थान"
+  },
+  "Mobile Number": {
+    "en": "Mobile Number",
+    "hi": "मोबाइल नंबर"
+  },
+  "Delivery availability and timing are confirmed for each order.": {
+    "en": "Delivery availability and timing are confirmed for each order.",
+    "hi": "प्रत्येक ऑर्डर के लिए डिलीवरी की उपलब्धता और समय की पुष्टि की जाती है।"
+  },
+  "Search district": {
+    "en": "Search district",
+    "hi": "जिला खोजें"
+  },
+  "Search Uttar Pradesh district": {
+    "en": "Search Uttar Pradesh district",
+    "hi": "उत्तर प्रदेश जिला खोजें"
+  },
+  "Dry ice: ₹": {
+    "en": "Dry ice: ₹",
+    "hi": "सूखी बर्फ: ₹"
+  },
+  "Thermocol: ₹": {
+    "en": "Thermocol: ₹",
+    "hi": "थर्मोकोल: ₹"
+  },
+  "Transport: ₹": {
+    "en": "Transport: ₹",
+    "hi": "परिवहन: ₹"
+  },
+  "/KG under the current booking formula": {
+    "en": "/KG under the current booking formula",
+    "hi": "मौजूदा बुकिंग फॉर्मूले के तहत /KG"
+  },
+  "Selected products may have their own unit and packing charges. Review the final booking bill.": {
+    "en": "Selected products may have their own unit and packing charges. Review the final booking bill.",
+    "hi": "चयनित उत्पादों की अपनी इकाई और पैकिंग शुल्क हो सकते हैं। अंतिम बुकिंग बिल की समीक्षा करें."
+  },
+  "Application / category": {
+    "en": "Application / category",
+    "hi": "आवेदन/श्रेणी"
+  },
+  "Book this product": {
+    "en": "Book this product",
+    "hi": "इस उत्पाद को बुक करें"
+  },
+  "{0} का लकी विनर": {
+    "en": "Lucky winner of {0}",
+    "hi": "{0} का लकी विनर"
+  },
+  "इनाम": {
+    "en": "reward",
+    "hi": "इनाम"
+  },
+  "खास गिफ्ट": {
+    "en": "special gift",
+    "hi": "खास गिफ्ट"
+  },
+  "अभी कोई अपडेट नहीं है। ऐप खुला रहने पर ऑर्डर की स्थिति बदलते ही यहाँ दिखेगी। फोन पर Push Notifications के लिए अनुमति और सर्वर का सक्रिय होना जरूरी है।": {
+    "en": "There is no update yet. When the app is open, the status of the order will be visible here as it changes. Push Notifications on the phone require permission and server activation.",
+    "hi": "अभी कोई अपडेट नहीं है। ऐप खुला रहने पर ऑर्डर की स्थिति बदलते ही यहाँ दिखेगी। फोन पर Push Notifications के लिए अनुमति और सर्वर का सक्रिय होना जरूरी है।"
+  },
+  "TEST संदेश देखें": {
+    "en": "View TEST message",
+    "hi": "TEST संदेश देखें"
+  },
+  "खोलें": {
+    "en": "open",
+    "hi": "खोलें"
+  },
+  "TEST संदेश · वास्तविक order नहीं": {
+    "en": "TEST message · Not actual order",
+    "hi": "TEST संदेश · वास्तविक order नहीं"
+  },
+  "ऑर्डर खोलें →": {
+    "en": "Open Order →",
+    "hi": "ऑर्डर खोलें →"
+  },
+  "अपडेट खोलें": {
+    "en": "Open update",
+    "hi": "अपडेट खोलें"
+  },
+  "Saved on this device and your account.": {
+    "en": "Saved on this device and your account.",
+    "hi": "इस डिवाइस और आपके खाते पर सहेजा गया।"
+  },
+  "Saved on this device. Account-wide sync requires the approved backend.": {
+    "en": "Saved on this device. Account-wide sync requires the approved backend.",
+    "hi": "इस डिवाइस पर सहेजा गया. खाता-व्यापी सिंक के लिए अनुमोदित बैकएंड की आवश्यकता होती है।"
+  },
+  "Saved on this device; account sync failed. Try again when connected.": {
+    "en": "Saved on this device; account sync failed. Try again when connected.",
+    "hi": "इस डिवाइस पर सहेजा गया; खाता समन्वयन विफल. कनेक्ट होने पर पुनः प्रयास करें."
+  },
+  "Order updates on this device": {
+    "en": "Order updates on this device",
+    "hi": "इस डिवाइस पर अपडेट ऑर्डर करें"
+  },
+  "Marketing opt-in": {
+    "en": "Marketing opt-in",
+    "hi": "मार्केटिंग ऑप्ट-इन"
+  },
+  "Order updates start on; marketing starts off. Turning order updates off stops new customer alerts and unregisters this device from native push. Existing order history stays available.": {
+    "en": "Order updates start on; marketing starts off. Turning order updates off stops new customer alerts and unregisters this device from native push. Existing order history stays available.",
+    "hi": "ऑर्डर अपडेट शुरू होते हैं; मार्केटिंग शुरू हो जाती है. ऑर्डर अपडेट बंद करने से नए ग्राहक अलर्ट बंद हो जाते हैं और यह डिवाइस नेटिव पुश से अपंजीकृत हो जाता है। मौजूदा ऑर्डर इतिहास उपलब्ध रहता है।"
+  },
+  "Owner and authorized staff operational alerts remain on.": {
+    "en": "Owner and authorized staff operational alerts remain on.",
+    "hi": "मालिक और अधिकृत कर्मचारी परिचालन अलर्ट जारी रहते हैं।"
+  },
+  "{0} बुक करें": {
+    "en": "Book {0}",
+    "hi": "{0} बुक करें"
+  },
+  "बुक करें": {
+    "en": "book it",
+    "hi": "बुक करें"
+  },
+  "Packing charge नहीं": {
+    "en": "No packing charge",
+    "hi": "Packing charge नहीं"
+  },
+  "एक बार": {
+    "en": "once",
+    "hi": "एक बार"
+  },
+  "प्रति": {
+    "en": "per",
+    "hi": "प्रति"
+  },
+  "थर्मोकोल पैकिंग सहित": {
+    "en": "including thermocol packing",
+    "hi": "थर्मोकोल पैकिंग सहित"
+  },
+  "अनुरोध मालिक को भेज दिया गया। मंज़ूरी मिलते ही स्टाफ पैनल खुल जाएगा।": {
+    "en": "Request sent to owner. The staff panel will open once approved.",
+    "hi": "अनुरोध मालिक को भेज दिया गया। मंज़ूरी मिलते ही स्टाफ पैनल खुल जाएगा।"
+  },
+  "अनुरोध नहीं भेजा जा सका: {0}": {
+    "en": "Request could not be sent: {0}",
+    "hi": "अनुरोध नहीं भेजा जा सका: {0}"
+  },
+  "अनुरोध नहीं भेजा जा सका:": {
+    "en": "Request could not be sent:",
+    "hi": "अनुरोध नहीं भेजा जा सका:"
+  },
+  "क्या आप स्टाफ या डिलीवरी टीम में हैं?": {
+    "en": "Are you on staff or on the delivery team?",
+    "hi": "क्या आप स्टाफ या डिलीवरी टीम में हैं?"
+  },
+  "अपने इसी Google अकाउंट से एक्सेस माँगें। मालिक मंज़ूरी देंगे और बताएँगे कि आप क्या-क्या कर सकते हैं।": {
+    "en": "Request access from your Google Account. The owner will approve and tell you what you can do.",
+    "hi": "अपने इसी Google अकाउंट से एक्सेस माँगें। मालिक मंज़ूरी देंगे और बताएँगे कि आप क्या-क्या कर सकते हैं।"
+  },
+  "आपका अनुरोध मालिक की मंज़ूरी के इंतज़ार में है।": {
+    "en": "Your request is awaiting owner approval.",
+    "hi": "आपका अनुरोध मालिक की मंज़ूरी के इंतज़ार में है।"
+  },
+  "स्टाफ एक्सेस माँगें": {
+    "en": "Ask for staff access",
+    "hi": "स्टाफ एक्सेस माँगें"
+  },
+  "Notification preferences": {
+    "en": "Notification preferences",
+    "hi": "अधिसूचना प्राथमिकताएँ"
+  },
+  "Ankur Dry Ice and Events, Lucknow · Call: 95808 82066 · WhatsApp: 88963 32066": {
+    "en": "Ankur Dry Ice and Events, Lucknow · Call: 95808 82066 · WhatsApp: 88963 32066",
+    "hi": "अंकुर ड्राई आइस एंड इवेंट्स, लखनऊ · कॉल करें: 95808 82066 · व्हाट्सएप: 88963 32066"
+  },
+  "ऑफ़र और जानकारी": {
+    "en": "Offers and information",
+    "hi": "ऑफ़र और जानकारी"
+  },
+  "हिंदी (Hindi)": {
+    "en": "Hindi",
+    "hi": "हिंदी (Hindi)"
+  },
+  "सेटिंग्स": {
+    "en": "settings",
+    "hi": "सेटिंग्स"
+  },
+  "भाषा": {
+    "en": "Language",
+    "hi": "भाषा"
+  },
+  "प्रोफ़ाइल": {
+    "en": "profile",
+    "hi": "प्रोफ़ाइल"
+  },
+  "मालिक": {
+    "en": "Owner",
+    "hi": "मालिक"
+  },
+  "ओनर डैशबोर्ड खोलें": {
+    "en": "Open Owner Dashboard",
+    "hi": "ओनर डैशबोर्ड खोलें"
+  },
+  "संपर्क करें": {
+    "en": "contact us",
+    "hi": "संपर्क करें"
+  },
+  "कॉल": {
+    "en": "Call",
+    "hi": "कॉल"
+  },
+  "सहायता": {
+    "en": "Help",
+    "hi": "सहायता"
+  },
+  "रिवार्ड और ऑफ़र": {
+    "en": "Rewards and Offers",
+    "hi": "रिवार्ड और ऑफ़र"
+  },
+  "सेवाएँ और टूल": {
+    "en": "Services and Tools",
+    "hi": "सेवाएँ और टूल"
+  },
+  "सेटअप बाकी है": {
+    "en": "setup pending",
+    "hi": "सेटअप बाकी है"
+  },
+  "{0} KG": {
+    "en": "{0} KG",
+    "hi": "{0} किग्रा"
+  },
+  "Paid": {
+    "en": "Paid",
+    "hi": "चुकाया गया"
+  },
+  "All Time": {
+    "en": "All Time",
+    "hi": "पूरे समय"
+  },
+  "Product-wise bill": {
+    "en": "Product-wise bill",
+    "hi": "उत्पाद-वार बिल"
+  },
+  "₹{0}/kg": {
+    "en": "₹{0}/kg",
+    "hi": "₹{0}/किलो"
+  },
+  "Delivery Partner": {
+    "en": "Delivery Partner",
+    "hi": "डिलिवरी पार्टनर"
+  },
+  "Staff Member": {
+    "en": "Staff Member",
+    "hi": "स्टाफ के सदस्य"
+  },
+  "Pickup pending • customer handover not confirmed": {
+    "en": "Pickup pending • customer handover not confirmed",
+    "hi": "पिकअप लंबित है • ग्राहक हैंडओवर की पुष्टि नहीं हुई है"
+  },
+  "प्रोडक्ट का बिल": {
+    "en": "Product bill",
+    "hi": "प्रोडक्ट का बिल"
+  },
+  "पैकिंग": {
+    "en": "Packing",
+    "hi": "पैकिंग"
+  },
+  "डिलीवरी (एक बार)": {
+    "en": "Delivery (once)",
+    "hi": "डिलीवरी (एक बार)"
+  },
+  "मात्रा जाँचें।": {
+    "en": "Check the quantity.",
+    "hi": "मात्रा जाँचें।"
+  },
+  "नई product booking अभी उपलब्ध नहीं है।": {
+    "en": "Product booking is not available yet.",
+    "hi": "नई product booking अभी उपलब्ध नहीं है।"
+  },
+  "नाम, 10 अंकों का मोबाइल और शहर/पता सही भरें।": {
+    "en": "Enter a valid name, 10-digit mobile number and city/address.",
+    "hi": "नाम, 10 अंकों का मोबाइल और शहर/पता सही भरें।"
+  },
+  "उपलब्ध dispatch समय चुनें।": {
+    "en": "Choose an available dispatch time.",
+    "hi": "उपलब्ध dispatch समय चुनें।"
+  },
+  "इस booking की स्थिति पहले जाँचें।": {
+    "en": "Please check this booking status before retrying.",
+    "hi": "इस booking की स्थिति पहले जाँचें।"
+  },
+  "नई booking अभी बंद है।": {
+    "en": "New bookings are currently disabled.",
+    "hi": "नई booking अभी बंद है।"
+  },
+  "प्रोडक्ट अब उपलब्ध नहीं है।": {
+    "en": "This product is no longer available.",
+    "hi": "प्रोडक्ट अब उपलब्ध नहीं है।"
+  },
+  "कीमत या packing बदल गई है। नया bill देखकर फिर booking दबाएँ।": {
+    "en": "Price or packing changed. Review the updated bill before booking again.",
+    "hi": "कीमत या packing बदल गई है। नया bill देखकर फिर booking दबाएँ।"
+  },
+  "खाता बदल गया है। कृपया दोबारा booking करें।": {
+    "en": "Account changed. Please restart your booking.",
+    "hi": "खाता बदल गया है। कृपया दोबारा booking करें।"
+  },
+  "ऑर्डर प्राप्त हुआ।": {
+    "en": "Order received.",
+    "hi": "ऑर्डर प्राप्त हुआ।"
+  },
+  "Booking पूरी नहीं हुई। कृपया फिर प्रयास करें।": {
+    "en": "Booking failed. Please try again.",
+    "hi": "Booking पूरी नहीं हुई। कृपया फिर प्रयास करें।"
+  },
+  "ऑर्डर मिल गया": {
+    "en": "Order received",
+    "hi": "ऑर्डर मिल गया"
+  },
+  "गुप्त tracking PIN:": {
+    "en": "Private tracking PIN:",
+    "hi": "गुप्त tracking PIN:"
+  },
+  "ऑर्डर ट्रैक करें": {
+    "en": "Track order",
+    "hi": "ऑर्डर ट्रैक करें"
+  },
+  "भुगतान मालिक की पुष्टि के बाद verified होगा।": {
+    "en": "Payment is verified only after owner confirmation.",
+    "hi": "भुगतान मालिक की पुष्टि के बाद verified होगा।"
+  },
+  "प्रोडक्ट की booking": {
+    "en": "Product booking",
+    "hi": "प्रोडक्ट की booking"
+  },
+  "मोबाइल": {
+    "en": "Mobile number",
+    "hi": "मोबाइल"
+  },
+  "शहर / पता": {
+    "en": "City / address",
+    "hi": "शहर / पता"
+  },
+  "unit": {
+    "en": "unit",
+    "hi": "इकाई"
+  },
+  "डिस्पैच समय": {
+    "en": "Dispatch time",
+    "hi": "डिस्पैच समय"
+  },
+  "नई product booking अभी चालू नहीं है।": {
+    "en": "Product booking is not enabled yet.",
+    "hi": "नई product booking अभी चालू नहीं है।"
+  },
+  "बुकिंग हो रही है…": {
+    "en": "Booking…",
+    "hi": "बुकिंग हो रही है…"
+  },
+  "ऑर्डर बुक करें": {
+    "en": "Book order",
+    "hi": "ऑर्डर बुक करें"
+  },
+  "Home": {
+    "en": "Home",
+    "hi": "घर"
+  },
+  "My Orders": {
+    "en": "My Orders",
+    "hi": "मेरे आदेश"
+  },
+  "AI Features": {
+    "en": "AI Features",
+    "hi": "एआई विशेषताएं"
+  },
+  "AI Video": {
+    "en": "AI Video",
+    "hi": "एआई वीडियो"
+  },
+  "Profile": {
+    "en": "Profile",
+    "hi": "प्रोफ़ाइल"
+  },
+  "Choose": {
+    "en": "Choose",
+    "hi": "चुनना"
+  },
+  "Saving…": {
+    "en": "Saving…",
+    "hi": "सहेज रहे हैं…"
+  },
+  "Customer name": {
+    "en": "Customer name",
+    "hi": "ग्राहक का नाम"
+  },
+  "Delivery address": {
+    "en": "Delivery address",
+    "hi": "डिलिवरी का पता"
+  },
+  "Requirements": {
+    "en": "Requirements",
+    "hi": "आवश्यकताएं"
+  },
+  "Applicant user ID": {
+    "en": "Applicant user ID",
+    "hi": "आवेदक उपयोगकर्ता आईडी"
+  },
+  "Approved (off revokes access)": {
+    "en": "Approved (off revokes access)",
+    "hi": "स्वीकृत (बंद पहुंच रद्द करता है)"
+  },
+  "Bulk request ID": {
+    "en": "Bulk request ID",
+    "hi": "थोक अनुरोध आईडी"
+  },
+  "Owner-approved quote (₹)": {
+    "en": "Owner-approved quote (₹)",
+    "hi": "मालिक-अनुमोदित कोटेशन (₹)"
+  },
+  "Repeat": {
+    "en": "Repeat",
+    "hi": "दोहराना"
+  },
+  "Weekly": {
+    "en": "Weekly",
+    "hi": "साप्ताहिक"
+  },
+  "Monthly": {
+    "en": "Monthly",
+    "hi": "महीने के"
+  },
+  "Subscription ID": {
+    "en": "Subscription ID",
+    "hi": "सदस्यता आईडी"
+  },
+  "Next due date and time": {
+    "en": "Next due date and time",
+    "hi": "अगली नियत तारीख और समय"
+  },
+  "Approved dispatch slot": {
+    "en": "Approved dispatch slot",
+    "hi": "स्वीकृत प्रेषण स्लॉट"
+  },
+  "Due subscription ID": {
+    "en": "Due subscription ID",
+    "hi": "देय सदस्यता आईडी"
+  },
+  "Code": {
+    "en": "Code",
+    "hi": "कोड"
+  },
+  "Discount (₹)": {
+    "en": "Discount (₹)",
+    "hi": "छूट (₹)"
+  },
+  "Minimum order (₹)": {
+    "en": "Minimum order (₹)",
+    "hi": "न्यूनतम ऑर्डर (₹)"
+  },
+  "Usage limit": {
+    "en": "Usage limit",
+    "hi": "उपयोग सीमा"
+  },
+  "Starts at": {
+    "en": "Starts at",
+    "hi": "से शुरू होता है"
+  },
+  "Expires at": {
+    "en": "Expires at",
+    "hi": "पर समाप्त होता है"
+  },
+  "Activate public code": {
+    "en": "Activate public code",
+    "hi": "सार्वजनिक कोड सक्रिय करें"
+  },
+  "Require stock ledger for every dispatch (configure all SKUs first)": {
+    "en": "Require stock ledger for every dispatch (configure all SKUs first)",
+    "hi": "प्रत्येक प्रेषण के लिए स्टॉक लेज़र की आवश्यकता है (पहले सभी SKU कॉन्फ़िगर करें)"
+  },
+  "SKU": {
+    "en": "SKU",
+    "hi": "एसकेयू"
+  },
+  "Unit: kg / piece / box / package": {
+    "en": "Unit: kg / piece / box / package",
+    "hi": "इकाई: किग्रा/टुकड़ा/बॉक्स/पैकेज"
+  },
+  "Opening quantity (grams or count)": {
+    "en": "Opening quantity (grams or count)",
+    "hi": "प्रारंभिक मात्रा (ग्राम या गिनती)"
+  },
+  "Catalog product ID (or fill legacy name)": {
+    "en": "Catalog product ID (or fill legacy name)",
+    "hi": "कैटलॉग उत्पाद आईडी (या विरासत नाम भरें)"
+  },
+  "Exact legacy product name (if no product ID)": {
+    "en": "Exact legacy product name (if no product ID)",
+    "hi": "सटीक विरासत उत्पाद का नाम (यदि कोई उत्पाद आईडी नहीं है)"
+  },
+  "Stock SKU": {
+    "en": "Stock SKU",
+    "hi": "स्टॉक SKU"
+  },
+  "Unique adjustment ID": {
+    "en": "Unique adjustment ID",
+    "hi": "अद्वितीय समायोजन आईडी"
+  },
+  "Adjustment (grams/count)": {
+    "en": "Adjustment (grams/count)",
+    "hi": "समायोजन (ग्राम/गिनती)"
+  },
+  "Reason": {
+    "en": "Reason",
+    "hi": "कारण"
+  },
+  "Order ID": {
+    "en": "Order ID",
+    "hi": "ऑर्डर ID"
+  },
+  "Referrer ID": {
+    "en": "Referrer ID",
+    "hi": "रेफरर आईडी"
+  },
+  "New customer user ID": {
+    "en": "New customer user ID",
+    "hi": "नई ग्राहक उपयोगकर्ता आईडी"
+  },
+  "Decision": {
+    "en": "Decision",
+    "hi": "फैसला"
+  },
+  "Verified": {
+    "en": "Verified",
+    "hi": "सत्यापित"
+  },
+  "Declined": {
+    "en": "Declined",
+    "hi": "मना किया"
+  },
+  "Order updates": {
+    "en": "Order updates",
+    "hi": "ऑर्डर अपडेट"
+  },
+  "Estimated arrival date and time": {
+    "en": "Estimated arrival date and time",
+    "hi": "अनुमानित आगमन तिथि और समय"
+  },
+  "Policy pending": {
+    "en": "Policy pending",
+    "hi": "नीति लंबित है"
+  },
+  "Ankur Dryice": {
+    "en": "Ankur Dryice",
+    "hi": "Ankur Dryice"
+  },
+  "Dispatch time requested": {
+    "en": "Dispatch time requested",
+    "hi": "प्रेषण समय का अनुरोध किया गया"
+  },
+  "Booking…": {
+    "en": "Booking…",
+    "hi": "बुकिंग हो रही है…"
+  },
+  "Book with this code": {
+    "en": "Book with this code",
+    "hi": "इस कोड से बुक करें"
+  },
+  "This feature uses verified account and order data.": {
+    "en": "This feature uses verified account and order data.",
+    "hi": "यह सुविधा सत्यापित खाता और ऑर्डर डेटा का उपयोग करती है।"
+  },
+  "kg": {
+    "en": "kg",
+    "hi": "किग्रा"
+  },
+  "रिपोर्ट डाउनलोड नहीं हुई: {0}": {
+    "en": "Report not downloaded: {0}",
+    "hi": "रिपोर्ट डाउनलोड नहीं हुई: {0}"
+  },
+  "{0}🌟 भव्य लो-फॉग एंट्री, जयमाला क्लाउड डांस और कोल्ड पायरो स्पेशल इफेक्ट्स!": {
+    "en": "{0}🌟 Gorgeous low-fog entry, Jaymala cloud dance and cold pyro special effects!",
+    "hi": "{0}🌟 भव्य लो-फॉग एंट्री, जयमाला क्लाउड डांस और कोल्ड पायरो स्पेशल इफेक्ट्स!"
+  },
+  "कैटलॉग सेव नहीं हो सका: {0}": {
+    "en": "Could not save catalog: {0}",
+    "hi": "कैटलॉग सेव नहीं हो सका: {0}"
+  },
+  "स्टेटस बदलने में त्रुटि: {0}": {
+    "en": "Error changing status: {0}",
+    "hi": "स्टेटस बदलने में त्रुटि: {0}"
+  },
+  "हटाने में त्रुटि: {0}": {
+    "en": "Error deleting: {0}",
+    "hi": "हटाने में त्रुटि: {0}"
+  },
+  "{0} — जाँचें कि Firebase Storage चालू है और storage.rules लगे हैं। चाहें तो नीचे https:// इमेज लिंक चिपका दें।": {
+    "en": "{0} — Verify that Firebase Storage is enabled and storage.rules is in place. If you want, paste the https:// image link below.",
+    "hi": "{0} — जाँचें कि Firebase Storage चालू है और storage.rules लगे हैं। चाहें तो नीचे https:// इमेज लिंक चिपका दें।"
+  },
+  "इमेज अपलोड नहीं हो सकी: {0}": {
+    "en": "Image could not be uploaded: {0}",
+    "hi": "इमेज अपलोड नहीं हो सकी: {0}"
+  },
+  "नया प्रोडक्ट जुड़ गया{0}": {
+    "en": "New product added{0}",
+    "hi": "नया प्रोडक्ट जुड़ गया{0}"
+  },
+  "सहेजने में त्रुटि: {0}": {
+    "en": "Error saving: {0}",
+    "hi": "सहेजने में त्रुटि: {0}"
+  },
+  "थीम सेव नहीं हो सकी: {0}": {
+    "en": "Could not save theme: {0}",
+    "hi": "थीम सेव नहीं हो सकी: {0}"
+  },
+  "सेटिंग्स लोड नहीं हुईं: {0}": {
+    "en": "Settings not loaded: {0}",
+    "hi": "सेटिंग्स लोड नहीं हुईं: {0}"
+  },
+  "लकी विनर सेव नहीं हुआ: {0}": {
+    "en": "Lucky winner not saved: {0}",
+    "hi": "लकी विनर सेव नहीं हुआ: {0}"
+  },
+  "बैनर सेव नहीं हुए: {0}": {
+    "en": "Banners not saved: {0}",
+    "hi": "बैनर सेव नहीं हुए: {0}"
+  },
+  "रीसेट नहीं हुआ: {0}": {
+    "en": "Not reset: {0}",
+    "hi": "रीसेट नहीं हुआ: {0}"
+  },
+  "Product bill": {
+    "en": "Product bill",
+    "hi": "प्रोडक्ट का बिल"
+  },
+  "once": {
+    "en": "once",
+    "hi": "एक बार"
+  },
+  "per": {
+    "en": "per",
+    "hi": "प्रति"
+  },
+  "Delivery (once)": {
+    "en": "Delivery (once)",
+    "hi": "डिलीवरी (एक बार)"
+  },
+  "Total amount": {
+    "en": "Total amount",
+    "hi": "कुल राशि"
+  },
+  "Check the quantity.": {
+    "en": "Check the quantity.",
+    "hi": "मात्रा जाँचें।"
+  },
+  "Product booking is not available yet.": {
+    "en": "Product booking is not available yet.",
+    "hi": "नई product booking अभी उपलब्ध नहीं है।"
+  },
+  "Enter a valid name, 10-digit mobile number and city/address.": {
+    "en": "Enter a valid name, 10-digit mobile number and city/address.",
+    "hi": "नाम, 10 अंकों का मोबाइल और शहर/पता सही भरें।"
+  },
+  "Choose an available dispatch time.": {
+    "en": "Choose an available dispatch time.",
+    "hi": "उपलब्ध dispatch समय चुनें।"
+  },
+  "Please check this booking status before retrying.": {
+    "en": "Please check this booking status before retrying.",
+    "hi": "इस booking की स्थिति पहले जाँचें।"
+  },
+  "New bookings are currently disabled.": {
+    "en": "New bookings are currently disabled.",
+    "hi": "नई booking अभी बंद है।"
+  },
+  "This product is no longer available.": {
+    "en": "This product is no longer available.",
+    "hi": "प्रोडक्ट अब उपलब्ध नहीं है।"
+  },
+  "Price or packing changed. Review the updated bill before booking again.": {
+    "en": "Price or packing changed. Review the updated bill before booking again.",
+    "hi": "कीमत या packing बदल गई है। नया bill देखकर फिर booking दबाएँ।"
+  },
+  "Account changed. Please restart your booking.": {
+    "en": "Account changed. Please restart your booking.",
+    "hi": "खाता बदल गया है। कृपया दोबारा booking करें।"
+  },
+  "Booking failed. Please try again.": {
+    "en": "Booking failed. Please try again.",
+    "hi": "Booking पूरी नहीं हुई। कृपया फिर प्रयास करें।"
+  },
+  "Order received": {
+    "en": "Order received",
+    "hi": "ऑर्डर मिल गया"
+  },
+  "Payment is verified only after owner confirmation.": {
+    "en": "Payment is verified only after owner confirmation.",
+    "hi": "भुगतान मालिक की पुष्टि के बाद verified होगा।"
+  },
+  "Product booking": {
+    "en": "Product booking",
+    "hi": "प्रोडक्ट की booking"
+  },
+  "Name": {
+    "en": "Name",
+    "hi": "नाम"
+  },
+  "Mobile number": {
+    "en": "Mobile number",
+    "hi": "मोबाइल"
+  },
+  "City / address": {
+    "en": "City / address",
+    "hi": "शहर / पता"
+  },
+  "Quantity": {
+    "en": "Quantity",
+    "hi": "मात्रा"
+  },
+  "Dispatch time": {
+    "en": "Dispatch time",
+    "hi": "डिस्पैच समय"
+  },
+  "Product booking is not enabled yet.": {
+    "en": "Product booking is not enabled yet.",
+    "hi": "नई product booking अभी चालू नहीं है।"
+  },
+  "Book order": {
+    "en": "Book order",
+    "hi": "ऑर्डर बुक करें"
+  },
+  "Product billing is not enabled. This is still a draft.": {
+    "en": "Product billing is not enabled. This is still a draft.",
+    "hi": "नई product billing अभी चालू नहीं हुई है। यह जानकारी अभी मसौदा है।"
+  },
+  "नई product billing अभी चालू नहीं हुई है। यह जानकारी अभी मसौदा है।": {
+    "en": "Product billing is not enabled. This is still a draft.",
+    "hi": "नई product billing अभी चालू नहीं हुई है। यह जानकारी अभी मसौदा है।"
+  },
+  "Enter both English and Hindi product names.": {
+    "en": "Enter both English and Hindi product names.",
+    "hi": "प्रोडक्ट के दोनों नाम भरें।"
+  },
+  "प्रोडक्ट के दोनों नाम भरें।": {
+    "en": "Enter both English and Hindi product names.",
+    "hi": "प्रोडक्ट के दोनों नाम भरें।"
+  },
+  "Select a unit first.": {
+    "en": "Select a unit first.",
+    "hi": "पहले unit चुनें।"
+  },
+  "पहले unit चुनें।": {
+    "en": "Select a unit first.",
+    "hi": "पहले unit चुनें।"
+  },
+  "Product saved.": {
+    "en": "Product saved.",
+    "hi": "प्रोडक्ट सहेजा गया।"
+  },
+  "प्रोडक्ट सहेजा गया।": {
+    "en": "Product saved.",
+    "hi": "प्रोडक्ट सहेजा गया।"
+  },
+  "Draft saved; hidden from customers.": {
+    "en": "Draft saved; hidden from customers.",
+    "hi": "मसौदा सहेजा गया; ग्राहकों से छिपा है।"
+  },
+  "मसौदा सहेजा गया; ग्राहकों से छिपा है।": {
+    "en": "Draft saved; hidden from customers.",
+    "hi": "मसौदा सहेजा गया; ग्राहकों से छिपा है।"
+  },
+  "Could not save the product.": {
+    "en": "Could not save the product.",
+    "hi": "प्रोडक्ट सहेजा नहीं जा सका।"
+  },
+  "प्रोडक्ट सहेजा नहीं जा सका।": {
+    "en": "Could not save the product.",
+    "hi": "प्रोडक्ट सहेजा नहीं जा सका।"
+  },
+  "Products with separate billing units": {
+    "en": "Products with separate billing units",
+    "hi": "अलग unit वाले प्रोडक्ट"
+  },
+  "अलग unit वाले प्रोडक्ट": {
+    "en": "Products with separate billing units",
+    "hi": "अलग unit वाले प्रोडक्ट"
+  },
+  "Piece, Box, Package and KG products": {
+    "en": "Piece, Box, Package and KG products",
+    "hi": "पीस, बॉक्स, पैकेज और KG प्रोडक्ट"
+  },
+  "पीस, बॉक्स, पैकेज और KG प्रोडक्ट": {
+    "en": "Piece, Box, Package and KG products",
+    "hi": "पीस, बॉक्स, पैकेज और KG प्रोडक्ट"
+  },
+  "Each product has its own price. Packing follows the selected charge mode. Drafts are hidden from customers.": {
+    "en": "Each product has its own price. Packing follows the selected charge mode. Drafts are hidden from customers.",
+    "hi": "हर प्रोडक्ट की अपनी कीमत है। पैकिंग केवल चुने हुए तरीके से लगेगी। मसौदे ग्राहकों को नहीं दिखते।"
+  },
+  "हर प्रोडक्ट की अपनी कीमत है। पैकिंग केवल चुने हुए तरीके से लगेगी। मसौदे ग्राहकों को नहीं दिखते।": {
+    "en": "Each product has its own price. Packing follows the selected charge mode. Drafts are hidden from customers.",
+    "hi": "हर प्रोडक्ट की अपनी कीमत है। पैकिंग केवल चुने हुए तरीके से लगेगी। मसौदे ग्राहकों को नहीं दिखते।"
+  },
+  "Unit billing is not available yet. You can review drafts; the live catalog will not change.": {
+    "en": "Unit billing is not available yet. You can review drafts; the live catalog will not change.",
+    "hi": "नई बिलिंग अभी उपलब्ध नहीं है। नाम और कीमत का मसौदा देख सकते हैं; लाइव कैटलॉग नहीं बदलेगा।"
+  },
+  "नई बिलिंग अभी उपलब्ध नहीं है। नाम और कीमत का मसौदा देख सकते हैं; लाइव कैटलॉग नहीं बदलेगा।": {
+    "en": "Unit billing is not available yet. You can review drafts; the live catalog will not change.",
+    "hi": "नई बिलिंग अभी उपलब्ध नहीं है। नाम और कीमत का मसौदा देख सकते हैं; लाइव कैटलॉग नहीं बदलेगा।"
+  },
+  "Catalog preparation is available, but new product booking is disabled.": {
+    "en": "Catalog preparation is available, but new product booking is disabled.",
+    "hi": "कैटलॉग तैयार कर सकते हैं। नए प्रोडक्ट की बुकिंग अभी बंद है।"
+  },
+  "कैटलॉग तैयार कर सकते हैं। नए प्रोडक्ट की बुकिंग अभी बंद है।": {
+    "en": "Catalog preparation is available, but new product booking is disabled.",
+    "hi": "कैटलॉग तैयार कर सकते हैं। नए प्रोडक्ट की बुकिंग अभी बंद है।"
+  },
+  "Requested product drafts": {
+    "en": "Requested product drafts",
+    "hi": "बताए गए प्रोडक्ट के मसौदे"
+  },
+  "बताए गए प्रोडक्ट के मसौदे": {
+    "en": "Requested product drafts",
+    "hi": "बताए गए प्रोडक्ट के मसौदे"
+  },
+  "Draft · set price and unit": {
+    "en": "Draft · set price and unit",
+    "hi": "मसौदा · कीमत और यूनिट तय करें"
+  },
+  "मसौदा · कीमत और यूनिट तय करें": {
+    "en": "Draft · set price and unit",
+    "hi": "मसौदा · कीमत और यूनिट तय करें"
+  },
+  "अंग्रेज़ी नाम": {
+    "en": "English name",
+    "hi": "अंग्रेज़ी नाम"
+  },
+  "Hindi name": {
+    "en": "Hindi name",
+    "hi": "हिंदी नाम"
+  },
+  "हिंदी नाम": {
+    "en": "Hindi name",
+    "hi": "हिंदी नाम"
+  },
+  "Section": {
+    "en": "Section",
+    "hi": "अनुभाग"
+  },
+  "Pyro": {
+    "en": "Pyro",
+    "hi": "पायरो"
+  },
+  "पायरो": {
+    "en": "Pyro",
+    "hi": "पायरो"
+  },
+  "Event Effects": {
+    "en": "Event Effects",
+    "hi": "घटना प्रभाव"
+  },
+  "Accessories": {
+    "en": "Accessories",
+    "hi": "सामान"
+  },
+  "Packages": {
+    "en": "Packages",
+    "hi": "संकुल"
+  },
+  "KG Products": {
+    "en": "KG Products",
+    "hi": "केजी उत्पाद"
+  },
+  "Unit": {
+    "en": "Unit",
+    "hi": "इकाई"
+  },
+  "Select a unit": {
+    "en": "Select a unit",
+    "hi": "इकाई तय करें"
+  },
+  "इकाई तय करें": {
+    "en": "Select a unit",
+    "hi": "इकाई तय करें"
+  },
+  "Price per unit": {
+    "en": "Price per unit",
+    "hi": "प्रति यूनिट कीमत"
+  },
+  "प्रति यूनिट कीमत": {
+    "en": "Price per unit",
+    "hi": "प्रति यूनिट कीमत"
+  },
+  "Enter price": {
+    "en": "Enter price",
+    "hi": "कीमत भरें"
+  },
+  "कीमत भरें": {
+    "en": "Enter price",
+    "hi": "कीमत भरें"
+  },
+  "Minimum quantity": {
+    "en": "Minimum quantity",
+    "hi": "न्यूनतम मात्रा"
+  },
+  "न्यूनतम मात्रा": {
+    "en": "Minimum quantity",
+    "hi": "न्यूनतम मात्रा"
+  },
+  "Enter quantity": {
+    "en": "Enter quantity",
+    "hi": "मात्रा भरें"
+  },
+  "मात्रा भरें": {
+    "en": "Enter quantity",
+    "hi": "मात्रा भरें"
+  },
+  "Packing charge": {
+    "en": "Packing charge",
+    "hi": "पैकिंग शुल्क"
+  },
+  "पैकिंग शुल्क": {
+    "en": "Packing charge",
+    "hi": "पैकिंग शुल्क"
+  },
+  "No packing charge": {
+    "en": "No packing charge",
+    "hi": "पैकिंग शुल्क नहीं"
+  },
+  "पैकिंग शुल्क नहीं": {
+    "en": "No packing charge",
+    "hi": "पैकिंग शुल्क नहीं"
+  },
+  "Per unit": {
+    "en": "Per unit",
+    "hi": "प्रति यूनिट"
+  },
+  "प्रति यूनिट": {
+    "en": "Per unit",
+    "hi": "प्रति यूनिट"
+  },
+  "Once per order": {
+    "en": "Once per order",
+    "hi": "पूरे ऑर्डर पर एक बार"
+  },
+  "पूरे ऑर्डर पर एक बार": {
+    "en": "Once per order",
+    "hi": "पूरे ऑर्डर पर एक बार"
+  },
+  "Packing price": {
+    "en": "Packing price",
+    "hi": "पैकिंग की कीमत"
+  },
+  "पैकिंग की कीमत": {
+    "en": "Packing price",
+    "hi": "पैकिंग की कीमत"
+  },
+  "Delivery charge ₹ (once per order)": {
+    "en": "Delivery charge ₹ (once per order)",
+    "hi": "डिलीवरी शुल्क ₹ (पूरे ऑर्डर पर एक बार)"
+  },
+  "डिलीवरी शुल्क ₹ (पूरे ऑर्डर पर एक बार)": {
+    "en": "Delivery charge ₹ (once per order)",
+    "hi": "डिलीवरी शुल्क ₹ (पूरे ऑर्डर पर एक बार)"
+  },
+  "0 if not applicable": {
+    "en": "0 if not applicable",
+    "hi": "लागू न हो तो 0"
+  },
+  "लागू न हो तो 0": {
+    "en": "0 if not applicable",
+    "hi": "लागू न हो तो 0"
+  },
+  "Available to customers (only with complete name, unit and price)": {
+    "en": "Available to customers (only with complete name, unit and price)",
+    "hi": "ग्राहकों को उपलब्ध करें (नाम, यूनिट और कीमत पूरी होने पर)"
+  },
+  "ग्राहकों को उपलब्ध करें (नाम, यूनिट और कीमत पूरी होने पर)": {
+    "en": "Available to customers (only with complete name, unit and price)",
+    "hi": "ग्राहकों को उपलब्ध करें (नाम, यूनिट और कीमत पूरी होने पर)"
+  },
+  "सहेज रहे हैं…": {
+    "en": "Saving…",
+    "hi": "सहेज रहे हैं…"
+  },
+  "Save": {
+    "en": "Save",
+    "hi": "सहेजें"
+  },
+  "New / clear": {
+    "en": "New / clear",
+    "hi": "नया / साफ करें"
+  },
+  "नया / साफ करें": {
+    "en": "New / clear",
+    "hi": "नया / साफ करें"
+  },
+  "Unit/price pending": {
+    "en": "Unit/price pending",
+    "hi": "यूनिट/कीमत बाकी"
+  },
+  "यूनिट/कीमत बाकी": {
+    "en": "Unit/price pending",
+    "hi": "यूनिट/कीमत बाकी"
+  },
+  "Available": {
+    "en": "Available",
+    "hi": "उपलब्ध"
+  },
+  "उपलब्ध": {
+    "en": "Available",
+    "hi": "उपलब्ध"
+  },
+  "Draft": {
+    "en": "Draft",
+    "hi": "मसौदा"
+  },
+  "मसौदा": {
+    "en": "Draft",
+    "hi": "मसौदा"
+  },
+  "Rewards could not load. Check feature setup.": {
+    "en": "Rewards could not load. Check feature setup.",
+    "hi": "रिवार्ड लोड नहीं हुए। सुविधा का सेटअप जाँचें।"
+  },
+  "रिवार्ड लोड नहीं हुए। सुविधा का सेटअप जाँचें।": {
+    "en": "Rewards could not load. Check feature setup.",
+    "hi": "रिवार्ड लोड नहीं हुए। सुविधा का सेटअप जाँचें।"
+  },
+  "Sign in from Profile to view your verified rewards.": {
+    "en": "Sign in from Profile to view your verified rewards.",
+    "hi": "सत्यापित रिवार्ड देखने के लिए प्रोफ़ाइल से लॉगिन करें।"
+  },
+  "सत्यापित रिवार्ड देखने के लिए प्रोफ़ाइल से लॉगिन करें।": {
+    "en": "Sign in from Profile to view your verified rewards.",
+    "hi": "सत्यापित रिवार्ड देखने के लिए प्रोफ़ाइल से लॉगिन करें।"
+  },
+  "Points are awarded once after delivery and payment verification under an owner-configured policy. No points, gifts or cash value are assumed.": {
+    "en": "Points are awarded once after delivery and payment verification under an owner-configured policy. No points, gifts or cash value are assumed.",
+    "hi": "मालिक की नीति के अनुसार डिलीवरी और भुगतान सत्यापन के बाद एक बार अंक मिलते हैं। कोई अंक, उपहार या नकद मूल्य अपने-आप नहीं माना जाता।"
+  },
+  "मालिक की नीति के अनुसार डिलीवरी और भुगतान सत्यापन के बाद एक बार अंक मिलते हैं। कोई अंक, उपहार या नकद मूल्य अपने-आप नहीं माना जाता।": {
+    "en": "Points are awarded once after delivery and payment verification under an owner-configured policy. No points, gifts or cash value are assumed.",
+    "hi": "मालिक की नीति के अनुसार डिलीवरी और भुगतान सत्यापन के बाद एक बार अंक मिलते हैं। कोई अंक, उपहार या नकद मूल्य अपने-आप नहीं माना जाता।"
+  },
+  "Reward policy is active.": {
+    "en": "Reward policy is active.",
+    "hi": "रिवार्ड नीति सक्रिय है।"
+  },
+  "रिवार्ड नीति सक्रिय है।": {
+    "en": "Reward policy is active.",
+    "hi": "रिवार्ड नीति सक्रिय है।"
+  },
+  "Reward policy is not configured or is paused.": {
+    "en": "Reward policy is not configured or is paused.",
+    "hi": "रिवार्ड नीति सेट नहीं है या रुकी हुई है।"
+  },
+  "रिवार्ड नीति सेट नहीं है या रुकी हुई है।": {
+    "en": "Reward policy is not configured or is paused.",
+    "hi": "रिवार्ड नीति सेट नहीं है या रुकी हुई है।"
+  },
+  "Not configured": {
+    "en": "Not configured",
+    "hi": "सेट नहीं"
+  },
+  "सेट नहीं": {
+    "en": "Not configured",
+    "hi": "सेट नहीं"
+  },
+  "Reserved": {
+    "en": "Reserved",
+    "hi": "आरक्षित"
+  },
+  "आरक्षित": {
+    "en": "Reserved",
+    "hi": "आरक्षित"
+  },
+  "Redeemed": {
+    "en": "Redeemed",
+    "hi": "उपयोग हुए"
+  },
+  "उपयोग हुए": {
+    "en": "Redeemed",
+    "hi": "उपयोग हुए"
+  },
+  "Request reserved for owner review. No cash or order discount has been applied.": {
+    "en": "Request reserved for owner review. No cash or order discount has been applied.",
+    "hi": "अनुरोध मालिक की समीक्षा के लिए आरक्षित है। कोई नकद या ऑर्डर छूट नहीं लगाई गई है।"
+  },
+  "अनुरोध मालिक की समीक्षा के लिए आरक्षित है। कोई नकद या ऑर्डर छूट नहीं लगाई गई है।": {
+    "en": "Request reserved for owner review. No cash or order discount has been applied.",
+    "hi": "अनुरोध मालिक की समीक्षा के लिए आरक्षित है। कोई नकद या ऑर्डर छूट नहीं लगाई गई है।"
+  },
+  "Could not submit. Check your verified balance and policy minimum. Retry uses the same request key.": {
+    "en": "Could not submit. Check your verified balance and policy minimum. Retry uses the same request key.",
+    "hi": "अनुरोध नहीं भेजा जा सका। सत्यापित अंक और नीति की न्यूनतम सीमा जाँचें। दोबारा प्रयास उसी अनुरोध कुंजी से होगा।"
+  },
+  "अनुरोध नहीं भेजा जा सका। सत्यापित अंक और नीति की न्यूनतम सीमा जाँचें। दोबारा प्रयास उसी अनुरोध कुंजी से होगा।": {
+    "en": "Could not submit. Check your verified balance and policy minimum. Retry uses the same request key.",
+    "hi": "अनुरोध नहीं भेजा जा सका। सत्यापित अंक और नीति की न्यूनतम सीमा जाँचें। दोबारा प्रयास उसी अनुरोध कुंजी से होगा।"
+  },
+  "Points requested": {
+    "en": "Points requested",
+    "hi": "चाहिए अंक"
+  },
+  "चाहिए अंक": {
+    "en": "Points requested",
+    "hi": "चाहिए अंक"
+  },
+  "Requested benefit / reason (owner confirms availability)": {
+    "en": "Requested benefit / reason (owner confirms availability)",
+    "hi": "चाहिए लाभ / कारण (मालिक उपलब्धता बताएँगे)"
+  },
+  "चाहिए लाभ / कारण (मालिक उपलब्धता बताएँगे)": {
+    "en": "Requested benefit / reason (owner confirms availability)",
+    "hi": "चाहिए लाभ / कारण (मालिक उपलब्धता बताएँगे)"
+  },
+  "Request owner review": {
+    "en": "Request owner review",
+    "hi": "मालिक से समीक्षा माँगें"
+  },
+  "मालिक से समीक्षा माँगें": {
+    "en": "Request owner review",
+    "hi": "मालिक से समीक्षा माँगें"
+  },
+  "Save reward policy": {
+    "en": "Save reward policy",
+    "hi": "रिवार्ड नीति सहेजें"
+  },
+  "रिवार्ड नीति सहेजें": {
+    "en": "Save reward policy",
+    "hi": "रिवार्ड नीति सहेजें"
+  },
+  "Enable after entering your real policy": {
+    "en": "Enable after entering your real policy",
+    "hi": "अपनी वास्तविक नीति भरकर सक्रिय करें"
+  },
+  "अपनी वास्तविक नीति भरकर सक्रिय करें": {
+    "en": "Enable after entering your real policy",
+    "hi": "अपनी वास्तविक नीति भरकर सक्रिय करें"
+  },
+  "Points per delivered and verified order": {
+    "en": "Points per delivered and verified order",
+    "hi": "डिलीवर और सत्यापित ऑर्डर पर अंक"
+  },
+  "डिलीवर और सत्यापित ऑर्डर पर अंक": {
+    "en": "Points per delivered and verified order",
+    "hi": "डिलीवर और सत्यापित ऑर्डर पर अंक"
+  },
+  "Minimum qualifying order (₹)": {
+    "en": "Minimum qualifying order (₹)",
+    "hi": "न्यूनतम मान्य ऑर्डर (₹)"
+  },
+  "न्यूनतम मान्य ऑर्डर (₹)": {
+    "en": "Minimum qualifying order (₹)",
+    "hi": "न्यूनतम मान्य ऑर्डर (₹)"
+  },
+  "Minimum points per request": {
+    "en": "Minimum points per request",
+    "hi": "अनुरोध के न्यूनतम अंक"
+  },
+  "अनुरोध के न्यूनतम अंक": {
+    "en": "Minimum points per request",
+    "hi": "अनुरोध के न्यूनतम अंक"
+  },
+  "Check one eligible historic order": {
+    "en": "Check one eligible historic order",
+    "hi": "एक योग्य पुराना ऑर्डर जाँचें"
+  },
+  "एक योग्य पुराना ऑर्डर जाँचें": {
+    "en": "Check one eligible historic order",
+    "hi": "एक योग्य पुराना ऑर्डर जाँचें"
+  },
+  "ऑर्डर ID": {
+    "en": "Order ID",
+    "hi": "ऑर्डर ID"
+  },
+  "Redemption requests": {
+    "en": "Redemption requests",
+    "hi": "रिवार्ड उपयोग के अनुरोध"
+  },
+  "रिवार्ड उपयोग के अनुरोध": {
+    "en": "Redemption requests",
+    "hi": "रिवार्ड उपयोग के अनुरोध"
+  },
+  "No requests yet.": {
+    "en": "No requests yet.",
+    "hi": "अभी कोई अनुरोध नहीं।"
+  },
+  "अभी कोई अनुरोध नहीं।": {
+    "en": "No requests yet.",
+    "hi": "अभी कोई अनुरोध नहीं।"
+  },
+  "फैसला": {
+    "en": "Decision",
+    "hi": "फैसला"
+  },
+  "Fulfilled": {
+    "en": "Fulfilled",
+    "hi": "लाभ दे दिया"
+  },
+  "लाभ दे दिया": {
+    "en": "Fulfilled",
+    "hi": "लाभ दे दिया"
+  },
+  "मना किया": {
+    "en": "Declined",
+    "hi": "मना किया"
+  },
+  "Actual fulfilment or rejection note": {
+    "en": "Actual fulfilment or rejection note",
+    "hi": "वास्तविक लाभ देने या मना करने का नोट"
+  },
+  "वास्तविक लाभ देने या मना करने का नोट": {
+    "en": "Actual fulfilment or rejection note",
+    "hi": "वास्तविक लाभ देने या मना करने का नोट"
+  },
+  "Record owner decision": {
+    "en": "Record owner decision",
+    "hi": "मालिक का फैसला दर्ज करें"
+  },
+  "मालिक का फैसला दर्ज करें": {
+    "en": "Record owner decision",
+    "hi": "मालिक का फैसला दर्ज करें"
+  },
+  "{0} खोलें": {
+    "en": "open {0}",
+    "hi": "{0} खोलें"
+  },
+  "ऑर्डर {0}": {
+    "en": "order {0}",
+    "hi": "ऑर्डर {0}"
+  },
+  "प्रति {0}": {
+    "en": "to {0}",
+    "hi": "प्रति {0}"
+  },
+  "UPI भुगतान QR — 8896332066@paytm; भुगतान से पहले नाम जांचें": {
+    "en": "UPI payment QR — 8896332066@paytm; check the recipient before paying",
+    "hi": "UPI भुगतान QR — 8896332066@paytm; भुगतान से पहले नाम जांचें"
+  },
+  "pending_owner_review": {
+    "en": "Pending owner review",
+    "hi": "मालिक की समीक्षा बाकी"
+  },
+  "fulfilled": {
+    "en": "Fulfilled",
+    "hi": "लाभ दे दिया"
+  },
+  "rejected": {
+    "en": "Declined",
+    "hi": "मना किया"
+  },
+  "pending": {
+    "en": "Pending",
+    "hi": "प्रतीक्षित"
+  },
+  "confirmed": {
+    "en": "Confirmed",
+    "hi": "कन्फर्म"
+  },
+  "in_packing": {
+    "en": "In Packing",
+    "hi": "पैकिंग में"
+  },
+  "dispatched": {
+    "en": "Dispatched",
+    "hi": "रवाना"
+  },
+  "delivered": {
+    "en": "Delivered",
+    "hi": "डिलीवर"
+  },
+  "cancelled": {
+    "en": "Cancelled",
+    "hi": "रद्द"
+  },
+  "pending_verification": {
+    "en": "Awaiting verification",
+    "hi": "सत्यापन बाकी"
+  },
+  "payment_verified": {
+    "en": "Payment verified",
+    "hi": "भुगतान सत्यापित"
+  },
+  "cash_on_delivery": {
+    "en": "Cash on delivery",
+    "hi": "डिलीवरी पर भुगतान"
+  },
+  "approved": {
+    "en": "Approved",
+    "hi": "स्वीकृत"
+  },
+  "quoted": {
+    "en": "Owner quote ready",
+    "hi": "मालिक का कोट तैयार"
+  },
+  "verified": {
+    "en": "Verified",
+    "hi": "सत्यापित"
+  },
+  "कानपुर नगर (Kanpur Nagar)": {
+    "en": "Kanpur Nagar",
+    "hi": "कानपुर नगर"
+  },
+  "लखनऊ (Lucknow)": {
+    "en": "Lucknow",
+    "hi": "लखनऊ"
+  },
+  "उन्नाव (Unnao)": {
+    "en": "Unnao",
+    "hi": "उन्नाव"
+  },
+  "कानपुर देहात (Kanpur Dehat)": {
+    "en": "Kanpur Dehat",
+    "hi": "कानपुर देहात"
+  },
+  "प्रयागराज (Prayagraj)": {
+    "en": "Prayagraj",
+    "hi": "प्रयागराज"
+  },
+  "वाराणसी (Varanasi)": {
+    "en": "Varanasi",
+    "hi": "वाराणसी"
+  },
+  "आगरा (Agra)": {
+    "en": "Agra",
+    "hi": "आगरा"
+  },
+  "अलीगढ़ (Aligarh)": {
+    "en": "Aligarh",
+    "hi": "अलीगढ़"
+  },
+  "अयोध्या (Ayodhya)": {
+    "en": "Ayodhya",
+    "hi": "अयोध्या"
+  },
+  "आजमगढ़ (Azamgarh)": {
+    "en": "Azamgarh",
+    "hi": "आजमगढ़"
+  },
+  "इटावा (Etawah)": {
+    "en": "Etawah",
+    "hi": "इटावा"
+  },
+  "गोरखपुर (Gorakhpur)": {
+    "en": "Gorakhpur",
+    "hi": "गोरखपुर"
+  },
+  "गाजियाबाद (Ghaziabad)": {
+    "en": "Ghaziabad",
+    "hi": "गाजियाबाद"
+  },
+  "गौतम बुद्ध नगर / नोएडा (Noida)": {
+    "en": "Noida",
+    "hi": "गौतम बुद्ध नगर / नोएडा"
+  },
+  "झांसी (Jhansi)": {
+    "en": "Jhansi",
+    "hi": "झांसी"
+  },
+  "फतेहपुर (Fatehpur)": {
+    "en": "Fatehpur",
+    "hi": "फतेहपुर"
+  },
+  "फिरोजाबाद (Firozabad)": {
+    "en": "Firozabad",
+    "hi": "फिरोजाबाद"
+  },
+  "बरेली (Bareilly)": {
+    "en": "Bareilly",
+    "hi": "बरेली"
+  },
+  "बस्ती (Basti)": {
+    "en": "Basti",
+    "hi": "बस्ती"
+  },
+  "मथुरा (Mathura)": {
+    "en": "Mathura",
+    "hi": "मथुरा"
+  },
+  "मेरठ (Meerut)": {
+    "en": "Meerut",
+    "hi": "मेरठ"
+  },
+  "मुरादाबाद (Moradabad)": {
+    "en": "Moradabad",
+    "hi": "मुरादाबाद"
+  },
+  "सहारनपुर (Saharanpur)": {
+    "en": "Saharanpur",
+    "hi": "सहारनपुर"
+  },
+  "सीतापुर (Sitapur)": {
+    "en": "Sitapur",
+    "hi": "सीतापुर"
+  },
+  "हरदोई (Hardoi)": {
+    "en": "Hardoi",
+    "hi": "हरदोई"
+  },
+  "अमेठी (Amethi)": {
+    "en": "Amethi",
+    "hi": "अमेठी"
+  },
+  "अम्बेडकर नगर (Ambedkar Nagar)": {
+    "en": "Ambedkar Nagar",
+    "hi": "अम्बेडकर नगर"
+  },
+  "औरैया (Auraiya)": {
+    "en": "Auraiya",
+    "hi": "औरैया"
+  },
+  "कन्नौज (Kannauj)": {
+    "en": "Kannauj",
+    "hi": "कन्नौज"
+  },
+  "कासगंज (Kasganj)": {
+    "en": "Kasganj",
+    "hi": "कासगंज"
+  },
+  "कुशीनगर (Kushinagar)": {
+    "en": "Kushinagar",
+    "hi": "कुशीनगर"
+  },
+  "कौशाम्बी (Kaushambi)": {
+    "en": "Kaushambi",
+    "hi": "कौशाम्बी"
+  },
+  "गाजीपुर (Ghazipur)": {
+    "en": "Ghazipur",
+    "hi": "गाजीपुर"
+  },
+  "गोंडा (Gonda)": {
+    "en": "Gonda",
+    "hi": "गोंडा"
+  },
+  "चंदौली (Chandauli)": {
+    "en": "Chandauli",
+    "hi": "चंदौली"
+  },
+  "चित्रकूट (Chitrakoot)": {
+    "en": "Chitrakoot",
+    "hi": "चित्रकूट"
+  },
+  "जालौन (Jalaun)": {
+    "en": "Jalaun",
+    "hi": "जालौन"
+  },
+  "जौनपुर (Jaunpur)": {
+    "en": "Jaunpur",
+    "hi": "जौनपुर"
+  },
+  "देवरिया (Deoria)": {
+    "en": "Deoria",
+    "hi": "देवरिया"
+  },
+  "पीलीभीत (Pilibhit)": {
+    "en": "Pilibhit",
+    "hi": "पीलीभीत"
+  },
+  "प्रतापगढ़ (Pratapgarh)": {
+    "en": "Pratapgarh",
+    "hi": "प्रतापगढ़"
+  },
+  "बलिया (Ballia)": {
+    "en": "Ballia",
+    "hi": "बलिया"
+  },
+  "बलरामपुर (Balrampur)": {
+    "en": "Balrampur",
+    "hi": "बलरामपुर"
+  },
+  "बहराइच (Bahraich)": {
+    "en": "Bahraich",
+    "hi": "बहराइच"
+  },
+  "बांदा (Banda)": {
+    "en": "Banda",
+    "hi": "बांदा"
+  },
+  "बागपत (Baghpat)": {
+    "en": "Baghpat",
+    "hi": "बागपत"
+  },
+  "बाराबंकी (Barabanki)": {
+    "en": "Barabanki",
+    "hi": "बाराबंकी"
+  },
+  "बुलंदशहर (Bulandshahr)": {
+    "en": "Bulandshahr",
+    "hi": "बुलंदशहर"
+  },
+  "मऊ (Mau)": {
+    "en": "Mau",
+    "hi": "मऊ"
+  },
+  "महोबा (Mahoba)": {
+    "en": "Mahoba",
+    "hi": "महोबा"
+  },
+  "मिर्जापुर (Mirzapur)": {
+    "en": "Mirzapur",
+    "hi": "मिर्जापुर"
+  },
+  "मुजफ्फरनगर (Muzaffarnagar)": {
+    "en": "Muzaffarnagar",
+    "hi": "मुजफ्फरनगर"
+  },
+  "मैनपुरी (Mainpuri)": {
+    "en": "Mainpuri",
+    "hi": "मैनपुरी"
+  },
+  "रामपुर (Rampur)": {
+    "en": "Rampur",
+    "hi": "रामपुर"
+  },
+  "रायबरेली (Rae Bareli)": {
+    "en": "Rae Bareli",
+    "hi": "रायबरेली"
+  },
+  "ललितपुर (Lalitpur)": {
+    "en": "Lalitpur",
+    "hi": "ललितपुर"
+  },
+  "लखीमपुर खीरी (Lakhimpur Kheri)": {
+    "en": "Lakhimpur Kheri",
+    "hi": "लखीमपुर खीरी"
+  },
+  "शाहजहांपुर (Shahjahanpur)": {
+    "en": "Shahjahanpur",
+    "hi": "शाहजहांपुर"
+  },
+  "शामली (Shamli)": {
+    "en": "Shamli",
+    "hi": "शामली"
+  },
+  "श्रावस्ती (Shravasti)": {
+    "en": "Shravasti",
+    "hi": "श्रावस्ती"
+  },
+  "संभल (Sambhal)": {
+    "en": "Sambhal",
+    "hi": "संभल"
+  },
+  "संत कबीर नगर (Sant Kabir Nagar)": {
+    "en": "Sant Kabir Nagar",
+    "hi": "संत कबीर नगर"
+  },
+  "सिद्धार्थनगर (Siddharthnagar)": {
+    "en": "Siddharthnagar",
+    "hi": "सिद्धार्थनगर"
+  },
+  "सुल्तानपुर (Sultanpur)": {
+    "en": "Sultanpur",
+    "hi": "सुल्तानपुर"
+  },
+  "सोनभद्र (Sonbhadra)": {
+    "en": "Sonbhadra",
+    "hi": "सोनभद्र"
+  },
+  "हमीरपुर (Hamirpur)": {
+    "en": "Hamirpur",
+    "hi": "हमीरपुर"
+  },
+  "हाथरस (Hathras)": {
+    "en": "Hathras",
+    "hi": "हाथरस"
+  },
+  "हापुड़ (Hapur)": {
+    "en": "Hapur",
+    "hi": "हापुड़"
+  },
+  "अमरोहा (Amroha)": {
+    "en": "Amroha",
+    "hi": "अमरोहा"
+  },
+  "बदायूँ (Budaun)": {
+    "en": "Budaun",
+    "hi": "बदायूँ"
+  },
+  "भदोही (Bhadohi)": {
+    "en": "Bhadohi",
+    "hi": "भदोही"
+  },
+  "बिजनौर (Bijnor)": {
+    "en": "Bijnor",
+    "hi": "बिजनौर"
+  },
+  "एटा (Etah)": {
+    "en": "Etah",
+    "hi": "एटा"
+  },
+  "फर्रुखाबाद (Farrukhabad)": {
+    "en": "Farrukhabad",
+    "hi": "फर्रुखाबाद"
+  },
+  "महाराजगंज (Maharajganj)": {
+    "en": "Maharajganj",
+    "hi": "महाराजगंज"
+  },
+  "किग्रा": {
+    "en": "KG",
+    "hi": "किग्रा"
+  },
+  "पीस": {
+    "en": "piece",
+    "hi": "पीस"
+  },
+  "बॉक्स": {
+    "en": "box",
+    "hi": "बॉक्स"
+  },
+  "पैकेज": {
+    "en": "package",
+    "hi": "पैकेज"
+  },
+  "Date unavailable": {
+    "en": "Date unavailable",
+    "hi": "तारीख उपलब्ध नहीं"
+  },
+  "Enter your order ID (for example ADI-20261017-XXXX).": {
+    "en": "Enter your order ID (for example ADI-20261017-XXXX).",
+    "hi": "कृपया अपना ऑर्डर नंबर दर्ज करें (उदा. ADI-20261017-XXXX)।"
+  },
+  "कृपया अपना ऑर्डर नंबर दर्ज करें (उदा. ADI-20261017-XXXX)।": {
+    "en": "Enter your order ID (for example ADI-20261017-XXXX).",
+    "hi": "कृपया अपना ऑर्डर नंबर दर्ज करें (उदा. ADI-20261017-XXXX)।"
+  },
+  "Enter your 6-digit secret tracking PIN.": {
+    "en": "Enter your 6-digit secret tracking PIN.",
+    "hi": "कृपया अपना 6 अंकों का सीक्रेट ट्रैकिंग पिन दर्ज करें।"
+  },
+  "कृपया अपना 6 अंकों का सीक्रेट ट्रैकिंग पिन दर्ज करें।": {
+    "en": "Enter your 6-digit secret tracking PIN.",
+    "hi": "कृपया अपना 6 अंकों का सीक्रेट ट्रैकिंग पिन दर्ज करें।"
+  },
+  "Order not found. Check your order ID and secret PIN.": {
+    "en": "Order not found. Check your order ID and secret PIN.",
+    "hi": "ऑर्डर नहीं मिला: कृपया अपना ऑर्डर नंबर और सीक्रेट पिन जांचें।"
+  },
+  "ऑर्डर नहीं मिला: कृपया अपना ऑर्डर नंबर और सीक्रेट पिन जांचें।": {
+    "en": "Order not found. Check your order ID and secret PIN.",
+    "hi": "ऑर्डर नहीं मिला: कृपया अपना ऑर्डर नंबर और सीक्रेट पिन जांचें।"
+  },
+  "Tracking could not be loaded. Please try again.": {
+    "en": "Tracking could not be loaded. Please try again.",
+    "hi": "ट्रैकिंग जानकारी प्राप्त करने में त्रुटि आई। कृपया दोबारा प्रयास करें।"
+  },
+  "ट्रैकिंग जानकारी प्राप्त करने में त्रुटि आई। कृपया दोबारा प्रयास करें।": {
+    "en": "Tracking could not be loaded. Please try again.",
+    "hi": "ट्रैकिंग जानकारी प्राप्त करने में त्रुटि आई। कृपया दोबारा प्रयास करें।"
+  },
+  "Order Received": {
+    "en": "Order Received",
+    "hi": "ऑर्डर प्राप्त हुआ"
+  },
+  "ऑर्डर प्राप्त हुआ": {
+    "en": "Order Received",
+    "hi": "ऑर्डर प्राप्त हुआ"
+  },
+  "Order Confirmed": {
+    "en": "Order Confirmed",
+    "hi": "ऑर्डर कन्फर्म हुआ"
+  },
+  "ऑर्डर कन्फर्म हुआ": {
+    "en": "Order Confirmed",
+    "hi": "ऑर्डर कन्फर्म हुआ"
+  },
+  "Packing Your Order": {
+    "en": "Packing Your Order",
+    "hi": "थर्मोकोल पैकिंग में"
+  },
+  "थर्मोकोल पैकिंग में": {
+    "en": "Packing Your Order",
+    "hi": "थर्मोकोल पैकिंग में"
+  },
+  "Dispatched / In Transit": {
+    "en": "Dispatched / In Transit",
+    "hi": "डिस्पैच / रास्ते में"
+  },
+  "डिस्पैच / रास्ते में": {
+    "en": "Dispatched / In Transit",
+    "hi": "डिस्पैच / रास्ते में"
+  },
+  "डिलीवर हो गया": {
+    "en": "Delivered",
+    "hi": "डिलीवर हो गया"
+  },
+  "Order Cancelled": {
+    "en": "Order Cancelled",
+    "hi": "ऑर्डर रद्द"
+  },
+  "ऑर्डर रद्द": {
+    "en": "Order Cancelled",
+    "hi": "ऑर्डर रद्द"
+  },
+  "Track Order": {
+    "en": "Track Order",
+    "hi": "ऑर्डर ट्रैक करें (Track Order)"
+  },
+  "ऑर्डर ट्रैक करें (Track Order)": {
+    "en": "Track Order",
+    "hi": "ऑर्डर ट्रैक करें (Track Order)"
+  },
+  "Enter your order ID and secret PIN to check your order status.": {
+    "en": "Enter your order ID and secret PIN to check your order status.",
+    "hi": "ऑर्डर नंबर और सीक्रेट पिन दर्ज करके अपनी ड्राई आइस की स्थिति देखें।"
+  },
+  "ऑर्डर नंबर और सीक्रेट पिन दर्ज करके अपनी ड्राई आइस की स्थिति देखें।": {
+    "en": "Enter your order ID and secret PIN to check your order status.",
+    "hi": "ऑर्डर नंबर और सीक्रेट पिन दर्ज करके अपनी ड्राई आइस की स्थिति देखें।"
+  },
+  "Example: ADI-20261017-W82K": {
+    "en": "Example: ADI-20261017-W82K",
+    "hi": "उदा. ADI-20261017-W82K"
+  },
+  "उदा. ADI-20261017-W82K": {
+    "en": "Example: ADI-20261017-W82K",
+    "hi": "उदा. ADI-20261017-W82K"
+  },
+  "6-digit Secret PIN": {
+    "en": "6-digit Secret PIN",
+    "hi": "6-अंकों का सीक्रेट पिन (Secret PIN)"
+  },
+  "6-अंकों का सीक्रेट पिन (Secret PIN)": {
+    "en": "6-digit Secret PIN",
+    "hi": "6-अंकों का सीक्रेट पिन (Secret PIN)"
+  },
+  "Example: 482910": {
+    "en": "Example: 482910",
+    "hi": "उदा. 482910"
+  },
+  "उदा. 482910": {
+    "en": "Example: 482910",
+    "hi": "उदा. 482910"
+  },
+  "Track": {
+    "en": "Track",
+    "hi": "ट्रैक करें"
+  },
+  "ट्रैक करें": {
+    "en": "Track",
+    "hi": "ट्रैक करें"
+  },
+  "Estimated arrival:": {
+    "en": "Estimated arrival:",
+    "hi": "अनुमानित आगमन:"
+  },
+  "अनुमानित आगमन:": {
+    "en": "Estimated arrival:",
+    "hi": "अनुमानित आगमन:"
+  },
+  "Manual estimate; last updated": {
+    "en": "Manual estimate; last updated",
+    "hi": "मैन्युअल अनुमान; अंतिम अपडेट"
+  },
+  "मैन्युअल अनुमान; अंतिम अपडेट": {
+    "en": "Manual estimate; last updated",
+    "hi": "मैन्युअल अनुमान; अंतिम अपडेट"
+  },
+  "recently": {
+    "en": "recently",
+    "hi": "हाल में"
+  },
+  "हाल में": {
+    "en": "recently",
+    "hi": "हाल में"
+  },
+  "ऑर्डर नंबर": {
+    "en": "Order ID",
+    "hi": "ऑर्डर नंबर"
+  },
+  "Your order has been delivered!": {
+    "en": "Your order has been delivered!",
+    "hi": "यह ऑर्डर सफलतापूर्वक डिलीवर हो चुका है!"
+  },
+  "यह ऑर्डर सफलतापूर्वक डिलीवर हो चुका है!": {
+    "en": "Your order has been delivered!",
+    "hi": "यह ऑर्डर सफलतापूर्वक डिलीवर हो चुका है!"
+  },
+  "Need another order of": {
+    "en": "Need another order of",
+    "hi": "क्या आपको दोबारा"
+  },
+  "क्या आपको दोबारा": {
+    "en": "Need another order of",
+    "hi": "क्या आपको दोबारा"
+  },
+  "Dry Ice": {
+    "en": "Dry Ice",
+    "hi": "ड्राई आइस"
+  },
+  "?": {
+    "en": "?",
+    "hi": "की आवश्यकता है?"
+  },
+  "की आवश्यकता है?": {
+    "en": "?",
+    "hi": "की आवश्यकता है?"
+  },
+  "Quick Reorder": {
+    "en": "Quick Reorder",
+    "hi": "पुनः ऑर्डर करें (Quick Reorder)"
+  },
+  "पुनः ऑर्डर करें (Quick Reorder)": {
+    "en": "Quick Reorder",
+    "hi": "पुनः ऑर्डर करें (Quick Reorder)"
+  },
+  "मात्रा (Quantity)": {
+    "en": "Quantity",
+    "hi": "मात्रा (Quantity)"
+  },
+  "Location": {
+    "en": "Location",
+    "hi": "स्थान / पता"
+  },
+  "स्थान / पता": {
+    "en": "Location",
+    "hi": "स्थान / पता"
+  },
+  "Dispatch Slot": {
+    "en": "Dispatch Slot",
+    "hi": "डिस्पैच स्लॉट"
+  },
+  "डिस्पैच स्लॉट": {
+    "en": "Dispatch Slot",
+    "hi": "डिस्पैच स्लॉट"
+  },
+  "Latest Update": {
+    "en": "Latest Update",
+    "hi": "ताज़ा अपडेट"
+  },
+  "ताज़ा अपडेट": {
+    "en": "Latest Update",
+    "hi": "ताज़ा अपडेट"
+  },
+  "Scan to Pay (Paytm)": {
+    "en": "Scan to Pay (Paytm)",
+    "hi": "पेमेंट के लिए स्कैन करें (Paytm)"
+  },
+  "पेमेंट के लिए स्कैन करें (Paytm)": {
+    "en": "Scan to Pay (Paytm)",
+    "hi": "पेमेंट के लिए स्कैन करें (Paytm)"
+  },
+  "Paytm payment QR code": {
+    "en": "Paytm payment QR code",
+    "hi": "Paytm भुगतान QR कोड"
+  },
+  "Paytm भुगतान QR कोड": {
+    "en": "Paytm payment QR code",
+    "hi": "Paytm भुगतान QR कोड"
+  },
+  "Payment Status:": {
+    "en": "Payment Status:",
+    "hi": "पेमेंट स्थिति:"
+  },
+  "पेमेंट स्थिति:": {
+    "en": "Payment Status:",
+    "hi": "पेमेंट स्थिति:"
+  },
+  "Payment Verified": {
+    "en": "Payment Verified",
+    "hi": "वेरीफाइड (सफल)"
+  },
+  "वेरीफाइड (सफल)": {
+    "en": "Payment Verified",
+    "hi": "वेरीफाइड (सफल)"
+  },
+  "Awaiting Verification": {
+    "en": "Awaiting Verification",
+    "hi": "वेरिफिकेशन प्रतीक्षित"
+  },
+  "Contact owner:": {
+    "en": "Contact owner:",
+    "hi": "ओनर से बात करें:"
+  },
+  "ओनर से बात करें:": {
+    "en": "Contact owner:",
+    "hi": "ओनर से बात करें:"
+  },
+  "Call (+91 95808 82066)": {
+    "en": "Call (+91 95808 82066)",
+    "hi": "कॉल करें (+91 95808 82066)"
+  },
+  "कॉल करें (+91 95808 82066)": {
+    "en": "Call (+91 95808 82066)",
+    "hi": "कॉल करें (+91 95808 82066)"
+  },
+  "WhatsApp (+91 8896332066)": {
+    "en": "WhatsApp (+91 8896332066)",
+    "hi": "व्हाट्सएप (+91 8896332066)"
+  },
+  "व्हाट्सएप (+91 8896332066)": {
+    "en": "WhatsApp (+91 8896332066)",
+    "hi": "व्हाट्सएप (+91 8896332066)"
+  },
+  "Pending owner review": {
+    "en": "Pending owner review",
+    "hi": "मालिक की समीक्षा बाकी"
+  },
+  "मालिक की समीक्षा बाकी": {
+    "en": "Pending owner review",
+    "hi": "मालिक की समीक्षा बाकी"
+  },
+  "पेलेट्स": {
+    "en": "Pellets",
+    "hi": "पेलेट्स"
+  },
+  "ब्लॉक": {
+    "en": "Blocks",
+    "hi": "ब्लॉक"
+  },
+  "इवेंट पैक": {
+    "en": "Event packs",
+    "hi": "इवेंट पैक"
+  },
+  "एक्सेसरीज़": {
+    "en": "Accessories",
+    "hi": "एक्सेसरीज़"
+  },
+  "इवेंट इफेक्ट्स": {
+    "en": "Event effects",
+    "hi": "इवेंट इफेक्ट्स"
+  },
+  "ऑर्डर कन्फर्म हो गया": {
+    "en": "Order Confirmed",
+    "hi": "ऑर्डर कन्फर्म हो गया"
+  },
+  "आपका ऑर्डर पैक हो रहा है": {
+    "en": "Packing Your Order",
+    "hi": "आपका ऑर्डर पैक हो रहा है"
+  },
+  "आपका ऑर्डर डिस्पैच हो गया": {
+    "en": "Order Dispatched",
+    "hi": "आपका ऑर्डर डिस्पैच हो गया"
+  },
+  "ऑर्डर डिलीवर हो गया": {
+    "en": "Order Delivered",
+    "hi": "ऑर्डर डिलीवर हो गया"
+  },
+  "ऑर्डर रद्द किया गया": {
+    "en": "Order Cancelled",
+    "hi": "ऑर्डर रद्द किया गया"
+  },
+  "यह केवल notification की जाँच है; वास्तविक order नहीं है।": {
+    "en": "This is just a notification check; There is no actual order.",
+    "hi": "यह केवल notification की जाँच है; वास्तविक order नहीं है।"
+  },
+  "कीमत रुपये में अधिकतम 2 दशमलव तक भरें।": {
+    "en": "Enter the price in rupees up to 2 decimal places.",
+    "hi": "कीमत रुपये में अधिकतम 2 दशमलव तक भरें।"
+  },
+  "कीमत ₹99,000 तक रखें।": {
+    "en": "Keep the price up to ₹99,000.",
+    "hi": "कीमत ₹99,000 तक रखें।"
+  },
+  "KG मात्रा अधिकतम 3 दशमलव तक भरें।": {
+    "en": "Enter the KG quantity up to maximum 3 decimal places.",
+    "hi": "KG मात्रा अधिकतम 3 दशमलव तक भरें।"
+  },
+  "मात्रा पूरी संख्या में भरें।": {
+    "en": "Fill the quantity in whole numbers.",
+    "hi": "मात्रा पूरी संख्या में भरें।"
+  },
+  "सही मात्रा भरें।": {
+    "en": "Fill in the correct quantity.",
+    "hi": "सही मात्रा भरें।"
+  },
+  "इस प्रोडक्ट की booking अभी उपलब्ध नहीं है।": {
+    "en": "Booking for this product is not available yet.",
+    "hi": "इस प्रोडक्ट की booking अभी उपलब्ध नहीं है।"
+  },
+  "प्रोडक्ट की कीमत/मात्रा सही नहीं है।": {
+    "en": "The price/quantity of the product is not correct.",
+    "hi": "प्रोडक्ट की कीमत/मात्रा सही नहीं है।"
+  },
+  "प्रोडक्ट की न्यूनतम/अधिकतम मात्रा और कीमत जाँचें।": {
+    "en": "Check minimum/maximum quantity and price of the product.",
+    "hi": "प्रोडक्ट की न्यूनतम/अधिकतम मात्रा और कीमत जाँचें।"
+  },
+  "Packing charge सही नहीं है।": {
+    "en": "Packing charge is not correct.",
+    "hi": "Packing charge सही नहीं है।"
+  },
+  "Order total ₹99,000 तक रखें।": {
+    "en": "Place order total up to ₹99,000.",
+    "hi": "Order total ₹99,000 तक रखें।"
+  },
+  "तारीख उपलब्ध नहीं": {
+    "en": "date not available",
+    "hi": "तारीख उपलब्ध नहीं"
+  },
+  "ऑर्डर {0} खोलें": {
+    "en": "Open order {0}",
+    "hi": "ऑर्डर {0} खोलें"
+  },
+  "ai": {
+    "en": "ai",
+    "hi": "ऐ"
+  },
+  "stage": {
+    "en": "stage",
+    "hi": "अवस्था"
+  },
+  "products": {
+    "en": "products",
+    "hi": "उत्पादों"
+  },
+  "theme": {
+    "en": "theme",
+    "hi": "विषय"
+  },
+  "home": {
+    "en": "home",
+    "hi": "घर"
+  },
+  "name": {
+    "en": "name",
+    "hi": "नाम"
+  },
+  "phone": {
+    "en": "phone",
+    "hi": "फ़ोन"
+  },
+  "place": {
+    "en": "place",
+    "hi": "जगह"
+  },
+  "hindiName": {
+    "en": "hindiName",
+    "hi": "नाम नहीं"
+  },
+  "Fog duration (minutes)": {
+    "en": "Fog duration (minutes)",
+    "hi": "फॉग की अवधि (मिनट)"
+  },
+  "Machines": {
+    "en": "Machines",
+    "hi": "मशीनें"
+  },
+  "Hours before event": {
+    "en": "Hours before event",
+    "hi": "कार्यक्रम से पहले के घंटे"
+  },
+  "Wedding Entry": {
+    "en": "Wedding Entry",
+    "hi": "विवाह प्रवेश"
+  },
+  "Stage Fog": {
+    "en": "Stage Fog",
+    "hi": "स्टेज कोहरा"
+  },
+  "Engagement": {
+    "en": "Engagement",
+    "hi": "सगाई"
+  },
+  "Birthday": {
+    "en": "Birthday",
+    "hi": "जन्मदिन"
+  },
+  "Cocktail": {
+    "en": "Cocktail",
+    "hi": "कॉकटेल"
+  },
+  "Reception": {
+    "en": "Reception",
+    "hi": "स्वागत"
+  },
+  "Haldi": {
+    "en": "Haldi",
+    "hi": "हल्दी"
+  },
+  "Mehndi": {
+    "en": "Mehndi",
+    "hi": "Mehndi"
+  },
+  "Sangeet": {
+    "en": "Sangeet",
+    "hi": "संगीत"
+  },
+  "DJ Night": {
+    "en": "DJ Night",
+    "hi": "डीजे नाइट"
+  },
+  "Corporate": {
+    "en": "Corporate",
+    "hi": "निगमित"
+  },
+  "Anniversary": {
+    "en": "Anniversary",
+    "hi": "सालगिरह"
+  },
+  "Baby Shower": {
+    "en": "Baby Shower",
+    "hi": "गोद भराई"
+  },
+  "Bridal Entry": {
+    "en": "Bridal Entry",
+    "hi": "दुल्हन प्रवेश"
+  },
+  "Groom Entry": {
+    "en": "Groom Entry",
+    "hi": "दूल्हे का प्रवेश"
+  },
+  "Varmala": {
+    "en": "Varmala",
+    "hi": "Varmala"
+  },
+  "First Dance": {
+    "en": "First Dance",
+    "hi": "पहले नृत्य करो"
+  },
+  "Ring Ceremony": {
+    "en": "Ring Ceremony",
+    "hi": "अंगूठी समारोह"
+  },
+  "Grand Opening": {
+    "en": "Grand Opening",
+    "hi": "भव्य उद्घाटन"
+  },
+  "Awards": {
+    "en": "Awards",
+    "hi": "पुरस्कार"
+  },
+  "Fashion Show": {
+    "en": "Fashion Show",
+    "hi": "फैशन शो"
+  },
+  "College Fest": {
+    "en": "College Fest",
+    "hi": "कॉलेज उत्सव"
+  },
+  "Product Launch": {
+    "en": "Product Launch",
+    "hi": "उत्पाद प्रक्षेपण"
+  },
+  "Baraat": {
+    "en": "Baraat",
+    "hi": "बारात"
+  },
+  "Pool Party": {
+    "en": "Pool Party",
+    "hi": "पूल पार्टी"
+  },
+  "Diwali": {
+    "en": "Diwali",
+    "hi": "दिवाली"
+  },
+  "New Year": {
+    "en": "New Year",
+    "hi": "नया साल"
+  },
+  "Concert": {
+    "en": "Concert",
+    "hi": "संगीत समारोह"
+  },
+  "Other Event": {
+    "en": "Other Event",
+    "hi": "अन्य घटना"
+  },
+  "all": {
+    "en": "All",
+    "hi": "सभी"
+  }
+}

@@ -1,0 +1,16 @@
+import React,{useEffect,useState} from 'react';
+import {doc,onSnapshot} from 'firebase/firestore';
+import {getFunctions,httpsCallable} from 'firebase/functions';
+import {app,db} from '../../firebase';
+import {readDevicePreferences,saveDevicePreferences} from '../../services/notificationPreferences';
+export function PreferencesPanel({uid,privileged}:{uid:string|null;privileged:boolean}){
+ const[values,setValues]=useState(()=>readDevicePreferences(uid)),[server,setServer]=useState(false),[busy,setBusy]=useState(false),[notice,setNotice]=useState('');
+ useEffect(()=>{setValues(readDevicePreferences(uid));setNotice('');const change=(e:Event)=>{const d=(e as CustomEvent).detail;if(d?.uid===(uid||'guest'))setValues({orderUpdates:d.orderUpdates,promos:d.promos});};window.addEventListener('ankur-preferences-changed',change);const stop=onSnapshot(doc(db,'settings','featureSuite'),s=>setServer(s.data()?.enabled===true),()=>setServer(false));return()=>{window.removeEventListener('ankur-preferences-changed',change);stop();};},[uid]);
+ return <form className="space-y-3" onSubmit={async e=>{e.preventDefault();setBusy(true);saveDevicePreferences(uid,values);try{if(uid&&server){await httpsCallable(getFunctions(app,'asia-southeast1'),'ankurFeatureAction')({action:'preferences',data:values});setNotice('Saved on this device and your account.');}else setNotice('Saved on this device. Account-wide sync requires the approved backend.');}catch{setNotice('Saved on this device; account sync failed. Try again when connected.');}finally{setBusy(false);}}}>
+ <label className="flex gap-2"><input type="checkbox" checked={values.orderUpdates} onChange={e=>setValues(v=>({...v,orderUpdates:e.target.checked}))}/>Order updates on this device</label>
+ <label className="flex gap-2"><input type="checkbox" checked={values.promos} onChange={e=>setValues(v=>({...v,promos:e.target.checked}))}/>Marketing opt-in</label>
+ <p className="text-xs">Order updates start on; marketing starts off. Turning order updates off stops new customer alerts and unregisters this device from native push. Existing order history stays available.</p>
+ {privileged&&<p className="text-xs">Owner and authorized staff operational alerts remain on.</p>}
+ <button className="c-brand p-3 rounded-xl" disabled={busy}>Save preferences</button>{notice&&<p role="status">{notice}</p>}
+ </form>;
+}

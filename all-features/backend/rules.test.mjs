@@ -58,3 +58,8 @@ test('inventory mode guards every overlapping legacy/product/annotated status pa
  await assertSucceeds(paired(own,'orders','order_tracking','ADI-INVENTORY-LEGACY','ADI-INVENTORY-LEGACY_123456',{status:'confirmed'}));
  await assertSucceeds(paired(own,'orders','order_tracking','ADI-INVENTORY-LEGACY','ADI-INVENTORY-LEGACY_123456',{status:'dispatched'}));
 });
+
+test('loyalty balances, awards and redemption decisions cannot be forged or read across customers',async()=>{
+ await env.withSecurityRulesDisabled(async c=>{const db=c.firestore();await setDoc(doc(db,'loyaltyLedger/a'),{userId:'a',points:12});await setDoc(doc(db,'loyaltyEntries/e1'),{userId:'a',points:12});await setDoc(doc(db,'loyaltyRedemptions/r1'),{userId:'a',status:'pending_owner_review'});});
+ for(const path of ['loyaltyLedger/a','loyaltyEntries/e1','loyaltyRedemptions/r1']){await assertSucceeds(getDoc(doc(env.authenticatedContext('a').firestore(),path)));await assertFails(getDoc(doc(env.authenticatedContext('b').firestore(),path)));for(const db of [env.authenticatedContext('a').firestore(),env.authenticatedContext('owner',owner).firestore()])await assertFails(setDoc(doc(db,path),{points:999,status:'fulfilled'},{merge:true}));}
+});

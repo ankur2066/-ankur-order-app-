@@ -57,6 +57,10 @@ jobs:
           python3 ui-fixes/owner_premium_v148.py
           python3 ui-fixes/staff_contact_privacy_v148.py
           python3 ui-fixes/tracking-language.py
+          python3 ui-fixes/inline-promo.py
+          python3 ui-fixes/notification-preferences.py
+          python3 ui-fixes/locale-formatting.py
+          python3 ui-fixes/localization.py
           python3 all-features/protected_audit.py check /tmp/protected.json
       - name: Unit and regression contracts
         run: |
@@ -68,10 +72,11 @@ jobs:
           npm ci --ignore-scripts --no-audit --no-fund
           npm run lint
           npm run build
+          node all-features/language_audit.mjs "$PWD" language-ui-coverage.json
       - name: Actual React client and tap regressions
         run: |
           npm install --no-save --ignore-scripts react-test-renderer@19
-          ANKUR_COMBINED_SOURCE=$PWD ANKUR_CLIENT_QA=$PWD ANKUR_CLIENT_APP=$PWD node --experimental-vm-modules --test notifications/client-fixes/client.test.mjs notifications/tap-fix/tap.test.mjs notifications/notificationPush.test.mjs all-features/inventory-client.test.mjs all-features/inventory-dashboard.test.mjs all-features/language.test.mjs billing/checkout.test.mjs updates/notice.test.mjs ui-fixes/customer-home-live.test.mjs ui-fixes/tracking-language.test.mjs
+          ANKUR_COMBINED_SOURCE=$PWD ANKUR_CLIENT_QA=$PWD ANKUR_CLIENT_APP=$PWD node --experimental-vm-modules --test notifications/client-fixes/client.test.mjs notifications/tap-fix/tap.test.mjs notifications/notificationPush.test.mjs notifications/preferences/preferences.test.mjs all-features/inventory-client.test.mjs all-features/inventory-dashboard.test.mjs all-features/inline-promo.test.mjs all-features/language.test.mjs billing/checkout.test.mjs updates/notice.test.mjs ui-fixes/customer-home-live.test.mjs ui-fixes/tracking-language.test.mjs ui-fixes/i18n/screens.test.mjs
       - name: Safety boundary
         run: |
           test -f dist/index.html
@@ -88,4 +93,5 @@ jobs:
           path: |
             review-source.tar.gz
             review-source-sha.txt
+            language-ui-coverage.json
           retention-days: 7

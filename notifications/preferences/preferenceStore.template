@@ -1,0 +1,15 @@
+export type NotificationPreferences={orderUpdates:boolean;promos:boolean};
+const pending=new Set<string>();
+export function preferencesReady(uid:string|null){return !uid||!pending.has(uid);}
+export function beginPreferenceLoad(uid:string){pending.add(uid);}
+export function endPreferenceLoad(uid:string){pending.delete(uid);saveDevicePreferences(uid,readDevicePreferences(uid),'account-sync');}
+const session=new Map<string,NotificationPreferences>();
+export function readDevicePreferences(uid:string|null):NotificationPreferences{
+ const cached=session.get(uid||'guest');if(cached)return cached;
+ try{const d=JSON.parse(localStorage.getItem('ankur.notification.prefs.v1:'+(uid||'guest'))||'null');return{orderUpdates:d?.orderUpdates!==false,promos:d?.promos===true};}catch{return{orderUpdates:true,promos:false};}
+}
+export function saveDevicePreferences(uid:string|null,value:NotificationPreferences,source='device'){
+ const prefs={orderUpdates:value.orderUpdates===true,promos:value.promos===true};session.set(uid||'guest',prefs);
+ try{localStorage.setItem('ankur.notification.prefs.v1:'+(uid||'guest'),JSON.stringify(prefs));}catch{/* session notification event still applies */}
+ window.dispatchEvent(new CustomEvent('ankur-preferences-changed',{detail:{uid:uid||'guest',source,...prefs}}));
+}

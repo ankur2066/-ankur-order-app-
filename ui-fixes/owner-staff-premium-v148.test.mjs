@@ -21,7 +21,7 @@ test('Premium owner UI keeps all 7 original destinations and all key functions',
    assert.match(admin,new RegExp("setActiveSection\\('"+id+"'\\)"),'missing owner tab '+id);
  }
  for(const feature of ['<OwnerStorefrontManager','<UserManagement','<ExpensesView','<AIChat','downloadOrdersCsv','generateMonthlyPDF','writeBatch(db)','<SignInScreen']){
-   assert.ok(admin.includes(feature),'owner feature removed: '+feature);
+   assert.ok(admin.includes(feature)||(feature==='<SignInScreen'&&admin.includes('as={SignInScreen}')),'owner feature removed: '+feature);
  }
  assert.match(app,/<AdminDashboard/);
  assert.doesNotMatch(admin,/onOpenRulesReview/);

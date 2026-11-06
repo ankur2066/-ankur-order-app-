@@ -1,743 +1,125 @@
 {
-  "policy": "English default, explicit persistent Profile language choice, no launch prompt",
-  "wholeAppCoverage": "BLOCKED: legacy literal migration remains incomplete",
-  "method": "Hindi-containing source line audit; this is a review signal, not an exact count of untranslated keys.",
-  "filesWithHindi": 43,
-  "hindiContainingLines": 1037,
+  "policy": "English default; persistent English/Hindi choice only in Profile Settings; no language prompt",
+  "uiCopyCoverage": "PASS",
+  "dictionaryEntries": 1488,
+  "localizedElements": 884,
   "files": [
     {
       "file": "src/App.tsx",
-      "hindiContainingLines": 13,
-      "examples": [
-        {
-          "line": 38,
-          "sample": "<button type=\"button\" onClick={onBack} className=\"focus-ring w-11 h-11 flex items-center justify-center rounded-full cursor-pointer\" aria-label=\"वापस\">"
-        },
-        {
-          "line": 75,
-          "sample": "setNotificationMessage('यह जाँच वाला TEST संदेश है। परीक्षण order साफ किया गया है या कोई वास्तविक order बनाया ही नहीं गया था।');"
-        },
-        {
-          "line": 90,
-          "sample": "setNotificationMessage(destination.kind === 'denied' ? 'इस order को देखने की अनुमति नहीं है।' : 'इस संदेश में वैध order number नहीं है।');"
-        }
-      ]
-    },
-    {
-      "file": "src/billing/catalogDrafts.ts",
-      "hindiContainingLines": 8,
-      "examples": [
-        {
-          "line": 3,
-          "sample": "{id:'fan_wheel',name:'Fan Wheel',hindiName:'फैन व्हील',category:'event_effects'},"
-        },
-        {
-          "line": 4,
-          "sample": "{id:'pyro_variant_1',name:'Pyro — variant 1 (name pending)',hindiName:'पायरो — पहला प्रकार (नाम तय करें)',category:'pyro'},"
-        },
-        {
-          "line": 5,
-          "sample": "{id:'pyro_variant_2',name:'Pyro — variant 2 (name pending)',hindiName:'पायरो — दूसरा प्रकार (नाम तय करें)',category:'pyro'},"
-        }
-      ]
-    },
-    {
-      "file": "src/billing/unitBilling.ts",
-      "hindiContainingLines": 10,
-      "examples": [
-        {
-          "line": 2,
-          "sample": "export const UNIT_LABELS = {kg:'KG',piece:'पीस',box:'बॉक्स',package:'पैकेज'} as const;"
-        },
-        {
-          "line": 17,
-          "sample": "if(!/^\\d+(?:\\.\\d{1,2})?$/.test(value))throw Error('कीमत रुपये में अधिकतम 2 दशमलव तक भरें।');"
-        },
-        {
-          "line": 19,
-          "sample": "if(!Number.isSafeInteger(n)||n>9_900_000)throw Error('कीमत ₹99,000 तक रखें।');return n;"
-        }
-      ]
+      "localizedElements": 11
     },
     {
       "file": "src/components/AIChat.tsx",
-      "hindiContainingLines": 6,
-      "examples": [
-        {
-          "line": 7,
-          "sample": "{ role: 'ai', text: 'नमस्ते! मैं आपकी ऑर्डर डिटेल्स का विश्लेषण कर सकता हूँ। आप क्या जानना चाहेंगे?' }"
-        },
-        {
-          "line": 23,
-          "sample": "setMessages(prev => [...prev, { role: 'ai', text: 'AI चैट सर्वर इस ऐप में जुड़ा नहीं है (VITE_API_BASE_URL सेट नहीं)।' }]);"
-        },
-        {
-          "line": 32,
-          "sample": "setMessages(prev => [...prev, { role: 'ai', text: 'यह सुविधा सिर्फ़ मालिक के लॉगिन से चलती है।' }]);"
-        }
-      ]
+      "localizedElements": 1
     },
     {
       "file": "src/components/AIVideoStudio.tsx",
-      "hindiContainingLines": 40,
-      "examples": [
-        {
-          "line": 24,
-          "sample": "'दूल्हा-दुल्हन की वरमाला एंट्री, ज़मीन पर घना ड्राई आइस फॉग, सुनहरी रोशनी, सिनेमैटिक',"
-        },
-        {
-          "line": 25,
-          "sample": "'संगीत नाइट का डांस फ्लोर, ठंडा सफ़ेद धुआँ, रंगीन लेज़र लाइट्स',"
-        },
-        {
-          "line": 26,
-          "sample": "'ड्राई आइस पेलेट्स पर पानी डालते ही उठता धुआँ, क्लोज़-अप, स्लो मोशन',"
-        }
-      ]
+      "localizedElements": 26
     },
     {
       "file": "src/components/AdminDashboard.tsx",
-      "hindiContainingLines": 224,
-      "examples": [
-        {
-          "line": 143,
-          "sample": "return timing.includes('आज सुबह') || timing.includes('today morning');"
-        },
-        {
-          "line": 145,
-          "sample": "return timing.includes('आज शाम') || timing.includes('today evening');"
-        },
-        {
-          "line": 147,
-          "sample": "return timing.includes('कल सुबह') || timing.includes('tomorrow morning');"
-        }
-      ]
-    },
-    {
-      "file": "src/components/AppUpdateNotice.tsx",
-      "hindiContainingLines": 5,
-      "examples": [
-        {
-          "line": 74,
-          "sample": "<p className=\"font-black text-white\">{hi?'Ankur Dryice का नया अपडेट':'Ankur Dryice update available'}</p>"
-        },
-        {
-          "line": 75,
-          "sample": "<p className=\"mt-1 text-sm text-white\">{hi?'वर्ज़न':'Version'} {release.versionName}</p>"
-        },
-        {
-          "line": 78,
-          "sample": "<button type=\"button\" className=\"rounded-lg border border-white px-3 py-1 text-sm text-white\" onClick={()=>setDismissed(true)} aria-label={hi?'बाद में':'Later'}>{hi?'बाद में':'Late"
-        }
-      ]
+      "localizedElements": 256
     },
     {
       "file": "src/components/CreativeStudio.tsx",
-      "hindiContainingLines": 86,
-      "examples": [
-        {
-          "line": 47,
-          "sample": "title: 'शाही वरमाला स्टेज एंट्री',"
-        },
-        {
-          "line": 48,
-          "sample": "badge: '★ सुपर हिट',"
-        },
-        {
-          "line": 52,
-          "sample": "description: 'रॉयल पैलेस मंडप, सुनहरी मेहराब, वरमाला और भारी घना सफेद क्लाउड फॉग',"
-        }
-      ]
+      "localizedElements": 57
     },
     {
       "file": "src/components/CustomerOrders.tsx",
-      "hindiContainingLines": 33,
-      "examples": [
-        {
-          "line": 101,
-          "sample": "setErrorMsg('ऑर्डर लोड करने में त्रुटि आई। कृपया पुनः प्रयास करें।');"
-        },
-        {
-          "line": 119,
-          "sample": "setErrorMsg('लॉगिन करने में त्रुटि आई। कृपया पुनः प्रयास करें।');"
-        },
-        {
-          "line": 135,
-          "sample": "return { label: 'Pending (प्रतीक्षित)', className: 'bg-amber-50 text-amber-800 border-amber-300', icon: Clock };"
-        }
-      ]
+      "localizedElements": 32
     },
     {
       "file": "src/components/ExpensesView.tsx",
-      "hindiContainingLines": 17,
-      "examples": [
-        {
-          "line": 35,
-          "sample": "setErrorMsg('खर्च की सूची अभी लोड नहीं हो सकी। पुराना डेटा नहीं बदला है।');"
-        },
-        {
-          "line": 55,
-          "sample": "setErrorMsg('खर्च सेव नहीं हो सका। दोबारा कोशिश करें।');"
-        },
-        {
-          "line": 66,
-          "sample": "setErrorMsg('खर्च हटाया नहीं जा सका।');"
-        }
-      ]
+      "localizedElements": 20
     },
     {
       "file": "src/components/FloatingContactButtons.tsx",
-      "hindiContainingLines": 6,
-      "examples": [
-        {
-          "line": 8,
-          "sample": "aria-label=\"त्वरित संपर्क\""
-        },
-        {
-          "line": 15,
-          "sample": "aria-label=\"WhatsApp पर संपर्क करें\""
-        },
-        {
-          "line": 16,
-          "sample": "title=\"WhatsApp पर चैट करें (+91 8896332066)\""
-        }
-      ]
+      "localizedElements": 5
     },
     {
       "file": "src/components/Header.tsx",
-      "hindiContainingLines": 6,
-      "examples": [
-        {
-          "line": 48,
-          "sample": "<span className=\"font-black text-sm text-slate-900 leading-none\">अंकुर ड्राई आइस</span>"
-        },
-        {
-          "line": 54,
-          "sample": "{userRole === 'delivery' ? 'डिलीवरी' : 'स्टाफ'}"
-        },
-        {
-          "line": 58,
-          "sample": "सीमित स्टेटस अपडेट पोर्टल"
-        }
-      ]
+      "localizedElements": 7
     },
     {
       "file": "src/components/OrderForm.tsx",
-      "hindiContainingLines": 130,
-      "examples": [
-        {
-          "line": 88,
-          "sample": "// Single city / place field: \"शहर\""
-        },
-        {
-          "line": 132,
-          "sample": "case 'pending': return 'प्रतीक्षित (Pending)';"
-        },
-        {
-          "line": 133,
-          "sample": "case 'confirmed': return 'कन्फर्म (Confirmed)';"
-        }
-      ]
-    },
-    {
-      "file": "src/components/OrderTrackingView.tsx",
-      "hindiContainingLines": 33,
-      "examples": [
-        {
-          "line": 39,
-          "sample": "const errors={id:tr('Enter your order ID (for example ADI-20261017-XXXX).','कृपया अपना ऑर्डर नंबर दर्ज करें (उदा. ADI-20261017-XXXX)।'),pin:tr('Enter your 6-digit secret tracking P"
-        },
-        {
-          "line": 101,
-          "sample": "return { label: tr('Order Received','ऑर्डर प्राप्त हुआ'), color: 'bg-amber-50 text-amber-800 border-amber-300', icon: Clock };"
-        },
-        {
-          "line": 103,
-          "sample": "return { label: tr('Order Confirmed','ऑर्डर कन्फर्म हुआ'), color: 'bg-sky-50 text-sky-800 border-sky-300', icon: CheckCircle2 };"
-        }
-      ]
+      "localizedElements": 129
     },
     {
       "file": "src/components/OwnerStorefrontManager.tsx",
-      "hindiContainingLines": 83,
-      "examples": [
-        {
-          "line": 72,
-          "sample": "order: 'बुकिंग खोलें',"
-        },
-        {
-          "line": 73,
-          "sample": "categories: 'कैटेगरी खोलें',"
-        },
-        {
-          "line": 74,
-          "sample": "call: 'कॉल करें',"
-        }
-      ]
+      "localizedElements": 63
     },
     {
       "file": "src/components/SignInScreen.tsx",
-      "hindiContainingLines": 5,
-      "examples": [
-        {
-          "line": 18,
-          "sample": "title = 'Google से लॉगिन करें',"
-        },
-        {
-          "line": 19,
-          "sample": "subtitle = 'ऑर्डर हिस्ट्री, रीऑर्डर और प्रोफ़ाइल के लिए लॉगिन करें। बुकिंग और ट्रैकिंग बिना लॉगिन भी हो सकती है।',"
-        },
-        {
-          "line": 32,
-          "sample": "setError('लॉगिन नहीं हो सका: ' + (err?.message || 'अज्ञात त्रुटि'));"
-        }
-      ]
+      "localizedElements": 5
     },
     {
       "file": "src/components/StaffDashboard.tsx",
-      "hindiContainingLines": 65,
-      "examples": [
-        {
-          "line": 94,
-          "sample": "setErrorMsg('Self Pickup के लिए App Check सत्यापित Android ऐप चाहिए। बाकी काम जारी रख सकते हैं।');"
-        },
-        {
-          "line": 118,
-          "sample": "setErrorMsg('आपको ऑर्डर देखने की अनुमति नहीं है। कृपया मालिक से संपर्क करें।');"
-        },
-        {
-          "line": 148,
-          "sample": "setErrorMsg('ऑर्डर लोड करने में समस्या: ' + (e.message || 'Permission denied'));"
-        }
-      ]
+      "localizedElements": 51
     },
     {
       "file": "src/components/UnitProductForm.tsx",
-      "hindiContainingLines": 22,
-      "examples": [
-        {
-          "line": 16,
-          "sample": "return <dl className=\"rounded-xl border b-line p-3 text-sm space-y-2 t-main\" aria-label={ui(\"Product bill\",\"प्रोडक्ट का बिल\")}>"
-        },
-        {
-          "line": 18,
-          "sample": "{b.packingMode!=='none'&&<div className=\"flex justify-between gap-3\"><dt>{ui('Packing','पैकिंग')} ({b.packingMode==='per_order'?ui('once','एक बार'):ui('per','प्रति')+' '+displayUni"
-        },
-        {
-          "line": 19,
-          "sample": "{b.deliveryFeePaise>0&&<div className=\"flex justify-between gap-3\"><dt>{ui('Delivery (once)','डिलीवरी (एक बार)')}</dt><dd>{rupees(b.deliveryFeePaise)}</dd></div>}"
-        }
-      ]
+      "localizedElements": 8
     },
     {
       "file": "src/components/UnitProductManager.tsx",
-      "hindiContainingLines": 21,
-      "examples": [
-        {
-          "line": 15,
-          "sample": "const save=async(e:React.FormEvent)=>{e.preventDefault();setMessage('');if(!available){setMessage(ui('Product billing is not enabled. This is still a draft.','नई product billing अभ"
-        },
-        {
-          "line": 17,
-          "sample": "if(form.name.trim().length<2||form.hindiName.trim().length<2)throw Error(ui('Enter both English and Hindi product names.','प्रोडक्ट के दोनों नाम भरें।'));"
-        },
-        {
-          "line": 20,
-          "sample": "if(p.active){if(!hasUnit)throw Error(ui('Select a unit first.','पहले unit चुनें।'));quoteProduct(p,p.minQuantityUnits);}"
-        }
-      ]
+      "localizedElements": 14
     },
     {
       "file": "src/components/UserManagement.tsx",
-      "hindiContainingLines": 51,
-      "examples": [
-        {
-          "line": 26,
-          "sample": "{ key: 'viewOrders', label: 'ऑर्डर देख सकता है' },"
-        },
-        {
-          "line": 27,
-          "sample": "{ key: 'updateStatus', label: 'ऑर्डर का स्टेटस बदल सकता है' },"
-        },
-        {
-          "line": 28,
-          "sample": "{ key: 'toggleProducts', label: 'प्रोडक्ट चालू/बंद कर सकता है' },"
-        }
-      ]
+      "localizedElements": 37
+    },
+    {
+      "file": "src/components/customer/BottomNav.tsx",
+      "localizedElements": 2
     },
     {
       "file": "src/components/customer/CategoriesTab.tsx",
-      "hindiContainingLines": 8,
-      "examples": [
-        {
-          "line": 32,
-          "sample": "<h1 className=\"text-xl font-black t-main\">कैटेगरी</h1>"
-        },
-        {
-          "line": 33,
-          "sample": "<p className=\"text-xs t-sub mt-0.5\">सिर्फ़ वही प्रोडक्ट दिखते हैं जो अभी उपलब्ध हैं।</p>"
-        },
-        {
-          "line": 37,
-          "sample": "<nav className=\"w-[92px] shrink-0 c-card border-r b-line min-h-[calc(100vh-120px)]\" aria-label=\"कैटेगरी सूची\">"
-        }
-      ]
+      "localizedElements": 10
     },
     {
-      "file": "src/components/customer/CustomerHome.tsx",
-      "hindiContainingLines": 5,
-      "examples": [
-        {
-          "line": 46,
-          "sample": "<div className=\"aqp-brand-rate\" aria-label={hi ? 'प्रति किलो कीमत' : 'Price per kilogram'}>"
-        },
-        {
-          "line": 47,
-          "sample": "{hi ? 'ड्राई आइस' : 'Dry Ice'} ₹{dryRate} + {hi ? 'थर्मोकोल' : 'Thermocol'} ₹{packingRate} = <strong>₹{dryRate + packingRate}/kg</strong>"
-        },
-        {
-          "line": 48,
-          "sample": "{transportRate > 0 && <span> + {hi ? 'परिवहन' : 'Transport'} ₹{transportRate}/kg ({hi ? 'कुल' : 'Total'} ₹{combinedRate}/kg)</span>}"
-        }
-      ]
+      "file": "src/components/customer/FeatureDataPanels.tsx",
+      "localizedElements": 53
     },
     {
       "file": "src/components/customer/FeatureHub.tsx",
-      "hindiContainingLines": 43,
-      "examples": [
-        {
-          "line": 15,
-          "sample": "{id:'calculator',icon:Calculator,en:'Ice Calculator',hi:'आइस कैलकुलेटर'},"
-        },
-        {
-          "line": 16,
-          "sample": "{id:'video',icon:Lightbulb,en:'Video Idea Builder',hi:'वीडियो आइडिया बिल्डर'},"
-        },
-        {
-          "line": 17,
-          "sample": "{id:'loyalty',icon:Gift,en:'Loyalty Rewards',hi:'लॉयल्टी रिवार्ड',auth:true,state:'Reward policy is not configured.'},"
-        }
-      ]
+      "localizedElements": 49
+    },
+    {
+      "file": "src/components/customer/LoyaltyPanel.tsx",
+      "localizedElements": 6
     },
     {
       "file": "src/components/customer/LuckyWinnerCard.tsx",
-      "hindiContainingLines": 5,
-      "examples": [
-        {
-          "line": 6,
-          "sample": "* Shows only the winner's name and city plus the generic wording \"खास गिफ्ट\"."
-        },
-        {
-          "line": 12,
-          "sample": "aria-label=\"लकी विनर\""
-        },
-        {
-          "line": 18,
-          "sample": "<div className=\"text-[11px] font-bold t-sub\">{winner.dateLabel ? `${winner.dateLabel} का लकी विनर` : 'लकी विनर'}</div>"
-        }
-      ]
+      "localizedElements": 5
     },
     {
       "file": "src/components/customer/NotificationSheet.tsx",
-      "hindiContainingLines": 8,
-      "examples": [
-        {
-          "line": 36,
-          "sample": "aria-label=\"ऑर्डर अपडेट\""
-        },
-        {
-          "line": 43,
-          "sample": "ऑर्डर अपडेट"
-        },
-        {
-          "line": 45,
-          "sample": "<button type=\"button\" onClick={onClose} className=\"focus-ring w-9 h-9 rounded-full c-soft t-brand flex items-center justify-center cursor-pointer\" aria-label=\"बंद करें\">"
-        }
-      ]
+      "localizedElements": 12
     },
     {
       "file": "src/components/customer/NotificationToast.tsx",
-      "hindiContainingLines": 2,
-      "examples": [
-        {
-          "line": 13,
-          "sample": "<button type=\"button\" className=\"min-w-0 flex-1 flex items-start gap-3 text-left cursor-pointer\" aria-label=\"अपडेट खोलें\" onClick={()=>onOpenNotice(notice)}>"
-        },
-        {
-          "line": 17,
-          "sample": "<button type=\"button\" onClick={onDismiss} aria-label=\"बंद करें\" className=\"shrink-0 cursor-pointer\"><X className=\"w-4 h-4 t-sub\" /></button>"
-        }
-      ]
+      "localizedElements": 6
+    },
+    {
+      "file": "src/components/customer/PreferencesPanel.tsx",
+      "localizedElements": 6
     },
     {
       "file": "src/components/customer/ProductCard.tsx",
-      "hindiContainingLines": 3,
-      "examples": [
-        {
-          "line": 53,
-          "sample": "aria-label={`${product.hindiName} बुक करें`}"
-        },
-        {
-          "line": 55,
-          "sample": "बुक करें"
-        },
-        {
-          "line": 58,
-          "sample": "<p className=\"text-[10px] t-sub mt-1.5\">{product.unitProduct ? (product.unitProduct.packingMode==='none'?'Packing charge नहीं':rupees(product.unitProduct.packingPricePaise)+' packi"
-        }
-      ]
+      "localizedElements": 4
     },
     {
       "file": "src/components/customer/ProfileTab.tsx",
-      "hindiContainingLines": 6,
-      "examples": [
-        {
-          "line": 51,
-          "sample": "setMessage('अनुरोध मालिक को भेज दिया गया। मंज़ूरी मिलते ही स्टाफ पैनल खुल जाएगा।');"
-        },
-        {
-          "line": 53,
-          "sample": "setMessage('अनुरोध नहीं भेजा जा सका: ' + (err?.message || 'अज्ञात त्रुटि'));"
-        },
-        {
-          "line": 104,
-          "sample": "<h2 className=\"text-sm font-black t-main\">क्या आप स्टाफ या डिलीवरी टीम में हैं?</h2>"
-        }
-      ]
+      "localizedElements": 8
     },
     {
       "file": "src/components/customer/PromoCarousel.tsx",
-      "hindiContainingLines": 1,
-      "examples": [
-        {
-          "line": 22,
-          "sample": "aria-label=\"ऑफ़र और जानकारी\""
-        }
-      ]
-    },
-    {
-      "file": "src/context/LanguageContext.tsx",
-      "hindiContainingLines": 6,
-      "examples": [
-        {
-          "line": 9,
-          "sample": "settings: 'Settings', language: 'Language', english: 'English', hindi: 'हिंदी (Hindi)',"
-        },
-        {
-          "line": 16,
-          "sample": "settings: 'सेटिंग्स', language: 'भाषा', english: 'English', hindi: 'हिंदी (Hindi)',"
-        },
-        {
-          "line": 17,
-          "sample": "profile: 'प्रोफ़ाइल', customer: 'ग्राहक', owner: 'मालिक', staff: 'स्टाफ', delivery: 'डिलीवरी',"
-        }
-      ]
-    },
-    {
-      "file": "src/hooks/useOrderNotifications.ts",
-      "hindiContainingLines": 2,
-      "examples": [
-        {
-          "line": 15,
-          "sample": "const STATUS_TEXT: Record<string, string> = { pending: 'ऑर्डर प्राप्त हुआ', confirmed: 'ऑर्डर कन्फर्म हो गया', in_packing: 'आपका ऑर्डर पैक हो रहा है', dispatched: 'आपका ऑर्डर डिस्प"
-        },
-        {
-          "line": 90,
-          "sample": "if (old && old.status !== data.status) pushNotice({orderId,type:'order_status',status:data.status,title:STATUS_TEXT[data.status] || 'ऑर्डर अपडेट',body:data.lastStatusUpdate || 'Ord"
-        }
-      ]
-    },
-    {
-      "file": "src/hooks/useProducts.ts",
-      "hindiContainingLines": 2,
-      "examples": [
-        {
-          "line": 63,
-          "sample": "setError('प्रोडक्ट लिस्ट लोड नहीं हो सकी।');"
-        },
-        {
-          "line": 100,
-          "sample": "setError(err?.message || 'प्रोडक्ट लोड नहीं हुए');"
-        }
-      ]
-    },
-    {
-      "file": "src/hooks/useStorefrontSettings.ts",
-      "hindiContainingLines": 3,
-      "examples": [
-        {
-          "line": 7,
-          "sample": "{ id: 'b1', title: 'शादी और इवेंट के लिए ड्राई आइस', subtitle: 'स्मोक व फॉग एंट्री के लिए बुक करें', action: 'order' },"
-        },
-        {
-          "line": 8,
-          "sample": "{ id: 'b2', title: 'आज सुबह 12 PM तक बुकिंग', subtitle: 'शाम व कल के स्लॉट भी उपलब्ध', action: 'order' },"
-        },
-        {
-          "line": 9,
-          "sample": "{ id: 'b3', title: 'थोक ऑर्डर? सीधे बात करें', subtitle: 'कॉल या WhatsApp पर रेट पूछें', action: 'whatsapp' },"
-        }
-      ]
-    },
-    {
-      "file": "src/hooks/useUnitProducts.ts",
-      "hindiContainingLines": 1,
-      "examples": [
-        {
-          "line": 14,
-          "sample": "return onSnapshot(ref,s=>{setProducts(s.docs.map(d=>({...d.data(),id:d.id} as UnitProduct)));setError('');},()=>setError('नए प्रोडक्ट अभी उपलब्ध नहीं हैं।'));"
-        }
-      ]
-    },
-    {
-      "file": "src/services/orderPush.ts",
-      "hindiContainingLines": 1,
-      "examples": [
-        {
-          "line": 70,
-          "sample": "title:String(msg?.title || fallbackTitle).slice(0,90),body:String(msg?.body || (type==='connection_test'?'यह केवल notification की जाँच है; वास्तविक order नहीं है।':orderId+' · '+fa"
-        }
-      ]
-    },
-    {
-      "file": "src/services/videoApi.ts",
-      "hindiContainingLines": 11,
-      "examples": [
-        {
-          "line": 53,
-          "sample": "throw new VideoApiError('not_configured', 'ऐप में वीडियो सर्वर का पता (VITE_API_BASE_URL) सेट नहीं है।');"
-        },
-        {
-          "line": 59,
-          "sample": "throw new VideoApiError('network', 'वीडियो सर्वर से कनेक्ट नहीं हो सका। इंटरनेट या सर्वर चालू है या नहीं जाँचें।');"
-        },
-        {
-          "line": 71,
-          "sample": "if (res.status === 401) return new VideoApiError('not_signed_in', 'वीडियो बनाने के लिए Google से लॉगिन करें।');"
-        }
-      ]
-    },
-    {
-      "file": "src/theme/themes.ts",
-      "hindiContainingLines": 6,
-      "examples": [
-        {
-          "line": 52,
-          "sample": "hindi: 'भगवा केसरी',"
-        },
-        {
-          "line": 71,
-          "sample": "hindi: 'एमरल्ड हरा',"
-        },
-        {
-          "line": 90,
-          "sample": "hindi: 'रॉयल नीला',"
-        }
-      ]
-    },
-    {
-      "file": "src/types.ts",
-      "hindiContainingLines": 4,
-      "examples": [
-        {
-          "line": 43,
-          "sample": "dateLabel?: string; // e.g. \"आज\" / \"29 अक्टूबर\""
-        },
-        {
-          "line": 86,
-          "sample": "dispatchTiming: string; // e.g., 'आज सुबह 12 AM–12 PM'"
-        },
-        {
-          "line": 87,
-          "sample": "productName: string; // 'ड्राई आइस'"
-        }
-      ]
-    },
-    {
-      "file": "src/utils/expenseCycles.ts",
-      "hindiContainingLines": 2,
-      "examples": [
-        {
-          "line": 38,
-          "sample": "if (key === 'unknown') return 'तारीख उपलब्ध नहीं';"
-        },
-        {
-          "line": 48,
-          "sample": "return ms === null ? 'तारीख उपलब्ध नहीं' : new Date(ms).toLocaleDateString('hi-IN', { timeZone: 'Asia/Kolkata', day: '2-digit', month: 'short', year: 'numeric' });"
-        }
-      ]
-    },
-    {
-      "file": "src/utils/imageResize.ts",
-      "hindiContainingLines": 3,
-      "examples": [
-        {
-          "line": 11,
-          "sample": "el.onerror = () => reject(new Error('इमेज पढ़ी नहीं जा सकी'));"
-        },
-        {
-          "line": 21,
-          "sample": "if (!ctx) throw new Error('इमेज प्रोसेस नहीं हो सकी');"
-        },
-        {
-          "line": 26,
-          "sample": "if (!blob) throw new Error('इमेज सेव नहीं हो सकी');"
-        }
-      ]
-    },
-    {
-      "file": "src/utils/mobileReport.ts",
-      "hindiContainingLines": 3,
-      "examples": [
-        {
-          "line": 15,
-          "sample": "throw new Error('अमान्य PDF फ़ाइल नाम');"
-        },
-        {
-          "line": 22,
-          "sample": "if (!base64) throw new Error('PDF डेटा तैयार नहीं हुआ');"
-        },
-        {
-          "line": 36,
-          "sample": "dialogTitle: 'मासिक रिपोर्ट PDF सेव या शेयर करें',"
-        }
-      ]
-    },
-    {
-      "file": "src/utils/studioGraphicGenerator.ts",
-      "hindiContainingLines": 17,
-      "examples": [
-        {
-          "line": 43,
-          "sample": "if (p.includes('शादी') || p.includes('wedding') || p.includes('dulha') || p.includes('stage') || p.includes('वरमाला')) {"
-        },
-        {
-          "line": 45,
-          "sample": "} else if (p.includes('pyro') || p.includes('पायरो') || p.includes('spark') || p.includes('पटाखे') || p.includes('आतिशबाजी')) {"
-        },
-        {
-          "line": 47,
-          "sample": "} else if (p.includes('cocktail') || p.includes('मॉकटेल') || p.includes('drink') || p.includes('glass') || p.includes('गिलास')) {"
-        }
-      ]
-    },
-    {
-      "file": "src/utils/weddingStageGenerator.ts",
-      "hindiContainingLines": 31,
-      "examples": [
-        {
-          "line": 25,
-          "sample": "groomBrideName = 'रोहन 💖 अंजलि',"
-        },
-        {
-          "line": 26,
-          "sample": "backdropBanner = 'शुभ विवाह • GRAND ROYAL WEDDING',"
-        },
-        {
-          "line": 28,
-          "sample": "eventDate = '28 नवम्बर 2026',"
-        }
-      ]
+      "localizedElements": 1
     }
-  ]
+  ],
+  "unlocalizedHindiUi": [],
+  "invalidEnglishDictionaryEntries": [],
+  "scope": "Hash-bound edits cover static UI copy and identified UI messages/status/labels. Already bilingual Home/Tracking/update context is retained. Inputs, stored customer/product/location/status notes and external WhatsApp prefill are preserved; arbitrary business/server text is not automatically translated.",
+  "runtimeEvidence": "Eight real reconstructed screen render/switch checks plus typed booking data retention; persistent provider, checkout, tracking and notification regression suites.",
+  "deviceAcceptance": "NOT RUN; Android physical acceptance and owner wording review remain required."
 }

@@ -11,72 +11,7 @@ const TRACKING_TOKEN = ORDER_ID + '_123456';
 const fcm = suffix => 'test_fcm_' + suffix.padEnd(40, 'x');
 const copy = value => JSON.parse(JSON.stringify(value));
 
-async function worker({ records = {}, send, transactionError } = {}) {
-  const documents = new Map(Object.entries(records));
-  const messages = [];
-  const logs = [];
-  const deletions = [];
-  const context = createContext({ console: { info: (...args) => logs.push(copy(args)) } });
-  const ref = path => ({
-    path,
-    delete: async () => { documents.delete(path); deletions.push(path); },
-    collection: name => collection(path + '/' + name),
-  });
-  const snapshot = path => ({
-    id: path.split('/').at(-1), ref: ref(path),
-    exists: documents.has(path), data: () => documents.get(path),
-  });
-  function collection(path, predicate = () => true, limit = Infinity) {
-    return {
-      doc: id => ref(path + '/' + id),
-      where: (field, operator, values) => {
-        assert.equal(operator, 'in');
-        return collection(path, data => values.includes(data[field]), limit);
-      },
-      limit: count => collection(path, predicate, count),
-      get: async () => ({ docs: [...documents.keys()]
-        .filter(key => key.startsWith(path + '/') && !key.slice(path.length + 1).includes('/'))
-        .filter(key => predicate(documents.get(key))).slice(0, limit).map(snapshot) }),
-    };
-  }
-  const db = {
-    collection,
-    runTransaction: async operation => {
-      if (transactionError) throw transactionError;
-      return operation({
-        get: async reference => snapshot(reference.path),
-        delete: reference => { documents.delete(reference.path); deletions.push(reference.path); },
-      });
-    },
-  };
-  const sdk = {
-    'node:crypto': { createHash },
-    'firebase-functions/v2/firestore': {
-      onDocumentCreated: (options, handler) => Object.assign(handler, { options }),
-      onDocumentUpdated: (options, handler) => Object.assign(handler, { options }),
-    },
-    'firebase-admin/app': { getApp: () => ({}) },
-    'firebase-admin/firestore': { getFirestore: (_app, database) => {
-      assert.equal(database, DATABASE_ID, 'worker must never use (default)');
-      return db;
-    } },
-    'firebase-admin/messaging': { getMessaging: () => ({ sendEachForMulticast: async message => {
-      messages.push(copy(message));
-      if (send) return send(message, documents);
-      return { successCount: message.tokens.length, failureCount: 0,
-        responses: message.tokens.map(() => ({ success: true })) };
-    } }) },
-  };
-  const module = new SourceTextModule(readFileSync(new URL('notificationPush.js', import.meta.url), 'utf8'), { context });
-  await module.link(specifier => {
-    assert.ok(sdk[specifier], 'unexpected dependency: ' + specifier);
-    return new SyntheticModule(Object.keys(sdk[specifier]), function () {
-      for (const [name, value] of Object.entries(sdk[specifier])) this.setExport(name, value);
-    }, { context });
-  });
-  await module.evaluate();
-  return { api: module.namespace, messages, logs, documents, deletions };
-}
+import {worker} from './workerHarness.mjs';
 
 const order = { orderId: ORDER_ID, trackingToken: TRACKING_TOKEN, quantityKg: 10, city: 'Test city' };
 const tracking = { orderId: ORDER_ID, trackingToken: TRACKING_TOKEN, status: 'pending',

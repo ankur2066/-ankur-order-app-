@@ -26,6 +26,7 @@ jobs:
           name: Product-Billing-Backend-REVIEW-NOT-DEPLOYED
           path: |
             productpush-review/
+            !productpush-review/functions/node_modules/**
             billing/review/firestore.product-billing.rules
             billing/review/firestore.product-billing.diff
           retention-days: 7

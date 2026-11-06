@@ -1,5 +1,13 @@
 # ANKUR DRYICE — PROJECT PROGRESS / CHAT HANDOFF
 
+## 6 November 2026 — remaining private-review implementation
+
+- Continued from preserved Work Mode and v1.0.48 evidence head `aa1859ca85e7008cc973c8ead6aa3769d5a84396`. Added owner-configured, default-off loyalty earning and owner-reviewed redemption with transactional, idempotent ledgers; no points or rewards were seeded. Added inline standard Dry Ice promo preview and trusted booking, preserving the original no-code submission and rate calculations.
+- Added customer device/account notification preferences, retaining owner/staff alerts. The existing live worker source is unchanged; a preference-aware existing-worker candidate is staged for a separately approved deployment. Guest choices are device-local. Current live cross-device behavior remains unverified.
+- Added static English/Hindi UI copy, preserving business data and account values, with no automatic language prompt. Hash-bound overlays fail rather than overwrite later Work Mode changes. Coverage audit covers static UI and identified messages, not arbitrary stored business/server text; physical Android acceptance and wording review remain outstanding.
+- Local combined checks: lint/build and protected legacy audit pass; 71 contract tests, 102 client tests and 52 security-emulator tests pass. Verify exact-head GitHub CI before relying on these changes. No production deployment, billing change, real customer-data write, feature activation, merge, public release or device installation was performed.
+- Last signed APK is v1.0.48 from `113072a6d84e8d634c3e891aece9a95c09a8d979`; it does not contain these new changes. Create one grouped private candidate only after reviewing the current source and CI.
+
 ## 6 November 2026 — v1.0.48 private APK SIGNED / VERIFIED
 
 - Final app source: `113072a6d84e8d634c3e891aece9a95c09a8d979`. Same-source review/security/product jobs and signed Android run https://github.com/ankur2066/-ankur-order-app-/actions/runs/42142670072 all PASS. Job logs confirm **215 unique checks, zero failures** (147 review + 44 security + 24 product).

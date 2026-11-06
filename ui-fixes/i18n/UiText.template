@@ -1,0 +1,16 @@
+import React from 'react';
+import {useLanguage} from '../context/LanguageContext';
+import messages from './messages.json';
+type Pair={en:string;hi:string};
+const entries=Object.entries(messages) as Array<[string,Pair]>;
+const known=new Map<string,Pair>();for(const[key,value]of entries){known.set(key,value);if(!known.has(value.en))known.set(value.en,value);if(!known.has(value.hi))known.set(value.hi,value);}
+const patterns=entries.filter(([key])=>/\{\d+\}/.test(key)).sort((a,b)=>b[0].length-a[0].length).map(([key,value])=>{const indices=[...key.matchAll(/\{(\d+)\}/g)].map(m=>Number(m[1]));const pieces=key.split(/\{\d+\}/).map(s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'));return{regex:new RegExp('^'+pieces.join('(.+?)')+'$'),indices,value};});
+export function translateText(value:unknown,language:'en'|'hi'):any{
+ if(typeof value!=='string')return value;const direct=known.get(value)||known.get(value.replace(/\s+/g,' ').trim());if(direct)return direct[language];
+ for(const p of patterns){const match=value.match(p.regex);if(match){const args:Record<number,string>={};p.indices.forEach((index,i)=>args[index]=match[i+1]);return p.value[language].replace(/\{(\d+)\}/g,(_,i)=>args[Number(i)]??'');}}
+ const unit=value.match(/^([\d.,]+) (पीस|बॉक्स|पैकेज)$/);if(unit&&language==='en')return unit[1]+' '+({पीस:'piece',बॉक्स:'box',पैकेज:'package'} as any)[unit[2]];
+ return value;
+}
+export function L({id,text,values=[]}:{id?:string;text?:unknown;values?:unknown[]}){const{language}=useLanguage();const translated=translateText(id??text,language);return <>{typeof translated==='string'&&values.length?translated.replace(/\{(\d+)\}/g,(_,i)=>String(values[Number(i)]??'')):translated}</>;}
+/** Translate UI-copy attributes only. Input values, events, refs and business data pass through. */
+export function UI({as:Element='span',...props}:any){const{language}=useLanguage();const result={...props};for(const name of ['title','placeholder','aria-label','alt','label'])if(typeof result[name]==='string')result[name]=translateText(result[name],language);return React.createElement(Element,result);}

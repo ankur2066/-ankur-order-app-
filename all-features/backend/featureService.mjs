@@ -1,6 +1,8 @@
+import {createLoyaltyService} from './loyaltyService.mjs';
 import {randomInt,randomBytes,createHash} from 'node:crypto';
 const OWNER='ankurdryicewholesalers@gmail.com';
 export function createFeatureService({db,now=()=>Date.now(),timestamp=()=>new Date()}){
+ const loyalty=createLoyaltyService({db,timestamp});
  const owner=auth=>auth?.token?.email===OWNER&&auth.token.email_verified===true;
  const requireUser=auth=>{if(!auth?.uid)throw Error('Sign in required');return auth.uid;};
  const requireOwner=auth=>{if(!owner(auth))throw Error('Owner access required');};
@@ -10,24 +12,29 @@ export function createFeatureService({db,now=()=>Date.now(),timestamp=()=>new Da
  const code=v=>{if(typeof v!=='string'||! /^[A-Za-z0-9_-]{3,64}$/.test(v))throw Error('Invalid identifier');return v;};
  const publicRequest=(auth,data)=>({userId:requireUser(auth),customerName:text(data.customerName,100),customerPhone:(()=>{if(!/^[6-9]\d{9}$/.test(data.customerPhone))throw Error('Invalid phone');return data.customerPhone;})(),address:text(data.address),quantityKg:integer(data.quantityKg,10,5000)});
  return async function perform(auth,input){
-  const {action,data={}}=input||{};if(action!=='promoBooking')requireUser(auth);
+  const {action,data={}}=input||{};if(!['promoBooking','promoQuote'].includes(action))requireUser(auth);
   const config=await db.doc('settings/featureSuite').get();if(config.data()?.enabled!==true)throw Error('Feature suite not enabled');
-  if(action==='promoBooking'){
-   if(typeof data.requestId!=='string'||! /^[a-f0-9]{32}$/.test(data.requestId))throw Error('Invalid request key');
-   const buyer=auth?.uid||'guest';const input=publicRequest({uid:buyer},data);const promoCode=code(String(data.code||'').toUpperCase());
-   const requestKey=createHash('sha256').update(buyer+'|'+data.requestId).digest('hex');const requestRef=db.doc('promoRequests/'+requestKey);
-   return db.runTransaction(async tx=>{const previous=await tx.get(requestRef);if(previous.exists)return previous.data().result;
+  if(['loyaltyPolicy','loyaltyReconcile','loyaltyRedeem','loyaltyReview'].includes(action))return loyalty.action(auth,action,data);
+  if(action==='promoBooking'||action==='promoQuote'){
+   const preview=action==='promoQuote';
+   if(!preview&&(typeof data.requestId!=='string'||! /^[a-f0-9]{32}$/.test(data.requestId)))throw Error('Invalid request key');
+   const buyer=auth?.uid||'guest',quantity=Number(data.quantityKg);if(!Number.isFinite(quantity)||quantity<10||quantity>5000||Math.abs(quantity-Math.round(quantity*1000)/1000)>1e-9)throw Error('Invalid quantity');
+   const input=preview?{quantityKg:quantity}:{...publicRequest({uid:buyer},{...data,quantityKg:10}),quantityKg:quantity};const promoCode=code(String(data.code||'').toUpperCase());
+   const fingerprint=createHash('sha256').update(JSON.stringify({input,code:promoCode,dispatchTiming:data.dispatchTiming})).digest('hex');
+   const requestKey=createHash('sha256').update(buyer+'|'+String(data.requestId||'preview')).digest('hex');const requestRef=db.doc('promoRequests/'+requestKey);
+   return db.runTransaction(async tx=>{const previous=preview?null:await tx.get(requestRef);if(previous?.exists){if(previous.data().fingerprint!==fingerprint)throw Error('Request key already used');return previous.data().result;}
     const promoRef=db.doc('promos/'+promoCode);const [promoSnap,ratesSnap,redemption]=await Promise.all([tx.get(promoRef),tx.get(db.doc('settings/rates')),auth?.uid?tx.get(db.doc('promoRedemptions/'+promoCode+'_'+createHash('sha256').update(buyer).digest('hex'))):Promise.resolve(null)]);
     const promo=promoSnap.data(),r=ratesSnap.data();if(!promo?.active||promo.kind!=='fixed'||promo.startsAtMs>now()||promo.endsAtMs<now()||!Number.isSafeInteger(promo.endsAtMs)||!Number.isSafeInteger(promo.startsAtMs))throw Error('Promotion unavailable');
-    if(redemption?.exists)throw Error('Promotion already used');if(!Number.isSafeInteger(promo.usageCount)||promo.usageCount<0||promo.usageCount>=promo.usageLimit)throw Error('Promotion limit reached');
+    if(redemption?.exists)throw Error('Promotion already used');if(!Number.isSafeInteger(promo.usageLimit)||promo.usageLimit<1||!Number.isSafeInteger(promo.usageCount)||promo.usageCount<0||promo.usageCount>=promo.usageLimit)throw Error('Promotion limit reached');
     if(!r)throw Error('Approved rates unavailable');for(const k of ['dryIceRate','thermocolRate'])if(!Number.isFinite(r[k])||r[k]<0)throw Error('Invalid rates');const transport=r.transportRate||0;if(!Number.isFinite(transport)||transport<0)throw Error('Invalid transport');
     const baseTotalPaise=integer(Math.round(input.quantityKg*(r.dryIceRate+r.thermocolRate+transport)*100),1);if(baseTotalPaise<integer(promo.minimumPaise))throw Error('Minimum amount required');const discountPaise=Math.min(integer(promo.valuePaise,1),baseTotalPaise-1),totalPaise=baseTotalPaise-discountPaise;
-    if(data.expectedTotalPaise!==totalPaise)throw Error('Rates changed; review the updated amount');
+    if(preview)return{baseTotalPaise,discountPaise,totalPaise};
+    if(data.expectedTotalPaise!==totalPaise||(data.expectedBaseTotalPaise!==undefined&&data.expectedBaseTotalPaise!==baseTotalPaise))throw Error('Rates changed; review the updated amount');
     const orderId='ADI-'+new Date(now()).toISOString().slice(0,10).replaceAll('-','')+'-'+requestKey.slice(0,8).toUpperCase(),trackingPin=String(randomInt(100000,1000000)),trackingToken=orderId+'_'+trackingPin;
-    const order={...input,orderId,trackingPin,trackingToken,userId:buyer,district:input.address.slice(0,100),city:input.address.slice(0,100),dispatchTiming:text(data.dispatchTiming,100),productName:'Dry Ice',dryIcePricePerKg:r.dryIceRate,thermocolPricePerKg:r.thermocolRate,transportPrice:transport,dryIceSubtotal:Math.round(input.quantityKg*r.dryIceRate*100)/100,thermocolSubtotal:Math.round(input.quantityKg*r.thermocolRate*100)/100,baseTotalAmount:baseTotalPaise/100,discountAmount:discountPaise/100,promoCode,totalAmount:totalPaise/100,status:'pending',paymentStatus:'pending_verification',paymentMethod:'paytm_business_upi',createdAt:timestamp(),updatedAt:timestamp()};
-    tx.create(db.doc('orders/'+orderId),order);tx.create(db.doc('order_tracking/'+trackingToken),{orderId,trackingToken,status:'pending',paymentStatus:'pending_verification',quantityKg:input.quantityKg,productName:'Dry Ice',district:order.district,dispatchTiming:order.dispatchTiming,lastStatusUpdate:'Order received.',createdAt:timestamp(),updatedAt:timestamp()});tx.update(promoRef,{usageCount:promo.usageCount+1});
+    const order={...input,orderId,trackingPin,trackingToken,userId:buyer,district:input.address.slice(0,100),city:input.address.slice(0,100),dispatchTiming:text(data.dispatchTiming,100),productName:'ड्राई आइस (Dry Ice)',dryIcePricePerKg:r.dryIceRate,thermocolPricePerKg:r.thermocolRate,transportPrice:transport,dryIceSubtotal:Math.round(input.quantityKg*r.dryIceRate*100)/100,thermocolSubtotal:Math.round(input.quantityKg*r.thermocolRate*100)/100,baseTotalAmount:baseTotalPaise/100,discountAmount:discountPaise/100,promoCode,totalAmount:totalPaise/100,status:'pending',paymentStatus:'pending_verification',paymentMethod:'paytm_business_upi',createdAt:timestamp(),updatedAt:timestamp()};
+    tx.create(db.doc('orders/'+orderId),order);tx.create(db.doc('order_tracking/'+trackingToken),{orderId,trackingToken,status:'pending',paymentStatus:'pending_verification',quantityKg:input.quantityKg,productName:order.productName,district:order.district,dispatchTiming:order.dispatchTiming,lastStatusUpdate:'Order received.',createdAt:timestamp(),updatedAt:timestamp()});tx.update(promoRef,{usageCount:promo.usageCount+1});
     if(auth?.uid)tx.create(db.doc('promoRedemptions/'+promoCode+'_'+createHash('sha256').update(buyer).digest('hex')),{userId:buyer,orderId,createdAt:timestamp()});
-    const result={orderId,trackingPin,totalAmount:order.totalAmount,baseTotalAmount:order.baseTotalAmount,discountAmount:order.discountAmount};tx.create(requestRef,{result,userId:buyer,createdAt:timestamp()});return result;
+    const result={orderId,trackingPin,totalAmount:order.totalAmount,baseTotalAmount:order.baseTotalAmount,discountAmount:order.discountAmount};tx.create(requestRef,{result,userId:buyer,fingerprint,createdAt:timestamp()});return result;
    });
   }
   if(action==='preferences'){

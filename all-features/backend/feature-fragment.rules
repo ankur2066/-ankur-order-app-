@@ -93,3 +93,12 @@
       allow get: if isOwner() || (isSignedIn() && request.auth.uid == uid);
       allow list: if isOwner(); allow write: if false;
     }
+
+    match /loyaltyEntries/{id} {
+      allow read: if isOwner() || (isSignedIn() && resource.data.userId == request.auth.uid);
+      allow write: if false;
+    }
+    match /loyaltyRedemptions/{id} {
+      allow read: if isOwner() || (isSignedIn() && resource.data.userId == request.auth.uid);
+      allow write: if false;
+    }

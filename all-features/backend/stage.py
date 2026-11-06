@@ -4,7 +4,7 @@ import argparse,json,hashlib,shutil
 ROOT=Path(__file__).resolve().parents[2]
 def stage(out):
     out.mkdir(parents=True,exist_ok=False);runtime=out/'functions';runtime.mkdir()
-    for name in ['index.mjs','featureService.mjs']:shutil.copyfile(ROOT/'all-features/backend'/name,runtime/name)
+    for name in ['index.mjs','featureService.mjs','loyaltyService.mjs']:shutil.copyfile(ROOT/'all-features/backend'/name,runtime/name)
     (runtime/'package.json').write_text(json.dumps({'name':'ankur-feature-suite-review','private':True,'type':'module','main':'index.mjs','engines':{'node':'22'},'dependencies':{'firebase-admin':'^13.0.0','firebase-functions':'^6.0.0'}},indent=2)+'\n')
     base=(ROOT/'billing/review/firestore.product-billing.rules').read_text();fragment=(ROOT/'all-features/backend/feature-fragment.rules').read_text();anchor='    // COLLECTION ACCESS RULES';assert base.count(anchor)==1
     # Existing legacy owner validation must not let a caller strip trusted promo/ETA
