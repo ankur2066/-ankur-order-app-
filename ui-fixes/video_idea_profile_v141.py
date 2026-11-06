@@ -80,10 +80,10 @@ function VideoIdeaPanel({user}:{user:User|null}){
   const eventName=occasion==='other'?(customOccasion.trim()||'an event'):
     (VIDEO_OCCASIONS.find(x=>x.id===occasion)?.name||'an event');
   const prompt=[
-    'Generate an actual finished '+duration+'-second vertical 9:16 VIDEO for '+eventName+' featuring Ankur Dryice. Render and return a playable video, not just a video concept, script or storyboard.',
+    'Generate an actual finished '+duration+'-second vertical 9:16 VIDEO for '+eventName+'. Render and return a playable video, not just a video concept, script or storyboard.',
     'Include cinematic scenes, Hindi captions, smooth transitions and a clear call to action in the final video.',
     'Show safe dry-ice handling. Use your available video-generation tool. If the requested duration or video generation is unavailable, clearly say so instead of presenting written text as a finished video.',
-    contact.name.trim()?'Requested name or brand: '+contact.name.trim()+'.':'',
+    contact.name.trim()?'Requested name or brand: '+contact.name.trim()+'.':'Do not add any business name, logo, watermark, phone number or branding unless explicitly provided in these details.',
     contact.city.trim()?'Location: '+contact.city.trim()+'.':'',
     contact.mobile.length===10?'Contact number for the requested video: '+contact.mobile+'.':'',
   ].filter(Boolean).join(' ');
