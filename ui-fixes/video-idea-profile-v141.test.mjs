@@ -36,6 +36,8 @@ test('Video Idea Builder shows event selection, prompt and two equal-width actio
   assert.match(css,/max-height: min\(72vh, 720px\)/);
   assert.match(hub,/id="ankur-video-prompt"/);
   assert.match(hub,/Generate an actual finished/);
+  assert.doesNotMatch(video,/featuring Ankur Dryice/,'customer video must not be branded for the app owner by default');
+  assert.match(video,/Do not add any business name, logo, watermark, phone number or branding unless explicitly provided/);
   assert.match(hub,/playable video, not just a video concept/);
   assert.match(hub,/video generation is unavailable/);
   assert.match(hub,/\[duration,setDuration\]=useState\(30\)/);
