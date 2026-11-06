@@ -53,6 +53,7 @@ jobs:
           python3 ui-fixes/dispatch_rules_privacy_v147.py
           python3 ui-fixes/owner_premium_v148.py
           python3 ui-fixes/staff_contact_privacy_v148.py
+          python3 ui-fixes/tracking-language.py
       - name: Confirm reviewed v1.0.38 customer UI is in the signed app source
         run: |
           set -euo pipefail

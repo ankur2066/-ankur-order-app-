@@ -56,6 +56,7 @@ jobs:
           python3 ui-fixes/dispatch_rules_privacy_v147.py
           python3 ui-fixes/owner_premium_v148.py
           python3 ui-fixes/staff_contact_privacy_v148.py
+          python3 ui-fixes/tracking-language.py
           python3 all-features/protected_audit.py check /tmp/protected.json
       - name: Unit and regression contracts
         run: |
@@ -70,7 +71,7 @@ jobs:
       - name: Actual React client and tap regressions
         run: |
           npm install --no-save --ignore-scripts react-test-renderer@19
-          ANKUR_COMBINED_SOURCE=$PWD ANKUR_CLIENT_QA=$PWD ANKUR_CLIENT_APP=$PWD node --experimental-vm-modules --test notifications/client-fixes/client.test.mjs notifications/tap-fix/tap.test.mjs notifications/notificationPush.test.mjs all-features/language.test.mjs billing/checkout.test.mjs updates/notice.test.mjs ui-fixes/customer-home-live.test.mjs
+          ANKUR_COMBINED_SOURCE=$PWD ANKUR_CLIENT_QA=$PWD ANKUR_CLIENT_APP=$PWD node --experimental-vm-modules --test notifications/client-fixes/client.test.mjs notifications/tap-fix/tap.test.mjs notifications/notificationPush.test.mjs all-features/language.test.mjs billing/checkout.test.mjs updates/notice.test.mjs ui-fixes/customer-home-live.test.mjs ui-fixes/tracking-language.test.mjs
       - name: Safety boundary
         run: |
           test -f dist/index.html

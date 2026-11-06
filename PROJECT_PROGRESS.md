@@ -1,5 +1,14 @@
 # ANKUR DRYICE — PROJECT PROGRESS / CHAT HANDOFF
 
+## 6 November 2026 — tracking language and contact follow-up
+
+- Continued from exact Work Mode-preserving head `b67dc7b79529f1efbeb2db3b9650a366f94268cd`, reconstructed the complete current chain, and kept the latest seasonal policy, five tabs, premium owner/staff screens and grouped-release gate.
+- Added `ui-fixes/tracking-language.py` last in local, review and signed reconstruction. Tracking labels, validation/errors, statuses, payment state, ETA and contact accessibility text now use the existing English/Hindi preference. English has no language prompt; switching does not reread the order or discard its PIN.
+- Corrected Tracking Call to 95808 82066; WhatsApp remains 88963 32066. Stored product/location/dispatch/status notes are preserved verbatim. Secret capability lookup, Firestore reads and payment state data are unchanged.
+- Local checks: TypeScript lint and Vite build PASS; actual tracking React tests 3/3; existing combined client/tap/Home regressions 30/30; latest owner/staff/five-tab/dispatch contracts 13/13; reconstruction/release-gate contracts 3/3. Protected audit confirms original legacy booking submission, rates and Rules unchanged. CI for this follow-up must be checked at its resulting commit before claiming remote PASS.
+- This completes the tracking UI language gap only. Remaining legacy owner/staff/order screens, backend rollout/inventory integration and physical-device verification still need work; the historical 14-feature report does not describe all later Work Mode changes.
+- No release marker, version bump, new APK, production deployment, feature activation, live customer-data write, merge or billing change was made in this batch.
+
 ## 6 November 2026 — Codex reconnect / Work Mode reconciliation
 
 - Reconnected using the existing GitHub connection and verified Draft PR #15 is open on codex/all-14-phase-bc-english.
