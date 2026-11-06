@@ -61,8 +61,8 @@ export function createFeatureService({db,now=()=>Date.now(),timestamp=()=>new Da
   if(action==='subscriptionRequest'){
    const value=publicRequest(auth,data);if(!['weekly','monthly'].includes(data.cadence))throw Error('Invalid cadence');const ref=db.collection('subscriptions').doc();await ref.create({...value,cadence:data.cadence,approved:false,active:true,executionEnabled:false,createdAt:timestamp()});return{id:ref.id};
   }
-  if(action==='subscriptionPause'){
-   const ref=db.doc('subscriptions/'+code(data.id));await db.runTransaction(async tx=>{const snap=await tx.get(ref);if(!snap.exists||snap.data().userId!==auth.uid)throw Error('Subscription unavailable');tx.update(ref,{active:false,updatedAt:timestamp()});});return{ok:true};
+  if(action==='subscriptionPause'||action==='subscriptionResume'){
+   const ref=db.doc('subscriptions/'+code(data.id));await db.runTransaction(async tx=>{const snap=await tx.get(ref);if(!snap.exists||snap.data().userId!==auth.uid)throw Error('Subscription unavailable');tx.update(ref,action==='subscriptionResume'?{active:true,approved:false,executionEnabled:false,updatedAt:timestamp()}:{active:false,updatedAt:timestamp()});});return{ok:true};
   }
   if(action==='subscriptionApprove'){
    requireOwner(auth);const ref=db.doc('subscriptions/'+code(data.id));const nextDueMs=integer(data.nextDueMs,now(),now()+366*86400000);

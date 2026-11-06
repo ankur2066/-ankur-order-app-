@@ -1,13 +1,11 @@
-# Product billing review status
+# Product billing private-review status — 6 November 2026
 
-The earlier product billing task remains in scope alongside the 14-feature assignment.
+Current Work Mode source is preserved. Owner unit/rate/packing/delivery editor, integer-paise quoting, immutable unit-order/tracking snapshots, separate order history, retry/response-loss and repricing checks, and bilingual unit checkout/editor are implemented in the combined app source. Catalog drafts remain unpriced/private; seasonal Dry Ice/Pyro visibility restrictions remain in force. No live catalog or selling flag was seeded.
 
-Implemented source: separate inactive-by-default catalog/order/tracking schema, owner editable units/rates/packing/delivery, integer-paise checkout, immutable snapshots and source-aware order history. Requested names remain unpriced local drafts. No live catalog or feature flag has been written.
+The isolated `productpush` codebase has only two new exports and reuses the audited sender helper. Original three `orderpush` exports are unchanged. Product customer opt-out retains owner alerts; this does not imply preference enforcement by the legacy workers. Real installed SDK export/database/region/runtime discovery now runs in product review CI, along with arithmetic/listener/push tests; combined checkout React and candidate Rules emulator are also tested.
 
-Latest local verification: 15 money/quantity tests, 3 actual repository listener tests, 4 product push handler tests and 17 Firestore emulator rule-logic tests PASS. The combined extracted review source passes TypeScript lint and Vite build. Emulator assertions exercise isolated demo rule logic, not production named-database deployment.
+Optional inventory integration now covers real owner/staff Dispatch in review source, with trusted SKU/balance/projection transaction and candidate Rules preventing direct dispatch/rewind when explicitly enabled. It stays off by default and requires real mappings/balances plus separately approved deployment and updated operating clients.
 
-The new isolated `productpush` package reuses the audited sender helper source without changing or deploying the existing three `orderpush` Functions. Only two new product exports are staged. Syntax and mocked-handler checks pass; real SDK discovery and package lock verification remain required.
+Latest local selection: billing/listeners/product push plus receipts 25/25; combined client/checkout/handler regressions 72/72; feature+product emulator 41/41; real feature/product SDK discovery 2/2. Combined TypeScript lint and Vite build PASS. No Android physical-device result is claimed. The grouped v1.0.48 private build must pass same-commit review/security/product jobs and original-certificate/package/version checks; see its artifact source-SHA receipt after CI.
 
-Remaining gates: complete React checkout retry/auth/race tests, existing native client harness integration, full Phase A report integration, English/Hindi coverage, actual staged SDK smoke, combined CI and a newly signed combined APK. Existing v1.0.33-test APK does not include this billing overlay. No feature-complete or live claim is made.
-
-Production Rules/Functions deployment, selling activation, billing settings and customer data writes require separate owner authorization after the exact rollout proposal is ready.
+Full legacy localization, inline legacy promo checkout, legacy notification preferences and reward issuance remain incomplete. Current live Rules hash, actual selling values and runtime/IAM rollout need review; production deploy, billing settings, live data changes and public release are not authorized. Full status: `docs/ONE_SHOT_14_FEATURE_REPORT.md`.

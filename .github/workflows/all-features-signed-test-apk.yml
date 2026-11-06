@@ -9,8 +9,12 @@ permissions: {contents: read}
 jobs:
   review:
     uses: ./.github/workflows/all-features-review.yml
+  security:
+    uses: ./.github/workflows/feature-suite-security.yml
+  product-billing:
+    uses: ./.github/workflows/product-billing-review.yml
   signed-test-apk:
-    needs: review
+    needs: [review, security, product-billing]
     runs-on: ubuntu-latest
     timeout-minutes: 40
     steps:
@@ -126,8 +130,8 @@ jobs:
           from pathlib import Path
           p=Path('android/app/build.gradle'); lines=p.read_text().splitlines()
           for i,x in enumerate(lines):
-            if x.strip().startswith('versionCode '): lines[i]='        versionCode 47'
-            if x.strip().startswith('versionName '): lines[i]='        versionName "1.0.47-season-test"'
+            if x.strip().startswith('versionCode '): lines[i]='        versionCode 48'
+            if x.strip().startswith('versionName '): lines[i]='        versionName "1.0.48-combined-test"'
           p.write_text('\n'.join(lines)+'\n')
           PY
           cd android
@@ -141,7 +145,7 @@ jobs:
           # update in place; a mismatched package would install as a second app.
           BUILD_TOOLS="$ANDROID_HOME/build-tools/$(ls "$ANDROID_HOME/build-tools" | sort -V | tail -1)"
           BADGING=$("$BUILD_TOOLS/aapt" dump badging "$APK")
-          printf '%s\n' "$BADGING" | grep -F "package: name='com.ankurdryice.events' versionCode='47' versionName='1.0.47-season-test'"
+          printf '%s\n' "$BADGING" | grep -F "package: name='com.ankurdryice.events' versionCode='48' versionName='1.0.48-combined-test'"
           # Update flow opens a consent-based external link; never request installer
           # or broad file-management privileges in the packaged manifest.
           PERMISSIONS=$("$BUILD_TOOLS/aapt" dump permissions "$APK")
@@ -158,6 +162,7 @@ jobs:
           APK_CERT_SHA256=$(printf '%s\n' "$CERT_OUTPUT" | sed -nE 's/.*certificate SHA-256 digest: ([0-9a-fA-F]{64}).*/\1/p' | head -n 1 | tr 'A-F' 'a-f')
           test "$APK_CERT_SHA256" = "$EXPECTED_CERT_SHA256" || { echo 'BLOCKED: unexpected APK signing certificate'; exit 1; }
           sha256sum "$APK" > apk-sha256.txt
+          git rev-parse HEAD > apk-source-sha.txt
 
       - name: Verify signed Google Play App Bundle
         run: |
@@ -171,7 +176,7 @@ jobs:
           sha256sum "$AAB" > aab-sha256.txt
       - uses: actions/upload-artifact@v4
         with:
-          name: Ankur-Dryice-v1.0.47-PRIVATE-PLAY-AAB
+          name: Ankur-Dryice-v1.0.48-PRIVATE-PLAY-AAB
           path: |
             android/app/build/outputs/bundle/release/app-release.aab
             aab-sha256.txt
@@ -179,10 +184,12 @@ jobs:
           retention-days: 14
       - uses: actions/upload-artifact@v4
         with:
-          name: Ankur-Dryice-v1.0.47-SEASON-PRIVATE-TEST
+          name: Ankur-Dryice-v1.0.48-SEASON-PRIVATE-TEST
           path: |
             android/app/build/outputs/apk/release/app-release.apk
             apk-sha256.txt
+            apk-source-sha.txt
+            release-batches/v1.0.48-consolidated.txt
           retention-days: 7
       - if: always()
         run: rm -f "$RUNNER_TEMP/ankur-release.jks" android/app/google-services.json

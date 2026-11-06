@@ -1,5 +1,15 @@
 # ANKUR DRYICE — PROJECT PROGRESS / CHAT HANDOFF
 
+## 6 November 2026 — grouped v1.0.48 private candidate
+
+- Inventory source `461f7767364bae4aeae24742d911606e490a70b2` passed exact-head review runs 42142009143 / 42142003623 and emulator run 42142003631.
+- Added own Regular Supply resume, which resets approval/execution and therefore requires a fresh owner decision; no automatic charge or execution. Emulator covers pause/resume and cross-user denial.
+- Added real installed Firebase SDK discovery tests for the staged three feature exports and two product exports. Signing now depends on same-commit source review + security emulator + product-billing review; certificate/package checks remain mandatory.
+- Prepared ONE explicit `release-batches/v1.0.48-consolidated.txt` grouped private candidate, versionCode 48 / 1.0.48-combined-test, including all current Work Mode app source and this session's tracking/inventory/resume changes. APK artifact includes source SHA and checksum. This entry records preparation, not build/signature success: verify the release-marker commit's Actions results before distributing.
+- Updated the stale 14-feature and billing reports with current source behavior and exact unfinished work. See `docs/ONE_SHOT_14_FEATURE_REPORT.md`; do not claim complete English/Hindi coverage or 14/14 live operation from CI.
+- Local final checks: lint/build/protected legacy audit PASS; emulator 41/41; contracts 71; actual client/handler regressions 72; Phase A 4; billing/listener/push/receipt 25; real SDK discovery 2. Actual Android acceptance/live rollout remain unverified.
+- No production Firebase deployment, billing change, live data write, feature activation, PR merge, public release or installation authorized/performed.
+
 ## 6 November 2026 — optional inventory integration completed in review source
 
 - Tracking follow-up committed at `5fd60d298f9b539c7b75f78e2652525729e3c6b6`; exact-head review CI PASS: https://github.com/ankur2066/-ankur-order-app-/actions/runs/42140935406 and https://github.com/ankur2066/-ankur-order-app-/actions/runs/42140929252. Security emulator PASS: https://github.com/ankur2066/-ankur-order-app-/actions/runs/42140929310.

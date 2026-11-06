@@ -29,7 +29,9 @@ test('review and signed APK run the entire local reconstruction chain in order',
 test('private signing depends on successful same-commit review before accessing signing secrets',()=>{
  assert.match(reviewed,/^  workflow_call:/m);
  assert.match(signed,/review:\n    uses: \.\/\.github\/workflows\/all-features-review\.yml/);
- assert.match(signed,/signed-test-apk:\n    needs: review/);
+ assert.match(signed,/signed-test-apk:\n    needs: \[review, security, product-billing\]/);
+ assert.match(signed,/security:\n    uses: \.\/\.github\/workflows\/feature-suite-security\.yml/);
+ assert.match(signed,/product-billing:\n    uses: \.\/\.github\/workflows\/product-billing-review\.yml/);
  assert.doesNotMatch(signed,/continue-on-error: true/);
  // All changes still go through CI, but signed APKs are built once per approved batch.
  assert.match(signed,/^  workflow_dispatch:/m);
