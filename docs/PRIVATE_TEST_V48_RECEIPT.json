@@ -1,0 +1,58 @@
+{
+  "sourceSha": "113072a6d84e8d634c3e891aece9a95c09a8d979",
+  "apkSha256": "9dbe33d9067abda01d87b043e723a3f96988dfbd17e20dcac30a419f4a5a5958",
+  "artifactZipSha256": "13d1177d25869992168f8ab9634b48895f6fe524ad86f717ebbc71ffef98796c",
+  "apkBytes": 5592601,
+  "certificateSha256VerifiedInCi": "ebb60e0b13f7b5bfa814a619d5e4acc0ee65f0e12835ad5a282c072bc9976a6e",
+  "artifactId": 13469485603,
+  "runId": 42142670072,
+  "packageVerifiedInCi": "com.ankurdryice.events",
+  "versionCode": 48,
+  "versionName": "1.0.48-combined-test",
+  "deviceTested": false,
+  "publiclyPublished": false,
+  "artifactName": "Ankur-Dryice-v1.0.48-SEASON-PRIVATE-TEST",
+  "artifactDownloadPage": "https://github.com/ankur2066/-ankur-order-app-/actions/runs/42142670072/artifacts/13469485603",
+  "artifactExpiresAt": "2026-11-13T01:23:06Z",
+  "ciConclusion": "success",
+  "jobs": {
+    "review": {
+      "id": 127646549758,
+      "contractTests": 71,
+      "phaseATests": 4,
+      "actualClientTests": 72
+    },
+    "security": {
+      "id": 127646550107,
+      "receiptAndSdkTests": 3,
+      "firestoreEmulatorTests": 41
+    },
+    "productBilling": {
+      "id": 127646550298,
+      "unitAndPushTests": 23,
+      "sdkTests": 1
+    },
+    "signedAndroid": {
+      "id": 127647216009,
+      "packageVersionCertificateChecks": "PASS"
+    }
+  },
+  "uniqueAutomatedChecks": 215,
+  "all14FeaturesComplete": false,
+  "productionDeployed": false,
+  "billingChanged": false,
+  "liveCustomerDataChanged": false,
+  "existingApksModified": false,
+  "merged": false,
+  "remainingImplementation": [
+    "Loyalty earning/redemption and real reward policy",
+    "Inline promo field/discount interaction in legacy OrderForm",
+    "Legacy notification preference coverage",
+    "Whole-app legacy English/Hindi literal migration"
+  ],
+  "remainingAcceptance": [
+    "Physical Android order/payment/notification/PDF/update tests",
+    "Current live Rules hash and least-privilege runtime/IAM review",
+    "Owner-approved production rollout and actual optional-feature configuration"
+  ]
+}

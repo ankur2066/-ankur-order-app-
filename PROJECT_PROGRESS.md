@@ -1,5 +1,15 @@
 # ANKUR DRYICE — PROJECT PROGRESS / CHAT HANDOFF
 
+## 6 November 2026 — v1.0.48 private APK SIGNED / VERIFIED
+
+- Final app source: `113072a6d84e8d634c3e891aece9a95c09a8d979`. Same-source review/security/product jobs and signed Android run https://github.com/ankur2066/-ankur-order-app-/actions/runs/42142670072 all PASS. Job logs confirm **215 unique checks, zero failures** (147 review + 44 security + 24 product).
+- New combined private TEST APK: https://github.com/ankur2066/-ankur-order-app-/actions/runs/42142670072/artifacts/13469485603 (ZIP with APK, checksum, source receipt and grouped-release marker; expires 13 November UTC).
+- Package `com.ankurdryice.events`, versionCode 48, versionName `1.0.48-combined-test`; original certificate pin verified by CI. Downloaded ZIP hash, extracted APK hash and source-SHA receipt independently matched. Full evidence: `docs/PRIVATE_TEST_V48_RECEIPT.json`.
+- This includes latest Work Mode premium owner/staff/privacy/seasonal/navigation/AI/update/PDF code plus bilingual Tracking, optional trusted inventory dispatch and safe supply resume. Work Mode and existing APK files have not been replaced or rolled back.
+- **Assignment remains incomplete:** loyalty issuance/redemption/policy, legacy inline promo checkout, legacy notification preference enforcement and complete legacy localization. Source/live distinction and all 14 PASS/BLOCKED rows are in `docs/ONE_SHOT_14_FEATURE_REPORT.md`. No physical-device acceptance is claimed.
+- Optional backends/selling/inventory remain inactive without real configuration and owner-approved deployment. Current live Rules hash/IAM rollout and physical Android acceptance are still required. No production deployment, billing change, live customer-data mutation, merge, public release or device installation occurred.
+- Subsequent documentation-only evidence commits are not different app binaries; the APK source remains the exact SHA above. Keep the one-APK-per-grouped-release marker and all three same-commit gates.
+
 ## 6 November 2026 — grouped v1.0.48 private candidate
 
 - Inventory source `461f7767364bae4aeae24742d911606e490a70b2` passed exact-head review runs 42142009143 / 42142003623 and emulator run 42142003631.

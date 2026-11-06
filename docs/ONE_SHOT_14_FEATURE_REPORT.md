@@ -59,7 +59,10 @@ Preserved: current five customer tabs, owner premium seven-section layout, staff
 - Billing arithmetic/listeners/product push/receipt: **25/25 PASS**.
 - Real installed Firebase SDK discovery: **2/2 PASS** (three feature exports and two isolated product exports, correct database/region/accounts/instance limits). Discovery creates no documents and is not a live delivery test.
 - Inventory source commit `461f7767364bae4aeae24742d911606e490a70b2`: review CI https://github.com/ankur2066/-ankur-order-app-/actions/runs/42142009143 and https://github.com/ankur2066/-ankur-order-app-/actions/runs/42142003623 PASS; security emulator https://github.com/ankur2066/-ankur-order-app-/actions/runs/42142003631 PASS.
-- Final grouped v1.0.48 candidate adds safe recurring resume + SDK gates. Its exact-source CI/signature/artifact results must be checked after the release-marker commit; earlier source CI does not prove the final APK build succeeded. The private APK includes a source-SHA receipt.
+- **Final grouped v1.0.48 signed private APK PASS:** source `113072a6d84e8d634c3e891aece9a95c09a8d979`, run https://github.com/ankur2066/-ankur-order-app-/actions/runs/42142670072. All same-commit review/security/product gates succeeded: 71 + 4 + 72 + 3 + 41 + 23 + 1 = **215 checks, zero failures**. Gradle APK/AAB build and package/version/original-certificate checks succeeded.
+- [Download private TEST artifact (ZIP containing APK)](https://github.com/ankur2066/-ankur-order-app-/actions/runs/42142670072/artifacts/13469485603), expires 13 November 2026 UTC. Package `com.ankurdryice.events`, versionCode 48, versionName `1.0.48-combined-test`; original certificate SHA-256 `ebb60e0b13f7b5bfa814a619d5e4acc0ee65f0e12835ad5a282c072bc9976a6e`.
+- Downloaded artifact ZIP SHA-256 verified: `13d1177d25869992168f8ab9634b48895f6fe524ad86f717ebbc71ffef98796c`. Extracted APK SHA-256 matches its CI receipt: `9dbe33d9067abda01d87b043e723a3f96988dfbd17e20dcac30a419f4a5a5958`; included source receipt matches the exact source commit above. Full evidence: `docs/PRIVATE_TEST_V48_RECEIPT.json`.
+- Private signed AAB also archived by the existing workflow, not submitted to Play: https://github.com/ankur2066/-ankur-order-app-/actions/runs/42142670072/artifacts/13469375845. This is not a physical-device acceptance or public-release result.
 
 ## Production/device boundaries
 
