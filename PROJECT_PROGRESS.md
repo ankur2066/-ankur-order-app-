@@ -1,5 +1,12 @@
 # ANKUR DRYICE — PROJECT PROGRESS / CHAT HANDOFF
 
+## 6 November 2026 — v1.0.49 PRIVATE TEST verified
+
+- App source `f46ea3274b25805e603525ed4a1c94b152510dbf`: same-commit review, security emulator, product billing and signed Android run https://github.com/ankur2066/-ankur-order-app-/actions/runs/42173175171 PASS; 257 checks, including 52 emulator tests, with lint/build and protected legacy audit.
+- Private APK ZIP https://github.com/ankur2066/-ankur-order-app-/actions/runs/42173175171/artifacts/13482221812 expires 13 November 2026 UTC. Source and downloaded APK/ZIP checksums match; package/version and original signing certificate were verified in CI. Details: `docs/PRIVATE_TEST_V49_RECEIPT.json`. It has not been installed or tested on a physical phone.
+- Loyalty with owner-configured policy, inline promo, customer notification preferences and bilingual UI source/tests are integrated. The live legacy Functions are unchanged; the preference-aware worker is review-only. Actual policy/promo/stock values, separately approved backend deployment, and current live Rules/IAM verification remain necessary. Firebase read-only CLI could not authenticate in this session.
+- No production deployment, billing change, live customer/stock modification, feature activation, PR merge, public release or device installation occurred. Existing Work Mode changes and older APKs were preserved. Full 14-row report: `docs/ONE_SHOT_14_FEATURE_REPORT.md`.
+
 ## 6 November 2026 — v1.0.49 grouped candidate prepared
 
 - New application/backend source committed as `acc0328da5a09b46bee3385d5773c3bd80d8d007`; latest Work Mode work and original v1.0.48 APK remain intact.

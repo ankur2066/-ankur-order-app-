@@ -1,5 +1,8 @@
 # Product billing private-review status — 6 November 2026
 
+Latest v1.0.49 source/CI passed 257 checks including 52 security emulator tests. Inline standard Dry Ice promo, bilingual UI and notification preferences are now in the private candidate. Product billing and product push remain staged/inactive; live approval and owner-provided values are still required. APK evidence: `docs/PRIVATE_TEST_V49_RECEIPT.json`. The v1.0.48 note below is historical.
+
+
 Current Work Mode source is preserved. Owner unit/rate/packing/delivery editor, integer-paise quoting, immutable unit-order/tracking snapshots, separate order history, retry/response-loss and repricing checks, and bilingual unit checkout/editor are implemented in the combined app source. Catalog drafts remain unpriced/private; seasonal Dry Ice/Pyro visibility restrictions remain in force. No live catalog or selling flag was seeded.
 
 The isolated `productpush` codebase has only two new exports and reuses the audited sender helper. Original three `orderpush` exports are unchanged. Product customer opt-out retains owner alerts; this does not imply preference enforcement by the legacy workers. Real installed SDK export/database/region/runtime discovery now runs in product review CI, along with arithmetic/listener/push tests; combined checkout React and candidate Rules emulator are also tested.
