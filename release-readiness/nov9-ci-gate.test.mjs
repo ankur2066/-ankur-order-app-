@@ -18,7 +18,7 @@ test('a single signed APK cannot proceed without UI, staff, feature and push rev
  assert.doesNotMatch(gate,/firebase deploy|gh release create|publish-to-play/i);
 });
 test('new original-signer private Android candidate has pinned package and version',()=>{
- assert.match(signed,/Ankur-Dryice-v1\.0\.60-PRIVATE-TEST/);
+ assert.match(signed,/Ankur-Dryice-v10\.0\.60-PRIVATE-TEST/);
  assert.match(signed,/versionCode 60/);
  assert.match(signed,/EXPECTED_CERT_SHA256/);
  assert.match(signed,/com\.ankurdryice\.events/);

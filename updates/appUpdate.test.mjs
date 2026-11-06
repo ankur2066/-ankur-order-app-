@@ -8,11 +8,12 @@ const notice=readFileSync(new URL('./AppUpdateNotice.template',import.meta.url),
 const workflow=readFileSync(new URL('../.github/workflows/all-features-signed-test-apk.yml',import.meta.url),'utf8');
 const update=await import('data:text/javascript;charset=utf-8,'+encodeURIComponent(stripTypeScriptTypes(source)));
 const play='https://play.google.com/store/apps/details?id=com.ankurdryice.events';
-const apk='https://ankurdryice.store/app-releases/Ankur-Dryice-v1.0.61-signed.apk';
-const mk=(url,versionCode=61,channel='signed_apk')=>({versionCode,versionName:'1.0.61',channel,url,notes:'Booking and Tracking improvements'});
+const apk='https://ankurdryice.store/app-releases/Ankur-Dryice-v10.0.61-signed.apk';
+const mk=(url,versionCode=61,channel='signed_apk')=>({versionCode,versionName:'10.0.61',channel,url,notes:'Booking and Tracking improvements'});
 
 test('version checker accepts only newer known verified destinations',()=>{
  assert.equal(update.ANDROID_VERSION_CODE,60);
+ assert.equal(update.ANDROID_VERSION_NAME,'10.0.60');
  assert.equal(update.validateUpdateManifest(mk(apk))?.url,apk);
  assert.equal(update.validateUpdateManifest(mk(play,61,'play'))?.url,play);
  assert.equal(update.validateUpdateManifest(mk(apk,60)),null);
@@ -77,5 +78,5 @@ test('native only, nonblocking, bilingual notice and no silent installer permiss
  assert.match(notice,/rel="noopener noreferrer"/);
  assert.doesNotMatch(notice,/REQUEST_INSTALL_PACKAGES|ACTION_INSTALL_PACKAGE|PackageInstaller|download\(/);
  assert.match(workflow,/versionCode 60/);
- assert.match(workflow,/versionName "1\.0\.60-private-test"/);
+ assert.match(workflow,/versionName "10\.0\.60-private-test"/);
 });

@@ -1,4 +1,4 @@
-Private test release 1.0.60 (Android versionCode 60).
+Private test release 10.0.60 (Android versionCode 60).
 Customers see pending wholesale applications after submit and reload.
 Owner application cards approve or revoke access.
 Owner quotes are attached to bulk request cards and visible to customers.
