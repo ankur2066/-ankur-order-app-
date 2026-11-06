@@ -1,5 +1,17 @@
 # ANKUR DRYICE — PROJECT PROGRESS / CHAT HANDOFF
 
+## 6 November 2026 — Codex reconnect / Work Mode reconciliation
+
+- Reconnected using the existing GitHub connection and verified Draft PR #15 is open on codex/all-14-phase-bc-english.
+- Reconciled the previous Codex implementation baseline 7e6e4f4a with the much newer Work Mode head 0d5e1403940a670c3f208efe44c5f1c50586eae8. Do not restore the old v1.0.34 files or overwrite later overlays.
+- Latest exact-head review CI PASS: https://github.com/ankur2066/-ankur-order-app-/actions/runs/41860599072 and https://github.com/ankur2066/-ankur-order-app-/actions/runs/41860588684.
+- Preserve subsequent seasonal Dry Ice/Pyro restrictions, bilingual unit checkout/editor and Home changes, native update/PDF safety fixes, current navigation and AI Video/Profile cleanup, compact dispatch/Rules-viewer removal, and the latest premium owner/staff contact overlays.
+- The latest owner/staff premium source is reviewed source; these CI results alone do not prove it is contained in a newly signed APK or physically tested.
+- Keep the explicit grouped-release marker and same-commit review gate. Do not create an APK for every edit. Preserve original signing identity, booking/rates/tracking/payment/FCM, existing APKs and live customer data.
+- Next development must reconstruct the current workflow chain and verify remaining backend/localization gaps against this new head. Older reports and version headings below are historical; do not treat them as the latest app state.
+- No production deployment, billing-setting change, customer-data mutation, merge, public release or installation was performed during this reconnect check.
+
+
 **Last checked:** 2026-11-03, private v1.0.38 work session (Asia/Kolkata)  
 **Project:** Ankur Dryice customer / owner / staff Android app  
 **Repository:** `ankur2066/-ankur-order-app-`  
