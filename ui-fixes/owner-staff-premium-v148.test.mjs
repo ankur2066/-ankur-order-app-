@@ -26,7 +26,7 @@ test('Premium owner UI keeps all 7 original destinations and all key functions',
  }
  const owner=app.slice(app.indexOf("{currentTab === 'admin' && role === 'admin' && ("),app.indexOf("{currentTab !== 'admin'",app.indexOf("{currentTab === 'admin' && role === 'admin' && (")));
  assert.ok(owner.indexOf('<details className="ankur-owner-tools">')<owner.indexOf('<AdminDashboard'));
- assert.match(owner,/<summary>सेवाएँ और टूल्स · Services and tools<\\/summary>/);
+ assert.match(owner,/<summary>सेवाएँ और टूल्स · Services and tools<\/summary>/);
  assert.match(css,/\.ankur-owner-tools > summary/);
  assert.match(css,/OWNER SERVICES DRAWER/);
  assert.match(app,/<AdminDashboard/);
