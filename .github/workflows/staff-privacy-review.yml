@@ -1,9 +1,8 @@
 name: Staff phone privacy server review (NO DEPLOY)
 on:
   workflow_call:
-  push:
-    branches: [codex/staff-phone-server-privacy-v149]
-    paths: ['privacy/**', 'winner/**', 'updates/**', 'all-features/**', 'ui-fixes/customer-features-v140.test.mjs', 'ci-fixes/signing-cert.test.mjs', '.github/workflows/staff-privacy-review.yml']
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 
 permissions:

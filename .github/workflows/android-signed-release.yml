@@ -1,34 +1,15 @@
 name: Ankur Order Signed Release APK
 on:
-  push:
-    branches:
-      - feature/self-pickup-security-tests
-      - feature/ux-qa-2026-10-31
-      - feature/premium-booking-v122
-      - feature/blinkit-premium-ui-20261031
-      - feature/customer-home-booking-v124
-      - feature/home-only-order-form-v125
-      - feature/compact-customer-form-v126
-      - feature/english-booking-home-v127
-      - feature/readable-smooth-booking-v128
-      - feature/order-notifications-v129
-    paths:
-      - '.github/workflows/android-signed-release.yml'
-      - 'Ankur_Order_App_Upload_GitHub.zip'
-      - 'ci-fixes/**'
-      - 'app-check/**'
-      - 'ui-fixes/**'
-      - 'notifications/**'
   workflow_dispatch:
     inputs:
       version_code:
         description: 'Android versionCode (greater than installed version)'
         required: true
-        default: '29'
+        default: '63'
       version_name:
         description: 'Release version'
         required: true
-        default: '1.0.29'
+        default: '10.0.63'
 permissions:
   contents: read
 jobs:

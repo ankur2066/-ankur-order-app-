@@ -1,10 +1,8 @@
 name: All 14 features + English default private review
 
 on:
-  push:
-    branches: [codex/all-14-phase-bc-english, codex/staff-phone-server-privacy-v149]
   pull_request:
-    branches: [codex/phase-a-owner-reports-expenses]
+    branches: [main]
   workflow_dispatch:
   workflow_call:
 
