@@ -1,5 +1,11 @@
 # ANKUR DRYICE — PROJECT PROGRESS / CHAT HANDOFF
 
+## 6 November 2026 — v1.0.49 grouped candidate prepared
+
+- New application/backend source committed as `acc0328da5a09b46bee3385d5773c3bd80d8d007`; latest Work Mode work and original v1.0.48 APK remain intact.
+- One v1.0.49 private candidate is requested via `release-batches/v1.0.49-consolidated.txt`; same-commit review, security and product billing must succeed before signing. Check the run and artifact before claiming success. VersionCode 49, original package and certificate pin remain mandatory.
+- The older 14-feature table and v1.0.48 artifact are historical; see the latest source entry below for the newly implemented loyalty, promo, preferences and UI localization. Live setup/deployment, actual owner values, wording/device acceptance remain separately gated. No production or customer-data changes.
+
 ## 6 November 2026 — remaining private-review implementation
 
 - Continued from preserved Work Mode and v1.0.48 evidence head `aa1859ca85e7008cc973c8ead6aa3769d5a84396`. Added owner-configured, default-off loyalty earning and owner-reviewed redemption with transactional, idempotent ledgers; no points or rewards were seeded. Added inline standard Dry Ice promo preview and trusted booking, preserving the original no-code submission and rate calculations.

@@ -1,0 +1,5 @@
+Ankur Dryice — consolidated PRIVATE TEST candidate v1.0.49
+Includes latest Work Mode source and v1.0.48 changes plus configured-by-owner loyalty ledger, inline standard Dry Ice promo, notification preferences and bilingual UI.
+Owner policy, promo values, product stock and rates are not seeded. Optional backend/selling switches remain off until separately authorized.
+Same-commit review, security emulator and product billing tests must pass before signing. Verify original certificate and package com.ankurdryice.events, versionCode 49, versionName 1.0.49-combined-test.
+No production deployment, billing change, real customer data write, merge, public release or phone installation.

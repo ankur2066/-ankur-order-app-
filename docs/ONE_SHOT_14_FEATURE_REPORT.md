@@ -1,5 +1,8 @@
 # Combined private review — 6 November 2026
 
+**Latest source update:** Loyalty earning/redemption, inline legacy promo checkout, customer notification preferences and static bilingual UI are now implemented in private source at `acc0328da5a09b46bee3385d5773c3bd80d8d007`. Their real business configuration and separately approved backend deployment remain outstanding. Local checks passed: 71 contracts, 102 client regressions, 52 security emulator tests, lint/build and protected legacy audit. A grouped v1.0.49 signed candidate has been requested; verify its exact-source CI and artifact before distribution. The v1.0.48 results and feature table below are historical and do not describe these newer changes. Static translation coverage does not prove physical-device acceptance or translate customer-owned data.
+
+
 Draft PR: https://github.com/ankur2066/-ankur-order-app-/pull/15
 Branch: `codex/all-14-phase-bc-english`
 Work Mode baseline preserved: `0d5e1403940a670c3f208efe44c5f1c50586eae8`, reconciled at `b67dc7b79529f1efbeb2db3b9650a366f94268cd`.
