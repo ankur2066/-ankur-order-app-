@@ -13,7 +13,7 @@ const mk=(url,versionCode=62,channel='signed_apk')=>({versionCode,versionName:'1
 
 test('version checker accepts only newer known verified destinations',()=>{
  assert.equal(update.ANDROID_VERSION_CODE,61);
- assert.equal(update.ANDROID_VERSION_NAME,'10.0.61');
+ assert.equal(update.ANDROID_VERSION_NAME,'10.0.62');
  assert.equal(update.validateUpdateManifest(mk(apk))?.url,apk);
  assert.equal(update.validateUpdateManifest(mk(play,62,'play'))?.url,play);
  assert.equal(update.validateUpdateManifest(mk(apk,60)),null);
