@@ -19,7 +19,7 @@ test('a single signed APK cannot proceed without UI, staff, feature and push rev
 });
 test('new original-signer private Android candidate has pinned package and version',()=>{
  assert.match(signed,/Ankur-Dryice-v10\.0\.61-PRIVATE-TEST/);
- assert.match(signed,/versionCode 61/);
+ assert.match(signed,/versionCode 62/);
  assert.match(signed,/EXPECTED_CERT_SHA256/);
  assert.match(signed,/com\.ankurdryice\.events/);
  assert.match(signed,/Verify signed Google Play App Bundle/);
