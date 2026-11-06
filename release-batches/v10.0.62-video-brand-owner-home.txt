@@ -3,3 +3,4 @@ Private test release 10.0.62 (Android versionCode 62).
 Fix customer video prompt to never inject Ankur Dryice branding/contact by default; use only details entered by the customer. Collapse the owner Services and tools area so the owner command center leads, with a matching navy-violet style.
 
 Build signed PRIVATE TEST APK and Play AAB for review only. Do not deploy Firebase or publish.
+Final gated rebuild after private review passed; APK/AAB only, no Firebase deploy or Play publication.
