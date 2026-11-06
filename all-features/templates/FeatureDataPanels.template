@@ -13,7 +13,8 @@ const BUTTON='min-h-11 rounded-xl c-brand px-4 py-2 text-sm font-bold disabled:o
 type Field={key:string;label:string;type?:string;required?:boolean};
 export function ActionForm({action,fields,defaults={},label='Submit for owner review',onDone}:{action:string;fields:Field[];defaults?:any;label?:string;onDone?:()=>void}){
  const [values,setValues]=useState<any>({...defaults}),[busy,setBusy]=useState(false),[notice,setNotice]=useState('');
- return <form className="space-y-3" onSubmit={async e=>{e.preventDefault();setBusy(true);setNotice('');try{const data={...values};for(const f of fields){if(f.type==='number')data[f.key]=Number(data[f.key]);if(f.type==='money')data[f.key]=parseMoney(String(data[f.key]));if(f.type==='datetime-local')data[f.key]=new Date(data[f.key]).getTime();}await httpsCallable(getFunctions(app,'asia-southeast1'),'ankurFeatureAction')({action,data});setNotice('Saved successfully.');onDone?.();}catch{setNotice('Could not save. Check access, values and feature setup.');}finally{setBusy(false);}}}>
+ const inFlight=React.useRef(false);
+ return <form className="space-y-3" onSubmit={async e=>{e.preventDefault();if(inFlight.current)return;inFlight.current=true;setBusy(true);setNotice('');try{const data={...values};for(const f of fields){if(f.type==='number')data[f.key]=Number(data[f.key]);if(f.type==='money')data[f.key]=parseMoney(String(data[f.key]));if(f.type==='datetime-local')data[f.key]=new Date(data[f.key]).getTime();}await httpsCallable(getFunctions(app,'asia-southeast1'),'ankurFeatureAction')({action,data});setNotice('Saved successfully.');onDone?.();}catch{setNotice('Could not save. Check access, values and feature setup.');}finally{inFlight.current=false;setBusy(false);}}}>
  {fields.map(f=><label key={f.key} className="block text-sm">{f.label}<input className={f.type==='checkbox'?'ml-3':INPUT} type={f.type==='money'?'number':f.type||'text'} step={f.type==='money'?'0.01':undefined} required={f.required!==false} value={f.type==='checkbox'?undefined:values[f.key]??''} checked={f.type==='checkbox'?values[f.key]===true:undefined} onChange={e=>setValues((v:any)=>({...v,[f.key]:f.type==='checkbox'?e.target.checked:e.target.value}))}/></label>)}
  <button className={BUTTON} disabled={busy}>{busy?'Saving…':label}</button>{notice&&<p role="status" className="text-sm">{notice}</p>}</form>;
 }
@@ -26,6 +27,23 @@ export function useFeatureRows(path:string,user:User|null,owner:boolean,point=fa
  },[enabled,path,user?.uid,owner,point]);return{rows,ready,error,enabled};
 }
 const identity:Field[]=[{key:'customerName',label:'Customer name'},{key:'customerPhone',label:'Mobile (10 digits)',type:'tel'},{key:'address',label:'Delivery address'},{key:'quantityKg',label:'Quantity (KG)',type:'number'}];
+function PartnerApplication({user,approved}:{user:User;approved:boolean}){
+ const [application,setApplication]=useState<{userId:string;status:string}|null>(null);
+ const [loadedUser,setLoadedUser]=useState('');
+ const [error,setError]=useState('');
+ useEffect(()=>{
+  setLoadedUser('');setApplication(null);setError('');
+  return onSnapshot(doc(db,'partnerApplications',user.uid),snapshot=>{
+   setApplication(snapshot.exists()?{userId:user.uid,status:snapshot.data().status}:null);
+   setLoadedUser(user.uid);
+  },()=>setError('Application status could not load. Please reopen this page.'));
+ },[user.uid]);
+ if(approved)return <ActionForm action="bulkRequest" fields={[...identity,{key:'note',label:'Requirements'}]} defaults={{customerName:user.displayName||''}}/>;
+ if(error)return <p role="alert">{error}</p>;
+ if(loadedUser!==user.uid)return <p role="status">Loading application status…</p>;
+ if(application?.userId===user.uid)return <p role="status">{application.status==='pending'?'Your wholesale application has been sent. Owner approval is pending.':application.status==='approved'?'Loading approved wholesale access…':'Wholesale access is currently inactive. Please contact support.'}</p>;
+ return <ActionForm action="partnerApply" fields={identity} defaults={{customerName:user.displayName||''}} label="Send wholesale application" onDone={()=>setApplication({userId:user.uid,status:'pending'})}/>;
+}
 export function DataFeaturePanel({id,user,role}:{id:string;user:User|null;role:string|null}){
  const [pdfError,setPdfError]=useState('');
  const owner=role==='admin';const paths:Record<string,string>={loyalty:'loyaltyLedger',partner:owner?'partnerApplications':'partners',bulk:'bulkOrders',subscriptions:'subscriptions',promotions:'promos',inventory:'stock',reports:'invoices',referral:'referrals',preferences:'userPrefs',eta:'userPrefs'};
@@ -35,10 +53,10 @@ export function DataFeaturePanel({id,user,role}:{id:string;user:User|null;role:s
  if(!enabled)return <p role="status">Feature setup is pending. Existing booking and tracking remain available.</p>;
  return <div className="space-y-5">{error&&<p role="alert">{error}</p>}{pdfError&&<p role="alert">{pdfError}</p>}
  {id==='loyalty'&&<p>Only your verified ledger is shown. No points or reward value is assumed.</p>}
- {id==='partner'&&!owner&&<><p>Bulk requests need owner-approved partner access. Prices are quoted by the owner.</p>{rows[0]?.status==='approved'?<ActionForm action="bulkRequest" fields={[...identity,{key:'note',label:'Requirements'}]} defaults={{customerName:user?.displayName||''}}/>:<ActionForm action="partnerApply" fields={identity} defaults={{customerName:user?.displayName||''}}/>}</>}
+ {id==='partner'&&!owner&&<><p>Bulk requests need owner-approved partner access. Prices are quoted by the owner.</p><PartnerApplication key={user!.uid} user={user!} approved={rows[0]?.status==='approved'}/></>}
  {id==='partner'&&owner&&<p>Select an application below to approve or revoke wholesale access.</p>}
  {id==='partner'&&<DataFeaturePanel id="bulk" user={user} role={role}/>}
- {id==='bulk'&&owner&&<ActionForm action="bulkQuote" fields={[{key:'id',label:'Bulk request ID'},{key:'totalPaise',label:'Owner-approved quote (₹)',type:'money'}]} label="Save owner quote"/>}
+ {id==='bulk'&&owner&&<p>Enter the agreed quote on the customer's request below.</p>}
  {id==='subscriptions'&&<><p>Regular supply needs owner approval. There is no automatic charge. Cadence: weekly or monthly.</p>{!owner&&<ActionForm action="subscriptionRequest" fields={[...identity,{key:'cadence',label:'Cadence (weekly / monthly)'}]} defaults={{customerName:user?.displayName||'',cadence:'weekly'}}/>}{owner&&<><ActionForm action="subscriptionApprove" fields={[{key:'id',label:'Subscription ID'},{key:'nextDueMs',label:'Next due date and time',type:'datetime-local'},{key:'dispatchTiming',label:'Approved dispatch slot'}]} defaults={{executionEnabled:true}} label="Approve manual execution"/><ActionForm action="runSubscription" fields={[{key:'id',label:'Due subscription ID'}]} label="Run approved due supply once"/></>}</>}
  {id==='promotions'&&owner&&<ActionForm action="promoSave" label="Save promotion configuration" defaults={{active:false}} fields={[{key:'code',label:'Code'},{key:'valuePaise',label:'Discount (₹)',type:'money'},{key:'minimumPaise',label:'Minimum order (₹)',type:'money'},{key:'usageLimit',label:'Usage limit',type:'number'},{key:'startsAtMs',label:'Starts at',type:'datetime-local'},{key:'endsAtMs',label:'Expires at',type:'datetime-local'},{key:'active',label:'Activate public code',type:'checkbox',required:false}]}/>}
  {id==='promotions'&&!owner&&rows.filter(p=>p.active&&p.startsAtMs<=Date.now()&&p.endsAtMs>=Date.now()).map(p=><PromoBooking key={p.id} promo={p} user={user}/>) }
@@ -54,7 +72,7 @@ export function DataFeaturePanel({id,user,role}:{id:string;user:User|null;role:s
  <ActionForm key={row.status} action="partnerApprove" fields={[]} defaults={{userId:row.id,approved:row.status!=='approved'}} label={row.status==='approved'?'Revoke wholesale access':'Approve wholesale access'}/>
  </section>)}
  {rows.length===0&&!error&&<p className="text-sm t-sub">No records configured.</p>}
- <ul className="space-y-3">{(id==='partner'&&owner?[]:rows).map(row=><li key={row.id} className="border b-line rounded-xl p-3 space-y-2"><p className="font-bold">{row.code||row.sku||row.orderId||row.customerName||row.id}</p><p className="text-sm">{row.status||''}{row.availableUnits!==undefined?' · '+row.availableUnits+' '+row.unit:''}{row.approved!==undefined?' · '+(row.approved?'Approved':'Pending approval'):''}</p>{id==='loyalty'&&<p>Verified balance: {row.points??'Policy pending'}</p>}{id==='subscriptions'&&!owner&&row.active&&<ActionForm action="subscriptionPause" defaults={{id:row.id}} fields={[]} label="Pause supply"/>}{id==='reports'&&owner&&<button className={BUTTON} onClick={()=>{void downloadCommercialReceipt(row).catch(()=>setPdfError('PDF could not be shared. Please try again.'));}}>Download PDF receipt</button>}</li>)}</ul>
+ <ul className="space-y-3">{(id==='partner'&&owner?[]:rows).map(row=><li key={row.id} className="border b-line rounded-xl p-3 space-y-2"><p className="font-bold">{row.code||row.sku||row.orderId||row.customerName||row.id}</p><p className="text-sm">{row.status||''}{row.availableUnits!==undefined?' · '+row.availableUnits+' '+row.unit:''}{row.approved!==undefined?' · '+(row.approved?'Approved':'Pending approval'):''}</p>{id==='bulk'&&<><p className="text-sm">{row.quantityKg} KG · {row.address}</p>{row.note&&<p className="text-sm">{row.note}</p>}{Number.isSafeInteger(row.quotedTotalPaise)&&row.quotedTotalPaise>0&&<p className="font-bold">Owner quote: ₹{(row.quotedTotalPaise/100).toFixed(2)}</p>}{owner&&<ActionForm key={String(row.quotedTotalPaise)} action="bulkQuote" fields={[{key:'totalPaise',label:'Agreed total (₹)',type:'money'}]} defaults={{id:row.id,totalPaise:row.quotedTotalPaise?row.quotedTotalPaise/100:''}} label="Save quote for this request"/>}</>}{id==='loyalty'&&<p>Verified balance: {row.points??'Policy pending'}</p>}{id==='subscriptions'&&!owner&&row.active&&<ActionForm action="subscriptionPause" defaults={{id:row.id}} fields={[]} label="Pause supply"/>}{id==='reports'&&owner&&<button className={BUTTON} onClick={()=>{void downloadCommercialReceipt(row).catch(()=>setPdfError('PDF could not be shared. Please try again.'));}}>Download PDF receipt</button>}</li>)}</ul>
  </div>;
 }
 function ReferralLink({uid}:{uid:string}){const[message,setMessage]=useState('');const url=new URL(location.origin+location.pathname);url.searchParams.set('ref',uid);return <><input className={INPUT} aria-label="Your referral link" readOnly value={url.toString()}/><button className={BUTTON} onClick={async()=>{try{if(navigator.share)await navigator.share({title:'Ankur Dryice',url:url.toString()});else await navigator.clipboard.writeText(url.toString());setMessage('Link shared or copied.');}catch{setMessage('Sharing cancelled or unavailable. Copy the link above.');}}}>Share referral link</button><p role="status">{message}</p></>;}
