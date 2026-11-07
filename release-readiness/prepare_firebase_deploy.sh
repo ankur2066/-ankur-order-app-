@@ -38,8 +38,8 @@ if [ "$MODE" = "prepare" ]; then
   exit 0
 fi
 
-INDEXES="${FIRESTORE_INDEXES_FILE:-}"
-test -n "$INDEXES" && test -s "$INDEXES" || { echo "Set FIRESTORE_INDEXES_FILE to the complete, reviewed Firebase firestore.indexes.json. No live index snapshot is included in this repository."; exit 2; }
+INDEXES="${FIREBASE_INDEXES_FILE:-}"
+test -n "$INDEXES" && test -s "$INDEXES" || { echo "Set FIREBASE_INDEXES_FILE to the complete, reviewed Firebase firestore.indexes.json. No live index snapshot is included in this repository."; exit 2; }
 python3 - "$OUT" "$INDEXES" <<'PY'
 import json,sys
 from pathlib import Path
