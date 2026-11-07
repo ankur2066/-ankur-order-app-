@@ -74,6 +74,11 @@ if "OWNER_SWITCHED_FEATURES" not in hs:
     new_visible="(!allowed||allowed.includes(f.id))&&(role==='admin'||!OWNER_SWITCHED_FEATURES.has(f.id)||featureFlags[f.id]===true)"
     assert hs.count(old_visible)==1
     hs=hs.replace(old_visible,new_visible,1)
+    old_pilot="(role==='admin'||f.id==='video'||pilotIds.includes(f.id))"
+    new_pilot="(role==='admin'||f.id==='video'||pilotIds.includes(f.id)||(OWNER_SWITCHED_FEATURES.has(f.id)&&featureFlags[f.id]===true))"
+    if new_pilot not in hs:
+        assert hs.count(old_pilot)==1
+        hs=hs.replace(old_pilot,new_pilot,1)
     hs=hs.replace("import React, { useMemo, useState } from 'react';","import React, { useMemo, useState } from 'react';\nimport { doc, onSnapshot } from 'firebase/firestore';\nimport { db } from '../../firebase';",1)
 hub.write_text(hs,encoding="utf-8")
 print("PASS: owner-only dashboard has independent feature controls")
