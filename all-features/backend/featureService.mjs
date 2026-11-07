@@ -13,7 +13,23 @@ export function createFeatureService({db,now=()=>Date.now(),timestamp=()=>new Da
  const publicRequest=(auth,data)=>({userId:requireUser(auth),customerName:text(data.customerName,100),customerPhone:(()=>{if(!/^[6-9]\d{9}$/.test(data.customerPhone))throw Error('Invalid phone');return data.customerPhone;})(),address:text(data.address),quantityKg:integer(data.quantityKg,10,5000)});
  return async function perform(auth,input){
   const {action,data={}}=input||{};if(!['promoBooking','promoQuote'].includes(action))requireUser(auth);
-  const config=await db.doc('settings/featureSuite').get();if(config.data()?.enabled!==true)throw Error('Feature suite not enabled');
+  const config=await db.doc('settings/featureSuite').get();
+  if(action==='featureSettings'){
+   requireOwner(auth);const keys=['loyalty','catalog','partner','subscriptions','promotions','inventory','referral'];
+   if(!data.features||typeof data.features!=='object'||Array.isArray(data.features)||Object.keys(data.features).some(k=>!keys.includes(k))||keys.some(k=>typeof data.features[k]!=='boolean'))throw Error('Invalid feature flags');
+   const features=Object.fromEntries(keys.map(k=>[k,data.features[k]]));
+   await db.doc('settings/featureSuite').set({enabled:Object.values(features).some(Boolean),features,updatedAt:timestamp()},{merge:true});
+   return{ok:true,features};
+  }
+  if(config.data()?.enabled!==true)throw Error('Feature suite not enabled');
+  const featureForAction={
+   loyalty:'loyalty',loyaltyPolicy:'loyalty',loyaltyReconcile:'loyalty',loyaltyRedeem:'loyalty',loyaltyReview:'loyalty',
+   partnerApply:'partner',partnerApprove:'partner',bulkRequest:'partner',bulkQuote:'partner',
+   subscriptionRequest:'subscriptions',subscriptionPause:'subscriptions',subscriptionResume:'subscriptions',subscriptionApprove:'subscriptions',runSubscription:'subscriptions',
+   promoBooking:'promotions',promoQuote:'promotions',promoSave:'promotions',
+   stockOpening:'inventory',stockAdjust:'inventory',stockDispatch:'inventory',stockMapping:'inventory'
+  }[action];
+  if(featureForAction&&config.data()?.features?.[featureForAction]!==true)throw Error('Feature disabled');
   if(['loyaltyPolicy','loyaltyReconcile','loyaltyRedeem','loyaltyReview'].includes(action))return loyalty.action(auth,action,data);
   if(action==='promoBooking'||action==='promoQuote'){
    const preview=action==='promoQuote';
