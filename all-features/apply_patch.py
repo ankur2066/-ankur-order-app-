@@ -23,6 +23,8 @@ def replace_once(path: Path, old: str, new: str):
 shutil.copy2(TEMPLATES / 'LanguageContext.template', SRC / 'context' / 'LanguageContext.tsx')
 shutil.copy2(TEMPLATES / 'FeatureHub.template', SRC / 'components' / 'customer' / 'FeatureHub.tsx')
 shutil.copy2(TEMPLATES / 'FeatureDataPanels.template', SRC / 'components' / 'customer' / 'FeatureDataPanels.tsx')
+(SRC / 'components' / 'owner').mkdir(parents=True, exist_ok=True)
+shutil.copy2(TEMPLATES / 'FeatureSuiteSettings.template', SRC / 'components' / 'owner' / 'FeatureSuiteSettings.tsx')
 shutil.copy2(TEMPLATES / 'LoyaltyPanel.template', SRC / 'components' / 'customer' / 'LoyaltyPanel.tsx')
 shutil.copy2(TEMPLATES / 'dryIceCalc.template', SRC / 'utils' / 'dryIceCalc.ts')
 shutil.copy2(TEMPLATES / 'commercialReceipt.template', SRC / 'utils' / 'commercialReceipt.ts')
@@ -33,6 +35,7 @@ shutil.copy2(ROOT / 'updates' / 'AppUpdateNotice.template', SRC / 'components' /
 
 app = SRC / 'App.tsx'
 replace_once(app, "import { ThemeProvider } from './context/ThemeContext';", "import { ThemeProvider } from './context/ThemeContext';\nimport { LanguageProvider, useLanguage } from './context/LanguageContext';\nimport { AppUpdateNotice } from './components/AppUpdateNotice';")
+replace_once(app, "import { AppUpdateNotice } from './components/AppUpdateNotice';", "import { AppUpdateNotice } from './components/AppUpdateNotice';\nimport { FeatureSuiteSettings } from './components/owner/FeatureSuiteSettings';")
 replace_once(app, "function AppShell() {\n", "function AppShell() {\n  const { language } = useLanguage();\n")
 replace_once(app, '<span className="text-xs t-sub">लोड हो रहा है…</span>', '<span className="text-xs t-sub">{language === \'hi\' ? \'लोड हो रहा है…\' : \'Loading…\'}</span>')
 replace_once(app, '<SubPageBar title="ड्राई आइस बुकिंग"', '<SubPageBar title={language === \'hi\' ? \'ड्राई आइस बुकिंग\' : \'Dry Ice Booking\'}')
@@ -54,4 +57,6 @@ for old,new in [
 ]: replace_once(profile, old, new)
 replace_once(profile, '        <section className="c-card border b-line rounded-2xl p-4">\n          <h2 className="text-sm font-black t-main">{t(\'contact\')}</h2>', '        <LanguageSettings />\n\n        <FeatureHub currentUser={currentUser} role={role} />\n\n        <section className="c-card border b-line rounded-2xl p-4">\n          <h2 className="text-sm font-black t-main">{t(\'contact\')}</h2>')
 
-print('Applied English-first language and 14-feature navigation overlay')
+replace_once(app, '        <details className="ankur-owner-tools">', '        <details className="ankur-owner-tools">\n            <div className="p-3"><FeatureSuiteSettings /></div>')
+
+print('Applied English-first language, owner switches and 14-feature navigation overlay')
