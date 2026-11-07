@@ -57,6 +57,6 @@ for old,new in [
 ]: replace_once(profile, old, new)
 replace_once(profile, '        <section className="c-card border b-line rounded-2xl p-4">\n          <h2 className="text-sm font-black t-main">{t(\'contact\')}</h2>', '        <LanguageSettings />\n\n        <FeatureHub currentUser={currentUser} role={role} />\n\n        <section className="c-card border b-line rounded-2xl p-4">\n          <h2 className="text-sm font-black t-main">{t(\'contact\')}</h2>')
 
-replace_once(app, '          <AdminDashboard\n', '          <div className="p-3"><FeatureSuiteSettings /></div>\n          <AdminDashboard\n')
+
 
 print('Applied English-first language, owner switches and 14-feature navigation overlay')
