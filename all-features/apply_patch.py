@@ -35,7 +35,6 @@ shutil.copy2(ROOT / 'updates' / 'AppUpdateNotice.template', SRC / 'components' /
 
 app = SRC / 'App.tsx'
 replace_once(app, "import { ThemeProvider } from './context/ThemeContext';", "import { ThemeProvider } from './context/ThemeContext';\nimport { LanguageProvider, useLanguage } from './context/LanguageContext';\nimport { AppUpdateNotice } from './components/AppUpdateNotice';")
-replace_once(app, "import { AppUpdateNotice } from './components/AppUpdateNotice';", "import { AppUpdateNotice } from './components/AppUpdateNotice';\nimport { FeatureSuiteSettings } from './components/owner/FeatureSuiteSettings';")
 replace_once(app, "function AppShell() {\n", "function AppShell() {\n  const { language } = useLanguage();\n")
 replace_once(app, '<span className="text-xs t-sub">लोड हो रहा है…</span>', '<span className="text-xs t-sub">{language === \'hi\' ? \'लोड हो रहा है…\' : \'Loading…\'}</span>')
 replace_once(app, '<SubPageBar title="ड्राई आइस बुकिंग"', '<SubPageBar title={language === \'hi\' ? \'ड्राई आइस बुकिंग\' : \'Dry Ice Booking\'}')
