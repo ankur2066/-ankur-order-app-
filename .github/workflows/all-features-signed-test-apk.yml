@@ -62,6 +62,7 @@ jobs:
           python3 ui-fixes/notification-preferences.py
           python3 ui-fixes/locale-formatting.py
           python3 ui-fixes/localization.py
+          python3 ui-fixes/owner_feature_settings.py
       - name: Confirm reviewed v1.0.38 customer UI is in the signed app source
         run: |
           set -euo pipefail
