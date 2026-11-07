@@ -20,9 +20,9 @@ export function ActionForm({action,fields,defaults={},label='Submit for owner re
  {fields.map(f=><label key={f.key} className="block text-sm">{f.label}{f.options?<select className={INPUT} required={f.required!==false} value={values[f.key]??''} onChange={e=>setValues((v:any)=>({...v,[f.key]:e.target.value}))}><option value="">Choose</option>{f.options.map(o=><option value={o.value} key={o.value}>{o.label}</option>)}</select>:<input className={f.type==='checkbox'?'ml-3':INPUT} type={f.type==='money'?'number':f.type||'text'} step={f.type==='money'?'0.01':undefined} required={f.required!==false} value={f.type==='checkbox'?undefined:values[f.key]??''} checked={f.type==='checkbox'?values[f.key]===true:undefined} onChange={e=>setValues((v:any)=>({...v,[f.key]:f.type==='checkbox'?e.target.checked:e.target.value}))}/>}</label>)}
  <button className={BUTTON} disabled={busy}>{busy?'Saving…':label}</button>{notice&&<p role="status" className="text-sm">{notice}</p>}</form>;
 }
-export function useFeatureRows(path:string,user:User|null,owner:boolean,point=false){
+export function useFeatureRows(path:string,user:User|null,owner:boolean,point=false,featureId=path){
  const [rows,setRows]=useState<any[]>([]),[ready,setReady]=useState(false),[error,setError]=useState(''),[enabled,setEnabled]=useState(false);
- useEffect(()=>onSnapshot(doc(db,'settings','featureSuite'),s=>{setEnabled(s.exists()&&s.data().enabled===true);setReady(true);},()=>{setReady(true);setEnabled(false);}),[]);
+ useEffect(()=>onSnapshot(doc(db,'settings','featureSuite'),s=>{const config=s.data();setEnabled(s.exists()&&config?.enabled===true&&config?.features?.[featureId]===true);setReady(true);},()=>{setReady(true);setEnabled(false);}),[featureId]);
  useEffect(()=>{setRows([]);setError('');if(!enabled||(!user&&path!=='promos'))return;
  const target=point?doc(db,path,user!.uid):owner?collection(db,path):path==='promos'?query(collection(db,path),where('active','==',true)):query(collection(db,path),where('userId','==',user!.uid));
  return onSnapshot(target as any,(s:any)=>{setRows(s.docs?s.docs.map((d:any)=>({id:d.id,...d.data()})):s.exists()?[{id:s.id,...s.data()}]:[]);},()=>setError('Records are unavailable. Check feature setup and permissions.'));
@@ -32,7 +32,8 @@ const identity:Field[]=[{key:'customerName',label:'Customer name'},{key:'custome
 export function DataFeaturePanel({id,user,role}:{id:string;user:User|null;role:string|null}){
  const [pdfError,setPdfError]=useState('');
  const owner=role==='admin';const paths:Record<string,string>={loyalty:'loyaltyLedger',partner:owner?'partnerApplications':'partners',bulk:'bulkOrders',subscriptions:'subscriptions',promotions:'promos',inventory:'stock',reports:'invoices',referral:'referrals',preferences:'userPrefs',eta:'userPrefs'};
- const {rows,ready,error,enabled}=useFeatureRows(paths[id]||'userPrefs',user,owner,['loyalty','preferences','eta'].includes(id)||(id==='referral'||id==='partner')&&!owner);
+ const featureId=id==='bulk'?'partner':id;
+ const {rows,ready,error,enabled}=useFeatureRows(paths[id]||'userPrefs',user,owner,['loyalty','preferences','eta'].includes(id)||(id==='referral'||id==='partner')&&!owner,featureId);
  if(!user&&id!=='promotions')return <p role="status">Sign in from Profile to use your account features.</p>;
  if(!ready)return <p role="status">Loading…</p>;
  if(!enabled)return <p role="status">Feature setup is pending. Existing booking and tracking remain available.</p>;
