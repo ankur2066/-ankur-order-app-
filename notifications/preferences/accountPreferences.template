@@ -1,0 +1,11 @@
+import {doc,onSnapshot} from 'firebase/firestore';
+import {db} from '../firebase';
+import {saveDevicePreferences,beginPreferenceLoad,endPreferenceLoad} from './notificationPreferences';
+/** Only query the additive collection after its approved backend switch exists. */
+export function watchAccountPreferences(uid:string|null){
+ if(!uid)return()=>{};beginPreferenceLoad(uid);let active=true,generation=0,stopUser:(()=>void)|undefined;
+ const stopSetting=onSnapshot(doc(db,'settings','featureSuite'),s=>{generation++;const current=generation;stopUser?.();stopUser=undefined;if(s.data()?.enabled!==true){endPreferenceLoad(uid);return;}
+ stopUser=onSnapshot(doc(db,'userPrefs',uid),p=>{if(active&&current===generation&&p.exists()){const d=p.data();saveDevicePreferences(uid,{orderUpdates:d.orderUpdates!==false,promos:d.promos===true},'account-sync');}if(active&&current===generation)endPreferenceLoad(uid);},()=>{if(active&&current===generation)endPreferenceLoad(uid);});
+ },()=>{if(active)endPreferenceLoad(uid);});
+ return()=>{active=false;generation++;stopSetting();stopUser?.();endPreferenceLoad(uid);};
+}

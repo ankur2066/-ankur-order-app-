@@ -1,0 +1,125 @@
+{
+  "policy": "English default; persistent English/Hindi choice only in Profile Settings; no language prompt",
+  "uiCopyCoverage": "PASS",
+  "dictionaryEntries": 1488,
+  "localizedElements": 884,
+  "files": [
+    {
+      "file": "src/App.tsx",
+      "localizedElements": 11
+    },
+    {
+      "file": "src/components/AIChat.tsx",
+      "localizedElements": 1
+    },
+    {
+      "file": "src/components/AIVideoStudio.tsx",
+      "localizedElements": 26
+    },
+    {
+      "file": "src/components/AdminDashboard.tsx",
+      "localizedElements": 256
+    },
+    {
+      "file": "src/components/CreativeStudio.tsx",
+      "localizedElements": 57
+    },
+    {
+      "file": "src/components/CustomerOrders.tsx",
+      "localizedElements": 32
+    },
+    {
+      "file": "src/components/ExpensesView.tsx",
+      "localizedElements": 20
+    },
+    {
+      "file": "src/components/FloatingContactButtons.tsx",
+      "localizedElements": 5
+    },
+    {
+      "file": "src/components/Header.tsx",
+      "localizedElements": 7
+    },
+    {
+      "file": "src/components/OrderForm.tsx",
+      "localizedElements": 129
+    },
+    {
+      "file": "src/components/OwnerStorefrontManager.tsx",
+      "localizedElements": 63
+    },
+    {
+      "file": "src/components/SignInScreen.tsx",
+      "localizedElements": 5
+    },
+    {
+      "file": "src/components/StaffDashboard.tsx",
+      "localizedElements": 51
+    },
+    {
+      "file": "src/components/UnitProductForm.tsx",
+      "localizedElements": 8
+    },
+    {
+      "file": "src/components/UnitProductManager.tsx",
+      "localizedElements": 14
+    },
+    {
+      "file": "src/components/UserManagement.tsx",
+      "localizedElements": 37
+    },
+    {
+      "file": "src/components/customer/BottomNav.tsx",
+      "localizedElements": 2
+    },
+    {
+      "file": "src/components/customer/CategoriesTab.tsx",
+      "localizedElements": 10
+    },
+    {
+      "file": "src/components/customer/FeatureDataPanels.tsx",
+      "localizedElements": 53
+    },
+    {
+      "file": "src/components/customer/FeatureHub.tsx",
+      "localizedElements": 49
+    },
+    {
+      "file": "src/components/customer/LoyaltyPanel.tsx",
+      "localizedElements": 6
+    },
+    {
+      "file": "src/components/customer/LuckyWinnerCard.tsx",
+      "localizedElements": 5
+    },
+    {
+      "file": "src/components/customer/NotificationSheet.tsx",
+      "localizedElements": 12
+    },
+    {
+      "file": "src/components/customer/NotificationToast.tsx",
+      "localizedElements": 6
+    },
+    {
+      "file": "src/components/customer/PreferencesPanel.tsx",
+      "localizedElements": 6
+    },
+    {
+      "file": "src/components/customer/ProductCard.tsx",
+      "localizedElements": 4
+    },
+    {
+      "file": "src/components/customer/ProfileTab.tsx",
+      "localizedElements": 8
+    },
+    {
+      "file": "src/components/customer/PromoCarousel.tsx",
+      "localizedElements": 1
+    }
+  ],
+  "unlocalizedHindiUi": [],
+  "invalidEnglishDictionaryEntries": [],
+  "scope": "Hash-bound edits cover static UI copy and identified UI messages/status/labels. Already bilingual Home/Tracking/update context is retained. Inputs, stored customer/product/location/status notes and external WhatsApp prefill are preserved; arbitrary business/server text is not automatically translated.",
+  "runtimeEvidence": "Eight real reconstructed screen render/switch checks plus typed booking data retention; persistent provider, checkout, tracking and notification regression suites.",
+  "deviceAcceptance": "NOT RUN; Android physical acceptance and owner wording review remain required."
+}

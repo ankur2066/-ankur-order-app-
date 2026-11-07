@@ -1,0 +1,43 @@
+import {collection,doc,getDoc,getDocs,onSnapshot,query,where} from 'firebase/firestore';
+import {db} from '../firebase';
+import {normalizeUnitOrder,orderCollection,trackingCollection} from '../billing/unitBilling';
+
+export const orderRef=(id:string)=>doc(db,orderCollection(id),id);
+export const trackingRef=(token:string)=>doc(db,trackingCollection(token),token);
+export async function unitBillingAvailable():Promise<boolean>{
+  try {const snap=await getDoc(doc(db,'settings','unitBilling'));return snap.exists()&&snap.data().schemaVersion===2;}catch{return false;}
+}
+const wrapped=(d:any,unit:boolean)=>({id:d.id,ref:d.ref,data:()=>unit?normalizeUnitOrder(d.data()):d.data()});
+export async function ownOrderDocuments(uid:string){
+  const old=await getDocs(query(collection(db,'orders'),where('userId','==',uid)));
+  const docs:any[]=[...old.docs];
+  if(await unitBillingAvailable()){
+    const more=await getDocs(query(collection(db,'product_orders'),where('userId','==',uid)));docs.push(...more.docs.map(d=>wrapped(d,true)));
+  }
+  return {docs,forEach:(callback:(d:any)=>void)=>docs.forEach(callback)};
+}
+/** Keep legacy metadata untouched when unit billing is off; no denied new-collection queries. */
+export function subscribeOrderDocuments(options:any,callback:(snapshot:any)=>void,error:(e:any)=>void=()=>{}){
+  if(typeof options==='function'){error=callback;callback=options;options={};}
+  let flagReady=false;let stopped=false,unitUnsub:(()=>void)|undefined,legacy:any=null,unit:any=null,includeUnit=false,unitFailed=false;
+  const emit=()=>{if(!legacy||stopped||!flagReady)return;if(!includeUnit||unitFailed){callback(legacy);return;}if(!unit)return;
+    callback({docs:[...legacy.docs,...unit.docs.map((d:any)=>wrapped(d,true))],metadata:{fromCache:legacy.metadata?.fromCache||unit.metadata?.fromCache,hasPendingWrites:legacy.metadata?.hasPendingWrites||unit.metadata?.hasPendingWrites}});
+  };
+  const stopLegacy=onSnapshot(collection(db,'orders'),options,(snap:any)=>{legacy=snap;emit();},error);
+  const stopFlag=onSnapshot(doc(db,'settings','unitBilling'),snap=>{
+    const enabled=snap.exists()&&snap.data().schemaVersion===2;
+    flagReady=true;if(stopped)return;if(enabled===includeUnit){emit();return;}includeUnit=enabled;unitUnsub?.();unit=null;unitFailed=false;
+    if(enabled)unitUnsub=onSnapshot(collection(db,'product_orders'),options,(snap:any)=>{unit=snap;unitFailed=false;emit();},(e:any)=>{unitFailed=true;error(e);emit();});else emit();
+  },()=>{flagReady=true;emit();});
+  return()=>{stopped=true;stopLegacy();stopFlag();unitUnsub?.();};
+}
+
+/** Independent baseline for unit in-app alerts; enabling does not announce historical orders. */
+export function subscribeUnitOrderDocuments(callback:(snapshot:any)=>void,error:(e:any)=>void=()=>{}){
+ let stopOrders:(()=>void)|undefined;let active=false;
+ const stopFlag=onSnapshot(doc(db,'settings','unitBilling'),snap=>{
+  const enabled=snap.exists()&&snap.data().schemaVersion===2;if(enabled===active)return;active=enabled;stopOrders?.();
+  if(enabled)stopOrders=onSnapshot(collection(db,'product_orders'),{includeMetadataChanges:true},s=>callback({docs:s.docs.map(d=>wrapped(d,true)),metadata:s.metadata}),error);
+ },()=>{});
+ return()=>{stopFlag();stopOrders?.();};
+}

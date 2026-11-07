@@ -1,3 +1,4 @@
+import {uiModule} from '../../ui-fixes/i18n/test-loader.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
@@ -10,6 +11,8 @@ const React=require('react');const {create,act}=require('react-test-renderer');
 const {transformSync}=appRequire('esbuild');
 globalThis.IS_REACT_ACT_ENVIRONMENT=true;
 const id='ADI-20261031-ABCD';
+const textOf=n=>typeof n==='string'?n:(n?.children||[]).map(textOf).join('');
+const buttonNamed=(root,label)=>root.root.findAllByType('button').find(b=>b.props['aria-label']===label);
 async function harness(placed=[]) {
   const window=new EventTarget();
   class CustomEvent extends Event {constructor(name,options={}){super(name);this.detail=options.detail;}}
@@ -18,11 +21,12 @@ async function harness(placed=[]) {
   synthetic('react',{...React,default:React});synthetic('react/jsx-runtime',require('react/jsx-runtime'));
   synthetic('lucide-react',{BellRing:()=>null,X:()=>null});synthetic('./useOrderNotifications',{readPlacedOrders:()=>placed});
   for(const [key,file] of Object.entries({destination:'notificationDestination.template',opening:'useNotificationOpening.template',sheet:'NotificationSheet.template',toast:'NotificationToast.template'})) {
-    const raw=readFileSync(new URL(file,import.meta.url),'utf8');
+    const actual=process.env.ANKUR_CLIENT_APP;const paths={destination:'src/services/notificationDestination.ts',opening:'src/hooks/useNotificationOpening.ts',sheet:'src/components/customer/NotificationSheet.tsx',toast:'src/components/customer/NotificationToast.tsx'};const raw=readFileSync(actual?resolve(actual,paths[key]):new URL(file,import.meta.url),'utf8');
     const code=(key==='sheet'||key==='toast')?transformSync(raw,{loader:'tsx',jsx:'automatic',format:'esm'}).code:stripTypeScriptTypes(raw);
     modules.set(key,new vm.SourceTextModule(code,{context,identifier:key}));
   }
-  const link=specifier=>modules.get(specifier.endsWith('notificationDestination')?'destination':specifier) || (()=>{throw Error('Unmocked boundary '+specifier);})();
+  if(process.env.ANKUR_CLIENT_APP){modules.set('ui',await uiModule(context,React));synthetic('../../context/LanguageContext',{useLanguage:()=>({language:'en'})});}
+  const link=specifier=>modules.get(specifier.endsWith('/i18n/UiText')?'ui':specifier.endsWith('notificationDestination')?'destination':specifier) || (()=>{throw Error('Unmocked boundary '+specifier);})();
   await modules.get('opening').link(link);await modules.get('opening').evaluate();
   await modules.get('sheet').link(link);await modules.get('sheet').evaluate();
   await modules.get('toast').link(link);await modules.get('toast').evaluate();
@@ -70,20 +74,20 @@ test('real NotificationSheet renders a clickable order button forwarding the sel
  const h=await harness();const selected=[];let marked=0,root;
  const notice={id:'n',orderId:id,title:'New Order Received',body:'Updated',at:1,read:false};
  await act(async()=>{root=create(React.createElement(h.Sheet,{open:true,notices:[notice],onClose:()=>{},onMarkAllRead:()=>marked++,onOpenNotice:n=>selected.push(n)}));});
- const button=root.root.findByProps({'aria-label':'ऑर्डर '+id+' खोलें'});await act(async()=>button.props.onClick());
+ const button=buttonNamed(root,process.env.ANKUR_CLIENT_APP?'Open order '+id:'ऑर्डर '+id+' खोलें');await act(async()=>button.props.onClick());
  assert.equal(marked,1);assert.equal(selected[0],notice);await act(async()=>root.unmount());
 });
 test('TEST message stays readable in the sheet, explicitly labeled without claiming a real order exists',async()=>{
  const h=await harness();let root;
  await act(async()=>{root=create(React.createElement(h.Sheet,{open:true,notices:[{id:'t',orderId:'TEST-FCM-20261031-98EE1A',title:'TEST',body:'Test only',at:1,read:false}],message:'यह TEST है।',onClose:()=>{},onMarkAllRead:()=>{},onOpenNotice:()=>{}}));});
- assert.ok(root.root.findByProps({'aria-label':'TEST संदेश देखें'}));assert.equal(root.root.findByProps({role:'status'}).children[0],'यह TEST है।');await act(async()=>root.unmount());
+ assert.ok(buttonNamed(root,process.env.ANKUR_CLIENT_APP?'View TEST message':'TEST संदेश देखें'));assert.equal(textOf(root.root.findByProps({role:'status'})),'यह TEST है।');await act(async()=>root.unmount());
 });
 
 test('the screenshot-style owner/customer toast opens its selected message directly; X only dismisses',async()=>{
  const h=await harness();let root,dismissed=0;const selected=[];const notice={id:'toast',orderId:id,title:'New Order Received',body:'Updated',at:1,read:false};
  await act(async()=>{root=create(React.createElement(h.Toast,{notice,onOpenNotice:n=>selected.push(n),onDismiss:()=>dismissed++}));});
- await act(async()=>root.root.findByProps({'aria-label':'अपडेट खोलें'}).props.onClick());assert.equal(selected[0],notice);
- await act(async()=>root.root.findByProps({'aria-label':'बंद करें'}).props.onClick());assert.equal(dismissed,1);assert.equal(selected.length,1);await act(async()=>root.unmount());
+ await act(async()=>buttonNamed(root,process.env.ANKUR_CLIENT_APP?'Open update':'अपडेट खोलें').props.onClick());assert.equal(selected[0],notice);
+ await act(async()=>buttonNamed(root,process.env.ANKUR_CLIENT_APP?'Close':'बंद करें').props.onClick());assert.equal(dismissed,1);assert.equal(selected.length,1);await act(async()=>root.unmount());
 });
 test('staff toast uses the same direct opening callback and keeps its existing presentation',async()=>{
  const h=await harness();let root;const selected=[];const notice={id:'staff',orderId:id,title:'Update',body:'Changed',at:1,read:false};
@@ -93,5 +97,5 @@ test('staff toast uses the same direct opening callback and keeps its existing p
 test('clicking the exact screenshot TEST toast resolves an explanation rather than a removed-order route',async()=>{
  const h=await harness();let root,destination;const notice={id:'test',orderId:'TEST-FCM-20261031-98EE1A',title:'New Order Received',body:'1 KG · TEST ONLY',at:1,read:false};
  await act(async()=>{root=create(React.createElement(h.Toast,{notice,onOpenNotice:n=>{destination=h.destination(n,'admin',true);},onDismiss:()=>{}}));});
- await act(async()=>root.root.findByProps({'aria-label':'अपडेट खोलें'}).props.onClick());assert.equal(destination.kind,'test');await act(async()=>root.unmount());
+ await act(async()=>buttonNamed(root,process.env.ANKUR_CLIENT_APP?'Open update':'अपडेट खोलें').props.onClick());assert.equal(destination.kind,'test');await act(async()=>root.unmount());
 });

@@ -1,0 +1,14 @@
+# Product billing private-review status — 6 November 2026
+
+Latest v1.0.49 source/CI passed 257 checks including 52 security emulator tests. Inline standard Dry Ice promo, bilingual UI and notification preferences are now in the private candidate. Product billing and product push remain staged/inactive; live approval and owner-provided values are still required. APK evidence: `docs/PRIVATE_TEST_V49_RECEIPT.json`. The v1.0.48 note below is historical.
+
+
+Current Work Mode source is preserved. Owner unit/rate/packing/delivery editor, integer-paise quoting, immutable unit-order/tracking snapshots, separate order history, retry/response-loss and repricing checks, and bilingual unit checkout/editor are implemented in the combined app source. Catalog drafts remain unpriced/private; seasonal Dry Ice/Pyro visibility restrictions remain in force. No live catalog or selling flag was seeded.
+
+The isolated `productpush` codebase has only two new exports and reuses the audited sender helper. Original three `orderpush` exports are unchanged. Product customer opt-out retains owner alerts; this does not imply preference enforcement by the legacy workers. Real installed SDK export/database/region/runtime discovery now runs in product review CI, along with arithmetic/listener/push tests; combined checkout React and candidate Rules emulator are also tested.
+
+Optional inventory integration now covers real owner/staff Dispatch in review source, with trusted SKU/balance/projection transaction and candidate Rules preventing direct dispatch/rewind when explicitly enabled. It stays off by default and requires real mappings/balances plus separately approved deployment and updated operating clients.
+
+Latest local selection: billing/listeners/product push plus receipts 25/25; combined client/checkout/handler regressions 72/72; feature+product emulator 41/41; real feature/product SDK discovery 2/2. Combined TypeScript lint and Vite build PASS. No Android physical-device result is claimed. The grouped v1.0.48 private build passed all same-commit review/security/product jobs and original-certificate/package/version checks: https://github.com/ankur2066/-ankur-order-app-/actions/runs/42142670072. Verified artifact/source/checksum evidence is in `docs/PRIVATE_TEST_V48_RECEIPT.json`; APK source is `113072a6d84e8d634c3e891aece9a95c09a8d979`.
+
+Full legacy localization, inline legacy promo checkout, legacy notification preferences and reward issuance remain incomplete. Current live Rules hash, actual selling values and runtime/IAM rollout need review; production deploy, billing settings, live data changes and public release are not authorized. Full status: `docs/ONE_SHOT_14_FEATURE_REPORT.md`.

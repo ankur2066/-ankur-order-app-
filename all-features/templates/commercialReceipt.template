@@ -1,0 +1,22 @@
+import {jsPDF} from 'jspdf';
+import html2canvas from 'html2canvas';
+import {exportPdf} from './mobileReport';
+
+/** Rasterize browser-shaped Unicode text so Hindi customer/product names remain readable. */
+export async function downloadCommercialReceipt(row:any):Promise<void>{
+ if(!Number.isSafeInteger(row.totalPaise)||row.totalPaise<=0)throw Error('Invalid receipt total');
+ const sheet=document.createElement('section');
+ Object.assign(sheet.style,{position:'fixed',left:'0',top:'0',width:'640px',padding:'40px',boxSizing:'border-box',background:'#ffffff',color:'#111827',fontFamily:'sans-serif',fontSize:'18px',lineHeight:'1.6',zIndex:'-1',overflowWrap:'anywhere'});
+ const add=(tag:string,value:string)=>{const el=document.createElement(tag);el.textContent=value;sheet.appendChild(el);};
+ add('h1','Ankur Dryice — Commercial Receipt');
+ for(const [label,value]of [['Order',row.orderId],['Customer',row.customerName],['Product',row.productName],['Quantity',String(row.quantity)+' '+row.unit],['Total','INR '+(row.totalPaise/100).toFixed(2)]])add('p',label+': '+String(value??''));
+ add('p','This is a commercial receipt, not a GST tax invoice.');document.body.appendChild(sheet);
+ try{
+  await document.fonts?.ready;
+  const canvas=await html2canvas(sheet,{scale:2,backgroundColor:'#ffffff',logging:false});
+  const pdf=new jsPDF({compress:true});const width=180,height=canvas.height/canvas.width*width;
+  if(height>270)throw Error('Receipt exceeds one page');
+  pdf.addImage(canvas.toDataURL('image/png'),'PNG',15,15,width,height);
+  await exportPdf(pdf,'Receipt-'+String(row.orderId).replace(/[^A-Za-z0-9_-]/g,'')+'.pdf');
+ }finally{sheet.remove();}
+}

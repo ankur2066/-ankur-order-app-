@@ -1,0 +1,65 @@
+import test,{before,after}from'node:test';import assert from'node:assert/strict';import{createRequire}from'node:module';import{readFileSync}from'node:fs';
+const require=createRequire((process.env.ANKUR_RULES_QA_ROOT||'/workspace/ankur-security-qa')+'/package.json');
+const{initializeTestEnvironment,assertFails,assertSucceeds}=require('@firebase/rules-unit-testing');const{doc,setDoc,getDoc,collection,getDocs,query,where,writeBatch,serverTimestamp}=require('firebase/firestore');
+let env;const owner={email:'ankurdryicewholesalers@gmail.com',email_verified:true};
+before(async()=>{env=await initializeTestEnvironment({projectId:'demo-ankur-features-rules',firestore:{host:'127.0.0.1',port:8085,rules:readFileSync(process.env.ANKUR_FEATURE_RULES||'/workspace/ankur-featuresuite-review/firestore.rules','utf8')}});await env.withSecurityRulesDisabled(async c=>{const db=c.firestore();for(const path of ['partners/a','partnerApplications/a','userPrefs/a','referrals/a','loyaltyLedger/a'])await setDoc(doc(db,path),{userId:'a',status:'pending'});for(const path of ['subscriptions/s1','bulkOrders/b1','invoices/i1','stock/SKU','stockMovements/m1'])await setDoc(doc(db,path),{userId:'a',status:'pending'});await setDoc(doc(db,'promos/ACTIVE'),{active:true});await setDoc(doc(db,'promos/HIDDEN'),{active:false});});});after(()=>env.cleanup());
+test('own feature documents are readable and cross-user queries fail',async()=>{const a=env.authenticatedContext('a').firestore(),b=env.authenticatedContext('b').firestore();for(const path of ['partners/a','partnerApplications/a','userPrefs/a','referrals/a','loyaltyLedger/a']){await assertSucceeds(getDoc(doc(a,path)));await assertFails(getDoc(doc(b,path)));}for(const path of ['subscriptions','bulkOrders']){await assertSucceeds(getDocs(query(collection(a,path),where('userId','==','a'))));await assertFails(getDocs(collection(a,path)));}});
+test('customer cannot forge approvals, points, stock, receipt or promo counter',async()=>{const db=env.authenticatedContext('a').firestore();for(const path of ['partners/a','partnerApplications/a','userPrefs/a','referrals/a','loyaltyLedger/a','subscriptions/s1','bulkOrders/b1','invoices/i1','stock/SKU','stockMovements/m1','promos/ACTIVE'])await assertFails(setDoc(doc(db,path),{userId:'a',status:'approved',points:999,usageCount:0}));});
+test('even owner clients cannot rewrite server-authoritative ledgers',async()=>{const db=env.authenticatedContext('owner',owner).firestore();for(const path of ['stock/SKU','stockMovements/m1','invoices/i1','promos/ACTIVE','partners/a']){await assertSucceeds(getDoc(doc(db,path)));await assertFails(setDoc(doc(db,path),{tampered:true}));}});
+test('public promos expose active-only docs and never allow guest enumeration of hidden records',async()=>{const db=env.unauthenticatedContext().firestore();await assertSucceeds(getDoc(doc(db,'promos/ACTIVE')));await assertFails(getDoc(doc(db,'promos/HIDDEN')));await assertSucceeds(getDocs(query(collection(db,'promos'),where('active','==',true))));await assertFails(getDocs(collection(db,'promos')));});
+test('server-created discounted orders retain normal owner payment/status operations without financial rewrites',async()=>{
+ const id='ADI-FEATURE-PROMO',token=id+'_123456';await env.withSecurityRulesDisabled(async c=>{const db=c.firestore();await setDoc(doc(db,'orders',id),{orderId:id,trackingToken:token,trackingPin:'123456',customerName:'Demo Buyer',customerPhone:'9000000001',district:'Demo City',quantityKg:10,productName:'Dry Ice',dispatchTiming:'Tomorrow',dryIcePricePerKg:50,dryIceSubtotal:500,thermocolPricePerKg:10,thermocolSubtotal:100,transportPrice:0,createdAt:new Date(),updatedAt:new Date(),userId:'a',status:'pending',paymentStatus:'pending_verification',paymentMethod:'paytm_business_upi',promoCode:'ACTIVE',baseTotalAmount:600,discountAmount:50,totalAmount:550});await setDoc(doc(db,'order_tracking',token),{orderId:id,trackingToken:token,quantityKg:10,productName:'Dry Ice',district:'Demo City',dispatchTiming:'Tomorrow',createdAt:new Date(),updatedAt:new Date(),status:'pending',paymentStatus:'pending_verification',lastStatusUpdate:'Received'});});
+ const db=env.authenticatedContext('owner',owner).firestore();const batch=writeBatch(db);batch.update(doc(db,'orders',id),{status:'confirmed',paymentStatus:'payment_verified',updatedAt:serverTimestamp()});batch.update(doc(db,'order_tracking',token),{status:'confirmed',paymentStatus:'payment_verified',lastStatusUpdate:'Confirmed',updatedAt:serverTimestamp()});await assertSucceeds(batch.commit());
+ await assertFails(setDoc(doc(db,'orders',id),{totalAmount:1},{merge:true}));await assertFails(setDoc(doc(env.authenticatedContext('a').firestore(),'orders',id),{paymentStatus:'payment_verified',updatedAt:serverTimestamp()},{merge:true}));
+ const strip={...(await getDoc(doc(db,'orders',id))).data(),totalAmount:600,updatedAt:serverTimestamp()};delete strip.promoCode;delete strip.baseTotalAmount;delete strip.discountAmount;await assertFails(setDoc(doc(db,'orders',id),strip));
+});
+test('manual ETA annotations survive subsequent paired legacy and unit status updates',async()=>{
+ const db=env.authenticatedContext('owner',owner).firestore();
+ for(const unit of [false,true]){
+  const id=unit?'APO-20261101-ABCDEF01':'ADI-FEATURE-ETA',token=id+'_123456',orders=unit?'product_orders':'orders',tracking=unit?'product_order_tracking':'order_tracking';
+  const common={orderId:id,trackingToken:token,productId:'fixture_piece',productName:'Fixture product',district:'Demo City',dispatchTiming:'Tomorrow',status:'pending',paymentStatus:'pending_verification',etaMs:1793577600000,etaSource:'manual',etaUpdatedAt:new Date()};
+  await env.withSecurityRulesDisabled(async c=>{const admin=c.firestore();await setDoc(doc(admin,orders,id),{...common,userId:'a',paymentMethod:'paytm_business_upi',createdAt:new Date(),updatedAt:new Date(),...(unit?{billingVersion:2,billing:{unit:'piece',quantityUnits:2}}:{totalAmount:600})});await setDoc(doc(admin,tracking,token),{...common,...(unit?{billingVersion:2,billing:{unit:'piece',quantityUnits:2}}:{}),lastStatusUpdate:'Received',createdAt:new Date(),updatedAt:new Date()});});
+  const b=writeBatch(db);b.update(doc(db,orders,id),{status:'confirmed',updatedAt:serverTimestamp()});b.update(doc(db,tracking,token),{status:'confirmed',lastStatusUpdate:'Confirmed',updatedAt:serverTimestamp()});await assertSucceeds(b.commit());await assertFails(setDoc(doc(db,tracking,token),{etaMs:1},{merge:true}));
+ }
+});
+test('approved recurring snapshots with per-KG transport remain operational and cannot be stripped',async()=>{
+ const db=env.authenticatedContext('owner',owner).firestore();const previous=(await getDoc(doc(db,'orders','ADI-FEATURE-PROMO'))).data();const id='ADI-FEATURE-SUPPLY',token=id+'_123456';const order={...previous,orderId:id,trackingToken:token,subscriptionId:'plan_fixture',dryIcePricePerKg:73,dryIceSubtotal:730,thermocolPricePerKg:8,thermocolSubtotal:80,transportPrice:2,totalAmount:830};delete order.promoCode;delete order.baseTotalAmount;delete order.discountAmount;
+ await env.withSecurityRulesDisabled(async c=>{const a=c.firestore();await setDoc(doc(a,'orders',id),order);await setDoc(doc(a,'order_tracking',token),{orderId:id,trackingToken:token,quantityKg:10,productName:'Dry Ice',district:'Demo City',dispatchTiming:'Tomorrow',createdAt:new Date(),updatedAt:new Date(),status:order.status,paymentStatus:order.paymentStatus,lastStatusUpdate:'Confirmed'});});
+ const b=writeBatch(db);b.update(doc(db,'orders',id),{status:'dispatched',updatedAt:serverTimestamp()});b.update(doc(db,'order_tracking',token),{status:'dispatched',lastStatusUpdate:'Dispatched',updatedAt:serverTimestamp()});await assertSucceeds(b.commit());const strip={...(await getDoc(doc(db,'orders',id))).data(),totalAmount:812,updatedAt:serverTimestamp()};delete strip.subscriptionId;await assertFails(setDoc(doc(db,'orders',id),strip));
+});
+
+test('inventory mode guards every overlapping legacy/product/annotated status path and prevents rewind',async()=>{
+ const own=env.authenticatedContext('owner',owner).firestore(),staff=env.authenticatedContext('inventory-staff',{email:'inventory-staff@example.test',email_verified:true}).firestore();
+ await env.withSecurityRulesDisabled(async c=>{await setDoc(doc(c.firestore(),'settings/featureSuite'),{enabled:true,inventoryEnabled:true});await setDoc(doc(c.firestore(),'users/inventory-staff'),{role:'staff',permissions:{updateStatus:true}});});
+ const original=(await getDoc(doc(own,'orders/ADI-FEATURE-PROMO'))).data();
+ const paired=(db,orders,tracking,id,token,patch)=>{const batch=writeBatch(db);batch.update(doc(db,orders,id),{...patch,updatedAt:serverTimestamp()});batch.update(doc(db,tracking,token),{...patch,lastStatusUpdate:'Emulator transition',updatedAt:serverTimestamp()});return batch.commit();};
+ for(const kind of ['legacy','promo','eta','unit','unit-eta']){
+  const unit=kind.startsWith('unit'),id=unit?'APO-20261106-'+(kind==='unit'?'00000011':'00000012'):'ADI-INVENTORY-'+kind.toUpperCase(),token=id+'_123456',orders=unit?'product_orders':'orders',tracking=unit?'product_order_tracking':'order_tracking';
+  const order={...original,orderId:id,trackingToken:token,status:'confirmed',totalAmount:600};delete order.promoCode;delete order.baseTotalAmount;delete order.discountAmount;
+  if(kind==='promo')Object.assign(order,{promoCode:'ACTIVE',baseTotalAmount:600,discountAmount:50,totalAmount:550});
+  const projection={orderId:id,trackingToken:token,quantityKg:10,productName:'Dry Ice',district:'Demo City',dispatchTiming:'Tomorrow',createdAt:new Date(),updatedAt:new Date(),status:'confirmed',paymentStatus:order.paymentStatus,lastStatusUpdate:'Confirmed'};
+  if(unit){Object.assign(order,{billingVersion:2,productId:'fixture_piece',productName:'Fixture Piece',billing:{unit:'piece',quantityUnits:3,unitPricePaise:20000,productSubtotalPaise:60000,packingMode:'none',packingPricePaise:0,packingSubtotalPaise:0,deliveryFeePaise:0,totalPaise:60000}});Object.assign(projection,{billingVersion:2,productId:'fixture_piece',productName:'Fixture Piece',billing:{unit:'piece',quantityUnits:3}});delete projection.quantityKg;}
+  if(kind.includes('eta'))for(const record of [order,projection])Object.assign(record,{etaSource:'manual',etaMs:1793577600000,etaUpdatedAt:new Date()});
+  await env.withSecurityRulesDisabled(async c=>{await setDoc(doc(c.firestore(),orders,id),order);await setDoc(doc(c.firestore(),tracking,token),projection);});
+  for(const actor of [own,staff]){
+   await assertFails(paired(actor,orders,tracking,id,token,{status:'dispatched'}));
+   await assertFails(paired(actor,orders,tracking,id,token,{status:'delivered'}));
+   await assertFails(setDoc(doc(actor,tracking,token),{status:'dispatched',lastStatusUpdate:'Bypass',updatedAt:serverTimestamp()},{merge:true}));
+  }
+  await assertSucceeds(paired(own,orders,tracking,id,token,{status:'in_packing'}));
+  await assertFails(setDoc(doc(own,orders,id),unit?{billing:{...order.billing,quantityUnits:1},updatedAt:serverTimestamp()}:{quantityKg:1,updatedAt:serverTimestamp()},{merge:true}));
+  await env.withSecurityRulesDisabled(async c=>{const admin=c.firestore();await setDoc(doc(admin,orders,id),{status:'dispatched'},{merge:true});await setDoc(doc(admin,tracking,token),{status:'dispatched'},{merge:true});await setDoc(doc(admin,'stockMovements','dispatch_'+id),{orderId:id,reason:'dispatch',sku:'FIXTURE',deltaUnits:-3});});
+  await assertFails(paired(own,orders,tracking,id,token,{status:'confirmed'}));
+  await assertSucceeds(paired(staff,orders,tracking,id,token,{status:'delivered'}));
+  await assertSucceeds(paired(own,orders,tracking,id,token,{paymentStatus:'payment_verified'}));
+ }
+ // Opt-out retains existing operations; historical ledgers remain inaccessible to clients.
+ await env.withSecurityRulesDisabled(c=>setDoc(doc(c.firestore(),'settings/featureSuite'),{enabled:true,inventoryEnabled:false}));
+ await assertSucceeds(paired(own,'orders','order_tracking','ADI-INVENTORY-LEGACY','ADI-INVENTORY-LEGACY_123456',{status:'confirmed'}));
+ await assertSucceeds(paired(own,'orders','order_tracking','ADI-INVENTORY-LEGACY','ADI-INVENTORY-LEGACY_123456',{status:'dispatched'}));
+});
+
+test('loyalty balances, awards and redemption decisions cannot be forged or read across customers',async()=>{
+ await env.withSecurityRulesDisabled(async c=>{const db=c.firestore();await setDoc(doc(db,'loyaltyLedger/a'),{userId:'a',points:12});await setDoc(doc(db,'loyaltyEntries/e1'),{userId:'a',points:12});await setDoc(doc(db,'loyaltyRedemptions/r1'),{userId:'a',status:'pending_owner_review'});});
+ for(const path of ['loyaltyLedger/a','loyaltyEntries/e1','loyaltyRedemptions/r1']){await assertSucceeds(getDoc(doc(env.authenticatedContext('a').firestore(),path)));await assertFails(getDoc(doc(env.authenticatedContext('b').firestore(),path)));for(const db of [env.authenticatedContext('a').firestore(),env.authenticatedContext('owner',owner).firestore()])await assertFails(setDoc(doc(db,path),{points:999,status:'fulfilled'},{merge:true}));}
+});

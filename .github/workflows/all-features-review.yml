@@ -1,0 +1,98 @@
+name: All 14 features + English default private review
+
+on:
+  push:
+    branches: [codex/all-14-phase-bc-english]
+  pull_request:
+    branches: [codex/phase-a-owner-reports-expenses]
+  workflow_dispatch:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  lint-build-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - name: Reconstruct verified v1.0.32 and Phase A
+        run: |
+          set -euo pipefail
+          unzip -oq Ankur_Order_App_Upload_GitHub.zip -d .
+          python3 app-check/apply_patch.py
+          python3 ui-fixes/apply_patch.py
+          python3 ui-fixes/ux_qa_patch.py
+          python3 ui-fixes/premium_booking_v122.py
+          python3 ui-fixes/blinkit_premium_v123.py
+          python3 ui-fixes/customer_home_form_v124.py
+          python3 ui-fixes/customer_home_only_v125.py
+          python3 ui-fixes/compact_customer_form_v126.py
+          python3 ui-fixes/english_booking_v127.py
+          python3 ui-fixes/readable_smooth_v128.py
+          python3 notifications/apply_patch.py
+          python3 notifications/client-fixes/apply_patch.py
+          python3 notifications/tap-fix/apply_patch.py
+          python3 ui-fixes/declutter_v132.py
+          python3 phase-a/apply_patch.py
+          python3 all-features/protected_audit.py record /tmp/protected.json
+      - name: Apply private review overlay
+        run: |
+          python3 billing/apply_patch.py
+          ANKUR_APP_DIR=$PWD python3 all-features/apply_patch.py
+          python3 all-features/wire_additions.py
+          python3 ui-fixes/seasonal_contrast_v135.py
+          python3 ui-fixes/customer-home-language.py
+          python3 ui-fixes/customer_nav_v138.py
+          python3 ui-fixes/customer_dark_contrast_v138.py
+          python3 ui-fixes/customer_home_clean_v139.py
+          python3 ui-fixes/customer_features_nav_v140.py
+          python3 ui-fixes/video_idea_profile_v141.py
+          python3 ui-fixes/customer_profile_contact_v145.py
+          python3 ui-fixes/customer_ai_video_cleanup_v146.py
+          python3 ui-fixes/dispatch_rules_privacy_v147.py
+          python3 ui-fixes/owner_premium_v148.py
+          python3 ui-fixes/staff_contact_privacy_v148.py
+          python3 ui-fixes/tracking-language.py
+          python3 ui-fixes/inline-promo.py
+          python3 ui-fixes/notification-preferences.py
+          python3 ui-fixes/locale-formatting.py
+          python3 ui-fixes/localization.py
+          python3 ui-fixes/owner_feature_settings.py
+          python3 all-features/protected_audit.py check /tmp/protected.json
+      - name: Unit and regression contracts
+        run: |
+          node --test all-features/feature-contract.test.mjs all-features/backend/trustedOperations.test.mjs billing/language-coverage.test.mjs seasonal/catalogPolicy.test.mjs updates/appUpdate.test.mjs ui-fixes/contrast.test.mjs ui-fixes/customer-nav-v138.test.mjs ui-fixes/customer-dark-contrast-v138.test.mjs ui-fixes/customer-home-clean-v139.test.mjs ui-fixes/customer-features-v140.test.mjs ui-fixes/video-idea-profile-v141.test.mjs ui-fixes/customer-profile-contact-v145.test.mjs ui-fixes/customer-ai-video-cleanup-v146.test.mjs ui-fixes/dispatch-rules-privacy-v147.test.mjs ui-fixes/owner-staff-premium-v148.test.mjs ui-fixes/customer-home-language.test.mjs all-features/phone-links.test.mjs ui-fixes/mobileReport.test.mjs ui-fixes/monthlyReport.test.mjs all-features/reconstruct-contract.test.mjs ci-fixes/signing-cert.test.mjs
+          node --experimental-strip-types --test phase-a/phase-a.test.mjs
+      - name: Install and build
+        run: |
+          npm install --save-exact --package-lock-only --ignore-scripts --no-audit --no-fund @capacitor-firebase/app-check@7.5.0 @capacitor/app@7 @capacitor/filesystem@7 @capacitor/share@7 @capacitor/push-notifications@7
+          npm ci --ignore-scripts --no-audit --no-fund
+          npm run lint
+          npm run build
+          node all-features/language_audit.mjs "$PWD" language-ui-coverage.json
+      - name: Actual React client and tap regressions
+        run: |
+          npm install --no-save --ignore-scripts react-test-renderer@19
+          ANKUR_COMBINED_SOURCE=$PWD ANKUR_CLIENT_QA=$PWD ANKUR_CLIENT_APP=$PWD node --experimental-vm-modules --test notifications/client-fixes/client.test.mjs notifications/tap-fix/tap.test.mjs notifications/notificationPush.test.mjs notifications/preferences/preferences.test.mjs all-features/inventory-client.test.mjs all-features/inventory-dashboard.test.mjs all-features/inline-promo.test.mjs all-features/language.test.mjs billing/checkout.test.mjs updates/notice.test.mjs ui-fixes/customer-home-live.test.mjs ui-fixes/tracking-language.test.mjs ui-fixes/i18n/screens.test.mjs
+      - name: Safety boundary
+        run: |
+          test -f dist/index.html
+          echo 'Private review only: no Firebase deploy, billing change, data seed, APK publish or installation.'
+      - name: Package private review evidence
+        run: |
+          git rev-parse HEAD > review-source-sha.txt
+          # Only repository source and generated web assets: no Android signing
+          # material, environment files, live data, or dependency directories.
+          tar -czf review-source.tar.gz src dist public index.html package.json package-lock.json tsconfig.json vite.config.ts
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Ankur-private-review-source
+          path: |
+            review-source.tar.gz
+            review-source-sha.txt
+            language-ui-coverage.json
+          retention-days: 7

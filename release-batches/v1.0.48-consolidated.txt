@@ -1,0 +1,18 @@
+Ankur Dryice — ONE consolidated PRIVATE TEST candidate v1.0.48
+Date: 2026-11-06
+Preserves current Work Mode source and old APKs. This is not a production/public release or device installation.
+
+Included since v1.0.47:
+- Current Work Mode premium owner seven-section screen and staff contact masking.
+- Bilingual Tracking UI and corrected Call 95808 82066; WhatsApp remains 88963 32066.
+- Optional inventory Dispatch integration in both owner/staff lists, trusted exactly-once SKU stock transaction, and staged bypass/rewind Rules guards.
+- Regular Supply resume request requires renewed owner approval and leaves execution disabled.
+- Real SDK discovery gates for staged feature/product workers.
+
+Local combined lint/build, protected legacy audit, 41 emulator, 71 contract, 72 client/handler, 4 Phase A, 25 billing/receipt and 2 SDK checks passed.
+Signing requires successful same-commit review, security emulator and product-billing jobs.
+Package com.ankurdryice.events; versionCode 48; versionName 1.0.48-combined-test.
+Original certificate SHA-256 must be verified by CI before sharing.
+
+Incomplete: full legacy localization, inline legacy promo checkout, legacy notification preference coverage, loyalty issuance/redemption and real reward policy. Live backend deployment/configuration and physical Android acceptance remain gated; see docs/ONE_SHOT_14_FEATURE_REPORT.md.
+No automatic production deployment, feature switch activation, live stock/customer writes, billing change, public APK publication, Play release, PR merge or device install is authorized.

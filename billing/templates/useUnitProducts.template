@@ -1,0 +1,16 @@
+import {useEffect,useState} from 'react';
+import {collection,doc,onSnapshot,query,where} from 'firebase/firestore';
+import {db} from '../firebase';
+import type {UnitProduct} from '../billing/unitBilling';
+export function useUnitBillingState(){
+  const [enabled,setEnabled]=useState(false);const [available,setAvailable]=useState(false);
+  useEffect(()=>onSnapshot(doc(db,'settings','unitBilling'),s=>{const present=s.exists()&&s.data().schemaVersion===2;setAvailable(present);setEnabled(present&&s.data().enabled===true);},()=>{setAvailable(false);setEnabled(false);}),[]);
+  return{available,enabled};
+}
+export function useUnitProducts(owner=false){
+  const {available,enabled}=useUnitBillingState();const [products,setProducts]=useState<UnitProduct[]>([]);const [error,setError]=useState('');
+  useEffect(()=>{setProducts([]);setError('');if(!available||(!owner&&!enabled))return;
+    const ref=owner?collection(db,'product_catalog_v2'):query(collection(db,'product_catalog_v2'),where('active','==',true));
+    return onSnapshot(ref,s=>{setProducts(s.docs.map(d=>({...d.data(),id:d.id} as UnitProduct)));setError('');},()=>setError('नए प्रोडक्ट अभी उपलब्ध नहीं हैं।'));
+  },[available,enabled,owner]);return{available,enabled,products,error};
+}

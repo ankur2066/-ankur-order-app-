@@ -1,0 +1,85 @@
+import React, {useEffect, useRef, useState} from 'react';
+import {Capacitor} from '@capacitor/core';
+import {App} from '@capacitor/app';
+import {useLanguage} from '../context/LanguageContext';
+import {checkForUpdate,type UpdateRelease} from '../services/appUpdate';
+
+/**
+ * Nonblocking, accessible, update-on-launch notice. No installer permissions.
+ * Release availability is sourced only from the allowlisted Ankur Dryice site.
+ */
+export function AppUpdateNotice(){
+  const {language}=useLanguage();
+  const [release,setRelease]=useState<UpdateRelease|null>(null);
+  const [dismissed,setDismissed]=useState(false);
+  const seenVersion=useRef<number|null>(null);
+  useEffect(()=>{
+    // Android WebViews may remain alive when customers leave and reopen the app.
+    // Check on the first mount and when the app returns to the foreground.
+    let mounted=true;
+    let checking=false;
+    let lastCheckAt=0;
+    let nativeListener: {remove:()=>Promise<void>}|null=null;
+    let wasBackgrounded=false;
+    if(!Capacitor.isNativePlatform()||Capacitor.getPlatform()!=='android')return;
+    const check=async(force=false,nativeForeground=false)=>{
+      // Native appStateChange can precede a WebView visibility/focus event.
+      if(!mounted||checking||(!nativeForeground&&document.visibilityState==='hidden'))return;
+      const now=Date.now();
+      if(!force&&now-lastCheckAt<15000)return; // focus + visibility may both fire
+      lastCheckAt=now;
+      checking=true;
+      try{
+        const info=await checkForUpdate();
+        if(!mounted)return;
+        // An update may be withdrawn at its trusted source. Never keep showing
+        // a stale link after a failed/invalid manifest check on app resume.
+        if(!info){setRelease(null);return;}
+        // Respect "Later" for the same version; show again for a newer one.
+        if(seenVersion.current!==info.versionCode){
+          seenVersion.current=info.versionCode;
+          setDismissed(false);
+        }
+        setRelease(info);
+      }finally{checking=false;}
+    };
+    const onResume=()=>{if(document.visibilityState!=='hidden')void check();};
+    void check(true);
+    document.addEventListener('visibilitychange',onResume);
+    window.addEventListener('focus',onResume);
+    // Android process may keep its WebView alive without a DOM focus change.
+    // The Capacitor App bridge provides a native resume signal.
+    void App.addListener('appStateChange',({isActive})=>{
+      if(!isActive){wasBackgrounded=true;return;}
+      // Only real background -> foreground resumes bypass the 15s DOM burst throttle.
+      const force=wasBackgrounded;
+      wasBackgrounded=false;
+      void check(force,true);
+    }).then(listener=>{
+      if(mounted)nativeListener=listener;
+      else void listener.remove();
+    }).catch(()=>{/* DOM focus/visibility listeners remain the fallback. */});
+    return ()=>{
+      mounted=false;
+      document.removeEventListener('visibilitychange',onResume);
+      window.removeEventListener('focus',onResume);
+      if(nativeListener)void nativeListener.remove();
+    };
+  },[]);
+  if(!release||dismissed)return null;
+  const hi=language==='hi';
+  return <aside role="status" aria-live="polite" className="fixed top-3 left-3 right-3 z-[100] mx-auto max-w-md rounded-2xl border-2 border-white bg-slate-950 p-4 text-white shadow-2xl" style={{color:'#ffffff',backgroundColor:'#0f172a',borderColor:'#ffffff'}}>
+    <div className="flex items-start gap-3">
+      <div className="min-w-0 flex-1">
+        <p className="font-black text-white">{hi?'Ankur Dryice का नया अपडेट':'Ankur Dryice update available'}</p>
+        <p className="mt-1 text-sm text-white">{hi?'वर्ज़न':'Version'} {release.versionName}</p>
+        {release.notes&&<p className="mt-1 text-sm text-white">{release.notes}</p>}
+      </div>
+      <button type="button" className="rounded-lg border border-white px-3 py-1 text-sm text-white" onClick={()=>setDismissed(true)} aria-label={hi?'बाद में':'Later'}>{hi?'बाद में':'Later'}</button>
+    </div>
+    <a className="mt-3 block min-h-11 rounded-xl bg-white px-4 py-3 text-center font-black text-slate-950" style={{backgroundColor:'#ffffff',color:'#0f172a'}} target="_blank" rel="noopener noreferrer" href={release.url}>
+      {hi?'अपडेट खोलें':'Open update'}
+    </a>
+    <p className="mt-2 text-xs text-white">{hi?'अपडेट करने के लिए आपकी अनुमति जरूरी है।':'Your approval is required to install an update.'}</p>
+  </aside>;
+}

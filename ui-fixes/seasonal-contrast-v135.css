@@ -1,0 +1,86 @@
+/* ANKUR WEDDING SEASON CONTRAST — customer booking only.
+ * The existing customer home is deliberately light in both themes.
+ * Prevent inherited dark-mode/transparent panels from washing out controls.
+ * Pure CSS: no rates, slots, submit handlers, order storage or auth changes.
+ */
+.aqp-form-only-main .ankur-premium-booking .apb-form-panel {
+  background: #ffffff !important;
+  color: #173b52 !important;
+  border: 1px solid #cbdfea !important;
+}
+.aqp-form-only-main .ankur-premium-booking .apb-field-label,
+.aqp-form-only-main .ankur-premium-booking .apb-section-label,
+.aqp-form-only-main .ankur-premium-booking .apb-special-request > label {
+  color: #173b52 !important;
+}
+.aqp-form-only-main .ankur-premium-booking input.apb-input,
+.aqp-form-only-main .ankur-premium-booking textarea.apb-extra-reason-input {
+  color: #173b52 !important;
+  background: #ffffff !important;
+  border: 1.5px solid #7895a7 !important;
+  opacity: 1 !important;
+  color-scheme: light;
+}
+.aqp-form-only-main .ankur-premium-booking .apb-input::placeholder,
+.aqp-form-only-main .ankur-premium-booking .apb-extra-reason-input::placeholder {
+  color: #475569 !important;
+  opacity: 1 !important;
+}
+.aqp-form-only-main .ankur-premium-booking .apb-slot-idle {
+  background: #ffffff !important;
+  color: #334e62 !important;
+  border: 1.5px solid #7895a7 !important;
+}
+.aqp-form-only-main .ankur-premium-booking .apb-slot-selected {
+  background: #dcf5ff !important;
+  color: #075985 !important;
+  border: 2px solid #075985 !important;
+  box-shadow: inset 0 0 0 1px #075985 !important;
+}
+.aqp-form-only-main .ankur-premium-booking .apb-slot-disabled {
+  background: #f0f4f7 !important;
+  color: #455868 !important;
+  border: 1.5px solid #b0c1cb !important;
+  cursor: not-allowed !important;
+}
+.aqp-form-only-main .ankur-premium-booking .apb-slot-title,
+.aqp-form-only-main .ankur-premium-booking .apb-slot-time {
+  color: inherit !important;
+}
+.aqp-form-only-main .ankur-premium-booking .apb-helper,
+.aqp-form-only-main .ankur-premium-booking .apb-special-request p {
+  color: #455868 !important;
+}
+.aqp-form-only-main .ankur-premium-booking .apb-total-card {
+  background: #0f2743 !important;
+  color: #ffffff !important;
+  border: 1px solid #0f2743 !important;
+}
+.aqp-form-only-main .ankur-premium-booking .apb-total-card .apb-total-heading,
+.aqp-form-only-main .ankur-premium-booking .apb-total-card .apb-total-row,
+.aqp-form-only-main .ankur-premium-booking .apb-total-card .apb-total-grand,
+.aqp-form-only-main .ankur-premium-booking .apb-total-card .apb-total-row strong {
+  color: #ffffff !important;
+}
+.aqp-form-only-main .ankur-premium-booking .apb-extra-amount-input {
+  color: #0f2743 !important;
+  background: #ffffff !important;
+  border: 2px solid #7895a7 !important;
+  color-scheme: light;
+}
+.aqp-form-only-main .ankur-premium-booking .apb-slot:focus-visible,
+.aqp-form-only-main .ankur-premium-booking .apb-input:focus-visible,
+.aqp-form-only-main .ankur-premium-booking .apb-extra-amount-input:focus-visible,
+.aqp-form-only-main .ankur-premium-booking .apb-extra-reason-input:focus-visible {
+  outline: 3px solid #0c4a6e !important;
+  outline-offset: 2px !important;
+}
+@media (forced-colors: active) {
+  .aqp-form-only-main .ankur-premium-booking .apb-slot-selected {
+    border: 3px solid Highlight !important;
+  }
+  .aqp-form-only-main .ankur-premium-booking input,
+  .aqp-form-only-main .ankur-premium-booking textarea {
+    forced-color-adjust: auto;
+  }
+}

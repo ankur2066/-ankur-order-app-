@@ -1,0 +1,21 @@
+Ankur Dryice — consolidated private Android release batch v1.0.47
+Date: 2026-11-04
+Requested release policy: ONE APK after grouped review, never one APK per small edit.
+
+Customer/owner changes included in the ONE candidate APK:
+1. Booking form: four compact radio choices — आज सुबह / आज शाम / कल सुबह / कल शाम — with their existing unchanged values and expiry/availability logic.
+2. Rules/Security viewer: remove its owner button, navigation, and raw Firebase security rules import from shipped client bundle. Firestore security policy itself is not weakened.
+3. AI Video: preserve upper functioning Video Idea Builder and remove duplicate lower AI Video Studio.
+4. AI Features/Profile: ten customer tools with no duplicate video link; separate Call 95808 82066 and WhatsApp 88963 32066 on Profile.
+Preserve owner/staff dashboards, booking, tracking, order history, rates, payment, Firebase database and signing identity.
+
+Verification before release marker:
+- All-features source reconstruction / TypeScript lint / web build / actual React regressions: PASSED on branch.
+- Optional-feature security Rules emulator (no Firebase deploy): PASSED.
+- Corrected TSX template literal and validated original slot IDs: PASSED.
+- Original signing cert, versionCode 47, versionName 1.0.47-season-test must pass release workflow before distributing.
+
+Scope limits:
+- No production Firebase Rules or Functions deployment.
+- Staff Access permission and Notification Preferences currently need separately verified LIVE backend configuration; do not present them as fixed by this APK.
+- Device installation and payment/notification real-device QA are not completed until explicitly checked.

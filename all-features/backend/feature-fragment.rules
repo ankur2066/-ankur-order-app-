@@ -1,0 +1,104 @@
+    // Off until explicitly configured. Every client status path shares this guard.
+    function inventoryEnabled() {
+      return exists(/databases/$(database)/documents/settings/featureSuite) &&
+        get(/databases/$(database)/documents/settings/featureSuite).data.get('enabled',false) == true &&
+        get(/databases/$(database)/documents/settings/featureSuite).data.get('inventoryEnabled',false) == true;
+    }
+    function inventoryPrivateUpdateAllowed() {
+      return !inventoryEnabled() || (
+        !request.resource.data.diff(resource.data).affectedKeys().hasAny(['quantityKg','billing','productId','productName','trackingToken','orderId']) && (
+          request.resource.data.status == resource.data.status ||
+          (resource.data.status == 'dispatched' && request.resource.data.status == 'delivered' &&
+            exists(/databases/$(database)/documents/stockMovements/$("dispatch_" + resource.data.orderId))) ||
+          (!(resource.data.status in ['dispatched','delivered']) &&
+            !(request.resource.data.status in ['dispatched','delivered']))
+        )
+      );
+    }
+    function inventoryProjectionUpdateAllowed(privatePath) {
+      return !inventoryEnabled() || (
+        request.resource.data.status == getAfter(privatePath).data.status &&
+        !request.resource.data.diff(resource.data).affectedKeys().hasAny(['quantityKg','billing','productId','productName','trackingToken','orderId'])
+      );
+    }
+    // Optional feature suite: trusted backend owns all mutations and counters.
+    function validFeatureStatus(d) {
+      return d.status in ['pending','confirmed','in_packing','dispatched','delivered','cancelled'] &&
+        d.paymentStatus in ['pending_verification','payment_verified','cash_on_delivery'];
+    }
+    // Only the trusted server can introduce these fields: legacy create schemas forbid them.
+    // Keep those snapshots immutable while permitting normal operational status/payment batches.
+    match /orders/{id} {
+      allow update: if inventoryPrivateUpdateAllowed() && isValidId(id) && isOwner() &&
+        (resource.data.get('promoCode','') != '' || resource.data.get('subscriptionId','') != '' || resource.data.get('etaSource','') == 'manual') &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status','paymentStatus','paymentMethod','paymentNotes','isTrash','trashedAt','updatedAt']) &&
+        request.resource.data.updatedAt == request.time && validFeatureStatus(request.resource.data) &&
+        request.resource.data.paymentMethod in ['paytm_business_upi','manual_verification','cash_on_delivery'] &&
+        (!('paymentNotes' in request.resource.data) || (request.resource.data.paymentNotes is string && request.resource.data.paymentNotes.size() <= 200)) &&
+        (!('isTrash' in request.resource.data) || request.resource.data.isTrash is bool) &&
+        (!('trashedAt' in request.resource.data) || request.resource.data.trashedAt is timestamp || request.resource.data.trashedAt == null) &&
+        getAfter(/databases/$(database)/documents/order_tracking/$(resource.data.trackingToken)).data.status == request.resource.data.status &&
+        getAfter(/databases/$(database)/documents/order_tracking/$(resource.data.trackingToken)).data.paymentStatus == request.resource.data.paymentStatus;
+    }
+    function featureTrackingUpdate(privatePath) {
+      return inventoryProjectionUpdateAllowed(privatePath) && resource.data.get('etaSource','') == 'manual' &&
+        (isOwner() || canUpdateStatus()) &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(isOwner()?['status','paymentStatus','lastStatusUpdate','updatedAt']:['status','lastStatusUpdate','updatedAt']) &&
+        request.resource.data.updatedAt == request.time && validFeatureStatus(request.resource.data) &&
+        request.resource.data.lastStatusUpdate is string && request.resource.data.lastStatusUpdate.size() <= 200 &&
+        getAfter(privatePath).data.status == request.resource.data.status &&
+        getAfter(privatePath).data.paymentStatus == request.resource.data.paymentStatus;
+    }
+    match /order_tracking/{token} {
+      allow update: if isValidTrackingToken(token) && featureTrackingUpdate(/databases/$(database)/documents/orders/$(resource.data.orderId));
+    }
+    match /product_order_tracking/{token} {
+      allow update: if isValidTrackingToken(token) && featureTrackingUpdate(/databases/$(database)/documents/product_orders/$(resource.data.orderId));
+    }
+    match /userPrefs/{uid} {
+      allow get: if isSignedIn() && request.auth.uid == uid;
+      allow list, write: if false;
+    }
+    match /partnerApplications/{uid} {
+      allow get: if isOwner() || (isSignedIn() && request.auth.uid == uid);
+      allow list: if isOwner();
+      allow write: if false;
+    }
+    match /partners/{uid} {
+      allow get: if isOwner() || (isSignedIn() && request.auth.uid == uid);
+      allow list: if isOwner();
+      allow write: if false;
+    }
+    match /bulkOrders/{id} {
+      allow read: if isOwner() || (isSignedIn() && resource.data.userId == request.auth.uid);
+      allow write: if false;
+    }
+    match /subscriptions/{id} {
+      allow read: if isOwner() || (isSignedIn() && resource.data.userId == request.auth.uid);
+      allow write: if false;
+    }
+    match /subscriptionExecutions/{id} { allow read: if isOwner(); allow write: if false; }
+    match /stock/{id} { allow read: if isOwner(); allow write: if false; }
+    match /stockMovements/{id} { allow read: if isOwner(); allow write: if false; }
+    match /stockMappings/{id} { allow read: if isOwner(); allow write: if false; }
+    match /invoices/{id} { allow read: if isOwner(); allow write: if false; }
+    match /promos/{id} { allow read: if isOwner() || resource.data.active == true; allow write: if false; }
+    match /promoRequests/{id} { allow read, write: if false; }
+    match /promoRedemptions/{id} { allow read, write: if false; }
+    match /referrals/{uid} {
+      allow get: if isOwner() || (isSignedIn() && request.auth.uid == uid);
+      allow list: if isOwner(); allow write: if false;
+    }
+    match /loyaltyLedger/{uid} {
+      allow get: if isOwner() || (isSignedIn() && request.auth.uid == uid);
+      allow list: if isOwner(); allow write: if false;
+    }
+
+    match /loyaltyEntries/{id} {
+      allow read: if isOwner() || (isSignedIn() && resource.data.userId == request.auth.uid);
+      allow write: if false;
+    }
+    match /loyaltyRedemptions/{id} {
+      allow read: if isOwner() || (isSignedIn() && resource.data.userId == request.auth.uid);
+      allow write: if false;
+    }
