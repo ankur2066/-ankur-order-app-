@@ -37,10 +37,10 @@ assert s.count('ankur-owner-nav')==1 and s.count('ankur-owner-masthead')==1
 for needed in ["'new-entry'","'orders'","'insights'","'expenses'","'users'","'storefront'","'ai-chat'","<OwnerStorefrontManager","<UserManagement","<ExpensesView","<AIChat"]:
     assert needed in s,needed
 if "FeatureSuiteSettings" not in s:
-    s="import { FeatureSuiteSettings } from './owner/FeatureSuiteSettings';\\n"+s
+    s="import { FeatureSuiteSettings } from './owner/FeatureSuiteSettings';\n"+s
 owner_root='<div className="ankur-owner-dashboard max-w-5xl mx-auto py-3 px-3 sm:px-6 text-slate-900 min-h-screen">'
 assert s.count(owner_root)==1
-s=s.replace(owner_root, owner_root+'\\n      <div className="mb-4"><FeatureSuiteSettings /></div>',1)
+s=s.replace(owner_root, owner_root+'\n      <div className="mb-4"><FeatureSuiteSettings /></div>',1)
 p.write_text(s,encoding="utf-8")
 
 css=Path("src/index.css")
