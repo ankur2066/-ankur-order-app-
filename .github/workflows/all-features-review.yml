@@ -61,6 +61,7 @@ jobs:
           python3 ui-fixes/notification-preferences.py
           python3 ui-fixes/locale-formatting.py
           python3 ui-fixes/localization.py
+          python3 ui-fixes/owner_feature_settings.py
           python3 all-features/protected_audit.py check /tmp/protected.json
       - name: Unit and regression contracts
         run: |
