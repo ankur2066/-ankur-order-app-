@@ -34,7 +34,7 @@ nav=Path("src/components/customer/BottomNav.tsx")
 ns=nav.read_text(encoding="utf-8")
 ns=ns.replace("House, ClipboardList, Clapperboard, Sparkles, User","House, ClipboardList, Clapperboard, User")
 ns=ns.replace(" | 'ai-features'","")
-ns=ns.replace("  { id: 'ai-features', label: 'AI Features', Icon: Sparkles },\\n","")
+ns=ns.replace("  { id: 'ai-features', label: 'AI Features', Icon: Sparkles },\n","")
 ns=ns.replace("grid-cols-5","grid-cols-4")
 nav.write_text(ns,encoding="utf-8")
 a=Path("src/App.tsx")
@@ -64,16 +64,16 @@ a.write_text(app,encoding="utf-8")
 hub=Path("src/components/customer/FeatureHub.tsx")
 hs=hub.read_text(encoding="utf-8")
 if "OWNER_SWITCHED_FEATURES" not in hs:
-    hs=hs.replace("export type FeatureId =", "const OWNER_SWITCHED_FEATURES=new Set(['loyalty','catalog','partner','subscriptions','promotions','inventory','referral']);\\nexport type FeatureId =",1)
+    hs=hs.replace("export type FeatureId =", "const OWNER_SWITCHED_FEATURES=new Set(['loyalty','catalog','partner','subscriptions','promotions','inventory','referral']);\nexport type FeatureId =",1)
     hs=hs.replace("export const FeatureHub: React.FC", "export const FeatureHub: React.FC",1)
     sig="  const {language,t}=useLanguage(); const [active,setActive]=useState<FeatureId|null>(initial);"
-    repl=sig+"\\n  const [featureFlags,setFeatureFlags]=useState<Record<string,boolean>>({});\\n  React.useEffect(()=>onSnapshot(doc(db,'settings','featureSuite'),snapshot=>setFeatureFlags(snapshot.data()?.features||{}),()=>setFeatureFlags({})),[]);"
+    repl=sig+"\n  const [featureFlags,setFeatureFlags]=useState<Record<string,boolean>>({});\n  React.useEffect(()=>onSnapshot(doc(db,'settings','featureSuite'),snapshot=>setFeatureFlags(snapshot.data()?.features||{}),()=>setFeatureFlags({})),[]);"
     assert hs.count(sig)==1
     hs=hs.replace(sig,repl,1)
     old_visible="(!allowed||allowed.includes(f.id))"
     new_visible="(!allowed||allowed.includes(f.id))&&(role==='admin'||!OWNER_SWITCHED_FEATURES.has(f.id)||featureFlags[f.id]===true)"
     assert hs.count(old_visible)==1
     hs=hs.replace(old_visible,new_visible,1)
-    hs=hs.replace("import React, { useMemo, useState } from 'react';","import React, { useMemo, useState } from 'react';\\nimport { doc, onSnapshot } from 'firebase/firestore';\\nimport { db } from '../../firebase';",1)
+    hs=hs.replace("import React, { useMemo, useState } from 'react';","import React, { useMemo, useState } from 'react';\nimport { doc, onSnapshot } from 'firebase/firestore';\nimport { db } from '../../firebase';",1)
 hub.write_text(hs,encoding="utf-8")
 print("PASS: owner-only dashboard has independent feature controls")
