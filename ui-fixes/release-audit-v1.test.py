@@ -19,8 +19,9 @@ if service_path.exists():
     assert all(f"'{key}'" in service for key in features), 'Server validation must accept all 14 feature keys'
 assert 'role===\'admin\'||featureFlags[f.id]===true' in hub, 'Customer visibility must honor owner flags'
 assert 'pilotIds.includes' not in hub, 'Pilot manifest must not bypass owner switches'
-assert ("collection(db, 'orders')" in staff or "collection(db, source)" in staff)
-assert "product_orders" in staff and "sourceCollection: source" in staff
+assert 'subscribeOrderDocuments({}, (snapshot) =>' in staff
+assert "docSnap.ref?.parent?.id === 'product_orders' ? 'product_orders' : 'orders'" in staff
+assert 'customerPhone' not in staff and 'customerAddress' not in staff
 assert "collection(db, 'staffOrderViews')" not in staff
 assert 'tel:+919580882066' in tracking and '95808 82066' in tracking
 assert 'tel:+918896332066' not in tracking
