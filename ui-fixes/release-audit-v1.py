@@ -65,8 +65,12 @@ tracking_path.write_text(tracking_source, encoding='utf-8')
 # the existing one-order verified contact callable.
 p = ROOT / 'src/components/StaffDashboard.tsx'
 s = p.read_text(encoding='utf-8')
-start = s.index('    // Strictly staff-safe projection documents; never listen to raw orders.')
-end = s.index('\n  }, [canView]);', start)
+start = s.find("    const ordersCol = collection(db, 'staffOrderViews');")
+end_marker = '    return () => unsubscribe();'
+end = s.find(end_marker, start)
+if start < 0 or end < 0:
+    raise SystemExit('PATCH BASELINE MISMATCH: staff order listener block missing')
+end += len(end_marker)
 new = '''    // The existing deployed Rules grant viewOrders users read access to these
     // collections. Keep the displayed projection PII-safe; phone is retrieved
     // only by the one-order verified contact callable above.
@@ -134,7 +138,7 @@ anchor = "  // Form fields\n"
 if 'ankur.pending.order.v1.' not in s:
     s = s.replace(anchor, anchor + "  const pendingOrderStorageKey = 'ankur.pending.order.v1.' + (currentUser?.uid || 'guest');\n", 1)
 restore = "  // Custom-only quantity input allowing positive decimals (e.g. 2, 7, 10, 27.5); default 10\n  const [quantityInput, setQuantityInput] = useState<string>('10');"
-restore_new = restore + "\n  useEffect(() => {\n    try {\n      const raw = localStorage.getItem(pendingOrderStorageKey);\n      if (!raw) return;\n      const draft = JSON.parse(raw);\n      if (!draft || draft.state !== 'pending' || !draft.form) return;\n      setCustomerName(typeof draft.form.customerName === 'string' ? draft.form.customerName : '');\n      setCustomerPhone(typeof draft.form.customerPhone === 'string' ? draft.form.customerPhone : '');\n      setAddress(typeof draft.form.address === 'string' ? draft.form.address : '');\n      setQuantityInput(typeof draft.form.quantityInput === 'string' ? draft.form.quantityInput : '10');\n      if (typeof draft.form.dispatchTiming === 'string') setDispatchTiming(draft.form.dispatchTiming);\n      setErrorMsg('A saved order is waiting for connection. Review the details and tap Place Order to retry.');\n    } catch { /* Ignore invalid or unavailable local storage. */ }\n  // Restore only once for this account.\n  // eslint-disable-next-line react-hooks/exhaustive-deps\n  }, []);"
+restore_new = restore + "\n  useEffect(() => {\n    try {\n      const raw = localStorage.getItem(pendingOrderStorageKey);\n      if (!raw) return;\n      const draft = JSON.parse(raw);\n      if (!draft || draft.state !== 'pending' || !draft.form) return;\n      setCustomerName(typeof draft.form.customerName === 'string' ? draft.form.customerName : '');\n      setCustomerPhone(typeof draft.form.customerPhone === 'string' ? draft.form.customerPhone : '');\n      setAddress(typeof draft.form.address === 'string' ? draft.form.address : '');\n      setQuantityInput(typeof draft.form.quantityInput === 'string' ? draft.form.quantityInput : '10');\n      if (typeof draft.form.dispatchTiming === 'string') setDispatchTiming(draft.form.dispatchTiming);\n      setErrorMsg(document.documentElement.dataset.appLanguage === 'hi' ? 'ऑर्डर सेव है, लेकिन भेजने के लिए इंटरनेट चाहिए। जानकारी जाँचें और दोबारा प्रयास करें।' : 'A saved order is waiting for connection. Review the details and tap Place Order to retry.');\n    } catch { /* Ignore invalid or unavailable local storage. */ }\n  // Restore only once for this account.\n  // eslint-disable-next-line react-hooks/exhaustive-deps\n  }, []);"
 if "Restore only once for this account." not in s:
     assert restore in s
     s = s.replace(restore, restore_new, 1)
@@ -148,7 +152,7 @@ s = s.replace("        setErrorMsg('डेटाबेस में ऑर्ड
 if "Your order details are saved on this device" not in s:
     old_msg = "setErrorMsg('डेटाबेस में ऑर्डर सेव करने में त्रुटि आई। कृपया दोबारा प्रयास करें या कॉल करें।');"
     assert old_msg in s
-    s = s.replace(old_msg, "setErrorMsg('Connection failed. Your order details are saved on this device. Check the connection and tap Place Order to retry.');", 1)
+    s = s.replace(old_msg, "setErrorMsg(document.documentElement.dataset.appLanguage === 'hi' ? 'इंटरनेट कनेक्शन नहीं है। ऑर्डर की जानकारी इस फोन में सेव है। इंटरनेट आने पर दोबारा प्रयास करें।' : 'Connection failed. Your order details are saved on this device. Check the connection and tap Place Order to retry.');", 1)
 p.write_text(s, encoding='utf-8')
 
 print('PASS: 14 feature switches, staff order listeners, tracking contact, offline retry, native version, and backup policy patched')
