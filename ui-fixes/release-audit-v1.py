@@ -69,7 +69,9 @@ if 'subscribeOrderDocuments' not in s.split('interface StaffDashboardProps', 1)[
     s = s.replace("import { quantityText } from '../billing/unitBilling';", "import { quantityText } from '../billing/unitBilling';\nimport { subscribeOrderDocuments } from '../services/productOrders';")
 start = -1
 for marker in [
+    "    // Permission-checked listener combines standard and enabled unit orders.",
     "    // The existing deployed Rules",
+    "    const unsubscribe = subscribeOrderDocuments({}, (snapshot) => {",
     "    const ordersCol = collection(db, 'staffOrderViews');",
     "    const bySource = new Map<string, Order[]>();",
     "    const ordersCol = collection(db, 'orders');",
