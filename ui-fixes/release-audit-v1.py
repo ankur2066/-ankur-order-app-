@@ -35,15 +35,14 @@ edit('src/components/customer/FeatureHub.tsx', [
 # customer unlock for optional features.
 p = ROOT / 'src/components/customer/FeatureHub.tsx'
 s = p.read_text(encoding='utf-8')
-import re
 s = s.replace("import {PILOT_FIRST_FIVE,fetchPilotFeatures} from '../../utils/pilotRollout';\n", '')
 s = s.replace("import {ANDROID_VERSION_CODE} from '../../services/appUpdate';\n", '')
-pattern = r"const visible=useMemo\(\(\)=>FEATURES\.filter\(f=>\(!f\.owner\|\|role==='admin'\)&&\s*\(!allowed\|\|allowed\.includes\(f\.id\)\).*?\),\[role,allowed,[^\]]+\]\);"
-replacement = "const visible=useMemo(()=>FEATURES.filter(f=>(!f.owner||role==='admin')&&\n    (!allowed||allowed.includes(f.id))&&\n    (role==='admin'||featureFlags[f.id]===true)),[role,allowed,featureFlags]);"
-updated, count = re.subn(pattern, replacement, s, count=1, flags=re.S)
-if count != 1:
+start = s.find('  const visible=useMemo(')
+end = s.find('  const selected=visible.find', start)
+if start < 0 or end < 0:
     raise SystemExit('PATCH BASELINE MISMATCH: could not install owner-switch-only visibility gate')
-s = updated
+replacement = "  const visible=useMemo(()=>FEATURES.filter(f=>(!f.owner||role==='admin')&&\n    (!allowed||allowed.includes(f.id))&&\n    (role==='admin'||featureFlags[f.id]===true)),[role,allowed,featureFlags]);\n"
+s = s[:start] + replacement + s[end:]
 if 'function usePilotFeatureIds(){' in s:
     start = s.index('// Pilot display gate:')
     end = s.index('\nexport const FeatureHub:', start)
