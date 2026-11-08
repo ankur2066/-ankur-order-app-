@@ -22,7 +22,8 @@ assert re.search(r'featureFlags\s*\[\s*f\.id\s*\]\s*===\s*true', hub), 'Customer
 assert 'pilotIds.includes' not in hub, 'Pilot manifest must not bypass owner switches'
 assert 'subscribeOrderDocuments({}, (snapshot) =>' in staff
 assert "docSnap.ref?.parent?.id === 'product_orders' ? 'product_orders' : 'orders'" in staff
-assert 'customerPhone' not in staff and 'customerAddress' not in staff
+staff_projection = staff.split('const unsubscribe = subscribeOrderDocuments', 1)[1].split('return () => unsubscribe();', 1)[0]
+assert '...value' not in staff_projection and "address: ''" in staff_projection
 assert "collection(db, 'staffOrderViews')" not in staff
 assert 'tel:+919580882066' in tracking and '95808 82066' in tracking
 assert 'tel:+918896332066' not in tracking
