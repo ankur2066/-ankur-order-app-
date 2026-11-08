@@ -29,8 +29,6 @@ if backend_service.exists():
 
 edit('src/components/customer/FeatureHub.tsx', [
     ("const OWNER_SWITCHED_FEATURES=new Set(['loyalty','catalog','partner','subscriptions','promotions','inventory','referral']);", "const OWNER_SWITCHED_FEATURES=new Set(['loyalty','catalog','partner','subscriptions','promotions','inventory','referral','calculator','video','reports','faq','rates','support','service-area']);"),
-    ("import {PILOT_FIRST_FIVE,fetchPilotFeatures} from '../../utils/pilotRollout';\n", ""),
-    ("import {ANDROID_VERSION_CODE} from '../../services/appUpdate';\n", ""),
 ])
 
 # Remove the unused pilot-manifest visibility path so switches are the only
@@ -38,6 +36,8 @@ edit('src/components/customer/FeatureHub.tsx', [
 p = ROOT / 'src/components/customer/FeatureHub.tsx'
 s = p.read_text(encoding='utf-8')
 import re
+s = s.replace("import {PILOT_FIRST_FIVE,fetchPilotFeatures} from '../../utils/pilotRollout';\n", '')
+s = s.replace("import {ANDROID_VERSION_CODE} from '../../services/appUpdate';\n", '')
 pattern = r"const visible=useMemo\(\(\)=>FEATURES\.filter\(f=>\(!f\.owner\|\|role==='admin'\)&&\s*\(!allowed\|\|allowed\.includes\(f\.id\)\).*?\),\[role,allowed,[^\]]+\]\);"
 replacement = "const visible=useMemo(()=>FEATURES.filter(f=>(!f.owner||role==='admin')&&\n    (!allowed||allowed.includes(f.id))&&\n    (role==='admin'||featureFlags[f.id]===true)),[role,allowed,featureFlags]);"
 updated, count = re.subn(pattern, replacement, s, count=1, flags=re.S)
