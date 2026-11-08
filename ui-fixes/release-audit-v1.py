@@ -54,17 +54,18 @@ if 'function usePilotFeatureIds(){' in s:
 # explicit when reconstructing from legacy ZIPs that already contain the JSX.
 app_path = ROOT / 'src/App.tsx'
 app_text = app_path.read_text(encoding='utf-8')
+winner_component = ROOT / 'src/components/customer/DailyWinner.tsx'
+winner_template = ROOT / 'ui-fixes/DailyWinner.tsx.template'
+if not winner_component.exists() and winner_template.exists():
+    winner_component.parent.mkdir(parents=True, exist_ok=True)
+    winner_component.write_text(winner_template.read_text(encoding='utf-8'), encoding='utf-8')
 if '<DailyWinnerBanner' in app_text and 'import { DailyWinnerBanner }' not in app_text:
-    winner_component = ROOT / 'src/components/customer/DailyWinner.tsx'
     if winner_component.exists():
         app_text = app_text.replace("import { FeatureHub } from './components/customer/FeatureHub';", "import { DailyWinnerBanner } from './components/customer/DailyWinner';\nimport { FeatureHub } from './components/customer/FeatureHub';")
         if 'import { DailyWinnerBanner }' not in app_text:
             raise SystemExit('PATCH BASELINE MISMATCH: could not import DailyWinnerBanner')
     else:
-        line = next((line for line in app_text.splitlines() if '<DailyWinnerBanner' in line and '/>' in line), None)
-        if line is None:
-            raise SystemExit('PATCH BASELINE MISMATCH: missing optional Daily Winner line')
-        app_text = app_text.replace(line, '')
+        raise SystemExit('PATCH BASELINE MISMATCH: Daily Winner component template missing')
     app_path.write_text(app_text, encoding='utf-8')
 
 edit('android/app/src/main/AndroidManifest.xml', [("android:allowBackup=\"true\"", "android:allowBackup=\"false\"")])
