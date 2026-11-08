@@ -42,6 +42,13 @@ export const OrderTrackingView: React.FC<OrderTrackingViewProps> = ({
   const [loading, setLoading] = useState(false);
   const [trackingData, setTrackingData] = useState<OrderTracking | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  useEffect(() => {
+    if (!errorMsg) return;
+    if (errorMsg.includes('Enter your order ID') || errorMsg.includes('ऑर्डर नंबर दर्ज करें')) setErrorMsg(isHindi ? 'कृपया अपना ऑर्डर नंबर दर्ज करें (उदा. ADI-20261017-XXXX)।' : 'Enter your order ID (e.g. ADI-20261017-XXXX).');
+    else if (errorMsg.includes('6-digit secret PIN') || errorMsg.includes('6 अंकों का सीक्रेट ट्रैकिंग पिन')) setErrorMsg(isHindi ? 'कृपया अपना 6 अंकों का सीक्रेट ट्रैकिंग पिन दर्ज करें।' : 'Enter your 6-digit secret PIN.');
+    else if (errorMsg.includes('Order not found') || errorMsg.includes('ऑर्डर नहीं मिला')) setErrorMsg(isHindi ? 'ऑर्डर नहीं मिला: कृपया ऑर्डर नंबर और सीक्रेट पिन जांचें।' : 'Order not found. Check the order ID and secret PIN.');
+    else if (errorMsg.includes('Tracking could not be loaded') || errorMsg.includes('ट्रैकिंग जानकारी प्राप्त नहीं हुई')) setErrorMsg(isHindi ? 'ट्रैकिंग जानकारी प्राप्त नहीं हुई। कृपया दोबारा प्रयास करें।' : 'Tracking could not be loaded. Please try again.');
+  }, [isHindi]);
 
   const fetchTracking = async (orderIdToSearch: string, pinToSearch: string) => {
     const cleanId = orderIdToSearch.trim().toUpperCase();
