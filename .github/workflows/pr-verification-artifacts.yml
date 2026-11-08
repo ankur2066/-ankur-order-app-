@@ -168,6 +168,8 @@ jobs:
           TOOLS="$ANDROID_HOME/build-tools/$(ls "$ANDROID_HOME/build-tools" | sort -V | tail -1)"
           "$TOOLS/apksigner" verify --verbose "$APK"
           "$TOOLS/aapt" dump badging "$APK" | grep -F "package: name='com.ankurdryice.events' versionCode='65' versionName='1.0.65'"
+          CERT=$("$TOOLS/apksigner" verify --verbose --print-certs "$APK" | sed -nE 's/.*certificate SHA-256 digest: ([0-9a-fA-F]{64}).*/\1/p' | head -n 1 | tr 'A-F' 'a-f')
+          test "$CERT" = 'ebb60e0b13f7b5bfa814a619d5e4acc0ee65f0e12835ad5a282c072bc9976a6e' || { echo 'Unexpected release signing certificate'; exit 1; }
       - uses: actions/upload-artifact@v4
         with:
           name: Ankur-Dryice-v1.0.65-Private-Test-Signed-APK
