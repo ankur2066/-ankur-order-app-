@@ -55,9 +55,16 @@ if 'function usePilotFeatureIds(){' in s:
 app_path = ROOT / 'src/App.tsx'
 app_text = app_path.read_text(encoding='utf-8')
 if '<DailyWinnerBanner' in app_text and 'import { DailyWinnerBanner }' not in app_text:
-    app_text = app_text.replace("import { FeatureHub } from './components/customer/FeatureHub';", "import { DailyWinnerBanner } from './components/customer/DailyWinner';\nimport { FeatureHub } from './components/customer/FeatureHub';")
-    if 'import { DailyWinnerBanner }' not in app_text:
-        raise SystemExit('PATCH BASELINE MISMATCH: could not import DailyWinnerBanner')
+    winner_component = ROOT / 'src/components/customer/DailyWinner.tsx'
+    if winner_component.exists():
+        app_text = app_text.replace("import { FeatureHub } from './components/customer/FeatureHub';", "import { DailyWinnerBanner } from './components/customer/DailyWinner';\nimport { FeatureHub } from './components/customer/FeatureHub';")
+        if 'import { DailyWinnerBanner }' not in app_text:
+            raise SystemExit('PATCH BASELINE MISMATCH: could not import DailyWinnerBanner')
+    else:
+        line = '            <div className="mt-3"><DailyWinnerBanner currentUser={currentUser} /></div>'
+        if line not in app_text:
+            raise SystemExit('PATCH BASELINE MISMATCH: missing optional Daily Winner line')
+        app_text = app_text.replace(line, '')
     app_path.write_text(app_text, encoding='utf-8')
 
 edit('android/app/src/main/AndroidManifest.xml', [("android:allowBackup=\"true\"", "android:allowBackup=\"false\"")])
