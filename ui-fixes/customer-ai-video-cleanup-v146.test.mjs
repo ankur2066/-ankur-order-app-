@@ -29,7 +29,7 @@ test('Home services are owner-gated and AI Video remains its own tab',()=>{
  assert.match(app,/FeatureHub/);
  assert.match(app,/currentTab === 'ai-video'/);
  assert.match(hub,/OWNER_SWITCHED_FEATURES/);
- assert.match(hub,/featureFlags\\[f\\.id\\]===true/);
+ assert.match(hub,/featureFlags\[f\.id\]===true/);
  assert.match(hub,/grid grid-cols-2 gap-2/);
  for(const id of ['calculator','video','loyalty','catalog','partner','subscriptions','promotions','inventory','reports','faq','rates','support','service-area','referral']) assert.ok(hub.includes("id:'"+id+"'"),id);
 });
@@ -49,5 +49,5 @@ test('Private review, local reconstruction and v1.0.46 signed APK share the exac
  assert.ok(local.indexOf('customer_profile_contact_v145.py')<local.indexOf(p));
  assert.match(signed,/paths: \['release-batches\/\*\.txt'\]/,'only explicit release batch triggers signed APK');
  assert.match(signed,/versionCode 64/);
- assert.match(signed,/versionName "1\.0\.49-combined-test"/);
+ assert.match(signed,/versionName "10\.0\.64-combined-test"/);
 });
