@@ -48,12 +48,12 @@ export const OrderTrackingView: React.FC<OrderTrackingViewProps> = ({
     const cleanPin = pinToSearch.trim();
 
     if (!cleanId) {
-      setErrorMsg('कृपया अपना ऑर्डर नंबर दर्ज करें (उदा. ADI-20261017-XXXX)।');
+      setErrorMsg(isHindi ? 'कृपया अपना ऑर्डर नंबर दर्ज करें (उदा. ADI-20261017-XXXX)।' : 'Enter your order ID (e.g. ADI-20261017-XXXX).');
       return;
     }
 
     if (!cleanPin || cleanPin.length < 4) {
-      setErrorMsg('कृपया अपना 6 अंकों का सीक्रेट ट्रैकिंग पिन दर्ज करें।');
+      setErrorMsg(isHindi ? 'कृपया अपना 6 अंकों का सीक्रेट ट्रैकिंग पिन दर्ज करें।' : 'Enter your 6-digit secret PIN.');
       return;
     }
 
@@ -68,7 +68,7 @@ export const OrderTrackingView: React.FC<OrderTrackingViewProps> = ({
       const trackingDocSnap = await getDoc(trackingDocRef);
 
       if (!trackingDocSnap.exists()) {
-        setErrorMsg('ऑर्डर नहीं मिला: कृपया अपना ऑर्डर नंबर और सीक्रेट पिन जांचें।');
+        setErrorMsg(isHindi ? 'ऑर्डर नहीं मिला: कृपया ऑर्डर नंबर और सीक्रेट पिन जांचें।' : 'Order not found. Check the order ID and secret PIN.');
         return;
       }
 
@@ -76,7 +76,7 @@ export const OrderTrackingView: React.FC<OrderTrackingViewProps> = ({
       setTrackingData(data);
     } catch (err: unknown) {
       console.error('Error fetching order tracking:', err);
-      setErrorMsg('ट्रैकिंग जानकारी प्राप्त करने में त्रुटि आई। कृपया दोबारा प्रयास करें।');
+      setErrorMsg(isHindi ? 'ट्रैकिंग जानकारी प्राप्त नहीं हुई। कृपया दोबारा प्रयास करें।' : 'Tracking could not be loaded. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -119,10 +119,10 @@ export const OrderTrackingView: React.FC<OrderTrackingViewProps> = ({
       {/* Header */}
       <div className="text-center mb-4">
         <h2 className="text-lg sm:text-xl font-bold text-slate-900">
-          ऑर्डर ट्रैक करें (Track Order)
+          {isHindi ? 'ऑर्डर ट्रैक करें' : 'Track Order'}
         </h2>
         <p className="text-xs text-slate-500 mt-0.5">
-          ऑर्डर नंबर और सीक्रेट पिन दर्ज करके अपनी ड्राई आइस की स्थिति देखें।
+          {isHindi ? 'ऑर्डर की स्थिति देखने के लिए ऑर्डर नंबर और सीक्रेट पिन दर्ज करें।' : 'Enter your order ID and secret PIN to check your order status.'}
         </p>
       </div>
 
@@ -131,14 +131,14 @@ export const OrderTrackingView: React.FC<OrderTrackingViewProps> = ({
         <div className="space-y-3">
           <div>
             <label className="text-xs font-semibold text-slate-700 block mb-1">
-              ऑर्डर नंबर (Order ID)
+              {isHindi ? 'ऑर्डर नंबर' : 'Order ID'}
             </label>
             <div className="relative">
               <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
               <input
                 type="text"
                 required
-                placeholder="उदा. ADI-20261017-W82K"
+                placeholder={isHindi ? "उदा. ADI-20261017-W82K" : "e.g. ADI-20261017-W82K"}
                 value={searchId}
                 onChange={(e) => setSearchId(e.target.value)}
                 className="w-full bg-white border border-slate-300 rounded-xl pl-9 pr-3 py-2 text-sm font-mono text-slate-900 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 uppercase"
@@ -148,7 +148,7 @@ export const OrderTrackingView: React.FC<OrderTrackingViewProps> = ({
 
           <div>
             <label className="text-xs font-semibold text-slate-700 block mb-1">
-              6-अंकों का सीक्रेट पिन (Secret PIN)
+              {isHindi ? '6-अंकों का सीक्रेट पिन' : '6-digit Secret PIN'}
             </label>
             <div className="relative">
               <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
@@ -156,7 +156,7 @@ export const OrderTrackingView: React.FC<OrderTrackingViewProps> = ({
                 type="text"
                 required
                 maxLength={8}
-                placeholder="उदा. 482910"
+                placeholder={isHindi ? "उदा. 482910" : "e.g. 482910"}
                 value={searchPin}
                 onChange={(e) => setSearchPin(e.target.value)}
                 className="w-full bg-white border border-slate-300 rounded-xl pl-9 pr-3 py-2 text-sm font-mono text-slate-900 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500"
@@ -172,7 +172,7 @@ export const OrderTrackingView: React.FC<OrderTrackingViewProps> = ({
             {loading ? (
               <RefreshCw className="w-4 h-4 animate-spin text-white" />
             ) : (
-              <span>ट्रैक करें</span>
+              <span>{isHindi ? 'ट्रैक करें' : 'Track'}</span>
             )}
           </button>
         </div>
@@ -191,7 +191,7 @@ export const OrderTrackingView: React.FC<OrderTrackingViewProps> = ({
         <div className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-xs space-y-4">
           <div className="flex items-center justify-between pb-3 border-b border-slate-100">
             <div>
-              <span className="text-[10px] text-slate-400 uppercase font-semibold block">ऑर्डर नंबर</span>
+              <span className="text-[10px] text-slate-400 uppercase font-semibold block">{isHindi ? 'ऑर्डर नंबर' : 'ORDER ID'}</span>
               <span className="font-mono font-bold text-base text-slate-900">{trackingData.orderId}</span>
             </div>
 
@@ -217,10 +217,10 @@ export const OrderTrackingView: React.FC<OrderTrackingViewProps> = ({
                   </div>
                   <div>
                     <h4 className="text-xs font-bold text-slate-900">
-                      यह ऑर्डर सफलतापूर्वक डिलीवर हो चुका है!
+                      {isHindi ? 'यह ऑर्डर सफलतापूर्वक डिलीवर हो चुका है!' : 'This order was delivered successfully.'}
                     </h4>
                     <p className="text-[11px] text-slate-600">
-                      क्या आपको दोबारा <strong className="text-slate-800">{quantityText(trackingData)}</strong> {trackingData.billingVersion===2?trackingData.productName:'ड्राई आइस'} की आवश्यकता है?
+                      {isHindi ? <>क्या आपको दोबारा <strong className="text-slate-800">{quantityText(trackingData)}</strong> {trackingData.billingVersion===2?trackingData.productName:'ड्राई आइस'} की आवश्यकता है?</> : <>Need <strong className="text-slate-800">{quantityText(trackingData)}</strong> again?</>}
                     </p>
                   </div>
                 </div>
@@ -231,7 +231,7 @@ export const OrderTrackingView: React.FC<OrderTrackingViewProps> = ({
                     className="w-full sm:w-auto px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-bold text-xs flex items-center justify-center gap-1.5 shrink-0 shadow-xs transition-colors cursor-pointer"
                   >
                     <RotateCcw className="w-3.5 h-3.5" />
-                    <span>पुनः ऑर्डर करें (Quick Reorder)</span>
+                    <span>{isHindi ? 'पुनः ऑर्डर करें' : 'Quick Reorder'}</span>
                   </button>
                 )}
               </div>
@@ -241,12 +241,12 @@ export const OrderTrackingView: React.FC<OrderTrackingViewProps> = ({
           {/* Details */}
           <div className="grid grid-cols-2 gap-3 text-xs">
             <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-100">
-              <span className="text-slate-400 block mb-0.5">मात्रा (Quantity)</span>
+              <span className="text-slate-400 block mb-0.5">{isHindi ? 'मात्रा' : 'Quantity'}</span>
               <span className="font-mono font-bold text-sky-700 text-sm">{quantityText(trackingData)}</span>
             </div>
 
             <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-100">
-              <span className="text-slate-400 block mb-0.5">स्थान / पता</span>
+              <span className="text-slate-400 block mb-0.5">{isHindi ? 'स्थान / पता' : 'Location'}</span>
               <span className="font-semibold text-slate-900 flex items-center gap-1">
                 <MapPin className="w-3 h-3 text-sky-600" />
                 <span className="truncate">{trackingData.district}</span>
@@ -262,7 +262,7 @@ export const OrderTrackingView: React.FC<OrderTrackingViewProps> = ({
           {/* Status Update Note */}
           <div className="p-3 rounded-xl bg-sky-50 border border-sky-100 text-xs">
             <span className="text-[10px] uppercase font-bold text-sky-700 block mb-0.5">
-              ताज़ा अपडेट
+              {isHindi ? 'ताज़ा अपडेट' : 'Latest update'}
             </span>
             <p className="text-slate-800 font-medium">
               {getStatusInfo(trackingData.status).label}
@@ -275,20 +275,20 @@ export const OrderTrackingView: React.FC<OrderTrackingViewProps> = ({
           <div className="flex items-center justify-between text-xs pt-2 border-t border-slate-100">
             <div className="flex items-center gap-1.5 text-slate-600">
               <CreditCard className="w-3.5 h-3.5 text-sky-600" />
-              <span>पेमेंट स्थिति:</span>
+              <span>{isHindi ? 'भुगतान स्थिति:' : 'Payment status:'}</span>
             </div>
             <span className={`px-2 py-0.5 rounded font-bold text-[11px] ${
               trackingData.paymentStatus === 'payment_verified'
                 ? 'bg-emerald-50 text-emerald-700 border border-emerald-300'
                 : 'bg-amber-50 text-amber-700 border border-amber-300'
             }`}>
-              {trackingData.paymentStatus === 'payment_verified' ? 'वेरीफाइड (सफल)' : 'वेरिफिकेशन प्रतीक्षित'}
+              {trackingData.paymentStatus === 'payment_verified' ? (isHindi ? 'भुगतान सत्यापित' : 'Payment Verified') : (isHindi ? 'सत्यापन लंबित' : 'Verification Pending')}
             </span>
           </div>
 
           {/* Contact Owner */}
           <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
-            <span className="text-slate-500">ओनर से बात करें:</span>
+            <span className="text-slate-500">{isHindi ? 'मालिक से संपर्क करें:' : 'Contact owner:'}</span>
             <div className="flex gap-2">
               <a
                 href="tel:+919580882066"
@@ -303,10 +303,10 @@ export const OrderTrackingView: React.FC<OrderTrackingViewProps> = ({
                 target="_blank"
                 rel="noopener noreferrer"
                 className="px-2.5 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-semibold border border-emerald-200 flex items-center gap-1"
-                title="व्हाट्सएप (+91 8896332066)"
+                title={isHindi ? "व्हाट्सएप (+91 8896332066)" : "WhatsApp (+91 8896332066)"}
               >
                 <MessageCircle className="w-3 h-3" />
-                <span>व्हाट्सएप</span>
+                <span>{isHindi ? 'व्हाट्सएप' : 'WhatsApp'}</span>
               </a>
             </div>
           </div>
