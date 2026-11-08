@@ -98,7 +98,7 @@ export const OrderTrackingView: React.FC<OrderTrackingViewProps> = ({
   const getStatusInfo = (status: OrderStatus) => {
     switch (status) {
       case 'pending':
-        return { label: isHindi ? 'ऑर्डर प्राप्त हुआ' : 'Order received', color: 'bg-amber-50 text-amber-800 border-amber-300', icon: Clock };
+        return { label: isHindi ? 'Order received' : 'Order received', color: 'bg-amber-50 text-amber-800 border-amber-300', icon: Clock };
       case 'confirmed':
         return { label: isHindi ? 'ऑर्डर कन्फर्म हुआ' : 'Order confirmed', color: 'bg-sky-50 text-sky-800 border-sky-300', icon: CheckCircle2 };
       case 'in_packing':
@@ -280,14 +280,14 @@ export const OrderTrackingView: React.FC<OrderTrackingViewProps> = ({
           <div className="flex items-center justify-between text-xs pt-2 border-t border-slate-100">
             <div className="flex items-center gap-1.5 text-slate-600">
               <CreditCard className="w-3.5 h-3.5 text-sky-600" />
-              <span>पेमेंट स्थिति:</span>
+              <span>{t('पेमेंट स्थिति:','Payment status:')}</span>
             </div>
             <span className={`px-2 py-0.5 rounded font-bold text-[11px] ${
               trackingData.paymentStatus === 'payment_verified'
                 ? 'bg-emerald-50 text-emerald-700 border border-emerald-300'
                 : 'bg-amber-50 text-amber-700 border border-amber-300'
             }`}>
-              {trackingData.paymentStatus === 'payment_verified' ? t('वेरीफाइड (सफल)','Verified') : t('वेरिफिकेशन प्रतीक्षित','Awaiting verification')}
+              {trackingData.paymentStatus === 'payment_verified' ? t('वेरीफाइड (सफल)','Payment Verified') : t('वेरिफिकेशन प्रतीक्षित','Awaiting Verification')}
             </span>
           </div>
 
