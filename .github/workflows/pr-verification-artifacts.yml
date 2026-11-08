@@ -62,7 +62,7 @@ jobs:
           python3 ui-fixes/release-audit-v1.py
           python3 ui-fixes/release-audit-v1065.py
           python3 all-features/protected_audit.py check /tmp/protected.json
-          npm install --package-lock-only --ignore-scripts --no-audit --no-fund
+          npm install --save-exact --package-lock-only --ignore-scripts --no-audit --no-fund @capacitor-firebase/app-check@7.5.0 @capacitor/app@7 @capacitor/filesystem@7 @capacitor/share@7 @capacitor/push-notifications@7
           npm ci --ignore-scripts --no-audit --no-fund
       - run: npm run lint
       - run: npm run check:theme-colors
@@ -147,7 +147,7 @@ jobs:
           python3 ui-fixes/release-audit-v1.py
           python3 ui-fixes/release-audit-v1065.py
           python3 all-features/protected_audit.py check /tmp/protected.json
-          npm install --package-lock-only --ignore-scripts --no-audit --no-fund
+          npm install --save-exact --package-lock-only --ignore-scripts --no-audit --no-fund @capacitor-firebase/app-check@7.5.0 @capacitor/app@7 @capacitor/filesystem@7 @capacitor/share@7 @capacitor/push-notifications@7
           npm ci --ignore-scripts --no-audit --no-fund
       - run: npm run lint && npm run build && npx cap sync android
       - name: Build and verify signed private test APK
