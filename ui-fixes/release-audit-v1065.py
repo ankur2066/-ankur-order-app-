@@ -14,7 +14,7 @@ files = [
     "src/components/owner/FeatureSuiteSettings.tsx", "src/components/owner/CustomersView.tsx", "src/components/PaymentOptions.tsx",
     "src/data/products.ts", "src/data/rates.ts", "src/hooks/useInlinePromo.ts", "src/index.css",
     "src/services/appUpdate.ts", "src/services/customers.ts", "src/theme/designTokens.ts", "src/theme/themes.ts",
-    "src/types.ts", "src/utils/dispatchSchedule.ts", "src/utils/dispatchSchedule.test.ts", "src/utils/upi.ts",
+    "src/types.ts", "src/utils/dispatchSchedule.ts", "src/utils/dispatchSchedule.test.ts", "src/utils/upi.ts", "src/utils/referralShare.ts",
     "src/config/businessConfig.ts", "src/assets/primary-upi.svg",
 ]
 for relative in files:
