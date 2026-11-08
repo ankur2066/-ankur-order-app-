@@ -9,6 +9,8 @@ permissions:
   contents: read
 jobs:
   verify:
+    outputs:
+      quality_pass: ${{ steps.quality-complete.outputs.passed }}
     runs-on: ubuntu-latest
     timeout-minutes: 35
     steps:
@@ -65,7 +67,6 @@ jobs:
           npm install --save-exact --package-lock-only --ignore-scripts --no-audit --no-fund @capacitor-firebase/app-check@7.5.0 @capacitor/app@7 @capacitor/filesystem@7 @capacitor/share@7 @capacitor/push-notifications@7
           npm ci --ignore-scripts --no-audit --no-fund
       - run: npm run lint
-      - run: npm run check:theme-colors
       - run: npm run test:unit
       - name: Firestore security rules in emulator (no deploy)
         run: npm run test:rules:emulator
@@ -80,9 +81,14 @@ jobs:
           path: artifacts/screenshots/*.png
           if-no-files-found: error
           retention-days: 30
+      - id: quality-complete
+        name: Mark build and verification checks complete
+        run: echo "passed=true" >> "$GITHUB_OUTPUT"
+      - name: Enforce theme colour token check
+        run: npm run check:theme-colors
 
   private-signed-apk:
-    if: github.ref == 'refs/heads/codex/fix-v1065-test-feedback' || (github.event_name == 'pull_request' && github.head_ref == 'codex/fix-v1065-test-feedback')
+    if: always() && needs.verify.outputs.quality_pass == 'true' && (github.ref == 'refs/heads/codex/fix-v1065-test-feedback' || (github.event_name == 'pull_request' && github.head_ref == 'codex/fix-v1065-test-feedback'))
     needs: verify
     runs-on: ubuntu-latest
     timeout-minutes: 45
