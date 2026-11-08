@@ -7,35 +7,38 @@ const app=readFileSync(resolve(root,'src/App.tsx'),'utf8');
 const admin=readFileSync(resolve(root,'src/components/AdminDashboard.tsx'),'utf8');
 const staff=readFileSync(resolve(root,'src/components/StaffDashboard.tsx'),'utf8');
 const css=readFileSync(resolve(root,'src/index.css'),'utf8');
+const tokens=readFileSync(resolve(root,'src/theme/designTokens.ts'),'utf8');
 const local=readFileSync(new URL('../all-features/reconstruct.py',import.meta.url),'utf8');
 const review=readFileSync(new URL('../.github/workflows/all-features-review.yml',import.meta.url),'utf8');
 const signed=readFileSync(new URL('../.github/workflows/all-features-signed-test-apk.yml',import.meta.url),'utf8');
 
-test('Premium owner UI keeps all 7 original destinations and all key functions',()=>{
+test('Owner UI keeps the compact Orders, Customers and Tools destinations and their functions',()=>{
  assert.match(admin,/ankur-owner-dashboard/);
  assert.match(admin,/ankur-owner-masthead/);
- assert.match(admin,/ankur-owner-nav/);
  assert.match(admin,/ankur-owner-overview/);
  assert.match(admin,/BUSINESS COMMAND CENTER/);
- for(const id of ['new-entry','orders','insights','expenses','users','storefront','ai-chat']){
-   assert.match(admin,new RegExp("setActiveSection\\('"+id+"'\\)"),'missing owner tab '+id);
- }
- for(const feature of ['<OwnerStorefrontManager','<UserManagement','<ExpensesView','<AIChat','downloadOrdersCsv','generateMonthlyPDF','writeBatch(db)','<SignInScreen']){
+ assert.match(admin,/setActiveSection\('orders'\)/);
+ assert.match(admin,/setActiveSection\('customers'\)/);
+ assert.match(admin,/setActiveSection\('tools'\)/);
+ assert.match(admin,/owner-tools-backdrop/);
+ for(const feature of ['<OwnerStorefrontManager','<UserManagement','<ExpensesView','<AIChat','<FeatureSuiteSettings','downloadOrdersCsv','generateMonthlyPDF','writeBatch(db)','<SignInScreen']){
    assert.ok(admin.includes(feature)||(feature==='<SignInScreen'&&admin.includes('as={SignInScreen}')),'owner feature removed: '+feature);
  }
  assert.match(app,/<AdminDashboard/);
  assert.doesNotMatch(admin,/onOpenRulesReview/);
 });
 
-test('Premium design owner scoped, balanced tab grid and clear contrast',()=>{
- assert.match(css,/ANKUR OWNER PREMIUM 1\.0\.48/);
- assert.match(css,/\.ankur-owner-dashboard \.ankur-owner-nav/);
- assert.match(css,/grid-template-columns:repeat\(12,minmax\(0,1fr\)\)/);
- assert.match(css,/\.ankur-owner-nav>button:nth-child\(n\+4\)\{grid-column:span 3!important;\}/);
- assert.match(css,/grid-template-columns:repeat\(7,minmax\(0,1fr\)\)/);
- assert.match(css,/\.ankur-owner-masthead h2/);
- assert.match(css,/--owner-ink:#f2f7ff/);
- assert.match(css,/background:radial-gradient/);
+test('Soft 3D theme tokens cover light, dark, raised cards and fixed status colours',()=>{
+ assert.match(tokens,/#F4F5F7/);
+ assert.match(tokens,/#14161C/);
+ assert.match(tokens,/#1E2129/);
+ assert.match(tokens,/radius:/);
+ assert.match(tokens,/shadow:/);
+ assert.match(tokens,/spacing:/);
+ for(const state of ['total','pending','confirmed','packing','dispatch','delivered']) assert.match(tokens,new RegExp(state+':'));
+ assert.match(css,/soft-card/);
+ assert.match(css,/soft-button/);
+ assert.match(css,/safe-area/);
 });
 
 test('Staff order list never shows every phone number or permits phone searching',()=>{
