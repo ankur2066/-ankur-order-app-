@@ -8,7 +8,7 @@ def edit(path, replacements):
     p = ROOT / path
     s = p.read_text(encoding='utf-8')
     for old, new in replacements:
-        if new in s:
+        if new and new in s:
             continue
         if old not in s:
             raise SystemExit(f'PATCH BASELINE MISMATCH: {path}: {old[:100]!r}')
@@ -29,7 +29,6 @@ if backend_service.exists():
 
 edit('src/components/customer/FeatureHub.tsx', [
     ("const OWNER_SWITCHED_FEATURES=new Set(['loyalty','catalog','partner','subscriptions','promotions','inventory','referral']);", "const OWNER_SWITCHED_FEATURES=new Set(['loyalty','catalog','partner','subscriptions','promotions','inventory','referral','calculator','video','reports','faq','rates','support','service-area']);"),
-    ("(role==='admin'||f.id==='video'||pilotIds.includes(f.id)||(OWNER_SWITCHED_FEATURES.has(f.id)&&featureFlags[f.id]===true))", "(role==='admin'||featureFlags[f.id]===true)"),
     ("import {PILOT_FIRST_FIVE,fetchPilotFeatures} from '../../utils/pilotRollout';\n", ""),
     ("import {ANDROID_VERSION_CODE} from '../../services/appUpdate';\n", ""),
 ])
@@ -38,6 +37,13 @@ edit('src/components/customer/FeatureHub.tsx', [
 # customer unlock for optional features.
 p = ROOT / 'src/components/customer/FeatureHub.tsx'
 s = p.read_text(encoding='utf-8')
+import re
+pattern = r"const visible=useMemo\(\(\)=>FEATURES\.filter\(f=>\(!f\.owner\|\|role==='admin'\)&&\s*\(!allowed\|\|allowed\.includes\(f\.id\)\).*?\),\[role,allowed,[^\]]+\]\);"
+replacement = "const visible=useMemo(()=>FEATURES.filter(f=>(!f.owner||role==='admin')&&\n    (!allowed||allowed.includes(f.id))&&\n    (role==='admin'||featureFlags[f.id]===true)),[role,allowed,featureFlags]);"
+updated, count = re.subn(pattern, replacement, s, count=1, flags=re.S)
+if count != 1:
+    raise SystemExit('PATCH BASELINE MISMATCH: could not install owner-switch-only visibility gate')
+s = updated
 if 'function usePilotFeatureIds(){' in s:
     start = s.index('// Pilot display gate:')
     end = s.index('\nexport const FeatureHub:', start)
@@ -105,13 +111,20 @@ new = '''    // The existing deployed Rules grant viewOrders users read access t
 s = s[:start] + new + s[end:]
 p.write_text(s, encoding='utf-8')
 
-# Discover the installed Android build number rather than comparing the website
-# manifest against a manually maintained JavaScript constant.
+# The signed workflow injects the exact Gradle version into the web bundle, so
+# the checker and installed APK compare the same build number.
 edit('src/services/appUpdate.ts', [
-    ("export const ANDROID_VERSION_CODE = 63;\nexport const ANDROID_VERSION_NAME = '10.0.63';", "import { App } from '@capacitor/app';\n\nexport const ANDROID_VERSION_CODE = Number(import.meta.env.VITE_ANDROID_VERSION_CODE || 64);\nexport const ANDROID_VERSION_NAME = import.meta.env.VITE_ANDROID_VERSION_NAME || '10.0.64';"),
-    ("export async function checkForUpdate(fetcher: typeof fetch = fetch): Promise<UpdateRelease | null> {\n  const controller", "export async function checkForUpdate(fetcher: typeof fetch = fetch): Promise<UpdateRelease | null> {\n  let installedVersionCode = ANDROID_VERSION_CODE;\n  try {\n    const info = await App.getInfo();\n    const parsed = Number(info.build);\n    if (Number.isSafeInteger(parsed) && parsed > 0) installedVersionCode = parsed;\n  } catch { /* Browser preview uses the build-time version constant. */ }\n  const controller"),
-    ("return validateUpdateManifest(json);", "return validateUpdateManifest(json, installedVersionCode);"),
+    ("export const ANDROID_VERSION_CODE = 63;\nexport const ANDROID_VERSION_NAME = '10.0.63';", "export const ANDROID_VERSION_CODE = Number(import.meta.env?.VITE_ANDROID_VERSION_CODE || 64);\nexport const ANDROID_VERSION_NAME = import.meta.env?.VITE_ANDROID_VERSION_NAME || '10.0.64';"),
+    ("export async function checkForUpdate(fetcher: typeof fetch = fetch): Promise<UpdateRelease | null> {", "export async function checkForUpdate(fetcher: typeof fetch = fetch, currentVersionCode = ANDROID_VERSION_CODE): Promise<UpdateRelease | null> {"),
+    ("return validateUpdateManifest(json);", "return validateUpdateManifest(json, currentVersionCode);"),
 ])
+update_template = ROOT / 'updates/appUpdate.template'
+if update_template.exists():
+    edit('updates/appUpdate.template', [
+        ("export const ANDROID_VERSION_CODE = 47;\nexport const ANDROID_VERSION_NAME = '1.0.47';", "export const ANDROID_VERSION_CODE = Number(import.meta.env?.VITE_ANDROID_VERSION_CODE || 64);\nexport const ANDROID_VERSION_NAME = import.meta.env?.VITE_ANDROID_VERSION_NAME || '10.0.64';"),
+        ("export async function checkForUpdate(fetcher: typeof fetch = fetch): Promise<UpdateRelease | null> {", "export async function checkForUpdate(fetcher: typeof fetch = fetch, currentVersionCode = ANDROID_VERSION_CODE): Promise<UpdateRelease | null> {"),
+        ("return validateUpdateManifest(json);", "return validateUpdateManifest(json, currentVersionCode);"),
+    ])
 
 # Persist the unsent booking and stable id/pin before the network write. A retry
 # after timeout/offline uses the same Firestore document ids and cannot create a
