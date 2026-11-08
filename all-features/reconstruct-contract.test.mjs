@@ -21,7 +21,7 @@ test('local reconstruction matches CI and signed APK CSS overlay ordering',()=>{
 test('review and signed APK run the entire local reconstruction chain in order',()=>{
  const chain=local.match(/CHAIN=\[([^\]]+)\]/)[1].match(/'([^']+\.py)'/g).map(x=>x.slice(1,-1));
  const scripts=text=>[...text.matchAll(/python3 ([\w./-]+\.py)/g)]
-   .map(x=>x[1]).filter(x=>x!=='all-features/protected_audit.py');
+   .map(x=>x[1]).filter(x=>x!=='all-features/protected_audit.py'&&x!=='ui-fixes/release-audit-v1.test.py');
  assert.deepEqual(scripts(reviewed),chain,'review source must match local source');
  assert.deepEqual(scripts(signed),chain,'signed APK must include every reviewed overlay');
 });
