@@ -326,3 +326,5 @@ The owner requested continued implementation, holding device-dependent questions
 - UI: high-contrast feature settings/order cards/status tiles, system inset handling, owner labels and paid/unpaid confirmation, status-consistent order tracking, customer Categories navigation, promo controls hidden until the Promotions switch is on.
 - Version defaults: Android versionCode 65 and versionName 1.0.65. `allowBackup=false` retained.
 - Local verification: `npm run lint`, `npm run build`, and v1.0.65 feedback contracts PASS. GitHub Actions/PR CI is pending after push. No Firebase deploy, Play upload, merge, signing-key change, or paid service was performed.
+
+- Follow-up in the same v1.0.65 phase: both owner order-list modes now share one call/WhatsApp action component with matching tap targets. CSV, monthly, insight and AI summary sources omit flagged test orders while those orders remain visible for operations. Local lint/build remain green.
