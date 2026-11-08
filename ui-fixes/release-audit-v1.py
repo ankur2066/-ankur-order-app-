@@ -88,7 +88,17 @@ new = '''    // Permission-checked listener combines standard and enabled unit o
       const list: Order[] = snapshot.docs.map((docSnap: any) => {
         const value = docSnap.data();
         const sourceCollection = docSnap.ref?.parent?.id === 'product_orders' ? 'product_orders' : 'orders';
-        return {...value, orderId: value.orderId || docSnap.id, sourceCollection} as Order;
+        return {
+          orderId: value.orderId || docSnap.id, sourceCollection,
+          customerName: value.customerName || '', city: value.city || value.district || '',
+          district: value.city || value.district || '', address: '',
+          productName: value.productName || 'Dry Ice', dispatchTiming: value.dispatchTiming || '',
+          status: value.status, paymentStatus: value.paymentStatus || '',
+          paymentNotes: value.paymentNotes || '', quantityKg: typeof value.quantityKg === 'number' ? value.quantityKg : 0,
+          billingVersion: value.billingVersion === 2 ? 2 : undefined,
+          billing: value.billingVersion === 2 ? {unit:value.billing?.unit || 'piece', quantityUnits:value.billing?.quantityUnits || 0} : undefined,
+          createdAt: value.createdAt, updatedAt: value.updatedAt, selfPickup: value.selfPickup || undefined,
+        } as unknown as Order;
       }).filter((order: Order) => !order.isTrash);
       list.sort((a, b) => {
         const timeA = a.createdAt?.seconds ? a.createdAt.seconds * 1000 : 0;
