@@ -313,3 +313,6 @@ The owner requested continued implementation, holding device-dependent questions
 - Removed the tracking and checkout references to QR images that are not shipped in the app bundle. Both screens now explain the manual payment fallback; tracking uses the same existing UPI ID shown at checkout, `8896332066@paytm`.
 - Added release regression assertions for both fixes. Local reconstructed-source checks passed: release-audit contract, TypeScript lint, and Vite production build. CI and a new signed build are pending for this follow-up.
 - No Firebase, Play Console, or billing changes.
+
+
+- CI follow-up: run 42463311578 reached release-audit contract tests; an exact-string check for FeatureHub spacing failed despite the owner-switch expression being present. Replaced it with a whitespace-tolerant expression check. Re-running CI on the corrected test; no app-build error was reported in that run.

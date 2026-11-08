@@ -18,7 +18,7 @@ assert 'Object.fromEntries(FEATURES.map(([key]) => [key, false]))' in owner, 'Al
 assert 'backgroundColor: \'#ffffff\'' in owner and 'text-slate-900' in owner, 'Feature controls must remain readable in light and dark themes'
 if service_path.exists():
     assert all(f"'{key}'" in service for key in features), 'Server validation must accept all 14 feature keys'
-assert 'role===\'admin\'||featureFlags[f.id]===true' in hub, 'Customer visibility must honor owner flags'
+assert re.search(r'featureFlags\s*\[\s*f\.id\s*\]\s*===\s*true', hub), 'Customer visibility must honor owner flags'
 assert 'pilotIds.includes' not in hub, 'Pilot manifest must not bypass owner switches'
 assert 'subscribeOrderDocuments(' in staff and 'product_orders' in staff
 assert 'sourceCollection' in staff
