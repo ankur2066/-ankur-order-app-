@@ -142,6 +142,7 @@ const VIDEO_OCCASIONS = [
   {id:'other',name:'Other Event / अन्य कार्यक्रम',short:'Other Event',hi:'अन्य कार्यक्रम'},
 ] as const;
 function VideoIdeaPanel({user}:{user:User|null}){
+  const {language}=useLanguage();const hi=language==='hi';
   const [occasion,setOccasion]=useState('wedding');
   const [occasionOpen,setOccasionOpen]=useState(false);
   const [customOccasion,setCustomOccasion]=useState('');
@@ -174,7 +175,7 @@ function VideoIdeaPanel({user}:{user:User|null}){
     }
   };
   const eventName=occasion==='other'?(customOccasion.trim()||'an event'):
-    (VIDEO_OCCASIONS.find(x=>x.id===occasion)?.name||'an event');
+    (hi?VIDEO_OCCASIONS.find(x=>x.id===occasion)?.hi:VIDEO_OCCASIONS.find(x=>x.id===occasion)?.short)||'an event';
   const prompt=[
     'Generate an actual finished '+duration+'-second vertical 9:16 VIDEO for '+eventName+'. Render and return a playable video, not just a video concept, script or storyboard.',
     'Include cinematic scenes, Hindi captions, smooth transitions and a clear call to action in the final video.',
@@ -195,7 +196,7 @@ function VideoIdeaPanel({user}:{user:User|null}){
       aria-controls="ankur-video-occasion-options"
       onClick={()=>setOccasionOpen(open=>!open)}
       className="ankur-video-occasion-trigger w-full rounded-xl border p-3 min-h-12 text-left font-semibold">
-      <span>{VIDEO_OCCASIONS.find(item=>item.id===occasion)?.name}</span>
+      <span>{hi?VIDEO_OCCASIONS.find(item=>item.id===occasion)?.hi:VIDEO_OCCASIONS.find(item=>item.id===occasion)?.short}</span>
       <span aria-hidden="true">{occasionOpen?'▴':'▾'}</span>
     </button>
     {occasionOpen&&<div id="ankur-video-occasion-options" aria-label="Choose occasion"
