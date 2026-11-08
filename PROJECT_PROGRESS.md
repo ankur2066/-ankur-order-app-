@@ -347,3 +347,5 @@ The owner requested continued implementation, holding device-dependent questions
 - The version-65 update fixture was being upgraded before the existing v1.0.64 reconstruction patch, causing its base-pattern check to fail. Kept the baseline fixture intact until the existing patch runs, then apply the v1.0.65 template from the release overlay. This preserves ordered reconstruction and tests the final version.
 
 - Update-checker regression cases now treat 65 as installed and 66 as the newer candidate; earlier fixture used an older APK code and code 65 (equal to installed), so correct rejection was reported as a failure. No live manifest or APK was published.
+
+- Release audit contract now imports the `re` module required for its whitespace-tolerant Owner FeatureHub assertion; all 71 preceding unit/regression contracts passed in hosted CI.
