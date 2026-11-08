@@ -275,3 +275,10 @@ The owner requested continued implementation, holding device-dependent questions
 
 - Signed-in GitHub Actions page for run [42367807832](https://github.com/ankur2066/-ankur-order-app-/actions/runs/42367807832) shows the exact annotation: “The job was not started because recent account payments have failed or your spending limit needs to be increased.” Run duration was 4 seconds; no runner steps or tests executed.
 - Therefore this is an account billing/spending-limit block, not a code/test failure. No billing method or spending limit was changed. Required paid/account setting must be handled by the owner before CI, a fresh signed APK/AAB workflow, PR merge or release can proceed. No signed build artifact was created for versionCode 63 in this session.
+
+
+## 8 November 2026 — release audit source overlay
+
+- Created release branch `codex/release-audit-14features-20261108` from `codex/all-14-phase-bc-english` and committed the release audit overlay plus regression contract. The overlay fixes the identified staff list source (permission-gated existing order collections, PII-safe projection), tracking call link, locally saved/idempotent retry identity for failed bookings, native installed-version comparison, and Android `allowBackup=false`.
+- Expanded Owner Dashboard + server validation to all 14 feature keys; missing settings resolve OFF, and customer visibility now requires an owner flag instead of a pilot-manifest bypass. No Firebase deploy, Play Console action, billing change, or feature activation.
+- Local reconstructed-source checks: TypeScript lint PASS; Vite production build PASS (existing large-chunk and dynamic-import warnings); release audit contract PASS. Next step is to wire this overlay into review/sign workflows, then run branch CI before requesting any signing job.
