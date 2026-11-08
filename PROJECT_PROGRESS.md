@@ -289,3 +289,11 @@ The owner requested continued implementation, holding device-dependent questions
 - Connected the release overlay and regression contracts to review CI and signed-test workflow. Review now runs on this release branch and on PRs targeting main. The signed workflow is set to versionCode 64 / versionName 10.0.64-combined-test and builds both APK and AAB with the existing key; source web build receives the same version values.
 - First Actions attempts reached the hosted runner and failed during overlay application because upstream localization changed the exact FeatureHub source pattern. The patch was made tolerant of those overlays and pushed. Run 42435383963 is queued at this checkpoint; earlier failures are implementation failures, not billing annotations. No billing settings were changed.
 - No signed artifact has been produced yet. I will create the release marker only after the exact release-branch review/security/product checks pass.
+
+
+## 8 November 2026 — release audit CI green
+
+- Completed the release audit fixes on `codex/release-audit-14features-20261108`: staff order listing uses the permission-checked shared listener and a PII-minimized projection; tracking calls `95808 82066`; offline bookings keep a local pending draft and reuse the stable order identity on retry; update checks compare the installed version with build versionCode 64; Android backup is disabled.
+- All 14 customer feature entries are controlled by Owner Dashboard switches and default OFF. The source validation accepts the same 14 keys. English is the default and Hindi is selected from Profile settings; the customer language, screen, tap, and contrast regression suites pass. Existing Daily Winner controls and banner were restored into reconstructed source with language-aware copy.
+- Hosted review run [42438243576](https://github.com/ankur2066/-ankur-order-app-/actions/runs/42438243576) passed all steps, including unit/regression contracts, release audit contracts, lint/build, React tap regressions, language screens, and safety boundary. Local `npm run lint` and `npm run build` also pass; Vite reports only the existing large-chunk/dynamic-import warnings.
+- No billing settings, Firebase deployment/live data, or Play Console state was changed. Next: run the gated existing-key signed versionCode 64 APK/AAB workflow and verify both signatures/artifacts.
