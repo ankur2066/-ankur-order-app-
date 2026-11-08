@@ -363,3 +363,6 @@ The owner requested continued implementation, holding device-dependent questions
 - Reconnected the owner's dispatch handler to the existing trusted inventory path so enabled inventory dispatch cannot double-write; disabled mode keeps the paired legacy update. Updated the React harness for the new dispatch-date helper/referral panel, and scoped old-screen language assertions to avoid claiming all legacy copy is translated. Added direct assertions for bilingual generated order notes.
 
 - The screen-language harness now asserts the saved switch and no-popup behavior without claiming full English coverage across older static screens; untranslated legacy copy remains visible in the partial copy audit.
+
+
+- v1.0.65 feedback follow-up: fixed the React UI harness mocks, kept video and service-area labels in the selected language, and made tracking validation errors re-render in the current language. GitHub Actions run 42470535759 passed lint/type-check, build, regression tests, React UI/tap tests, and the safety-boundary check. PR #24 remains open and unmerged; 303 legacy UI strings remain untranslated per the audit. No Firebase deploy or Play upload was run.
