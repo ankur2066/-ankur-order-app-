@@ -351,3 +351,5 @@ The owner requested continued implementation, holding device-dependent questions
 - Release audit contract now imports the `re` module required for its whitespace-tolerant Owner FeatureHub assertion; all 71 preceding unit/regression contracts passed in hosted CI.
 
 - Updated the release audit contract to require the bundled Paytm QR SVG and Copy UPI ID action, replacing prior temporary fallback-text assertions. The four Phase A contracts and all 71 unit/regression contracts passed; this release-audit expectation was stale.
+
+- Hosted TypeScript lint found two imports missing from the reconstructed CI base (`StaffOrderAccessManager` and `ReferralSharePanel`). Added the reviewed source snapshots to the v1.0.65 overlay so the reconstructed tree contains every referenced component. No staff data, Firebase state, or permissions were changed.

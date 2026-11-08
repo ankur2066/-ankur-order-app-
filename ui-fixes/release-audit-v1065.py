@@ -12,6 +12,7 @@ files = [
     "src/components/AdminDashboard.tsx", "src/components/AppUpdateNotice.tsx",
     "src/components/CustomerOrders.tsx", "src/components/OrderForm.tsx",
     "src/components/OrderTrackingView.tsx", "src/components/UserManagement.tsx",
+    "src/components/StaffOrderAccessManager.tsx", "src/components/customer/ReferralSharePanel.tsx",
     "src/components/customer/FeatureHub.tsx", "src/components/customer/BottomNav.tsx",
     "src/components/owner/FeatureSuiteSettings.tsx", "src/data/products.ts", "src/data/rates.ts",
     "src/hooks/useInlinePromo.ts", "src/index.css", "src/services/appUpdate.ts",
