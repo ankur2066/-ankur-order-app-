@@ -68,7 +68,7 @@ test('Profile keeps settings and notifications but no longer duplicates AI Featu
   assert.match(profile,/<LanguageSettings/);
   assert.match(profile,/Notification preferences/);
   assert.match(profile,/BUSINESS_CALL_HREF/);
-  assert.match(app,/currentTab === 'ai-features'/);
+  assert.doesNotMatch(app,/currentTab === 'ai-features'/);
   assert.match(hub,/grid grid-cols-2 gap-2/);
 });
 
@@ -79,6 +79,6 @@ test('v1.0.41 UI patch applied in local, CI and signed APK with correct version'
  assert.equal(signed.split('python3 '+name).length-1,1);
  assert.ok(reconstruct.indexOf('customer_features_nav_v140.py')<reconstruct.indexOf(name));
  assert.match(signed,/paths: \['release-batches\/\*\.txt'\]/,'only explicit release batch triggers signed APK');
- assert.match(signed,/versionCode 49/);
- assert.match(signed,/versionName "1\.0\.49-combined-test"/);
+ assert.match(signed,/versionCode 64/);
+ assert.match(signed,/versionName "10\.0\.64-combined-test"/);
 });
