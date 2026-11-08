@@ -20,7 +20,7 @@ protected_terms = (
 )
 for term in protected_terms:
     assert submission.count(term)==1, f'protected pricing term missing/duplicated: {term}'
-amount_match = re.search(r"totalAmount:\\s*([^,\\n]+),?\\s*\\n\\s*status:\\s*['\\\"]pending['\\\"]", submission)
+amount_match = re.search(r"totalAmount:\s*([^,\n]+),?\s*\n\s*status:\s*['\"]pending['\"]", submission)
 assert amount_match, 'protected total amount field missing or duplicated'
 amount_expression = amount_match.group(1).strip()
 assert amount_expression in {'approvedAmount(finalTotalAmount)', 'finalTotalAmount'}, 'unrecognized total amount expression'
