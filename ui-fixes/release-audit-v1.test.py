@@ -26,6 +26,6 @@ assert 'tel:+919580882066' in tracking and '95808 82066' in tracking
 assert 'tel:+918896332066' not in tracking
 assert 'ankur.pending.order.v1.' in orders and 'pending.fingerprint !== fingerprint' in orders
 assert 'Your order details are saved on this device' in orders
-assert 'App.getInfo()' in update and 'validateUpdateManifest(json, installedVersionCode)' in update
+assert 'VITE_ANDROID_VERSION_CODE' in update and 'validateUpdateManifest(json, currentVersionCode)' in update
 assert 'android:allowBackup="false"' in manifest
 print('PASS: release audit source contracts (14 switches, staff orders, contact, durable retry, native version, backup)')
