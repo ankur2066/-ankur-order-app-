@@ -1,6 +1,6 @@
 """Record/check protected legacy submit and pricing; intentional routing overlays allowed."""
 from pathlib import Path
-import argparse,hashlib,json
+import argparse,hashlib,json,re
 p=argparse.ArgumentParser();p.add_argument('mode',choices=['record','check']);p.add_argument('receipt',type=Path);a=p.parse_args()
 s=Path('src/components/OrderForm.tsx').read_text();submission=s.split('  const executeOrderSubmission = async () => {',1)[1].split('  const handleSubmit = async',1)[0]
 # The release audit intentionally changes order identity persistence/retry
@@ -20,9 +20,11 @@ protected_terms = (
 )
 for term in protected_terms:
     assert submission.count(term)==1, f'protected pricing term missing/duplicated: {term}'
-amount_field = next((term for term in ('totalAmount: approvedAmount(finalTotalAmount),', 'totalAmount: finalTotalAmount,') if submission.count(term)==1), None)
-assert amount_field, 'protected total amount field missing or duplicated'
-protected_terms = (*protected_terms, amount_field)
+amount_match = re.search(r"totalAmount:\\s*([^,\\n]+),?\\s*\\n\\s*status:\\s*['\\\"]pending['\\\"]", submission)
+assert amount_match, 'protected total amount field missing or duplicated'
+amount_expression = amount_match.group(1).strip()
+assert amount_expression in {'approvedAmount(finalTotalAmount)', 'finalTotalAmount'}, 'unrecognized total amount expression'
+protected_terms = (*protected_terms, 'totalAmount: ' + amount_expression)
 values={'legacyPricing':hashlib.sha256('\\n'.join(protected_terms).encode()).hexdigest()}
 for path in ['src/data/rates.ts','firestore.rules']:values[path]=hashlib.sha256(Path(path).read_bytes()).hexdigest()
 if a.mode=='record':a.receipt.write_text(json.dumps(values,indent=2))
