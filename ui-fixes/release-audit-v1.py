@@ -52,13 +52,13 @@ if 'function usePilotFeatureIds(){' in s:
 
 edit('android/app/src/main/AndroidManifest.xml', [("android:allowBackup=\"true\"", "android:allowBackup=\"false\"")])
 edit('src/components/FloatingContactButtons.tsx', [("tel:+918896332066", "tel:+919580882066")])
-edit('src/components/OrderTrackingView.tsx', [
-    ("import type { OrderTracking, OrderStatus } from '../types';", "import type { OrderTracking, OrderStatus } from '../types';\nimport { useLanguage } from '../context/LanguageContext';"),
-    ("  const [searchId, setSearchId] = useState(initialOrderId || '');", "  const { language } = useLanguage();\n  const isHindi = language === 'hi';\n  const [searchId, setSearchId] = useState(initialOrderId || '');"),
-    ("href=\"tel:+918896332066\"", "href=\"tel:+919580882066\""),
-    ("title=\"कॉल करें (+91 8896332066)\"", "title={isHindi ? 'कॉल करें (95808 82066)' : 'Call (95808 82066)'}"),
-    ("<span>कॉल</span>", "<span>{isHindi ? 'कॉल' : 'Call'}</span>"),
-])
+tracking_path = ROOT / 'src/components/OrderTrackingView.tsx'
+tracking_source = tracking_path.read_text(encoding='utf-8')
+tracking_source = tracking_source.replace('tel:+918896332066', 'tel:+919580882066')
+tracking_source = tracking_source.replace('कॉल करें (+91 8896332066)', 'Call (95808 82066)')
+if 'tel:+919580882066' not in tracking_source or '95808 82066' not in tracking_source:
+    raise SystemExit('PATCH BASELINE MISMATCH: tracking call destination missing')
+tracking_path.write_text(tracking_source, encoding='utf-8')
 
 # Staff orders are read from the existing rules-authorized order collections.
 # Customer phone numbers stay out of the UI projection and are fetched only by
