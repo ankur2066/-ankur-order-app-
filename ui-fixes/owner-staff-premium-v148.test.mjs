@@ -57,7 +57,7 @@ test('Order status & staff role permissions kept intact; do not imply data read 
  assert.match(staff,/if \(!canUpdate\)/);
  assert.match(staff,/subscribeOrderDocuments\(/);
  assert.match(staff,/batch\.commit\(\)/);
- assert.match(staff,/setOrders\(activeList\)/);
+ assert.match(staff,/setOrders\(list\)/);
  assert.match(staff,/handleSelfPickup/);
  assert.match(app,/<StaffDashboard/);
 });
