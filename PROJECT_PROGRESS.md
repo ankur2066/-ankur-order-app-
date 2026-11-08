@@ -328,3 +328,5 @@ The owner requested continued implementation, holding device-dependent questions
 - Local verification: `npm run lint`, `npm run build`, and v1.0.65 feedback contracts PASS. GitHub Actions/PR CI is pending after push. No Firebase deploy, Play upload, merge, signing-key change, or paid service was performed.
 
 - Follow-up in the same v1.0.65 phase: both owner order-list modes now share one call/WhatsApp action component with matching tap targets. CSV, monthly, insight and AI summary sources omit flagged test orders while those orders remain visible for operations. Local lint/build remain green.
+
+- CI run 42466358708 failed at overlay installation because the first commit staged source snapshots at app-root paths instead of the runner's `ui-fixes/v1065-overlay/` source path. The overlay copy error is corrected in the next commit; no build/test failure was reached in that run. This is being rerun before review completion.

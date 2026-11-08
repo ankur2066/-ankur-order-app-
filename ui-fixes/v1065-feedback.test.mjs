@@ -34,9 +34,11 @@ test('owner feature switches hide promo UI until enabled and QR stays bundled lo
   const hook = await source('src/hooks/useInlinePromo.ts');
   const form = await source('src/components/OrderForm.tsx');
   const tracking = await source('src/components/OrderTrackingView.tsx');
+  const formSource = await source('src/components/OrderForm.tsx');
   assert.match(hook, /features\?\.promotions === true/);
   assert.match(form, /promo\.enabled/);
   assert.match(tracking, /\/assets\/paytm-upi-qr\.svg/);
   assert.match(tracking, /8896332066@paytm/);
   assert.doesNotMatch(tracking, /https?:\/\/.*qr/i);
+  assert.match(formSource, /if \(currentUser\?\.uid\) \{\s+const existingOrder = await getDoc/);
 });

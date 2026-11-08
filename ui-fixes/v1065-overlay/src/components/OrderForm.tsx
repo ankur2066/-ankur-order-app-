@@ -508,15 +508,17 @@ const LegacyOrderForm: React.FC<OrderFormProps> = ({
 
       // A network drop can hide a successful Firestore acknowledgement. Reconcile
       // the persisted order before attempting another create with the same ID.
-      const existingOrder = await getDoc(doc(db, 'orders', generatedOrderId));
-      if (existingOrder.exists() && existingOrder.data().userId === (currentUser?.uid || 'guest')) {
-        const saved = existingOrder.data() as Order;
-        const pin = saved.trackingPin || generatedPin;
-        setSuccessData({ orderId: generatedOrderId, trackingPin: pin, customerName: saved.customerName, customerPhone: saved.customerPhone, address: saved.address || saved.city || '', quantityKg: saved.quantityKg, totalAmount: saved.totalAmount, dispatchTiming: saved.dispatchTiming });
-        try { localStorage.removeItem(pendingOrderStorageKey); } catch {}
-        onOrderSuccess(generatedOrderId, pin);
-        onClearReorder?.();
-        return;
+      if (currentUser?.uid) {
+        const existingOrder = await getDoc(doc(db, 'orders', generatedOrderId));
+        if (existingOrder.exists() && existingOrder.data().userId === currentUser.uid) {
+          const saved = existingOrder.data() as Order;
+          const pin = saved.trackingPin || generatedPin;
+          setSuccessData({ orderId: generatedOrderId, trackingPin: pin, customerName: saved.customerName, customerPhone: saved.customerPhone, address: saved.address || saved.city || '', quantityKg: saved.quantityKg, totalAmount: saved.totalAmount, dispatchTiming: saved.dispatchTiming });
+          try { localStorage.removeItem(pendingOrderStorageKey); } catch {}
+          onOrderSuccess(generatedOrderId, pin);
+          onClearReorder?.();
+          return;
+        }
       }
 
       // Compound token for zero-trust tracking authorization

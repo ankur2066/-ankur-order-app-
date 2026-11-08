@@ -1519,7 +1519,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       {slotCounts.today_evening}
                     </span>
                   </div>
-                  <span className={`text-[10px] ${selectedDispatchSlot === 'today_evening' ? 'text-sky-100' : 'text-slate-400'}`}>
+                  <span className={`text-[10px] ${selectedDispatchSlot === 'today_evening' ? 'text-white' : 'text-slate-400'}`}>
                     Shaam (12 PM–10 PM)
                   </span>
                 </button>
@@ -1545,7 +1545,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       {slotCounts.tomorrow_morning}
                     </span>
                   </div>
-                  <span className={`text-[10px] ${selectedDispatchSlot === 'tomorrow_morning' ? 'text-sky-100' : 'text-slate-400'}`}>
+                  <span className={`text-[10px] ${selectedDispatchSlot === 'tomorrow_morning' ? 'text-white' : 'text-slate-400'}`}>
                     Tomorrow morning (6 AM–12 PM)
                   </span>
                 </button>
@@ -1571,7 +1571,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       {slotCounts.tomorrow_evening}
                     </span>
                   </div>
-                  <span className={`text-[10px] ${selectedDispatchSlot === 'tomorrow_evening' ? 'text-sky-100' : 'text-slate-400'}`}>
+                  <span className={`text-[10px] ${selectedDispatchSlot === 'tomorrow_evening' ? 'text-white' : 'text-slate-400'}`}>
                     Tomorrow evening (12 PM–10 PM)
                   </span>
                 </button>
@@ -1888,7 +1888,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       : 'bg-white border-slate-200 hover:border-sky-400 text-slate-800'
                   }`}
                 >
-                  <span className={`text-[10px] block ${orderFilterTab === 'all' ? 'text-sky-100' : 'text-slate-400'}`}>Total</span>
+                  <span className={`text-[10px] block ${orderFilterTab === 'all' ? 'text-white' : 'text-slate-400'}`}>Total</span>
                   <span className={`font-mono font-bold text-xs ${orderFilterTab === 'all' ? 'text-white' : 'text-slate-900'}`}>{activeOrders.length}</span>
                 </button>
 
@@ -1914,7 +1914,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       : 'bg-sky-50/80 border-sky-200 hover:border-sky-400 text-sky-900'
                   }`}
                 >
-                  <span className={`text-[10px] block ${orderFilterTab === 'confirmed' ? 'text-sky-100' : 'text-sky-700'}`}>Confirmed</span>
+                  <span className={`text-[10px] block ${orderFilterTab === 'confirmed' ? 'text-white' : 'text-sky-700'}`}>Confirmed</span>
                   <span className={`font-mono font-bold text-xs ${orderFilterTab === 'confirmed' ? 'text-white' : 'text-sky-800'}`}>{statusCounts.confirmed}</span>
                 </button>
 
