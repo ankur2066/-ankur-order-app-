@@ -305,3 +305,11 @@ The owner requested continued implementation, holding device-dependent questions
 - Signed package is `com.ankurdryice.events`, versionCode 64, versionName `10.0.64-combined-test`. APK and AAB both match the existing release certificate SHA-256 `ebb60e0b13f7b5bfa814a619d5e4acc0ee65f0e12835ad5a282c072bc9976a6e`.
 - APK artifact [Ankur-Dryice-v1.0.64-SEASON-PRIVATE-TEST](https://github.com/ankur2066/-ankur-order-app-/actions/runs/42438402172/artifacts/13600184382) expires 15 November 2026 UTC. AAB artifact [Ankur-Dryice-v1.0.64-PRIVATE-PLAY-AAB](https://github.com/ankur2066/-ankur-order-app-/actions/runs/42438402172/artifacts/13600602821) expires 22 November 2026 UTC. No Play Console upload, Firebase deploy, feature activation or billing setting change was made.
 - Remaining owner actions: perform the approved Firebase deploy from the prepared instructions, enter real feature values and turn on only selected Owner Dashboard switches, run the Android phone checklist, and upload the AAB to Play Console when ready.
+
+
+## Visual QA follow-up — 8 November 2026
+
+- Fixed owner feature controls with explicit dark text on white panels so all 14 switch labels stay readable in light and dark themes.
+- Removed the tracking and checkout references to QR images that are not shipped in the app bundle. Both screens now explain the manual payment fallback; tracking uses the same existing UPI ID shown at checkout, `8896332066@paytm`.
+- Added release regression assertions for both fixes. Local reconstructed-source checks passed: release-audit contract, TypeScript lint, and Vite production build. CI and a new signed build are pending for this follow-up.
+- No Firebase, Play Console, or billing changes.

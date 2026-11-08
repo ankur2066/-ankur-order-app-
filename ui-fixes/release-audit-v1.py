@@ -16,6 +16,8 @@ def edit(path, replacements):
     p.write_text(s, encoding='utf-8')
 
 edit('src/components/owner/FeatureSuiteSettings.tsx', [
+    ('return <section className="c-card border b-line rounded-2xl p-4 space-y-3" aria-labelledby="feature-settings-title">', 'return <section className="c-card bg-white text-slate-900 border b-line rounded-2xl p-4 space-y-3" style={{ color: \'#0f172a\', backgroundColor: \'#ffffff\' }} aria-labelledby="feature-settings-title">'),
+    ('className="flex min-h-12 items-center justify-between gap-3 rounded-xl border b-line p-3">', 'className="flex min-h-12 items-center justify-between gap-3 rounded-xl border b-line p-3 bg-white text-slate-900" style={{ color: \'#0f172a\', backgroundColor: \'#ffffff\' }}>'),
     ("  ['referral', 'Referral Share'],\n] as const;", "  ['referral', 'Referral Share'],\n  ['calculator', 'Ice Calculator'],\n  ['video', 'Video Idea Builder'],\n  ['reports', 'Reports Hub'],\n  ['faq', 'FAQ / How-to'],\n  ['rates', 'Rate Card'],\n  ['support', 'Support Hub'],\n  ['service-area', 'Service Area'],\n] as const;"),
     ("const OFF: FeatureFlags = { loyalty: false, catalog: false, partner: false, subscriptions: false, promotions: false, inventory: false, referral: false };", "const OFF: FeatureFlags = Object.fromEntries(FEATURES.map(([key]) => [key, false])) as FeatureFlags;"),
     ("All seven business features start off.", "All fourteen optional features start off."),
@@ -74,9 +76,44 @@ tracking_path = ROOT / 'src/components/OrderTrackingView.tsx'
 tracking_source = tracking_path.read_text(encoding='utf-8')
 tracking_source = tracking_source.replace('tel:+918896332066', 'tel:+919580882066')
 tracking_source = tracking_source.replace('कॉल करें (+91 8896332066)', 'Call (95808 82066)')
+qr_start = tracking_source.find('          {/* Barcode Display */}')
+qr_end = tracking_source.find('          {/* Payment Status */}', qr_start)
+if qr_start < 0 and 'QR is unavailable here.' in tracking_source:
+    pass
+elif qr_start < 0 or qr_end < 0:
+    raise SystemExit('PATCH BASELINE MISMATCH: tracking payment panel markers missing')
+else:
+    tracking_source = tracking_source[:qr_start] + '''          {/* Payment instructions: no QR image is shipped in the app bundle. */}
+          <div className="p-3 border rounded-xl bg-slate-50 text-center space-y-2">
+            <span className="text-xs font-bold text-slate-700 block">Scan to Pay (Paytm)</span>
+            <p className="text-xs text-slate-600">QR is unavailable here. Pay using this UPI ID and verify the recipient in your UPI app.</p>
+            <p className="text-xs text-slate-700 font-mono">UPI ID: 8896332066@paytm</p>
+            <button type="button" onClick={() => { void navigator.clipboard?.writeText('8896332066@paytm'); }} className="px-3 py-1 rounded-lg bg-white text-slate-800 border border-slate-300 text-xs font-semibold">Copy UPI ID</button>
+          </div>
+
+''' + tracking_source[qr_end:]
 if 'tel:+919580882066' not in tracking_source or '95808 82066' not in tracking_source:
     raise SystemExit('PATCH BASELINE MISMATCH: tracking call destination missing')
 tracking_path.write_text(tracking_source, encoding='utf-8')
+
+# Checkout referenced a QR asset that is not in the repository. Keep payment
+# transparent and use the same existing business UPI ID in the manual fallback.
+order_form_path = ROOT / 'src/components/OrderForm.tsx'
+form_source = order_form_path.read_text(encoding='utf-8')
+form_marker = form_source.find('{/* Payment Barcode / QR Code */}')
+form_start = form_source.rfind('\n', 0, form_marker) + 1 if form_marker >= 0 else -1
+form_end = form_source.find('                  <div className="bg-white border border-sky-200', form_start)
+if form_start < 0 and 'QR image is unavailable.' in form_source:
+    pass
+elif form_start < 0 or form_end < 0:
+    raise SystemExit('PATCH BASELINE MISMATCH: checkout QR panel markers missing')
+else:
+    form_source = form_source[:form_start] + '''                  <div className="bg-white border border-sky-100 rounded-xl p-3 text-center text-xs text-slate-700">
+                      QR image is unavailable. Use the UPI ID below and verify the recipient in your payment app.
+                  </div>
+
+''' + form_source[form_end:]
+order_form_path.write_text(form_source, encoding='utf-8')
 
 # Staff orders are read from the existing rules-authorized order collections.
 # Customer phone numbers stay out of the UI projection and are fetched only by
