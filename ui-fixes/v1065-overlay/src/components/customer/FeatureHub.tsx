@@ -142,6 +142,7 @@ const VIDEO_OCCASIONS = [
   {id:'other',name:'Other Event / अन्य कार्यक्रम',short:'Other Event',hi:'अन्य कार्यक्रम'},
 ] as const;
 function VideoIdeaPanel({user}:{user:User|null}){
+  const {language}=useLanguage();
   const [occasion,setOccasion]=useState('wedding');
   const [occasionOpen,setOccasionOpen]=useState(false);
   const [customOccasion,setCustomOccasion]=useState('');
@@ -174,7 +175,7 @@ function VideoIdeaPanel({user}:{user:User|null}){
     }
   };
   const eventName=occasion==='other'?(customOccasion.trim()||'an event'):
-    (VIDEO_OCCASIONS.find(x=>x.id===occasion)?.name||'an event');
+    (language==='hi'?VIDEO_OCCASIONS.find(x=>x.id===occasion)?.hi:VIDEO_OCCASIONS.find(x=>x.id===occasion)?.short)||'an event');
   const prompt=[
     'Generate an actual finished '+duration+'-second vertical 9:16 VIDEO for '+eventName+'. Render and return a playable video, not just a video concept, script or storyboard.',
     'Include cinematic scenes, Hindi captions, smooth transitions and a clear call to action in the final video.',
@@ -195,7 +196,7 @@ function VideoIdeaPanel({user}:{user:User|null}){
       aria-controls="ankur-video-occasion-options"
       onClick={()=>setOccasionOpen(open=>!open)}
       className="ankur-video-occasion-trigger w-full rounded-xl border p-3 min-h-12 text-left font-semibold">
-      <span>{VIDEO_OCCASIONS.find(item=>item.id===occasion)?.name}</span>
+      <span>{language==='hi'?VIDEO_OCCASIONS.find(item=>item.id===occasion)?.hi:VIDEO_OCCASIONS.find(item=>item.id===occasion)?.short}</span>
       <span aria-hidden="true">{occasionOpen?'▴':'▾'}</span>
     </button>
     {occasionOpen&&<div id="ankur-video-occasion-options" aria-label="Choose occasion"
@@ -204,8 +205,7 @@ function VideoIdeaPanel({user}:{user:User|null}){
         aria-pressed={occasion===item.id}
         className={`ankur-video-occasion-option rounded-lg border p-2 ${occasion===item.id?'ankur-selected':''}`}
         onClick={()=>{setOccasion(item.id);setOccasionOpen(false);}}>
-        <span className="block font-semibold">{item.short}</span>
-        <span className="block ankur-video-occasion-hi">{item.hi}</span>
+        <span className="block font-semibold">{language==='hi'?item.hi:item.short}</span>
       </button>)}
     </div>}
     {occasion==='other'&&<label className="block">Function name
@@ -285,7 +285,7 @@ function ServiceAreaPanel(){
     className="w-full border rounded-xl p-3 mt-1" placeholder={hi?'जिले का नाम':'District name'} />
   </label>
   <p role="status" className="text-xs t-sub">{districts.length} {hi?'जिले मिले':'district matches'}</p>
-  <ul className="max-h-64 overflow-y-auto rounded-xl border b-line p-2">{districts.map(d=><li className="border-b b-line p-2" key={d}>{d}</li>)}</ul>
+  <ul className="max-h-64 overflow-y-auto rounded-xl border b-line p-2">{districts.map(d=><li className="border-b b-line p-2" key={d}>{hi?d.replace(/\s*\([^)]*\)\s*/,''):(d.match(/\(([^)]+)\)/)?.[1]||d)}</li>)}</ul>
   <p className="text-xs t-sub">{hi?'पैकिंग और पहुँचने का समय टीम से कन्फर्म करें।':'Confirm packing and arrival with the team.'}</p>
  </section>;
 }

@@ -1,3 +1,4 @@
+import { tryInventoryDispatch } from '../services/inventoryDispatch';
 import { StaffOrderAccessManager } from './StaffOrderAccessManager';
 import { DailyWinnerOwnerControls } from './customer/DailyWinner';
 import { CustomersView } from './owner/CustomersView';
@@ -517,6 +518,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     try {
       setActionLoadingId(ord.orderId);
       setErrorMsg(null);
+
+      const inventoryHandled = await tryInventoryDispatch(ord.orderId, newStatus);
+      if (inventoryHandled) {
+        setSuccessMsg(`ऑर्डर #${ord.orderId} की स्थिति '${newStatus}' अपडेट हो गई।`);
+        setTimeout(() => setSuccessMsg(null), 3000);
+        return;
+      }
 
       let statusMsg = '';
       if (newStatus === 'confirmed') statusMsg = 'ऑर्डर कन्फर्म हुआ। डिलीवरी की तैयारी जारी है।';
