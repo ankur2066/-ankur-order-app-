@@ -2,7 +2,8 @@ import { execFileSync } from 'node:child_process';
 
 // Prevent newly introduced inline hex colours in PR changes. Existing legacy
 // theme/artwork palettes are tracked separately for the ongoing token migration.
-const diff = execFileSync('git', ['diff', '--unified=0', 'HEAD^', 'HEAD', '--', 'src'], { encoding: 'utf8' });
+const base = 'origin/codex/release-audit-14features-20261108';
+const diff = execFileSync('git', ['diff', '--unified=0', `${base}...HEAD`, '--', 'src'], { encoding: 'utf8' });
 let file = '';
 const violations = [];
 for (const line of diff.split('\n')) {
