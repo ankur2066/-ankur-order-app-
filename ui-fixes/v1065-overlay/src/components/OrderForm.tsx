@@ -369,12 +369,12 @@ const LegacyOrderForm: React.FC<OrderFormProps> = ({
     const previewUrl = URL.createObjectURL(file);
     setScreenshotPreview(previewUrl);
     setShareFeedback('स्क्रीनशॉट compress और save हो रहा है…');
-    if (!successData?.orderId || !currentUser?.uid) {
-      setShareFeedback('ऑर्डर बना है, लेकिन सुरक्षित upload के लिए ग्राहक login जरूरी है। मालिक को WhatsApp पर भेजें।');
+    if (!successData?.orderId) {
+      setShareFeedback('ऑर्डर ID मिलने के बाद ही स्क्रीनशॉट save किया जा सकता है।');
       return;
     }
     try {
-      const saved = await savePaymentProof(successData.orderId, file, currentUser.uid);
+      const saved = await savePaymentProof(successData.orderId, file, currentUser?.uid, successData.trackingPin);
       setShareFeedback(`स्क्रीनशॉट सुरक्षित save हुआ (${Math.round(saved.sizeBytes / 1024)} KB)। Payment owner verification तक pending रहेगा।`);
     } catch (error) {
       console.error('Payment proof upload failed:', error);

@@ -324,14 +324,21 @@ service cloud.firestore {
       function orderOwner() {
         return isSignedIn() && get(/databases/$(database)/documents/orders/$(orderId)).data.userId == request.auth.uid;
       }
+      function guestProofCredential() {
+        return request.auth == null &&
+          get(/databases/$(database)/documents/orders/$(orderId)).data.userId == 'guest' &&
+          incoming().trackingPin == get(/databases/$(database)/documents/orders/$(orderId)).data.trackingPin;
+      }
       allow get: if isAdmin() || orderOwner();
       allow list: if false;
-      allow create, update: if proofId == 'latest' && orderOwner() &&
-        incoming().keys().hasOnly(['dataUrl','sizeBytes','contentType','uploadedBy','createdAt']) &&
+      allow create, update: if proofId == 'latest' && (isAdmin() || orderOwner() || guestProofCredential()) &&
+        incoming().keys().hasOnly(['dataUrl','sizeBytes','contentType','uploadedBy','createdAt','trackingPin']) &&
         incoming().dataUrl is string && incoming().dataUrl.size() <= 320000 &&
         incoming().dataUrl.matches('^data:image/jpeg;base64,[A-Za-z0-9+/=]+$') &&
         incoming().sizeBytes is number && incoming().sizeBytes > 0 && incoming().sizeBytes <= 230000 &&
-        incoming().contentType == 'image/jpeg' && incoming().uploadedBy == request.auth.uid &&
+        incoming().contentType == 'image/jpeg' &&
+        ((isSignedIn() && incoming().uploadedBy == request.auth.uid && !('trackingPin' in incoming())) ||
+         (request.auth == null && incoming().uploadedBy == 'guest' && guestProofCredential())) &&
         incoming().createdAt == request.time;
       allow delete: if isAdmin() || orderOwner();
     }

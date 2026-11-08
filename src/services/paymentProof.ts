@@ -40,12 +40,14 @@ export async function compressPaymentProof(file: File): Promise<{ dataUrl: strin
   return { dataUrl, sizeBytes };
 }
 
-export async function savePaymentProof(orderId: string, file: File, uid: string) {
+export async function savePaymentProof(orderId: string, file: File, uid?: string, trackingPin?: string) {
+  if (!uid && !trackingPin) throw new Error('A customer account or order PIN is required');
   const proof = await compressPaymentProof(file);
   await setDoc(doc(db, 'orders', orderId, 'paymentProof', 'latest'), {
     ...proof,
     contentType: 'image/jpeg',
-    uploadedBy: uid,
+    uploadedBy: uid || 'guest',
+    ...(uid ? {} : { trackingPin }),
     createdAt: serverTimestamp(),
   });
   return proof;

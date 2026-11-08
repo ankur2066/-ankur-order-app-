@@ -2,7 +2,7 @@ import { readFile } from 'node:fs/promises';
 import { after, before, describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import { initializeTestEnvironment, assertFails, assertSucceeds } from '@firebase/rules-unit-testing';
-import { collection, doc, getDoc, getDocs, serverTimestamp, updateDoc } from 'firebase/firestore';
+import { collection, doc, getDoc, getDocs, serverTimestamp, setDoc, updateDoc } from 'firebase/firestore';
 
 const projectId = 'demo-ankur-dryice-rules';
 let testEnv;
@@ -18,6 +18,7 @@ before(async () => {
     await db.doc('staffOrderViews/order-1').set({orderId:'order-1',sourceCollection:'orders',customerName:'Customer',city:'Lucknow',district:'Lucknow',productName:'Dry Ice',quantityKg:10,status:'pending',dispatchTiming:'8 Nov, morning',isTrash:false,createdAt:new Date(),updatedAt:new Date()});
     await db.doc(`customers/${phone}`).set({uid:'customer',name:'Customer',phone,firstLoginAt:new Date(),lastLoginAt:new Date(),orderCount:1,completedOrders:0,tag:'New'});
     await db.doc('orders/order-1/paymentProof/latest').set(proof);
+    await db.doc('orders/guest-order').set({orderId:'guest-order',userId:'guest',trackingPin:'123456',createdAt:new Date(),updatedAt:new Date()});
   });
 });
 after(async () => testEnv?.cleanup());
@@ -49,5 +50,15 @@ describe('Firestore privacy and role rules', () => {
     await assertSucceeds(getDoc(doc(customer,'orders/order-1/paymentProof/latest')));
     await assertSucceeds(getDoc(doc(owner,'orders/order-1/paymentProof/latest')));
     await assertFails(getDoc(doc(staff,'orders/order-1/paymentProof/latest')));
+  });
+  it('lets a guest attach a proof only with the order tracking PIN; the guest cannot read it back', async () => {
+    const guest=testEnv.unauthenticatedContext().firestore();
+    const staff=testEnv.authenticatedContext('staff').firestore();
+    const value={...proof,uploadedBy:'guest',trackingPin:'123456',createdAt:serverTimestamp()};
+    await assertSucceeds(setDoc(doc(guest,'orders/guest-order/paymentProof/latest'),value));
+    await assertFails(getDoc(doc(guest,'orders/guest-order/paymentProof/latest')));
+    await assertFails(setDoc(doc(guest,'orders/guest-order/paymentProof/other'),value));
+    await assertFails(getDoc(doc(staff,'orders/guest-order/paymentProof/latest')));
+    await assertFails(setDoc(doc(guest,'orders/guest-order/paymentProof/latest'),{...value,trackingPin:'000000'}));
   });
 });

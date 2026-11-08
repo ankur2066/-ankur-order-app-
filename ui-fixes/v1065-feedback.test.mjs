@@ -55,12 +55,13 @@ test('payment proof is compressed, stored under its order, and owner-only in the
   const proofService = await source('src/services/paymentProof.ts');
   const ownerPreview = await source('src/components/owner/PaymentProofPreview.tsx');
   const rules = await source('firestore.rules');
-  assert.match(form, /savePaymentProof\(successData\.orderId, file, currentUser\.uid\)/);
+  assert.match(form, /savePaymentProof\(successData\.orderId, file, currentUser\?\.uid, successData\.trackingPin\)/);
   assert.match(proofService, /doc\(db, 'orders', orderId, 'paymentProof', 'latest'\)/);
   assert.match(proofService, /TARGET_BYTES = 150 \* 1024/);
   assert.match(ownerPreview, /Full payment proof/);
   assert.match(rules, /match \/orders\/\{orderId\}\/paymentProof\/\{proofId\}/);
   assert.match(rules, /allow get: if isAdmin\(\) \|\| orderOwner\(\)/);
+  assert.match(rules, /incoming\(\)\.trackingPin == get\(/);
 });
 
 test('UPI links carry merchant, amount and order ID and payment remains owner-verified', async () => {
