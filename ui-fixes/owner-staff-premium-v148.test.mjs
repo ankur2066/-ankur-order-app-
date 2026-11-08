@@ -44,22 +44,23 @@ test('Soft 3D theme tokens cover light, dark, raised cards and fixed status colo
 test('Staff order list never shows every phone number or permits phone searching',()=>{
  assert.doesNotMatch(staff,/कॉल: \{ord\.customerPhone\}/);
  assert.doesNotMatch(staff,/phoneMatch|customerPhone \|\| ''\)\.includes\(q\)/);
- assert.match(staff,/revealedContactOrderId === ord\.orderId/);
- assert.match(staff,/aria-expanded=\{revealedContactOrderId === ord\.orderId\}/);
- assert.match(staff,/setRevealedContactOrderId\(current => current === orderId \? null : orderId\)/);
- assert.match(staff,/window\.setTimeout\(\(\) => setRevealedContactOrderId\(null\), 15000\)/);
+ assert.match(staff,/contactKey = \(staffSource\(ord\) \|\| 'unknown'\)/);
+ assert.match(staff,/contact\?\.key === key/);
+ assert.match(staff,/setContact\(\{ key, phone: data\.phone \}\)/);
+ assert.match(staff,/window\.setTimeout\(\(\) => \{\s*contactVersion\.current \+= 1;/);
  assert.match(staff,/document\.visibilityState === 'hidden'/);
- assert.match(staff,/\{ord\.customerPhone\}/);
+ assert.doesNotMatch(staff,/customerPhone: value\.customerPhone/);
  assert.match(staff,/डायल करें/);
  assert.match(staff,/WhatsApp/);
  assert.match(css,/ANKUR STAFF CONTACT PRIVACY 1\.0\.48/);
 });
 
-test('Order status & staff role permissions kept intact; do not imply data read security',()=>{
+test('Staff reads redacted order projections while status and role permissions stay intact',()=>{
  assert.match(staff,/if \(!canView\)/);
  assert.match(staff,/if \(!canUpdate\)/);
- assert.match(staff,/subscribeOrderDocuments\(/);
- assert.match(staff,/batch\.commit\(\)/);
+ assert.match(staff,/collection\(db, 'staffOrderViews'\)/);
+ assert.doesNotMatch(staff,/subscribeOrderDocuments\(/);
+ assert.match(staff,/ankurStaffUpdateOrderStatus/);
  assert.match(staff,/setOrders\(list\)/);
  assert.match(staff,/handleSelfPickup/);
  assert.match(app,/<StaffDashboard/);
