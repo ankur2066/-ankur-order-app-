@@ -1,0 +1,8 @@
+Ankur Dryice v1.0.64 consolidated private test candidate
+versionCode=64
+versionName=10.0.64-combined-test
+package=com.ankurdryice.events
+release_branch=codex/release-audit-14features-20261108
+pre_marker_review_ci_run=42438243576
+Signing key: existing release key only.
+Scope: private test APK and AAB; no Firebase deploy, billing change, Play Console action, or public release.
