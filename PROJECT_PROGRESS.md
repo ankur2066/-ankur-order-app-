@@ -343,3 +343,5 @@ The owner requested continued implementation, holding device-dependent questions
 - Updated existing release contracts to versionCode 65 / versionName 1.0.65 and changed stale customer-nav expectations to AI Video for owner, Categories for customers. CI tests previously stopped on those v1.0.64 / old-tab assumptions before build.
 
 - The next CI pass reached release contracts; legacy checks still pinned versionName 10.0.64 and the update fixture still defaulted to versionCode 47. Updated those regression fixtures to v1.0.65 while preserving the existing signature/package checks.
+
+- The version-65 update fixture was being upgraded before the existing v1.0.64 reconstruction patch, causing its base-pattern check to fail. Kept the baseline fixture intact until the existing patch runs, then apply the v1.0.65 template from the release overlay. This preserves ordered reconstruction and tests the final version.
