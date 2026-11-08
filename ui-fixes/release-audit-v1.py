@@ -181,8 +181,8 @@ edit('src/services/appUpdate.ts', [
 app_update = ROOT / 'src/services/appUpdate.ts'
 app_text = app_update.read_text(encoding='utf-8')
 app_text, version_matches = __import__('re').subn(
-    r"export const ANDROID_VERSION_CODE = [^;]+;\\nexport const ANDROID_VERSION_NAME = [^;]+;",
-    "export const ANDROID_VERSION_CODE = Number(import.meta.env?.VITE_ANDROID_VERSION_CODE || 65);\\nexport const ANDROID_VERSION_NAME = import.meta.env?.VITE_ANDROID_VERSION_NAME || '1.0.65';",
+    r"export const ANDROID_VERSION_CODE = [^;]+;\nexport const ANDROID_VERSION_NAME = [^;]+;",
+    "export const ANDROID_VERSION_CODE = Number(import.meta.env?.VITE_ANDROID_VERSION_CODE || 65);\nexport const ANDROID_VERSION_NAME = import.meta.env?.VITE_ANDROID_VERSION_NAME || '1.0.65';",
     app_text, count=1
 )
 if version_matches != 1:
