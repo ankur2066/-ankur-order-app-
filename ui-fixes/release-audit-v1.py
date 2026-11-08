@@ -61,8 +61,8 @@ if '<DailyWinnerBanner' in app_text and 'import { DailyWinnerBanner }' not in ap
         if 'import { DailyWinnerBanner }' not in app_text:
             raise SystemExit('PATCH BASELINE MISMATCH: could not import DailyWinnerBanner')
     else:
-        line = '            <div className="mt-3"><DailyWinnerBanner currentUser={currentUser} /></div>'
-        if line not in app_text:
+        line = next((line for line in app_text.splitlines() if '<DailyWinnerBanner' in line and '/>' in line), None)
+        if line is None:
             raise SystemExit('PATCH BASELINE MISMATCH: missing optional Daily Winner line')
         app_text = app_text.replace(line, '')
     app_path.write_text(app_text, encoding='utf-8')
