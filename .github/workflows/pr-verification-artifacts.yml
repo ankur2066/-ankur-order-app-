@@ -18,7 +18,52 @@ jobs:
         with: { node-version: '22', cache: npm }
       - uses: actions/setup-java@v4
         with: { distribution: temurin, java-version: '17' }
-      - run: npm ci
+      - name: Reconstruct app and apply review overlays
+        run: |
+          set -euo pipefail
+          unzip -oq Ankur_Order_App_Upload_GitHub.zip -d .
+          python3 app-check/apply_patch.py
+          python3 ui-fixes/apply_patch.py
+          python3 ui-fixes/ux_qa_patch.py
+          python3 ui-fixes/premium_booking_v122.py
+          python3 ui-fixes/blinkit_premium_v123.py
+          python3 ui-fixes/customer_home_form_v124.py
+          python3 ui-fixes/customer_home_only_v125.py
+          python3 ui-fixes/compact_customer_form_v126.py
+          python3 ui-fixes/english_booking_v127.py
+          python3 ui-fixes/readable_smooth_v128.py
+          python3 notifications/apply_patch.py
+          python3 notifications/client-fixes/apply_patch.py
+          python3 notifications/tap-fix/apply_patch.py
+          python3 ui-fixes/declutter_v132.py
+          python3 phase-a/apply_patch.py
+          python3 all-features/protected_audit.py record /tmp/protected.json
+          python3 billing/apply_patch.py
+          ANKUR_APP_DIR=$PWD python3 all-features/apply_patch.py
+          python3 all-features/wire_additions.py
+          python3 ui-fixes/seasonal_contrast_v135.py
+          python3 ui-fixes/customer-home-language.py
+          python3 ui-fixes/customer_nav_v138.py
+          python3 ui-fixes/customer_dark_contrast_v138.py
+          python3 ui-fixes/customer_home_clean_v139.py
+          python3 ui-fixes/customer_features_nav_v140.py
+          python3 ui-fixes/video_idea_profile_v141.py
+          python3 ui-fixes/customer_profile_contact_v145.py
+          python3 ui-fixes/customer_ai_video_cleanup_v146.py
+          python3 ui-fixes/dispatch_rules_privacy_v147.py
+          python3 ui-fixes/owner_premium_v148.py
+          python3 ui-fixes/staff_contact_privacy_v148.py
+          python3 ui-fixes/tracking-language.py
+          python3 ui-fixes/inline-promo.py
+          python3 ui-fixes/notification-preferences.py
+          python3 ui-fixes/locale-formatting.py
+          python3 ui-fixes/localization.py
+          python3 ui-fixes/owner_feature_settings.py
+          python3 ui-fixes/release-audit-v1.py
+          python3 ui-fixes/release-audit-v1065.py
+          python3 all-features/protected_audit.py check /tmp/protected.json
+          npm install --package-lock-only --ignore-scripts --no-audit --no-fund
+          npm ci --ignore-scripts --no-audit --no-fund
       - run: npm run lint
       - run: npm run check:theme-colors
       - run: npm run test:unit
@@ -37,7 +82,7 @@ jobs:
           retention-days: 30
 
   private-signed-apk:
-    if: github.event_name == 'pull_request' && github.head_ref == 'codex/fix-v1065-test-feedback'
+    if: github.ref == 'refs/heads/codex/fix-v1065-test-feedback' || (github.event_name == 'pull_request' && github.head_ref == 'codex/fix-v1065-test-feedback')
     needs: verify
     runs-on: ubuntu-latest
     timeout-minutes: 45
@@ -58,7 +103,53 @@ jobs:
           test -n "$KEYSTORE_B64" && test -n "$STORE_PASSWORD" && test -n "$KEY_ALIAS" && test -n "$KEY_PASSWORD"
           printf '%s' "$KEYSTORE_B64" | base64 --decode > "$RUNNER_TEMP/ankur-release.jks"
           test -s "$RUNNER_TEMP/ankur-release.jks"
-      - run: npm ci && npm run lint && npm run build && npx cap sync android
+      - name: Reconstruct app and apply review overlays
+        run: |
+          set -euo pipefail
+          unzip -oq Ankur_Order_App_Upload_GitHub.zip -d .
+          python3 app-check/apply_patch.py
+          python3 ui-fixes/apply_patch.py
+          python3 ui-fixes/ux_qa_patch.py
+          python3 ui-fixes/premium_booking_v122.py
+          python3 ui-fixes/blinkit_premium_v123.py
+          python3 ui-fixes/customer_home_form_v124.py
+          python3 ui-fixes/customer_home_only_v125.py
+          python3 ui-fixes/compact_customer_form_v126.py
+          python3 ui-fixes/english_booking_v127.py
+          python3 ui-fixes/readable_smooth_v128.py
+          python3 notifications/apply_patch.py
+          python3 notifications/client-fixes/apply_patch.py
+          python3 notifications/tap-fix/apply_patch.py
+          python3 ui-fixes/declutter_v132.py
+          python3 phase-a/apply_patch.py
+          python3 all-features/protected_audit.py record /tmp/protected.json
+          python3 billing/apply_patch.py
+          ANKUR_APP_DIR=$PWD python3 all-features/apply_patch.py
+          python3 all-features/wire_additions.py
+          python3 ui-fixes/seasonal_contrast_v135.py
+          python3 ui-fixes/customer-home-language.py
+          python3 ui-fixes/customer_nav_v138.py
+          python3 ui-fixes/customer_dark_contrast_v138.py
+          python3 ui-fixes/customer_home_clean_v139.py
+          python3 ui-fixes/customer_features_nav_v140.py
+          python3 ui-fixes/video_idea_profile_v141.py
+          python3 ui-fixes/customer_profile_contact_v145.py
+          python3 ui-fixes/customer_ai_video_cleanup_v146.py
+          python3 ui-fixes/dispatch_rules_privacy_v147.py
+          python3 ui-fixes/owner_premium_v148.py
+          python3 ui-fixes/staff_contact_privacy_v148.py
+          python3 ui-fixes/tracking-language.py
+          python3 ui-fixes/inline-promo.py
+          python3 ui-fixes/notification-preferences.py
+          python3 ui-fixes/locale-formatting.py
+          python3 ui-fixes/localization.py
+          python3 ui-fixes/owner_feature_settings.py
+          python3 ui-fixes/release-audit-v1.py
+          python3 ui-fixes/release-audit-v1065.py
+          python3 all-features/protected_audit.py check /tmp/protected.json
+          npm install --package-lock-only --ignore-scripts --no-audit --no-fund
+          npm ci --ignore-scripts --no-audit --no-fund
+      - run: npm run lint && npm run build && npx cap sync android
       - name: Build and verify signed private test APK
         working-directory: android
         env:
