@@ -54,12 +54,12 @@ export const OrderTrackingView: React.FC<OrderTrackingViewProps> = ({
     const cleanPin = pinToSearch.trim();
 
     if (!cleanId) {
-      setErrorMsg(t('कृपया अपना ऑर्डर नंबर दर्ज करें (उदा. ADI-20261017-XXXX)।','Enter your order ID (for example, ADI-20261017-XXXX).'));
+      setErrorKey('missingId');
       return;
     }
 
     if (!cleanPin || cleanPin.length < 4) {
-      setErrorMsg(t('कृपया अपना 6 अंकों का सीक्रेट ट्रैकिंग पिन दर्ज करें।','Enter your 6-digit secret PIN.'));
+      setErrorKey('missingPin');
       return;
     }
 
@@ -74,7 +74,7 @@ export const OrderTrackingView: React.FC<OrderTrackingViewProps> = ({
       const trackingDocSnap = await getDoc(trackingDocRef);
 
       if (!trackingDocSnap.exists()) {
-        setErrorMsg(t('ऑर्डर नहीं मिला: कृपया अपना ऑर्डर नंबर और सीक्रेट पिन जांचें।','Order not found. Check your order ID and secret PIN.'));
+        setErrorKey('notFound');
         return;
       }
 
@@ -82,7 +82,7 @@ export const OrderTrackingView: React.FC<OrderTrackingViewProps> = ({
       setTrackingData(data);
     } catch (err: unknown) {
       console.error('Error fetching order tracking:', err);
-      setErrorMsg(t('ट्रैकिंग जानकारी प्राप्त करने में त्रुटि आई। कृपया दोबारा प्रयास करें।','Tracking could not be loaded. Please try again.'));
+      setErrorKey('failed');
     } finally {
       setLoading(false);
     }
