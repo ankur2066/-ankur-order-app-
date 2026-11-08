@@ -80,5 +80,5 @@ test('v1.0.41 UI patch applied in local, CI and signed APK with correct version'
  assert.ok(reconstruct.indexOf('customer_features_nav_v140.py')<reconstruct.indexOf(name));
  assert.match(signed,/paths: \['release-batches\/\*\.txt'\]/,'only explicit release batch triggers signed APK');
  assert.match(signed,/versionCode 65/);
- assert.match(signed,/versionName "10\.0\.64-combined-test"/);
+ assert.match(signed,/versionName "1\.0\.65-combined-test"/);
 });

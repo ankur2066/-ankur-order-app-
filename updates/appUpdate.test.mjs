@@ -77,5 +77,5 @@ test('native only, nonblocking, bilingual notice and no silent installer permiss
  assert.match(notice,/rel="noopener noreferrer"/);
  assert.doesNotMatch(notice,/REQUEST_INSTALL_PACKAGES|ACTION_INSTALL_PACKAGE|PackageInstaller|download\(/);
  assert.match(workflow,/versionCode 65/);
- assert.match(workflow,/versionName "10\.0\.64-combined-test"/);
+ assert.match(workflow,/versionName "1\.0\.65-combined-test"/);
 });

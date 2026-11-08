@@ -341,3 +341,5 @@ The owner requested continued implementation, holding device-dependent questions
 - CI feedback uncovered stale assertions requiring the old customer AI Video tab and disabled Categories page. Updated nav contracts to the requested role-specific behavior (AI Video for owner, Categories for customers), synchronized the local/review/signed reconstruction chains, and set the existing manual signed workflow defaults to versionCode 65 / 1.0.65. This does not trigger a signed build.
 
 - Updated existing release contracts to versionCode 65 / versionName 1.0.65 and changed stale customer-nav expectations to AI Video for owner, Categories for customers. CI tests previously stopped on those v1.0.64 / old-tab assumptions before build.
+
+- The next CI pass reached release contracts; legacy checks still pinned versionName 10.0.64 and the update fixture still defaulted to versionCode 47. Updated those regression fixtures to v1.0.65 while preserving the existing signature/package checks.
