@@ -1,4 +1,5 @@
 import { StaffOrderAccessManager } from './StaffOrderAccessManager';
+import { tryInventoryDispatch } from '../services/inventoryDispatch';
 import { DailyWinnerOwnerControls } from './customer/DailyWinner';
 import { subscribeOrderDocuments, orderRef as resolvedOrderRef, trackingRef as resolvedTrackingRef } from '../services/productOrders';
 import { quantityText } from '../billing/unitBilling';
@@ -511,6 +512,16 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     try {
       setActionLoadingId(ord.orderId);
       setErrorMsg(null);
+
+      if (newStatus === 'dispatched') {
+        const handled = await tryInventoryDispatch(ord.orderId, newStatus);
+        if (handled) {
+          setOrders((prev) => prev.map((o) => (o.orderId === ord.orderId ? { ...o, status: newStatus } : o)));
+          setSuccessMsg(`ऑर्डर #${ord.orderId} की स्थिति '${newStatus}' अपडेट हो गई।`);
+          setTimeout(() => setSuccessMsg(null), 3000);
+          return;
+        }
+      }
 
       const englishNotes = document.documentElement.dataset.appLanguage === 'en';
       let statusMsg = '';

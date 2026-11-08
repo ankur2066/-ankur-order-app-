@@ -42,3 +42,13 @@ test('owner feature switches hide promo UI until enabled and QR stays bundled lo
   assert.doesNotMatch(tracking, /https?:\/\/.*qr/i);
   assert.match(formSource, /if \(currentUser\?\.uid\) \{\s+const existingOrder = await getDoc/);
 });
+
+
+test('generated booking and owner status notes use one selected language', async () => {
+  const form = await source('src/components/OrderForm.tsx');
+  const owner = await source('src/components/AdminDashboard.tsx');
+  assert.match(form, /extraPriceNote[\s\S]*?const english = document\.documentElement\.dataset\.appLanguage === 'en'/);
+  assert.match(form, /Order received\. Packing scheduled\.[\s\S]*?ऑर्डर प्राप्त हुआ/);
+  assert.match(owner, /const englishNotes = document\.documentElement\.dataset\.appLanguage === 'en'/);
+  assert.match(owner, /Order confirmed\. Delivery preparation is underway\.[\s\S]*?ऑर्डर की पुष्टि हुई/);
+});
