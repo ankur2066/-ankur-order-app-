@@ -99,6 +99,8 @@ jobs:
       - uses: actions/setup-java@v4
         with: { distribution: temurin, java-version: '17' }
       - uses: android-actions/setup-android@v3
+        with:
+          packages: 'platform-tools'
       - name: Prepare temporary signing key
         env:
           KEYSTORE_B64: ${{ secrets.ANKUR_RELEASE_KEYSTORE_BASE64 }}
