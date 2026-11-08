@@ -282,3 +282,10 @@ The owner requested continued implementation, holding device-dependent questions
 - Created release branch `codex/release-audit-14features-20261108` from `codex/all-14-phase-bc-english` and committed the release audit overlay plus regression contract. The overlay fixes the identified staff list source (permission-gated existing order collections, PII-safe projection), tracking call link, locally saved/idempotent retry identity for failed bookings, native installed-version comparison, and Android `allowBackup=false`.
 - Expanded Owner Dashboard + server validation to all 14 feature keys; missing settings resolve OFF, and customer visibility now requires an owner flag instead of a pilot-manifest bypass. No Firebase deploy, Play Console action, billing change, or feature activation.
 - Local reconstructed-source checks: TypeScript lint PASS; Vite production build PASS (existing large-chunk and dynamic-import warnings); release audit contract PASS. Next step is to wire this overlay into review/sign workflows, then run branch CI before requesting any signing job.
+
+
+## 8 November 2026 — review/sign workflow wiring
+
+- Connected the release overlay and regression contracts to review CI and signed-test workflow. Review now runs on this release branch and on PRs targeting main. The signed workflow is set to versionCode 64 / versionName 10.0.64-combined-test and builds both APK and AAB with the existing key; source web build receives the same version values.
+- First Actions attempts reached the hosted runner and failed during overlay application because upstream localization changed the exact FeatureHub source pattern. The patch was made tolerant of those overlays and pushed. Run 42435383963 is queued at this checkpoint; earlier failures are implementation failures, not billing annotations. No billing settings were changed.
+- No signed artifact has been produced yet. I will create the release marker only after the exact release-branch review/security/product checks pass.
