@@ -180,9 +180,12 @@ edit('src/services/appUpdate.ts', [
 ])
 app_update = ROOT / 'src/services/appUpdate.ts'
 app_text = app_update.read_text(encoding='utf-8')
-app_text = app_text.replace("export const ANDROID_VERSION_CODE = 63;\nexport const ANDROID_VERSION_NAME = '10.0.63';", "export const ANDROID_VERSION_CODE = Number(import.meta.env?.VITE_ANDROID_VERSION_CODE || 64);\nexport const ANDROID_VERSION_NAME = import.meta.env?.VITE_ANDROID_VERSION_NAME || '10.0.64';")
-app_text = app_text.replace("export const ANDROID_VERSION_CODE = 47;\nexport const ANDROID_VERSION_NAME = '1.0.47';", "export const ANDROID_VERSION_CODE = Number(import.meta.env?.VITE_ANDROID_VERSION_CODE || 64);\nexport const ANDROID_VERSION_NAME = import.meta.env?.VITE_ANDROID_VERSION_NAME || '10.0.64';")
-if 'VITE_ANDROID_VERSION_CODE' not in app_text:
+app_text, version_matches = __import__('re').subn(
+    r"export const ANDROID_VERSION_CODE = [^;]+;\\nexport const ANDROID_VERSION_NAME = [^;]+;",
+    "export const ANDROID_VERSION_CODE = Number(import.meta.env?.VITE_ANDROID_VERSION_CODE || 65);\\nexport const ANDROID_VERSION_NAME = import.meta.env?.VITE_ANDROID_VERSION_NAME || '1.0.65';",
+    app_text, count=1
+)
+if version_matches != 1:
     raise SystemExit('PATCH BASELINE MISMATCH: app update version constant is not recognized')
 app_update.write_text(app_text, encoding='utf-8')
 update_template = ROOT / 'updates/appUpdate.template'
