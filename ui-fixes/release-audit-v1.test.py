@@ -1,4 +1,5 @@
 from pathlib import Path
+import re
 
 root = Path.cwd()
 owner = (root / 'src/components/owner/FeatureSuiteSettings.tsx').read_text()
@@ -17,7 +18,7 @@ assert all(f"['{key}'" in owner for key in features), 'Owner Dashboard must expo
 assert 'Object.fromEntries(FEATURES.map(([key]) => [key, false]))' in owner, 'All switches default OFF'
 if service_path.exists():
     assert all(f"'{key}'" in service for key in features), 'Server validation must accept all 14 feature keys'
-assert 'role===\'admin\'||featureFlags[f.id]===true' in hub, 'Customer visibility must honor owner flags'
+assert re.search(r'featureFlags\s*\[\s*f\.id\s*\]\s*===\s*true', hub), 'Customer visibility must honor owner flags'
 assert 'pilotIds.includes' not in hub, 'Pilot manifest must not bypass owner switches'
 assert 'subscribeOrderDocuments({}, (snapshot) =>' in staff
 assert "docSnap.ref?.parent?.id === 'product_orders' ? 'product_orders' : 'orders'" in staff
