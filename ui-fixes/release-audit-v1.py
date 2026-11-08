@@ -50,6 +50,16 @@ if 'function usePilotFeatureIds(){' in s:
     s = s.replace('  const pilotIds=usePilotFeatureIds();\n', '')
     p.write_text(s, encoding='utf-8')
 
+# The current home screen renders the daily winner strip; keep its import
+# explicit when reconstructing from legacy ZIPs that already contain the JSX.
+app_path = ROOT / 'src/App.tsx'
+app_text = app_path.read_text(encoding='utf-8')
+if '<DailyWinnerBanner' in app_text and 'import { DailyWinnerBanner }' not in app_text:
+    app_text = app_text.replace("import { FeatureHub } from './components/customer/FeatureHub';", "import { DailyWinnerBanner } from './components/customer/DailyWinner';\nimport { FeatureHub } from './components/customer/FeatureHub';")
+    if 'import { DailyWinnerBanner }' not in app_text:
+        raise SystemExit('PATCH BASELINE MISMATCH: could not import DailyWinnerBanner')
+    app_path.write_text(app_text, encoding='utf-8')
+
 edit('android/app/src/main/AndroidManifest.xml', [("android:allowBackup=\"true\"", "android:allowBackup=\"false\"")])
 edit('src/components/FloatingContactButtons.tsx', [("tel:+918896332066", "tel:+919580882066")])
 tracking_path = ROOT / 'src/components/OrderTrackingView.tsx'
