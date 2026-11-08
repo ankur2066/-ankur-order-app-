@@ -8,13 +8,13 @@ const notice=readFileSync(new URL('./AppUpdateNotice.template',import.meta.url),
 const workflow=readFileSync(new URL('../.github/workflows/all-features-signed-test-apk.yml',import.meta.url),'utf8');
 const update=await import('data:text/javascript;charset=utf-8,'+encodeURIComponent(stripTypeScriptTypes(source)));
 const play='https://play.google.com/store/apps/details?id=com.ankurdryice.events';
-const apk='https://ankurdryice.store/app-releases/Ankur-Dryice-v1.0.48-signed.apk';
-const mk=(url,versionCode=65,channel='signed_apk')=>({versionCode,versionName:'10.0.65',channel,url,notes:'Booking and Tracking improvements'});
+const apk='https://ankurdryice.store/app-releases/Ankur-Dryice-v1.0.66-signed.apk';
+const mk=(url,versionCode=66,channel='signed_apk')=>({versionCode,versionName:'1.0.66',channel,url,notes:'Booking and Tracking improvements'});
 
 test('version checker accepts only newer known verified destinations',()=>{
  assert.equal(update.ANDROID_VERSION_CODE,65);
  assert.equal(update.validateUpdateManifest(mk(apk))?.url,apk);
- assert.equal(update.validateUpdateManifest(mk(play,65,'play'))?.url,play);
+ assert.equal(update.validateUpdateManifest(mk(play,66,'play'))?.url,play);
  assert.equal(update.validateUpdateManifest(mk(apk,47)),null);
  assert.equal(update.validateUpdateManifest(mk(apk,46)),null);
  assert.equal(update.validateUpdateManifest(mk(apk,47.5)),null);
@@ -57,7 +57,7 @@ test('app-open update check fails closed when manifest is absent/offline and nev
  assert.equal(readBody,false,'oversized declared body must not be read');
  let requested;
  const out=await update.checkForUpdate(async(url,options)=>{requested={url,options};return{ok:true,text:async()=>JSON.stringify(mk(apk))};});
- assert.equal(out?.versionCode,65);
+ assert.equal(out?.versionCode,66);
  assert.equal(requested.url,'https://ankurdryice.store/app-updates/android-stable.json');
  assert.equal(requested.options.redirect,'error');
  assert.equal(requested.options.cache,'no-store');
