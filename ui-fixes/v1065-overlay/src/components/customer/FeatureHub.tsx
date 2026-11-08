@@ -174,8 +174,9 @@ function VideoIdeaPanel({user}:{user:User|null}){
       setNotice('Details are available for this session but could not be saved on this device.');
     }
   };
+  const selectedOccasion=VIDEO_OCCASIONS.find(x=>x.id===occasion);
   const eventName=occasion==='other'?(customOccasion.trim()||'an event'):
-    (language==='hi'?VIDEO_OCCASIONS.find(x=>x.id===occasion)?.hi:VIDEO_OCCASIONS.find(x=>x.id===occasion)?.short)||'an event');
+    ((language==='hi'?selectedOccasion?.hi:selectedOccasion?.short)||'an event');
   const prompt=[
     'Generate an actual finished '+duration+'-second vertical 9:16 VIDEO for '+eventName+'. Render and return a playable video, not just a video concept, script or storyboard.',
     'Include cinematic scenes, Hindi captions, smooth transitions and a clear call to action in the final video.',
