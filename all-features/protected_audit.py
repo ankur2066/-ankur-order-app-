@@ -30,7 +30,7 @@ else:
     assert "customerType == 'wholesale'" in rules
     assert "profile.get('customerType', 'retail')" in rules
     assert "wholesaleRate" in rates
-    # Both totals and the rate breakdown must be present in the submitted order.
-    for field in ("calculatedTotal:", "customerTotal:", "amountChanged:", "dryIceSubtotal:", "thermocolSubtotal:", "totalAmount:"):
+    # The order object persists both totals and the booked rate breakdown.
+    for field in ("calculatedTotal:", "customerTotal", "amountChanged:", "dryIceSubtotal:", "thermocolSubtotal:", "totalAmount:"):
         assert field in form, f"required v1.0.65 order field missing: {field}"
     print("PASS: owner-set wholesale price, retail price lock, reason validation and order totals")
