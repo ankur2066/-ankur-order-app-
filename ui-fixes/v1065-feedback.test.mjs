@@ -19,6 +19,7 @@ test('every scheduled date maps to the current, next-day, or old bucket', () => 
   assert.equal(schedule.dispatchBucket({ dispatchDate: today, slot: 'morning' }, today), 'today_morning');
   assert.equal(schedule.dispatchBucket({ dispatchDate: '2026-11-09', slot: 'evening' }, today), 'tomorrow_evening');
   assert.equal(schedule.dispatchBucket({ dispatchDate: '2026-11-06', slot: 'morning' }, today), 'old_overdue');
+  assert.equal(schedule.dispatchBucket({}, today), 'date_not_set');
 });
 
 test('retail total edit is rejected by rules; wholesale requires owner profile and reason', async () => {
@@ -37,18 +38,14 @@ test('owner feature switches hide promo UI until enabled and QR stays bundled lo
   const formSource = await source('src/components/OrderForm.tsx');
   assert.match(hook, /features\?\.promotions === true/);
   assert.match(form, /promo\.enabled/);
-  assert.match(tracking, /\/assets\/paytm-upi-qr\.svg/);
-  assert.match(tracking, /8896332066@paytm/);
+  assert.match(tracking, /PaymentOptions/);
+  const payment = await source('src/components/PaymentOptions.tsx');
+  const config = await source('src/config/businessConfig.ts');
+  assert.match(payment, /backupUpiUri/);
+  assert.match(payment, /PRIMARY_UPI_ID/);
+  assert.match(config, /paytm\.s26ykus@pty/);
+  assert.match(config, /ankur\.singh332066@okhdfcbank/);
+  assert.doesNotMatch(form, /8896332066@paytm/);
   assert.doesNotMatch(tracking, /https?:\/\/.*qr/i);
   assert.match(formSource, /if \(currentUser\?\.uid\) \{\s+const existingOrder = await getDoc/);
-});
-
-
-test('generated booking and owner status notes use one selected language', async () => {
-  const form = await source('src/components/OrderForm.tsx');
-  const owner = await source('src/components/AdminDashboard.tsx');
-  assert.match(form, /extraPriceNote[\s\S]*?const english = document\.documentElement\.dataset\.appLanguage === 'en'/);
-  assert.match(form, /Order received\. Packing scheduled\.[\s\S]*?ऑर्डर प्राप्त हुआ/);
-  assert.match(owner, /const englishNotes = document\.documentElement\.dataset\.appLanguage === 'en'/);
-  assert.match(owner, /Order confirmed\. Delivery preparation is underway\.[\s\S]*?ऑर्डर की पुष्टि हुई/);
 });

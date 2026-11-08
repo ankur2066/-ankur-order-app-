@@ -1,0 +1,1908 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700;800;900&family=Mukta:wght@400;500;600;700;800&display=swap');
+@import "tailwindcss";
+
+@layer base {
+  body {
+    font-family: 'Noto Sans Devanagari', 'Mukta', sans-serif;
+    background-color: #ffffff;
+    color: #0f172a;
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+/* ---- Theme defaults (overwritten at runtime by src/theme/themes.ts) ---- */
+:root {
+  --brand: #FF7A00;
+  --brand-deep: #C2410C;
+  --brand-soft: #FFF1E0;
+  --brand-ink: #7C2D12;
+  --on-brand: #FFFFFF;
+  --hero-1: #5C2600;
+  --hero-2: #241006;
+  --app-bg: #F6F3EE;
+  --card-bg: #FFFFFF;
+  --text-main: #0F172A;
+  --text-sub: #5B6577;
+  --line: #E7E2DA;
+}
+
+/* Android WebView safe areas and small-screen layouts */
+:root { color-scheme: light; }
+html, body, #root { width: 100%; max-width: 100%; min-width: 0; }
+html { overflow-x: hidden; }
+body { margin: 0; overflow-x: hidden; }
+.app-safe-header { padding-top: env(safe-area-inset-top, 0px); }
+.app-safe-footer { padding-bottom: calc(105px + env(safe-area-inset-bottom, 0px)); }
+.app-safe-floating { bottom: calc(18px + env(safe-area-inset-bottom, 0px)); }
+@media (max-width: 359px) {
+  .app-safe-header nav { padding-left: 6px; padding-right: 6px; gap: 5px; }
+  .app-safe-header nav button { font-size: 11px; }
+}
+
+
+/* ---- Customer storefront helpers ---- */
+.no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.snap-rail { scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+.snap-rail > * { scroll-snap-align: start; }
+
+/* Frost hero: two soft fog blooms + fine ice-crystal dots behind the header */
+.frost-hero {
+  background:
+    radial-gradient(120% 70% at 85% -10%, rgba(255,255,255,0.16) 0%, rgba(255,255,255,0) 60%),
+    radial-gradient(90% 60% at 0% 100%, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0) 65%),
+    linear-gradient(165deg, var(--hero-1), var(--hero-2));
+  position: relative;
+  overflow: hidden;
+}
+.frost-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle, rgba(255,255,255,0.35) 0 1.2px, transparent 1.6px),
+    radial-gradient(circle, rgba(255,255,255,0.18) 0 1px, transparent 1.4px);
+  background-size: 46px 46px, 31px 31px;
+  background-position: 0 0, 14px 20px;
+  opacity: 0.35;
+  pointer-events: none;
+}
+.frost-hero > * { position: relative; }
+
+.bottom-nav-safe { padding-bottom: env(safe-area-inset-bottom, 0px); }
+.page-with-bottom-nav { padding-bottom: calc(76px + env(safe-area-inset-bottom, 0px)); }
+
+@media (prefers-reduced-motion: reduce) {
+  * { scroll-behavior: auto !important; animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+
+/* ---- Dark theme: best-effort remap for legacy Tailwind-class screens (owner/staff). ---- */
+html[data-theme='dark'] body { background-color: var(--app-bg); color: var(--text-main); }
+html[data-theme='dark'] .bg-white { background-color: var(--card-bg); }
+html[data-theme='dark'] .bg-slate-50 { background-color: #0F1627; }
+html[data-theme='dark'] .bg-slate-100 { background-color: #1B2540; }
+html[data-theme='dark'] .bg-slate-200 { background-color: #26304A; }
+html[data-theme='dark'] .border-slate-100, html[data-theme='dark'] .border-slate-200, html[data-theme='dark'] .border-slate-300 { border-color: var(--line); }
+html[data-theme='dark'] .text-slate-900, html[data-theme='dark'] .text-slate-800 { color: #F1F5F9; }
+html[data-theme='dark'] .text-slate-700 { color: #DCE3EF; }
+html[data-theme='dark'] .text-slate-600 { color: #B8C2D6; }
+html[data-theme='dark'] .text-slate-500, html[data-theme='dark'] .text-slate-400 { color: #8D99B0; }
+html[data-theme='dark'] input, html[data-theme='dark'] select, html[data-theme='dark'] textarea { background-color: #0F1627; color: #E5E7EB; border-color: var(--line); }
+html[data-theme='dark'] input::placeholder, html[data-theme='dark'] textarea::placeholder { color: #6B7794; }
+html[data-theme='dark'] .bg-amber-50, html[data-theme='dark'] .bg-amber-100 { background-color: #1B2540; }
+html[data-theme='dark'] .text-amber-600, html[data-theme='dark'] .text-amber-700, html[data-theme='dark'] .text-amber-800, html[data-theme='dark'] .text-amber-900 { color: #FCD34D; }
+html[data-theme='dark'] .border-amber-100, html[data-theme='dark'] .border-amber-200, html[data-theme='dark'] .border-amber-300 { border-color: var(--line); }
+html[data-theme='dark'] .bg-rose-50, html[data-theme='dark'] .bg-rose-100 { background-color: #1B2540; }
+html[data-theme='dark'] .text-rose-600, html[data-theme='dark'] .text-rose-700, html[data-theme='dark'] .text-rose-800, html[data-theme='dark'] .text-rose-900 { color: #FDA4AF; }
+html[data-theme='dark'] .border-rose-100, html[data-theme='dark'] .border-rose-200, html[data-theme='dark'] .border-rose-300 { border-color: var(--line); }
+html[data-theme='dark'] .bg-emerald-50, html[data-theme='dark'] .bg-emerald-100 { background-color: #1B2540; }
+html[data-theme='dark'] .text-emerald-600, html[data-theme='dark'] .text-emerald-700, html[data-theme='dark'] .text-emerald-800, html[data-theme='dark'] .text-emerald-900 { color: #6EE7B7; }
+html[data-theme='dark'] .border-emerald-100, html[data-theme='dark'] .border-emerald-200, html[data-theme='dark'] .border-emerald-300 { border-color: var(--line); }
+html[data-theme='dark'] .bg-indigo-50, html[data-theme='dark'] .bg-indigo-100 { background-color: #1B2540; }
+html[data-theme='dark'] .text-indigo-600, html[data-theme='dark'] .text-indigo-700, html[data-theme='dark'] .text-indigo-800, html[data-theme='dark'] .text-indigo-900 { color: #A5B4FC; }
+html[data-theme='dark'] .border-indigo-100, html[data-theme='dark'] .border-indigo-200, html[data-theme='dark'] .border-indigo-300 { border-color: var(--line); }
+html[data-theme='dark'] .bg-green-50, html[data-theme='dark'] .bg-green-100 { background-color: #1B2540; }
+html[data-theme='dark'] .text-green-600, html[data-theme='dark'] .text-green-700, html[data-theme='dark'] .text-green-800, html[data-theme='dark'] .text-green-900 { color: #86EFAC; }
+html[data-theme='dark'] .border-green-100, html[data-theme='dark'] .border-green-200, html[data-theme='dark'] .border-green-300 { border-color: var(--line); }
+html[data-theme='dark'] .bg-red-50, html[data-theme='dark'] .bg-red-100 { background-color: #1B2540; }
+html[data-theme='dark'] .text-red-600, html[data-theme='dark'] .text-red-700, html[data-theme='dark'] .text-red-800, html[data-theme='dark'] .text-red-900 { color: #FCA5A5; }
+html[data-theme='dark'] .border-red-100, html[data-theme='dark'] .border-red-200, html[data-theme='dark'] .border-red-300 { border-color: var(--line); }
+html[data-theme='dark'] .bg-blue-50, html[data-theme='dark'] .bg-blue-100 { background-color: #1B2540; }
+html[data-theme='dark'] .text-blue-600, html[data-theme='dark'] .text-blue-700, html[data-theme='dark'] .text-blue-800, html[data-theme='dark'] .text-blue-900 { color: #93C5FD; }
+html[data-theme='dark'] .border-blue-100, html[data-theme='dark'] .border-blue-200, html[data-theme='dark'] .border-blue-300 { border-color: var(--line); }
+html[data-theme='dark'] .bg-orange-50, html[data-theme='dark'] .bg-orange-100 { background-color: #1B2540; }
+html[data-theme='dark'] .text-orange-600, html[data-theme='dark'] .text-orange-700, html[data-theme='dark'] .text-orange-800, html[data-theme='dark'] .text-orange-900 { color: #FDBA74; }
+html[data-theme='dark'] .border-orange-100, html[data-theme='dark'] .border-orange-200, html[data-theme='dark'] .border-orange-300 { border-color: var(--line); }
+html[data-theme='dark'] .bg-yellow-50, html[data-theme='dark'] .bg-yellow-100 { background-color: #1B2540; }
+html[data-theme='dark'] .text-yellow-600, html[data-theme='dark'] .text-yellow-700, html[data-theme='dark'] .text-yellow-800, html[data-theme='dark'] .text-yellow-900 { color: #FDE047; }
+html[data-theme='dark'] .border-yellow-100, html[data-theme='dark'] .border-yellow-200, html[data-theme='dark'] .border-yellow-300 { border-color: var(--line); }
+html[data-theme='dark'] .bg-violet-50, html[data-theme='dark'] .bg-violet-100 { background-color: #1B2540; }
+html[data-theme='dark'] .text-violet-600, html[data-theme='dark'] .text-violet-700, html[data-theme='dark'] .text-violet-800, html[data-theme='dark'] .text-violet-900 { color: #C4B5FD; }
+html[data-theme='dark'] .border-violet-100, html[data-theme='dark'] .border-violet-200, html[data-theme='dark'] .border-violet-300 { border-color: var(--line); }
+html[data-theme='dark'] .bg-purple-50, html[data-theme='dark'] .bg-purple-100 { background-color: #1B2540; }
+html[data-theme='dark'] .text-purple-600, html[data-theme='dark'] .text-purple-700, html[data-theme='dark'] .text-purple-800, html[data-theme='dark'] .text-purple-900 { color: #D8B4FE; }
+html[data-theme='dark'] .border-purple-100, html[data-theme='dark'] .border-purple-200, html[data-theme='dark'] .border-purple-300 { border-color: var(--line); }
+html[data-theme='dark'] .bg-teal-50, html[data-theme='dark'] .bg-teal-100 { background-color: #1B2540; }
+html[data-theme='dark'] .text-teal-600, html[data-theme='dark'] .text-teal-700, html[data-theme='dark'] .text-teal-800, html[data-theme='dark'] .text-teal-900 { color: #5EEAD4; }
+html[data-theme='dark'] .border-teal-100, html[data-theme='dark'] .border-teal-200, html[data-theme='dark'] .border-teal-300 { border-color: var(--line); }
+html[data-theme='dark'] .bg-sky-50, html[data-theme='dark'] .bg-sky-100 { background-color: #1B2540; }
+html[data-theme='dark'] .text-sky-600, html[data-theme='dark'] .text-sky-700, html[data-theme='dark'] .text-sky-800, html[data-theme='dark'] .text-sky-900 { color: var(--color-sky-300); }
+html[data-theme='dark'] .border-sky-100, html[data-theme='dark'] .border-sky-200, html[data-theme='dark'] .border-sky-300 { border-color: var(--line); }
+
+/* ---- Semantic colour helpers for the storefront (resolve to the active theme) ---- */
+.c-app { background-color: var(--app-bg); }
+.c-card { background-color: var(--card-bg); }
+.c-soft { background-color: var(--brand-soft); }
+.c-brand { background-color: var(--brand); color: var(--on-brand); }
+.t-main { color: var(--text-main); }
+.t-sub { color: var(--text-sub); }
+.t-brand { color: var(--brand); }
+.t-brand-ink { color: var(--brand-ink); }
+.b-line { border-color: var(--line); }
+.b-brand { border-color: var(--brand); }
+.focus-ring:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+
+
+/* Ice Blue Professional (owner-selectable, never forced by a release). */
+html[data-theme='ice-blue'] body { background-color: #F4FAFD; color: #142C3D; }
+html[data-theme='ice-blue'] .bg-slate-50 { background-color: #F1F8FB; }
+html[data-theme='ice-blue'] .bg-slate-100 { background-color: #E8F3F8; }
+html[data-theme='ice-blue'] .border-slate-200 { border-color: #D5E6ED; }
+html[data-theme='ice-blue'] .text-slate-500 { color: #506679; }
+html[data-theme='ice-blue'] .text-slate-400 { color: #63798B; }
+html[data-theme='ice-blue'] input::placeholder,
+html[data-theme='ice-blue'] textarea::placeholder { color: #5C7183; }
+html[data-theme='ice-blue'] .bg-orange-500,
+html[data-theme='ice-blue'] .bg-orange-600 { background-color: #08749B; }
+html[data-theme='ice-blue'] .border-orange-500 { border-color: #08749B; }
+html[data-theme='ice-blue'] .text-orange-500,
+html[data-theme='ice-blue'] .text-orange-600 { color: #08618A; }
+
+
+/* ANKUR BOOKING PREMIUM V1.0.22 — scoped; never alters persisted theme selection. */
+.ankur-premium-booking {
+  --apb-ink: #112d46; --apb-muted:#49657b; --apb-line:#cbdde9;
+  --apb-blue:#086caa; --apb-soft:#e7f5fe;
+  background: linear-gradient(180deg, #f1f9ff 0%,#e9f4fd 58%, #f4faff 100%) !important;
+  border-radius: 24px;
+  color: var(--apb-ink) !important;
+  font-family: inherit;
+  padding-bottom: max(18px, env(safe-area-inset-bottom));
+}
+.ankur-premium-booking .apb-rate-hero {
+  padding: 20px 18px 17px; border-radius: 23px; margin-bottom: 14px;
+  background: linear-gradient(125deg, #e6f5ff 0%, #fff 58%, #d9effe 100%) !important;
+  box-shadow: 0 10px 30px rgba(6,67,112,.11); border:1px solid #c4e3f6;
+  color:#103c5e !important;
+}
+.ankur-premium-booking .apb-rate-head {display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:19px;}
+.ankur-premium-booking .apb-kicker {color:#075e96;font-size:12px;font-weight:900;letter-spacing:.12em;display:flex;align-items:center;gap:7px;}
+.ankur-premium-booking .apb-live-chip {display:inline-flex;align-items:center;gap:7px;background:#d9f7ed;border:1px solid #a6dfce;color:#087556;font-weight:800;border-radius:50px;font-size:12px;padding:6px 10px;white-space:nowrap;}
+.ankur-premium-booking .apb-live-dot {width:7px;height:7px;border-radius:50%;background:#15a278;box-shadow:0 0 0 3px #afe9d6;}
+.ankur-premium-booking .apb-price-topline {font-size:14px;color:#49657b;font-weight:700;}
+.ankur-premium-booking .apb-hero-total {font-size:42px;line-height:1.2;letter-spacing:-.04em;font-weight:950;color:#0a4674;margin:4px 0 16px;font-variant-numeric:tabular-nums;}
+.ankur-premium-booking .apb-hero-total small {font-size:17px;font-weight:700;color:#476b83;letter-spacing:0;margin-left:4px;}
+.ankur-premium-booking .apb-rate-breakdown {display:flex;flex-wrap:wrap;gap:9px;}
+.ankur-premium-booking .apb-rate-breakdown span {display:flex;gap:5px;justify-content:space-between;background:rgba(255,255,255,.8);border:1px solid #cde6f4;border-radius:10px;padding:8px 11px;font-size:12.5px;color:#35556d;font-weight:600;}
+.ankur-premium-booking .apb-rate-breakdown strong {color:#075d97;font-weight:900;}
+.ankur-premium-booking .apb-rate-footnote {font-size:12px;color:#527087;margin-top:12px;line-height:1.45;}
+.ankur-premium-booking .apb-account-card,
+.ankur-premium-booking .apb-login-gate {background:#fff !important;border:1px solid var(--apb-line) !important;color:#102c43 !important;box-shadow:0 5px 18px rgba(6,66,106,.07);border-radius:17px;padding:13px 15px;}
+.ankur-premium-booking .apb-login-gate {padding:26px 18px;}
+.ankur-premium-booking .apb-account-name {color:#173e58 !important;line-height:1.5;}
+.ankur-premium-booking .apb-account-email {color:#557088 !important;line-height:1.5;}
+.ankur-premium-booking .apb-logout {border:1px solid #c6dbe8 !important;border-radius:11px;padding:10px 12px;background:#f2f7fa !important;color:#1a587f !important;font-weight:800;font-size:12px;min-height:42px;}
+.ankur-premium-booking .apb-logout:hover {background:#e2f0fa !important;}
+.ankur-premium-booking .apb-form-panel {background:#fff !important;border:1px solid #cbdde9 !important;color:#112d46 !important;border-radius:22px;padding:19px 16px 16px;box-shadow:0 14px 34px rgba(8,68,109,.08);}
+.ankur-premium-booking .apb-form-header {border-bottom:1px solid #dce9f0;padding-bottom:16px;margin-bottom:20px;}
+.ankur-premium-booking .apb-form-title {color:#123c5a !important;line-height:1.35;}
+.ankur-premium-booking .apb-field-label,.ankur-premium-booking .apb-section-label {color:#193f5c !important;line-height:1.6;white-space:normal;}
+.ankur-premium-booking .apb-input {display:block;min-height:50px;border:1.5px solid #c6d8e5 !important;border-radius:13px !important;background:#f8fbff !important;color:#16354d !important;font-size:16px !important;font-weight:600;transition:border-color .15s, box-shadow .15s;}
+.ankur-premium-booking .apb-input::placeholder {color:#788ea0 !important;font-weight:400;}
+.ankur-premium-booking .apb-input:focus {border-color:#0b84c7 !important;box-shadow:0 0 0 3px #ceeefd !important;outline:0 !important;}
+.ankur-premium-booking .apb-input-icon {color:#5e7c94 !important;pointer-events:none;}
+.ankur-premium-booking .apb-slot {border:1.5px solid #cbdde8 !important;padding:14px 12px !important;border-radius:17px !important;min-height:117px;background:#f8fbfd !important;color:#183e59 !important;box-shadow:none !important;}
+.ankur-premium-booking .apb-slot-selected {border:2px solid #0875b4 !important;background:#e7f5ff !important;box-shadow:0 0 0 3px rgba(11,123,191,.12) !important;}
+.ankur-premium-booking .apb-slot-idle:hover {border-color:#6aadd0 !important;background:#f0faff !important;}
+.ankur-premium-booking .apb-slot-disabled {background:#edf0f3 !important;border-color:#dde3e8 !important;opacity:.7;}
+.ankur-premium-booking .apb-slot-title {color:#143b58 !important;}
+.ankur-premium-booking .apb-slot-time {color:#547088 !important;font-family:inherit;line-height:1.55;overflow-wrap:anywhere;}
+.ankur-premium-booking .apb-slot input[type="radio"] {accent-color:#0875b4 !important;width:18px;height:18px;}
+.ankur-premium-booking .apb-helper {color:#527088 !important;line-height:1.6;}
+.ankur-premium-booking .apb-total-card {padding:18px 16px;border-radius:18px;border:1px solid #123e65 !important;background:linear-gradient(145deg,#0d3354 0%,#0c2542 100%) !important;color:#ecf7ff !important;}
+.ankur-premium-booking .apb-total-heading {color:#effaff !important;}
+.ankur-premium-booking .apb-total-row {color:#d8ebf8 !important;line-height:1.6;}
+.ankur-premium-booking .apb-total-row .text-slate-900 {color:#fff !important;white-space:nowrap;}
+.ankur-premium-booking .apb-total-grand {border-top:1px solid rgba(206,239,255,.22) !important;}
+.ankur-premium-booking .apb-total-grand .text-slate-900 {color:#fff !important;}
+.ankur-premium-booking .apb-payable-amount {color:#8cffe5 !important;letter-spacing:-.02em;}
+.ankur-premium-booking .apb-total-grand .text-slate-500 {color:#bfd5e8 !important;}
+.ankur-premium-booking .apb-payment-note {border-radius:16px;border:1px solid #cbdfe9 !important;background:#eff7fd !important;color:#385a72 !important;padding:15px;line-height:1.7;}
+.ankur-premium-booking .apb-payment-note .text-slate-800 {color:#123e5c !important;}
+.ankur-premium-booking .apb-submit {min-height:54px;padding:14px 18px;border-radius:14px !important;background:linear-gradient(90deg,#056fae,#0395c5) !important;border:1px solid #0478af !important;color:#fff !important;box-shadow:0 9px 18px rgba(4,112,173,.23);}
+.ankur-premium-booking .apb-submit:hover {filter:brightness(.96);}
+.ankur-premium-booking .apb-contact {color:#46677d !important;border-color:#e0edf4 !important;}
+/* Dark-theme Tailwind overrides had rendered white text on pale cards. Limit reset to booking only. */
+html[data-theme='dark'] .ankur-premium-booking .apb-form-panel .text-slate-900,
+html[data-theme='dark'] .ankur-premium-booking .apb-form-panel .text-slate-800,
+html[data-theme='dark'] .ankur-premium-booking .apb-form-panel .text-slate-700,
+html[data-theme='dark'] .ankur-premium-booking .apb-form-panel .text-slate-600,
+html[data-theme='dark'] .ankur-premium-booking .apb-login-gate .text-slate-950,
+html[data-theme='dark'] .ankur-premium-booking .apb-login-gate .text-slate-600,
+html[data-theme='dark'] .ankur-premium-booking .apb-account-card .text-slate-900,
+html[data-theme='dark'] .ankur-premium-booking .apb-account-card .text-slate-500 {
+  color:#153b58 !important;
+}
+html[data-theme='dark'] .ankur-premium-booking .apb-total-card .text-slate-900,
+html[data-theme='dark'] .ankur-premium-booking .apb-total-card .text-slate-800,
+html[data-theme='dark'] .ankur-premium-booking .apb-total-card .text-slate-600,
+html[data-theme='dark'] .ankur-premium-booking .apb-total-card .text-slate-500 {color:#d8ebf8 !important;}
+html[data-theme='dark'] .ankur-premium-booking .apb-total-card .apb-payable-amount {color:#8cffe5 !important;}
+html[data-theme='dark'] .ankur-premium-booking .apb-form-panel .bg-emerald-50 {background:#e0f6ee !important;}
+html[data-theme='dark'] .ankur-premium-booking .apb-account-card .bg-emerald-50 {background:#e0f6ee !important;}
+html[data-theme='dark'] .ankur-premium-booking .apb-account-card .text-emerald-700 {color:#056346 !important;}
+html[data-theme='dark'] .ankur-premium-booking .apb-form-panel .bg-slate-50 {background:#f1f8fc !important;}
+html[data-theme='dark'] .ankur-premium-booking .apb-form-panel .bg-white {background:#fff !important;}
+html[data-theme='dark'] .ankur-premium-booking .apb-form-panel .text-sky-700,
+html[data-theme='dark'] .ankur-premium-booking .apb-form-panel .text-sky-600 {color:#046d9f !important;}
+html[data-theme='dark'] .ankur-premium-booking .apb-form-panel .text-slate-400,
+html[data-theme='dark'] .ankur-premium-booking .apb-form-panel .text-slate-500 {color:#547087 !important;}
+html[data-theme='dark'] .ankur-premium-booking .apb-login-gate {background:#fff !important;}
+html[data-theme='dark'] .ankur-premium-booking .apb-login-gate .bg-sky-100 {background:#e7f5ff !important;}
+html[data-theme='dark'] .ankur-premium-booking .apb-form-panel .apb-slot-selected {background:#e7f5ff !important;}
+html[data-theme='dark'] .ankur-premium-booking .apb-form-panel .apb-slot-disabled {background:#edf0f3 !important;}
+html[data-theme='dark'] .ankur-premium-booking .apb-form-panel .apb-payment-note {background:#eff7fd !important;}
+html[data-theme='dark'] .ankur-premium-booking .apb-form-panel .apb-payment-note .text-slate-600 {color:#385a72 !important;}
+@media (max-width:440px) {
+  .ankur-premium-booking {padding-left:12px !important;padding-right:12px !important;}
+  .ankur-premium-booking .apb-fields-grid {grid-template-columns:1fr !important;gap:14px !important;}
+  .ankur-premium-booking .apb-form-panel {padding:17px 14px !important;}
+  .ankur-premium-booking .apb-rate-breakdown {flex-direction:column;}
+  .ankur-premium-booking .apb-rate-breakdown span {width:100%;}
+  .ankur-premium-booking .apb-slot {padding:13px 10px !important;}
+  .ankur-premium-booking .apb-account-name {font-size:13px;}
+}
+
+/* ANKUR PREMIUM QUICK-COMMERCE V1.0.23
+   Customer-facing Blinkit-inspired visual rhythm, original Ice Blue identity.
+   UI only — preserves existing real-time products, owner rates, search, booking,
+   notifications, bottom tabs, role restrictions and backend behavior. */
+.aqp-app { background: #f6faff; }
+.aqp-home { background: #f6faff; color: #142f43; font-family: 'Mukta', 'Noto Sans Devanagari', system-ui, sans-serif; }
+.aqp-header {
+  position: relative; z-index: 10; background: #fff;
+  border-bottom: 1px solid #e6edf4;
+  box-shadow: 0 3px 17px rgba(25, 79, 117, .055);
+  padding-bottom: 12px;
+}
+.aqp-topbar {
+  display: flex; gap: 12px; justify-content: space-between; align-items: center;
+  padding: 15px 16px 12px; max-width: 960px; margin: auto;
+}
+.aqp-brand { display: flex; gap: 10px; align-items: center; min-width: 0; }
+.aqp-brand-symbol {
+  display: grid; place-items: center; width: 43px; height: 43px;
+  border-radius: 14px; color: #fff; background: linear-gradient(135deg,#066a9d,#0db7dd);
+  box-shadow: 0 5px 13px rgba(5,126,177,.20); flex: none;
+}
+.aqp-brand-symbol svg { color: #fff; }
+.aqp-brand-name {
+  font-size: 19px; line-height: 1.10; letter-spacing: -.6px;
+  color: #0c3852; font-family: inherit; font-weight: 950; white-space: nowrap;
+}
+.aqp-brand-name span { color: #0485b2; }
+.aqp-brand-location {
+  display: flex; gap: 3px; align-items: center; margin-top: 6px;
+  font-size: 11px; color: #506b80; font-weight: 700;
+}
+.aqp-brand-location svg { color: #1284ae; flex: none; }
+.aqp-top-actions { display: flex; gap: 8px; align-items: center; flex: none; }
+.aqp-icon-button {
+  width: 39px; height: 39px; display: grid; place-items: center; position: relative;
+  background: #f4f8fb; border: 1px solid #dfebf3; border-radius: 12px;
+  color: #244e68; transition: background .2s, transform .2s;
+}
+.aqp-icon-button:active { transform: scale(.95); }
+.aqp-unread {
+  display: grid; place-items: center; position:absolute; top:-5px; right:-5px;
+  min-width: 17px; height: 17px; padding:0 3px; border-radius: 9px;
+  color: #fff; background:#e54863; font-size:10px; font-weight:900;
+}
+.aqp-search-shell { max-width: 960px; padding: 0 16px; margin: 0 auto; }
+.aqp-search-box {
+  display: flex; gap: 10px; align-items: center; width: 100%; height: 51px;
+  padding: 0 13px; border: 1.5px solid #dce9f1; border-radius: 14px;
+  background: #f7fbfe; color: #0a83b3;
+  box-shadow: 0 2px 5px rgba(10,72,111,.025);
+  transition: border-color .2s, box-shadow .2s;
+}
+.aqp-search-box:focus-within { border-color: #10a0ce; box-shadow:0 0 0 3px rgba(12,157,204,.11); }
+.aqp-search-input {
+  min-width: 0; flex: 1; height: 100%; background: transparent !important;
+  color: #18364c !important; outline: none; border: none;
+  font-size: 14px; font-weight: 600;
+}
+.aqp-search-input::placeholder { color: #8195a7 !important; font-weight: 500; }
+.aqp-search-clear {
+  display: grid; place-items: center; width: 27px; height: 27px;
+  border-radius: 50%; color: #5e7890; background: #e9f0f5;
+}
+.aqp-category-strip {
+  display: flex; gap: 9px; align-items: center; max-width: 960px; margin: 12px auto 0;
+  overflow-x: auto; scrollbar-width: none; padding: 1px 16px 3px;
+}
+.aqp-category-strip::-webkit-scrollbar { display: none; }
+.aqp-category {
+  display: flex; align-items: center; justify-content:center; gap: 7px;
+  white-space: nowrap; min-height: 38px; padding: 7px 12px; flex: none;
+  background: #f3f9fc; color: #517186; font-size: 12px; font-weight: 800;
+  border: 1px solid #e0edf5; border-radius: 11px;
+  transition: border .2s, background .2s, transform .2s;
+}
+.aqp-category:active { transform: scale(.97); }
+.aqp-category-active { color: #087ca8; border-color: #b2e5f3; background: #e4f8ff; box-shadow: inset 0 0 0 1px #c6ebf5; }
+.aqp-main { max-width: 960px; margin: 0 auto; padding-top: 14px; padding-bottom: 22px; }
+.aqp-spotlight {
+  position: relative; display: flex; min-height: 204px; padding: 22px 21px;
+  border-radius: 21px; overflow: hidden; isolation: isolate;
+  background: radial-gradient(circle at 93% 8%, rgba(87,220,255,.62), transparent 30%),
+    linear-gradient(125deg,#0d3550 0%,#075d87 57%,#0b9dc5 100%);
+  box-shadow: 0 12px 30px rgba(9,87,126,.18); color: #fff;
+}
+.aqp-spotlight::before {
+  content: ''; position: absolute; pointer-events: none; inset:0; z-index:-1; opacity: .23;
+  background: radial-gradient(circle at 75% 78%, #b2f3ff 0 1px, transparent 2px),
+              radial-gradient(circle at 85% 37%, #b2f3ff 0 2px, transparent 3px);
+  background-size: 34px 34px, 68px 68px;
+}
+.aqp-spotlight-content { position: relative; z-index:2; max-width: 73%; }
+.aqp-spotlight-label {
+  display: inline-flex; align-items:center; gap:8px; color: #baf3ff;
+  font: 800 10px/1.5 system-ui, sans-serif; letter-spacing: 1.3px;
+}
+.aqp-sparkle { display:inline-block; width:7px; height:7px; background:#6ce8e8; border-radius:50%; box-shadow: 0 0 0 4px rgba(108,232,232,.14); }
+.aqp-spotlight h1 {
+  margin: 10px 0 7px; font-size: clamp(22px, 6vw, 33px);
+  line-height: 1.15; font-weight: 950; letter-spacing: -.55px; color:#fff;
+}
+.aqp-spotlight h1 span { color:#9cf4ff; }
+.aqp-spotlight p { font-size: 12px; color: #d7f5ff; font-weight:600; line-height: 1.55; margin-bottom: 13px; max-width: 330px; }
+.aqp-spotlight-actions { display:flex; flex-wrap:wrap; align-items:center; gap:10px; }
+.aqp-spotlight-cta {
+  display: inline-flex; align-items:center; justify-content:center; gap:10px;
+  min-height: 39px; padding: 8px 15px; border-radius: 10px;
+  background: #fff; color: #046c95; box-shadow:0 5px 13px rgba(0,35,57,.17);
+  font-size: 13px; font-weight: 900; white-space:nowrap; cursor:pointer;
+}
+.aqp-spotlight-cta:active { transform: translateY(1px); }
+.aqp-slot-caption { display:inline-flex; align-items:center; gap:4px; color:#d7f5ff; font-size:10px; font-weight:700; }
+.aqp-spotlight-art { position:absolute; z-index:1; right: -6px; top:0; bottom:0; width:35%; display:grid;place-items:center; pointer-events:none; }
+.aqp-art-disc {
+  display:grid; place-items:center; width:123px;height:123px;
+  color: #dcfaff; border-radius:50%; background:rgba(255,255,255,.16);
+  border:1px solid rgba(255,255,255,.35);
+  box-shadow:0 0 0 14px rgba(255,255,255,.055), 0 0 0 36px rgba(255,255,255,.025);
+  transform:rotate(-13deg);
+}
+.aqp-art-disc svg { width:75px; height:75px; }
+.aqp-art-shard { position:absolute; color:#b6f8ff; opacity:.85; font-size:28px; }
+.aqp-shard-one { top:12%;right:12%; } .aqp-shard-two { bottom:10%;left:6%; font-size:17px; } .aqp-shard-three { top:31%;left:-2%; font-size:18px; }
+.aqp-home .aqp-quick-tile {
+  background:#fff !important; border:1px solid #e3edf4 !important;
+  box-shadow:0 4px 14px rgba(20,78,113,.055);
+  border-radius:15px !important; min-height:104px; transition: transform .15s, box-shadow .15s;
+}
+.aqp-home .aqp-quick-tile:active {transform:scale(.97);}
+.aqp-home .aqp-quick-tile > span:first-child {background:#eaf8fd !important; color:#0583ae !important;border-radius:14px;}
+.aqp-home .aqp-quick-tile > span:last-child { color:#23495f !important;}
+.aqp-home .aqp-products-section h2, .aqp-home section h2 {
+  color:#173d53 !important; font-weight: 950 !important; letter-spacing:-.25px;
+}
+.aqp-home .aqp-product-card {
+  background: #fff !important;
+  border: 1px solid #e1edf3 !important; border-radius:17px !important;
+  box-shadow:0 4px 16px rgba(20,74,111,.07);
+  overflow:hidden; transition:transform .16s, box-shadow .16s;
+}
+.aqp-home .aqp-product-card:active { transform: scale(.99); }
+.aqp-home .aqp-product-media { background:linear-gradient(145deg,#eaf8ff,#f8fcff) !important; overflow:hidden; }
+.aqp-home .aqp-product-media img {object-fit:cover; transition: transform .25s;}
+.aqp-home .aqp-product-card:hover .aqp-product-media img { transform: scale(1.035); }
+.aqp-home .aqp-product-media .t-brand {color:#14a2c2 !important;}
+.aqp-home .aqp-product-body { padding: 11px !important; }
+.aqp-home .aqp-product-body h3 {font-size:13px !important;font-weight:900 !important;color:#17394e !important;}
+.aqp-home .aqp-product-body p {line-height:1.35;}
+.aqp-home .aqp-product-body .aqp-price {font-size:17px !important;letter-spacing:-.5px;color:#123a51 !important;}
+.aqp-home .aqp-product-body .aqp-product-action {
+  min-height:34px; padding:6px 12px !important;border-radius:9px !important;
+  background:#e9f9ff !important; color:#007eaa !important; border:1.5px solid #13add3 !important;
+  box-shadow:none !important;font-size:12px !important;
+}
+.aqp-home .aqp-product-body .aqp-product-action:focus-visible {outline:3px solid rgba(6,135,174,.38);outline-offset:2px;}
+.aqp-home .aqp-product-body .aqp-product-action:active {background:#d7f5ff !important;}
+.aqp-bottom-nav {
+  background:rgba(255,255,255,.98) !important; border-color:#e0edf3 !important;
+  box-shadow:0 -9px 22px rgba(13,73,104,.09) !important;
+}
+.aqp-bottom-nav button[aria-current="page"]::before {
+  content:''; position:absolute;z-index:0;left:50%;top:5px;transform:translateX(-50%);
+  background:#e2f6ff;border-radius:15px;width:53px;height:34px;
+}
+.aqp-bottom-nav button > svg, .aqp-bottom-nav button > span {position:relative;z-index:1;}
+.aqp-bottom-nav button[aria-current="page"] > svg {color:#0789b5 !important;stroke-width:2.5;}
+.aqp-bottom-nav button[aria-current="page"] > span:last-child {color:#0b5978 !important;}
+.aqp-bottom-nav button[aria-current="page"] > span:first-child[style] {display:none;}
+.aqp-bottom-nav ul { max-width:700px; }
+.aqp-bottom-nav button {min-height:60px;}
+.aqp-home .aqp-products-section .grid {row-gap:13px;column-gap:12px;}
+.aqp-home .snap-rail {scroll-padding-left:16px;}
+@media(min-width:650px){
+  .aqp-home .aqp-products-section .grid {grid-template-columns:repeat(3,minmax(0,1fr));}
+  .aqp-spotlight {min-height:230px;padding:30px;}
+  .aqp-spotlight-content {max-width:70%;}
+  .aqp-art-disc {width:156px;height:156px;}
+}
+@media(min-width:900px){
+  .aqp-home .aqp-products-section .grid {grid-template-columns:repeat(4,minmax(0,1fr));}
+}
+@media(max-width:370px){
+  .aqp-topbar {padding-inline:12px;}
+  .aqp-brand-symbol {width:38px;height:38px;}
+  .aqp-brand-name {font-size:16px;}
+  .aqp-top-actions {gap:5px;}
+  .aqp-icon-button {width:35px;height:35px;}
+  .aqp-search-shell {padding-inline:12px;}
+  .aqp-spotlight {padding:18px 15px;min-height:194px;}
+  .aqp-spotlight-content {max-width:79%;}
+  .aqp-spotlight h1 {font-size:23px;}
+  .aqp-spotlight-art {right:-24px;opacity:.68;}
+  .aqp-home .aqp-quick-tile {min-height:94px;}
+}
+@media(prefers-reduced-motion:reduce){
+  .aqp-home *, .aqp-bottom-nav * {animation-duration:.01ms!important;transition-duration:.01ms!important;}
+}
+
+/* ANKUR PREMIUM CUSTOMER FORM v1.0.24 — home page actual booking first.
+   Styling only; Firebase/charges/dispatch validation live in existing OrderForm. */
+html[data-theme="dark"] .aqp-app,
+html[data-theme="dark"] .aqp-home,
+.aqp-home {
+  background: #f5faff !important;
+  color: #173a50 !important;
+}
+html[data-theme="dark"] .aqp-home .aqp-main {
+  background: #f5faff !important;
+}
+html[data-theme="dark"] .aqp-home .c-card:not(.aqp-spotlight),
+html[data-theme="dark"] .aqp-home .aqp-product-card {
+  background: #fff !important;
+  border-color: #deecf4 !important;
+}
+html[data-theme="dark"] .aqp-home .aqp-main .t-main:not(.c-brand),
+html[data-theme="dark"] .aqp-home .aqp-main .aqp-products-section h2 {
+  color: #18394f !important;
+}
+html[data-theme="dark"] .aqp-home .aqp-main .t-sub {
+  color: #587386 !important;
+}
+.aqp-booking-section {
+  background: #fff !important;
+  border: 1px solid #d6e8f4 !important;
+  border-radius: 22px;
+  box-shadow: 0 10px 28px rgba(13,79,117,.09);
+  overflow: visible;
+  scroll-margin-top: 18px;
+}
+.aqp-booking-heading {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; padding: 19px 19px 14px;
+  background: linear-gradient(125deg,#ebf9ff 0%,#fff 72%,#dff5fd 100%);
+  border-bottom: 1px solid #e2eef5;
+  border-radius: 22px 22px 0 0;
+}
+.aqp-booking-eyebrow {
+  display: block; color: #087fa9; font: 850 10px/1.45 system-ui,sans-serif;
+  letter-spacing: .9px; margin-bottom: 4px;
+}
+.aqp-booking-heading h2 {
+  margin:0 !important;
+  font-size: 23px !important; font-weight: 950 !important;
+  color: #123d59 !important; line-height: 1.35;
+}
+.aqp-booking-heading p {
+  font-size: 12px; line-height: 1.55;
+  color: #517186 !important; font-weight: 600; margin-top: 4px;
+  max-width: 400px;
+}
+.aqp-booking-icon {
+  width: 46px;height:46px;display:grid;place-items:center;flex:none;
+  border-radius: 14px; background: #d6f5ff; color:#0784ae;
+  border: 1px solid #b5e8fa;
+}
+.aqp-booking-form { background:#fff!important; padding: 4px 4px 12px; border-radius: 0 0 22px 22px; }
+.aqp-booking-form .ankur-premium-booking {
+  background: transparent !important;
+  border-radius: 0 !important;
+  padding: 12px 10px 18px !important;
+  max-width: 100% !important;
+  box-shadow: none !important;
+  margin: 0 auto;
+}
+.aqp-booking-form .ankur-premium-booking .apb-rate-hero {
+  margin-bottom: 12px !important;
+  padding: 14px !important;
+  border-radius: 15px !important;
+  box-shadow: none !important;
+  background: linear-gradient(120deg,#e9f8ff,#fff) !important;
+}
+.aqp-booking-form .ankur-premium-booking .apb-rate-head {margin-bottom:7px !important;}
+.aqp-booking-form .ankur-premium-booking .apb-price-topline {font-size:12px;}
+.aqp-booking-form .ankur-premium-booking .apb-hero-total {
+  font-size:32px!important; margin: 2px 0 9px !important;
+}
+.aqp-booking-form .ankur-premium-booking .apb-rate-breakdown {gap:6px;}
+.aqp-booking-form .ankur-premium-booking .apb-rate-breakdown span {
+  font-size: 11px !important; padding:7px 9px !important;flex:1;
+}
+.aqp-booking-form .ankur-premium-booking .apb-rate-footnote {
+  font-size: 10.5px !important;margin-top:8px !important;
+}
+.aqp-booking-form .ankur-premium-booking .apb-form-panel {
+  border: 1px solid #d7e8f1!important;
+  border-radius: 17px!important;
+  background: #fff !important;
+  padding: 16px 12px!important;
+  box-shadow: none!important;
+}
+.aqp-booking-form .ankur-premium-booking .apb-form-title,
+.aqp-booking-form .ankur-premium-booking .apb-field-label,
+.aqp-booking-form .ankur-premium-booking .apb-section-label {
+  color:#193d57!important;
+}
+.aqp-booking-form .ankur-premium-booking .apb-input {
+  background: #f8fcff !important; color: #193d57 !important;
+  border-color: #c6dce9 !important; min-height: 49px;
+}
+.aqp-booking-form .ankur-premium-booking .apb-input:focus {
+  border-color:#068bbd!important;box-shadow:0 0 0 3px rgba(6,149,205,.14)!important;
+}
+.aqp-booking-form .ankur-premium-booking .apb-submit {
+  border-radius:12px!important;
+  background: linear-gradient(100deg,#006b9d,#0798c1)!important;
+  min-height: 53px!important;
+  font-size: 15px!important;
+}
+.aqp-booking-form .ankur-premium-booking .apb-total-card {
+  border-radius: 16px!important;
+}
+.aqp-booking-form .ankur-premium-booking .apb-login-gate {
+  color: #173d55 !important; margin-block: 12px!important;
+  background:#fff!important; border-radius: 16px;
+}
+.aqp-booking-form .ankur-premium-booking .apb-account-card {
+  color:#173d55!important;
+}
+.aqp-booking-form .ankur-premium-booking .apb-form-panel,
+.aqp-booking-form .ankur-premium-booking .apb-login-gate,
+.aqp-booking-form .ankur-premium-booking .apb-account-card {
+  color-scheme: light;
+}
+.aqp-home .aqp-booking-section .text-slate-400,
+.aqp-home .aqp-booking-section .text-slate-500 {color:#60788b;}
+@media (max-width: 400px){
+  .aqp-booking-heading {padding:15px 13px 12px;}
+  .aqp-booking-heading h2 {font-size:21px!important;}
+  .aqp-booking-heading p {font-size:11.5px;}
+  .aqp-booking-icon {width:40px;height:40px;}
+  .aqp-booking-form .ankur-premium-booking {padding:10px 7px 15px!important;}
+  .aqp-booking-form .ankur-premium-booking .apb-rate-breakdown {flex-direction:column;}
+  .aqp-booking-form .ankur-premium-booking .apb-rate-breakdown span {width:100%;}
+}
+
+/* ANKUR HOME FORM ONLY v1.0.25 */
+.aqp-form-only-home,
+html[data-theme="dark"] .aqp-form-only-home {
+  background: #f5faff !important;
+  color: #173b52 !important;
+}
+.aqp-form-only-main {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 14px 0 calc(100px + env(safe-area-inset-bottom, 0px));
+  background: #f5faff !important;
+}
+.aqp-form-only-main .aqp-booking-section {
+  border-radius: 20px !important;
+  border: 1px solid #d6e8f4 !important;
+  background: #fff !important;
+  box-shadow: 0 5px 22px rgba(14, 77, 117, .07) !important;
+}
+.aqp-form-only-main .aqp-booking-heading {
+  border-radius: 20px 20px 0 0 !important;
+  padding: 15px 16px 12px !important;
+}
+.aqp-form-only-main .aqp-booking-heading h1 {
+  margin: 0;
+  font-size: 21px;
+  font-weight: 950;
+  line-height: 1.35;
+  color: #123d59 !important;
+}
+.aqp-booking-product-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 13px 14px 0;
+  background: #fff !important;
+  color: #1a415b !important;
+}
+.aqp-booking-product-field label {
+  color: #183f5b !important;
+  font-weight: 800;
+  font-size: 13px;
+}
+.aqp-booking-product-select {
+  display: block;
+  background: #f9fcff !important;
+  color: #183e55 !important;
+  border: 1.5px solid #c5deea !important;
+  border-radius: 12px;
+  width: 100%;
+  min-height: 49px;
+  padding: 10px 13px;
+  font-size: 15px;
+  font-weight: 700;
+  color-scheme: light;
+}
+.aqp-booking-product-select:focus-visible {
+  outline: 3px solid rgba(12, 150, 196, .17);
+  border-color: #0b95c3 !important;
+}
+.aqp-booking-product-field p {
+  font-size: 12px;
+  color: #6b8190 !important;
+}
+.aqp-form-only-main .aqp-booking-form { padding: 0 4px 13px !important; }
+.aqp-form-only-main .ankur-premium-booking { padding: 10px 8px 14px !important; }
+.aqp-form-only-main .apb-form-panel { padding: 15px 12px !important; }
+.aqp-form-only-main .apb-slot { min-height: 100px !important; }
+.aqp-form-only-main .apb-form-header { margin-bottom: 12px !important; }
+@media (max-width: 400px) {
+  .aqp-form-only-main { padding-top: 9px !important; }
+  .aqp-form-only-main .aqp-booking-heading h1 { font-size: 19px; }
+  .aqp-booking-product-field { padding: 10px 11px 0; }
+}
+
+/* ANKUR CUSTOMER COMPACT FORM v1.0.26
+   Visual-only compression of original OrderForm on customer homepage.
+   Owner rates and breakdown remain visible. Booking auth/submit logic unchanged. */
+.aqp-form-only-main { padding-top: 9px !important; }
+.aqp-form-only-main .aqp-booking-section {
+  border-radius: 16px !important;
+  box-shadow: 0 3px 15px rgba(18, 78, 109, .06) !important;
+}
+.aqp-form-only-main .aqp-booking-heading {
+  padding: 9px 13px 7px !important;
+  min-height: 52px; align-items:center;
+  border-radius: 16px 16px 0 0 !important;
+}
+.aqp-form-only-main .aqp-booking-heading h1 {
+  font-size: 18px !important; font-weight: 900 !important;
+  line-height:1.35 !important;
+}
+.aqp-form-only-main .aqp-booking-icon {
+  width:32px !important; height:32px !important;
+  border-radius:10px !important;
+}
+.aqp-form-only-main .aqp-booking-icon svg { width:18px !important;height:18px !important; }
+.aqp-form-only-main .aqp-booking-product-field {
+  display:grid !important;grid-template-columns: auto minmax(0,1fr);
+  align-items:center;gap:9px !important;
+  padding:9px 11px 0 !important;
+}
+.aqp-form-only-main .aqp-booking-product-field label {
+  font-size:12px!important;white-space:nowrap;
+}
+.aqp-form-only-main .aqp-booking-product-select {
+  min-height:44px !important;
+  border-radius:10px!important;
+  padding:6px 26px 6px 9px!important;
+  font-size:14px!important;
+  max-width:100%;
+}
+.aqp-form-only-main .aqp-booking-product-field p {grid-column:1/-1;margin:0 !important;}
+.aqp-form-only-main .aqp-booking-form {padding:0 3px 11px !important;}
+.aqp-form-only-main .ankur-premium-booking {
+  padding:9px 8px 12px !important;
+}
+/* Compact price hero: ₹/kg and component rates remain visible for transparency. */
+.aqp-form-only-main .ankur-premium-booking .apb-rate-hero {
+  display:grid !important;
+  grid-template-columns:minmax(0,1fr) auto;
+  align-items:center;
+  gap:4px 7px;
+  padding:9px 11px !important;
+  margin-bottom:8px !important;
+  border-radius:12px !important;
+  box-shadow:none!important;
+  background:linear-gradient(105deg,#edf9ff,#fff)!important;
+}
+.aqp-form-only-main .ankur-premium-booking .apb-rate-head {
+  grid-column:1;
+  grid-row:1;
+  margin:0 !important;
+  padding:0!important;
+  gap:4px !important;
+}
+.aqp-form-only-main .ankur-premium-booking .apb-kicker {
+  font-size:11px !important;
+  letter-spacing:.05em !important;
+}
+.aqp-form-only-main .ankur-premium-booking .apb-kicker svg {
+  width:15px !important;height:15px!important;
+}
+.aqp-form-only-main .ankur-premium-booking .apb-live-chip {
+  display:none!important; /* live rate stays clearly labeled through actual values below */
+}
+.aqp-form-only-main .ankur-premium-booking .apb-price-topline {display:none!important;}
+.aqp-form-only-main .ankur-premium-booking .apb-hero-total {
+  grid-column:2;
+  grid-row:1;
+  margin:0 !important;
+  line-height:1 !important;
+  font-size:25px !important;
+  white-space:nowrap;
+}
+.aqp-form-only-main .ankur-premium-booking .apb-hero-total small {
+  font-size:12px!important;
+}
+.aqp-form-only-main .ankur-premium-booking .apb-rate-breakdown {
+  grid-column:1/-1;
+  grid-row:2;
+  display:flex!important;
+  flex-wrap:wrap;
+  gap:5px !important;
+}
+.aqp-form-only-main .ankur-premium-booking .apb-rate-breakdown span {
+  min-width:0;
+  flex:1 1 auto;
+  padding:5px 8px !important;
+  border-radius:8px!important;
+  font-size:11px!important;
+  gap:4px!important;
+  line-height:1.35!important;
+  white-space:nowrap;
+}
+.aqp-form-only-main .ankur-premium-booking .apb-rate-footnote {
+  display:none!important; /* existing final amount & breakdown remain in the form */
+}
+/* Keep identity + logout, collapse the oversize account panel. */
+.aqp-form-only-main .ankur-premium-booking .apb-account-card {
+  min-height:44px!important;
+  padding:6px 8px!important;
+  margin-bottom:8px!important;
+  gap:6px!important;
+  border-radius:11px!important;
+  box-shadow:none!important;
+}
+.aqp-form-only-main .ankur-premium-booking .apb-account-card .apb-account-email {
+  display:none!important; /* email remains in Profile */
+}
+.aqp-form-only-main .ankur-premium-booking .apb-account-card .apb-account-name {
+  font-size:12px!important;
+  line-height:1.15!important;
+  gap:4px!important;
+  white-space:nowrap;
+}
+.aqp-form-only-main .ankur-premium-booking .apb-account-card .apb-account-name span:nth-child(2) {
+  display:none!important; /* green "logged in" badge duplicates the signed-in name */
+}
+.aqp-form-only-main .ankur-premium-booking .apb-account-card .apb-logout {
+  min-height:33px!important;
+  font-size:11px!important;
+  padding:5px 8px!important;
+  border-radius:8px!important;
+}
+.aqp-form-only-main .ankur-premium-booking .apb-account-card .w-8.h-8 {
+  width:29px !important;
+  height:29px !important;
+}
+/* The page already has a heading; do not repeat "ड्राई आइस बुकिंग फॉर्म" inside the form. */
+.aqp-form-only-main .ankur-premium-booking .apb-form-header {
+  display:none!important;
+}
+.aqp-form-only-main .ankur-premium-booking .apb-form-panel {
+  padding:11px 10px !important;
+  border-radius:12px !important;
+  box-shadow:none!important;
+}
+.aqp-form-only-main .ankur-premium-booking .apb-fields-grid {
+  gap:8px !important;
+}
+.aqp-form-only-main .ankur-premium-booking .apb-field-label {
+  font-size:12px !important;
+  margin-bottom:4px!important;
+  line-height:1.3!important;
+}
+.aqp-form-only-main .ankur-premium-booking .apb-input {
+  min-height:44px!important;
+  padding-top:9px!important;
+  padding-bottom:9px!important;
+  font-size:16px!important; /* avoid Android zoom on focus */
+}
+.aqp-form-only-main .ankur-premium-booking .apb-input-icon {
+  top:13px!important;
+}
+.aqp-form-only-main .ankur-premium-booking .apb-slot {
+  padding:9px!important;
+  min-height:87px!important;
+}
+@media(max-width:390px) {
+  .aqp-form-only-main .aqp-booking-heading h1 {font-size:17px!important;}
+  .aqp-form-only-main .aqp-booking-product-field {gap:6px!important;padding-inline:9px!important;}
+  .aqp-form-only-main .aqp-booking-product-select {font-size:13px!important;}
+  .aqp-form-only-main .ankur-premium-booking .apb-rate-breakdown span {font-size:10px!important;}
+  .aqp-form-only-main .ankur-premium-booking .apb-account-card .apb-account-name {font-size:11px!important;}
+}
+
+/* ANKUR ENGLISH BOOKING V1.0.27
+   Mobile-first customer booking, single picker and concise price line. */
+.aqp-form-only-home .aqp-header {padding-bottom:7px !important;}
+.aqp-form-only-home .aqp-topbar {padding:8px 12px 7px !important;}
+.aqp-form-only-home .aqp-brand-symbol {width:38px !important;height:38px !important;}
+.aqp-form-only-home .aqp-brand-name {font-size:17px !important;}
+.aqp-form-only-home .aqp-brand-rate {
+  font:700 10px/1.3 system-ui,sans-serif; color:#38677e; margin-top:4px;
+  max-width:235px; overflow-wrap:anywhere;
+}
+.aqp-form-only-home .aqp-brand-rate strong {color:#075c8e;white-space:nowrap;}
+.aqp-top-product-picker {display:flex;align-items:center;gap:8px;padding:0 12px !important;}
+.aqp-top-product-picker > label {font-size:12px;font-weight:800;color:#224a63;white-space:nowrap;}
+.aqp-top-product-picker .aqp-booking-product-select {
+  flex:1;min-width:0;width:auto!important;min-height:43px!important;
+  padding:7px 9px!important;font-size:13px!important;
+}
+.aqp-booking-shortcuts {display:grid !important;grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:5px!important;margin-top:7px!important;padding:0 12px!important;overflow:visible!important;}
+.aqp-booking-shortcuts .aqp-category {
+  display:flex;min-width:0;min-height:35px!important;flex:initial!important;
+  padding:5px 3px!important;font-size:10.5px!important;white-space:normal!important;
+  text-align:center;line-height:1.15;border-radius:9px!important;
+}
+.aqp-booking-shortcuts .aqp-category-reserved {
+  border:1px dashed #cbdbe5;background:transparent!important;min-height:35px;
+}
+.aqp-form-only-main {padding-top:5px!important;}
+.aqp-form-only-main .aqp-booking-heading {min-height:40px!important;padding:7px 10px!important;}
+.aqp-form-only-main .aqp-booking-heading h1 {font-size:17px!important;}
+.aqp-form-only-main .aqp-booking-icon {display:none!important;}
+.aqp-form-only-main .aqp-booking-form {padding:0!important;}
+.aqp-form-only-main .ankur-premium-booking {padding:5px 6px 11px!important;}
+/* Header already gives the fully dynamic owner rate; avoid the duplicate large banner. */
+.aqp-form-only-main .ankur-premium-booking .apb-rate-hero {display:none!important;}
+/* Customer info and the logout button go beneath the booking form. */
+.aqp-form-only-main .ankur-premium-booking > .space-y-3 {
+  display:flex!important;flex-direction:column;gap:8px;
+}
+.aqp-form-only-main .ankur-premium-booking .apb-account-card {order:99;margin-top:9px!important;}
+.aqp-form-only-main .ankur-premium-booking .apb-form-panel {order:0;}
+.aqp-form-only-main .ankur-premium-booking .apb-login-gate {order:0;}
+/* Force two inputs side by side even on mobile; original v122 broke to a single column. */
+.aqp-form-only-main .ankur-premium-booking .apb-fields-grid {
+  display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:8px!important;
+}
+.aqp-form-only-main .ankur-premium-booking .apb-field-label {
+  font-size:11px!important;white-space:normal!important;line-height:1.25!important;
+}
+.aqp-form-only-main .ankur-premium-booking .apb-input {
+  box-sizing:border-box!important;width:100%;min-width:0!important;min-height:43px!important;
+  font-size:14px!important;padding-top:8px!important;padding-bottom:8px!important;
+}
+.aqp-form-only-main .ankur-premium-booking .apb-fields-grid .apb-input[style] {max-width:100%;}
+.aqp-form-only-main .ankur-premium-booking .apb-input-icon {left:8px!important;top:11px!important;width:15px!important;}
+.aqp-form-only-main .ankur-premium-booking input.apb-input.pl-10 {padding-left:29px!important;padding-right:5px!important;}
+.aqp-form-only-main .ankur-premium-booking .apb-slot-grid {gap:5px!important;}
+.aqp-form-only-main .ankur-premium-booking .apb-slot {
+  min-height:62px!important;padding:6px 8px!important;border-radius:10px!important;
+}
+.aqp-form-only-main .ankur-premium-booking .apb-slot-title {font-size:11px!important;}
+.aqp-form-only-main .ankur-premium-booking .apb-slot-time {font-size:10px!important;line-height:1.3!important;margin-top:2px!important;}
+.aqp-form-only-main .ankur-premium-booking .apb-helper {font-size:10px!important;margin-top:5px!important;}
+.aqp-form-only-main .ankur-premium-booking .apb-total-card {padding:10px!important;border-radius:12px!important;}
+.aqp-form-only-main .ankur-premium-booking .apb-total-row {font-size:11px!important;line-height:1.35!important;}
+.aqp-form-only-main .ankur-premium-booking .apb-total-grand {padding-top:8px!important;margin-top:8px!important;}
+.aqp-form-only-main .ankur-premium-booking .apb-payment-note {display:none!important;}
+.aqp-form-only-main .ankur-premium-booking .apb-amount-editor {
+  display:flex;align-items:center;gap:3px;justify-content:flex-end;
+  color:#8cffe5;font-size:20px;font-weight:900;
+}
+.aqp-form-only-main .ankur-premium-booking .apb-extra-amount-input {
+  display:block;width:125px;min-height:41px;padding:5px 8px;border-radius:9px;
+  color:#123b55!important;background:#fff!important;border:1.5px solid #a0cadb!important;
+  font-size:18px;font-weight:800;text-align:right;
+}
+.aqp-form-only-main .ankur-premium-booking .apb-special-request {padding:9px 10px;background:#f1faff;border-radius:11px;border:1px solid #d2e5f2;}
+.aqp-form-only-main .ankur-premium-booking .apb-special-request > label {
+  display:block;font-size:12px;font-weight:800;margin-bottom:5px;color:#18445f;
+}
+.aqp-form-only-main .ankur-premium-booking .apb-extra-reason-input {
+  display:block;width:100%;min-height:49px;resize:vertical;box-sizing:border-box;
+  border:1px solid #bad3e3;background:#fff;color:#173b53;font-size:14px;
+  padding:8px;border-radius:9px;
+}
+.aqp-form-only-main .ankur-premium-booking .apb-special-request p {
+  font-size:10px;color:#587386;margin-top:4px;
+}
+@media(max-width:365px){
+  .aqp-form-only-home .aqp-brand-name {font-size:15px!important;}
+  .aqp-form-only-home .aqp-brand-rate {font-size:9px!important;max-width:190px;}
+  .aqp-booking-shortcuts .aqp-category {font-size:9.5px!important;}
+  .aqp-top-product-picker > label {font-size:11px;}
+  .aqp-form-only-main .ankur-premium-booking .apb-fields-grid {gap:5px!important;}
+  .aqp-form-only-main .ankur-premium-booking .apb-field-label {font-size:10px!important;}
+}
+
+/* ANKUR READABLE + SMOOTH BOOKING v1.0.28
+   Inspired by handset screenshots, not a visual redesign:
+   Larger legible typography, smaller blank gutters, restrained paint cost.
+   Scope exclusively to customer booking home. */
+.aqp-form-only-home {
+  --ankur-ui-text: #173b52;
+  -webkit-text-size-adjust: 100%;
+}
+/* Keep the owner-managed rate line legible without stretching the header. */
+.aqp-form-only-home .aqp-brand-name {
+  font-size: 18px !important;
+  line-height: 1.15 !important;
+  letter-spacing: -.025em;
+}
+.aqp-form-only-home .aqp-brand-rate {
+  font-size: 12.5px !important;
+  font-weight: 750 !important;
+  line-height: 1.35 !important;
+  max-width: min(290px, 73vw) !important;
+  margin-top: 3px !important;
+  color: #295a72 !important;
+}
+.aqp-form-only-home .aqp-brand-rate strong { font-size: 13px; }
+.aqp-form-only-home .aqp-topbar {
+  padding: 7px 12px !important;
+}
+.aqp-form-only-home .aqp-header { padding-bottom: 7px !important; }
+/* Top product picker + four tabs: no tiny 10px text on huge surfaces. */
+.aqp-form-only-home .aqp-top-product-picker {
+  gap: 8px !important;
+  min-height: 44px;
+}
+.aqp-form-only-home .aqp-top-product-picker > label {
+  font-size: 14px !important;
+  font-weight: 800 !important;
+}
+.aqp-form-only-home .aqp-top-product-picker .aqp-booking-product-select {
+  min-height: 44px !important;
+  font-size: 15px !important;
+  padding: 7px 10px !important;
+  font-weight: 700;
+}
+.aqp-form-only-home .aqp-booking-shortcuts {
+  gap: 6px !important;
+  margin-top: 6px !important;
+}
+.aqp-form-only-home .aqp-booking-shortcuts .aqp-category {
+  min-height: 40px !important;
+  padding: 7px 2px !important;
+  font-size: 13px !important;
+  font-weight: 800 !important;
+  line-height: 1.12 !important;
+}
+.aqp-form-only-home .aqp-booking-shortcuts .aqp-category-reserved {
+  min-height: 40px !important;
+}
+/* Reduce layers/padding; leave the four booking fields in the 2-by-2 grid. */
+.aqp-form-only-home .aqp-form-only-main { padding: 5px 8px 72px !important; }
+.aqp-form-only-main .aqp-booking-section {
+  border-radius: 15px !important;
+  box-shadow: 0 2px 10px rgba(18,66,92,.065) !important;
+}
+.aqp-form-only-main .aqp-booking-heading {
+  min-height: 43px !important;
+  padding: 8px 12px !important;
+}
+.aqp-form-only-main .aqp-booking-heading h1 {
+  font-size: 19px !important;
+  line-height: 1.2 !important;
+  font-weight: 900 !important;
+}
+.aqp-form-only-main .ankur-premium-booking {
+  padding: 6px 7px 11px !important;
+}
+.aqp-form-only-main .ankur-premium-booking .apb-form-panel {
+  padding: 9px 8px !important;
+  border-radius: 12px !important;
+}
+.aqp-form-only-main .ankur-premium-booking .apb-fields-grid {
+  gap: 7px 9px !important;
+  grid-template-columns: minmax(0,1fr) minmax(0,1fr) !important;
+}
+.aqp-form-only-main .ankur-premium-booking .apb-field-label {
+  display: block;
+  font-size: 14px !important;
+  font-weight: 800 !important;
+  line-height: 1.25 !important;
+  margin-bottom: 5px !important;
+  color: var(--ankur-ui-text) !important;
+  overflow-wrap: break-word;
+}
+.aqp-form-only-main .ankur-premium-booking .apb-input {
+  min-height: 44px !important;
+  height: 44px !important;
+  font-size: 16px !important;
+  font-weight: 650 !important;
+  line-height: 1.2 !important;
+  padding-top: 8px !important;
+  padding-bottom: 8px !important;
+  border-radius: 10px !important;
+  box-shadow: none !important;
+}
+.aqp-form-only-main .ankur-premium-booking .apb-input::placeholder {
+  color: #748a98 !important;
+  opacity: 1;
+}
+.aqp-form-only-main .ankur-premium-booking .apb-input-icon {
+  width: 17px !important; height: 17px !important;
+  top: 13px !important;
+}
+/* Dispatch chips: shorter cards but with visibly bigger primary/secondary copy. */
+.aqp-form-only-main .ankur-premium-booking .apb-section-label {
+  font-size: 15px !important;
+  margin-bottom: 7px !important;
+  line-height: 1.25 !important;
+  font-weight: 850 !important;
+}
+.aqp-form-only-main .ankur-premium-booking .apb-slot-grid {
+  gap: 6px !important;
+}
+.aqp-form-only-main .ankur-premium-booking .apb-slot {
+  min-height: 74px !important;
+  padding: 7px 9px !important;
+  border-radius: 10px !important;
+  justify-content: center !important;
+  gap: 2px !important;
+  box-shadow: none !important;
+}
+.aqp-form-only-main .ankur-premium-booking .apb-slot-title {
+  font-size: 14px !important;
+  line-height: 1.2 !important;
+  font-weight: 850 !important;
+}
+.aqp-form-only-main .ankur-premium-booking .apb-slot-time {
+  font-size: 12.5px !important;
+  line-height: 1.27 !important;
+  margin-top: 3px !important;
+  letter-spacing: -.015em;
+  font-family: inherit !important;
+}
+.aqp-form-only-main .ankur-premium-booking .apb-helper {
+  font-size: 12px !important;
+  line-height: 1.3 !important;
+  margin-top: 5px !important;
+}
+/* A compact invoice-like price section; big text, not a giant dark empty card. */
+.aqp-form-only-main .ankur-premium-booking .apb-total-card {
+  padding: 10px 12px !important;
+  border-radius: 12px !important;
+  box-shadow: none !important;
+}
+.aqp-form-only-main .ankur-premium-booking .apb-total-heading {
+  font-size: 16px !important;
+  line-height: 1.25 !important;
+  margin-bottom: 5px !important;
+}
+.aqp-form-only-main .ankur-premium-booking .apb-total-row {
+  font-size: 14px !important;
+  line-height: 1.35 !important;
+  gap: 8px !important;
+  align-items: center !important;
+  margin: 2px 0 !important;
+}
+.aqp-form-only-main .ankur-premium-booking .apb-total-row > span:first-child {
+  min-width: 0;
+}
+.aqp-form-only-main .ankur-premium-booking .apb-total-row strong {
+  font-size: 15px !important;
+  white-space: nowrap;
+  flex: none;
+}
+.aqp-form-only-main .ankur-premium-booking .apb-total-grand {
+  padding-top: 7px !important;
+  margin-top: 7px !important;
+  min-height: 48px !important;
+  gap: 5px !important;
+  align-items: center !important;
+}
+.aqp-form-only-main .ankur-premium-booking .apb-total-grand > span {
+  font-size: 15px !important;
+  font-weight: 800 !important;
+  line-height: 1.2 !important;
+}
+.aqp-form-only-main .ankur-premium-booking .apb-amount-editor {
+  font-size: 19px !important;
+  gap: 3px !important;
+  margin: 0 !important;
+}
+.aqp-form-only-main .ankur-premium-booking .apb-extra-amount-input {
+  min-height: 44px !important;
+  height: 44px !important;
+  width: min(115px, 30vw) !important;
+  font-size: 19px !important;
+  font-weight: 850 !important;
+  padding: 6px 10px !important;
+  border-radius: 10px !important;
+}
+.aqp-form-only-main .ankur-premium-booking .apb-extra-amount-input::placeholder {
+  color: #20475f !important;
+  opacity: 1 !important;
+  font-weight: 850 !important;
+}
+.aqp-form-only-main .ankur-premium-booking .apb-special-request {
+  padding: 9px 10px !important;
+  margin-top: 8px !important;
+  border-radius: 11px !important;
+}
+.aqp-form-only-main .ankur-premium-booking .apb-special-request > label {
+  font-size: 14px !important;
+  font-weight: 800 !important;
+  line-height: 1.25 !important;
+}
+.aqp-form-only-main .ankur-premium-booking .apb-extra-reason-input {
+  font-size: 16px !important;
+  line-height: 1.35 !important;
+  min-height: 55px !important;
+}
+.aqp-form-only-main .ankur-premium-booking .apb-special-request p {
+  font-size: 12px !important;
+  line-height: 1.3 !important;
+}
+/* Keep tap responsiveness and reduce unnecessary paint/transform during scrolling.
+   Don't alter any Android scroll containers, Firebase listeners or order handlers. */
+.aqp-form-only-home .aqp-category,
+.aqp-form-only-home .aqp-booking-product-select,
+.aqp-form-only-main .apb-slot,
+.aqp-form-only-main .apb-input {
+  transition: border-color .12s ease, background-color .12s ease !important;
+  animation: none !important;
+  -webkit-tap-highlight-color: transparent;
+}
+.aqp-form-only-main .apb-slot:active,
+.aqp-form-only-home .aqp-category:active {
+  transform: none !important;
+}
+.aqp-form-only-main .apb-slot:focus-visible,
+.aqp-form-only-main .apb-input:focus-visible,
+.aqp-form-only-home .aqp-category:focus-visible {
+  outline: 2px solid #008fbf !important;
+  outline-offset: 1px !important;
+}
+/* Responsive: no unreadably tiny text fallback at 365px. */
+@media (max-width: 370px) {
+  .aqp-form-only-home .aqp-brand-rate { font-size: 11.5px !important; max-width: 245px !important; }
+  .aqp-form-only-home .aqp-brand-name { font-size: 16.5px !important; }
+  .aqp-form-only-home .aqp-booking-shortcuts .aqp-category { font-size: 12px !important; }
+  .aqp-form-only-main .ankur-premium-booking .apb-field-label { font-size: 13px !important; }
+  .aqp-form-only-main .ankur-premium-booking .apb-slot-title { font-size: 13px !important; }
+  .aqp-form-only-main .ankur-premium-booking .apb-slot-time { font-size: 12px !important; }
+  .aqp-form-only-main .ankur-premium-booking .apb-total-row { font-size: 13px !important; }
+}
+/* Motion-preference support. */
+@media (prefers-reduced-motion: reduce) {
+  .aqp-form-only-home .aqp-category,
+  .aqp-form-only-main .apb-slot,
+  .aqp-form-only-main .apb-input { transition: none !important; }
+}
+
+/* ANKUR WEDDING SEASON CONTRAST — customer booking only.
+ * The existing customer home is deliberately light in both themes.
+ * Prevent inherited dark-mode/transparent panels from washing out controls.
+ * Pure CSS: no rates, slots, submit handlers, order storage or auth changes.
+ */
+.aqp-form-only-main .ankur-premium-booking .apb-form-panel {
+  background: #ffffff !important;
+  color: #173b52 !important;
+  border: 1px solid #cbdfea !important;
+}
+.aqp-form-only-main .ankur-premium-booking .apb-field-label,
+.aqp-form-only-main .ankur-premium-booking .apb-section-label,
+.aqp-form-only-main .ankur-premium-booking .apb-special-request > label {
+  color: #173b52 !important;
+}
+.aqp-form-only-main .ankur-premium-booking input.apb-input,
+.aqp-form-only-main .ankur-premium-booking textarea.apb-extra-reason-input {
+  color: #173b52 !important;
+  background: #ffffff !important;
+  border: 1.5px solid #7895a7 !important;
+  opacity: 1 !important;
+  color-scheme: light;
+}
+.aqp-form-only-main .ankur-premium-booking .apb-input::placeholder,
+.aqp-form-only-main .ankur-premium-booking .apb-extra-reason-input::placeholder {
+  color: #475569 !important;
+  opacity: 1 !important;
+}
+.aqp-form-only-main .ankur-premium-booking .apb-slot-idle {
+  background: #ffffff !important;
+  color: #334e62 !important;
+  border: 1.5px solid #7895a7 !important;
+}
+.aqp-form-only-main .ankur-premium-booking .apb-slot-selected {
+  background: #dcf5ff !important;
+  color: #075985 !important;
+  border: 2px solid #075985 !important;
+  box-shadow: inset 0 0 0 1px #075985 !important;
+}
+.aqp-form-only-main .ankur-premium-booking .apb-slot-disabled {
+  background: #f0f4f7 !important;
+  color: #455868 !important;
+  border: 1.5px solid #b0c1cb !important;
+  cursor: not-allowed !important;
+}
+.aqp-form-only-main .ankur-premium-booking .apb-slot-title,
+.aqp-form-only-main .ankur-premium-booking .apb-slot-time {
+  color: inherit !important;
+}
+.aqp-form-only-main .ankur-premium-booking .apb-helper,
+.aqp-form-only-main .ankur-premium-booking .apb-special-request p {
+  color: #455868 !important;
+}
+.aqp-form-only-main .ankur-premium-booking .apb-total-card {
+  background: #0f2743 !important;
+  color: #ffffff !important;
+  border: 1px solid #0f2743 !important;
+}
+.aqp-form-only-main .ankur-premium-booking .apb-total-card .apb-total-heading,
+.aqp-form-only-main .ankur-premium-booking .apb-total-card .apb-total-row,
+.aqp-form-only-main .ankur-premium-booking .apb-total-card .apb-total-grand,
+.aqp-form-only-main .ankur-premium-booking .apb-total-card .apb-total-row strong {
+  color: #ffffff !important;
+}
+.aqp-form-only-main .ankur-premium-booking .apb-extra-amount-input {
+  color: #0f2743 !important;
+  background: #ffffff !important;
+  border: 2px solid #7895a7 !important;
+  color-scheme: light;
+}
+.aqp-form-only-main .ankur-premium-booking .apb-slot:focus-visible,
+.aqp-form-only-main .ankur-premium-booking .apb-input:focus-visible,
+.aqp-form-only-main .ankur-premium-booking .apb-extra-amount-input:focus-visible,
+.aqp-form-only-main .ankur-premium-booking .apb-extra-reason-input:focus-visible {
+  outline: 3px solid #0c4a6e !important;
+  outline-offset: 2px !important;
+}
+@media (forced-colors: active) {
+  .aqp-form-only-main .ankur-premium-booking .apb-slot-selected {
+    border: 3px solid Highlight !important;
+  }
+  .aqp-form-only-main .ankur-premium-booking input,
+  .aqp-form-only-main .ankur-premium-booking textarea {
+    forced-color-adjust: auto;
+  }
+}
+
+/* ANKUR CUSTOMER DARK CONTRAST v1.0.38
+   Scoped to customer Profile and AI Video only; Home booking, bottom nav,
+   owner/staff screens and light mode keep their existing appearance. */
+html[data-theme='dark'] .ankur-readable-customer-page {
+  --app-bg: #0D1E32;
+  --card-bg: #182C46;
+  --text-main: #F8FAFC;
+  --text-sub: #CBD5E1;
+  --line: #53657B;
+  --brand-soft: #31415A;
+  --brand-ink: #FFDBB5;
+  background: var(--app-bg);
+  color: var(--text-main);
+}
+html[data-theme='dark'] .ankur-readable-customer-page .c-card {
+  background-color: var(--card-bg);
+  color: var(--text-main);
+}
+html[data-theme='dark'] .ankur-readable-customer-page .c-soft {
+  background-color: var(--brand-soft);
+  color: var(--brand-ink);
+}
+html[data-theme='dark'] .ankur-readable-customer-page .t-main {
+  color: #F8FAFC;
+}
+html[data-theme='dark'] .ankur-readable-customer-page .t-sub {
+  color: #CBD5E1;
+}
+html[data-theme='dark'] .ankur-readable-customer-page .t-brand-ink {
+  color: #FFDBB5;
+}
+/* Ensure Profile settings choices, service cards and the video-tool links
+   remain readable even if a legacy component supplies its own accent class. */
+html[data-theme='dark'] .ankur-readable-customer-page .t-brand,
+html[data-theme='dark'] .ankur-readable-customer-page .t-brand-ink {
+  color: #FFDBB5;
+}
+html[data-theme='dark'] .ankur-readable-customer-page button.c-soft,
+html[data-theme='dark'] .ankur-readable-customer-page a.c-soft {
+  background-color: #31415A;
+  color: #FFDBB5;
+}
+html[data-theme='dark'] .ankur-readable-customer-page .b-line {
+  border-color: #8092AB;
+}
+html[data-theme='dark'] .ankur-readable-customer-page a:not(.c-brand) {
+  text-decoration-color: currentColor;
+}
+html[data-theme='dark'] .ankur-readable-customer-page .c-brand {
+  background-color: #9A3412;
+  color: #FFFFFF;
+}
+html[data-theme='dark'] .ankur-readable-customer-page input:not([type='file']),
+html[data-theme='dark'] .ankur-readable-customer-page textarea,
+html[data-theme='dark'] .ankur-readable-customer-page select {
+  background-color: #102038;
+  color: #F8FAFC;
+  border-color: #8092AB;
+}
+html[data-theme='dark'] .ankur-readable-customer-page input::placeholder,
+html[data-theme='dark'] .ankur-readable-customer-page textarea::placeholder {
+  color: #CBD5E1;
+  opacity: 1;
+}
+html[data-theme='dark'] .ankur-readable-customer-page :focus-visible {
+  outline: 3px solid #F8B976;
+  outline-offset: 2px;
+}
+
+/* ANKUR CUSTOMER HOME CLEAN v1.0.39
+   Only the heading position changes; booking fields, rates and slots retain
+   their existing layout, dimensions and high-contrast styles. */
+.aqp-form-only-main .aqp-booking-heading {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  min-height: 40px !important;
+}
+.aqp-form-only-main .aqp-booking-heading > div {
+  width: 100%;
+  text-align: center;
+}
+.aqp-form-only-main .aqp-booking-heading h1 {
+  margin: 0 auto !important;
+  text-align: center !important;
+}
+.aqp-form-only-home .aqp-header {
+  padding-bottom: 0 !important;
+}
+
+/* ANKUR AI FEATURES NAV v1.0.40
+   Fixed five-button mobile navigation + a truthful winner slot on AI Features.
+   Keep booking, owner dashboard and unrelated pages untouched. */
+.aqp-bottom-nav li { min-width: 0; }
+.aqp-bottom-nav li button { min-width: 0; }
+.aqp-bottom-nav li button > span:last-child {
+  display: block;
+  max-width: 100%;
+  padding: 0 1px;
+  font-size: 10px;
+  line-height: 1.15;
+  overflow-wrap: normal;
+  text-align: center;
+}
+@media (max-width: 365px) {
+  .aqp-bottom-nav li button > span:last-child { font-size: 9px; }
+  .aqp-bottom-nav li button svg { width: 20px; height: 20px; }
+}
+.ankur-daily-winner {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 16px;
+  margin: 0 0 14px;
+  border-radius: 16px;
+  border: 1px solid #4777b0;
+  background: linear-gradient(120deg, #173250, #245a86);
+  color: #ffffff;
+  box-shadow: 0 4px 18px rgba(8, 41, 78, .12);
+}
+.ankur-daily-winner h1,
+.ankur-daily-winner p,
+.ankur-daily-winner span,
+.ankur-daily-winner svg { color: #ffffff !important; }
+.ankur-daily-winner span { opacity: .9; }
+
+/* ANKUR VIDEO IDEA PROFILE v1.0.41 */
+.ankur-video-idea-page .ankur-video-action {
+  display: flex;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 50px;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  border-radius: 12px;
+  padding: 12px 16px;
+  text-decoration: none !important;
+  font-weight: 800;
+  font-size: 16px;
+  line-height: 1.25;
+  cursor: pointer;
+}
+.ankur-video-idea-page .ankur-gemini-button {
+  font-size: 18px;
+  margin-top: 12px;
+}
+.ankur-video-idea-page .ankur-video-saved-details {
+  margin-top: 22px;
+}
+.ankur-video-idea-page input,
+.ankur-video-idea-page select,
+.ankur-video-idea-page textarea { font-size: 16px; min-width: 0; }
+html[data-theme='dark'] .ankur-readable-customer-page .ankur-video-action {
+  background: #9A3412;
+  color: #FFFFFF !important;
+}
+.ankur-video-idea-page .ankur-video-action:focus-visible {
+  outline: 3px solid #F8B976;
+  outline-offset: 2px;
+}
+
+/* Occasion chooser: one tap opens all 29 event options, three per row.
+   On compact phones the grid alone scrolls rather than creating a giant
+   native one-item-per-row dialog. Selection also works via keyboard. */
+.ankur-video-idea-page .ankur-video-occasion-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  color: var(--text-main, inherit);
+  background-color: var(--card-bg, transparent);
+  border-color: var(--line, #8092AB);
+}
+.ankur-video-idea-page .ankur-video-occasion-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  max-height: min(72vh, 720px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  margin-top: 8px;
+  box-sizing: border-box;
+}
+.ankur-video-idea-page .ankur-video-occasion-option {
+  min-width: 0;
+  min-height: 54px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  font-size: 11.5px;
+  line-height: 1.2;
+  text-align: center;
+  overflow-wrap: anywhere;
+  background: var(--card-bg, transparent);
+  color: var(--text-main, inherit);
+  border-color: var(--line, #8092AB);
+}
+.ankur-video-idea-page .ankur-video-occasion-hi {
+  font-size: 11px;
+  opacity: .9;
+}
+.ankur-video-idea-page .ankur-video-occasion-option.ankur-selected {
+  background-color: #9A3412;
+  border-color: #9A3412;
+  color: #FFFFFF;
+}
+html[data-theme='dark'] .ankur-video-idea-page .ankur-video-occasion-option:not(.ankur-selected),
+html[data-theme='dark'] .ankur-video-idea-page .ankur-video-occasion-trigger {
+  background-color: #182C46;
+  color: #F8FAFC;
+  border-color: #8092AB;
+}
+@media (max-width: 365px) {
+  .ankur-video-idea-page .ankur-video-occasion-grid { gap: 5px; padding: 5px; }
+  .ankur-video-idea-page .ankur-video-occasion-option { font-size: 11px; padding: 5px; }
+  .ankur-video-idea-page .ankur-video-occasion-hi { font-size: 10px; }
+}
+
+/* ANKUR COMPACT DISPATCH v1.0.47
+   Two-by-two radio options; hide no expired choices, only their detailed text.
+   Booking values, expiry handling and keyboard label selection stay intact. */
+.aqp-form-only-main .ankur-premium-booking .apb-slot-compact-grid {
+  grid-template-columns: repeat(2, minmax(0,1fr)) !important;
+  gap: 8px !important;
+}
+.aqp-form-only-main .ankur-premium-booking .apb-slot-compact {
+  min-height: 48px !important;
+  height: 48px !important;
+  padding: 8px 10px !important;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 10px !important;
+  border-radius: 11px !important;
+}
+.aqp-form-only-main .ankur-premium-booking .apb-slot-compact input[type="radio"] {
+  width: 19px !important;
+  height: 19px !important;
+  flex-shrink: 0;
+  margin: 0;
+}
+.aqp-form-only-main .ankur-premium-booking .apb-slot-compact .apb-slot-title {
+  font-size: 14px !important;
+  font-weight: 800 !important;
+  line-height: 1.25 !important;
+  margin: 0 !important;
+  white-space: nowrap;
+}
+@media(max-width:375px) {
+  .aqp-form-only-main .ankur-premium-booking .apb-slot-compact {padding: 7px 6px !important; gap: 6px !important;}
+  .aqp-form-only-main .ankur-premium-booking .apb-slot-compact .apb-slot-title {font-size: 13px !important;}
+}
+
+/* ANKUR OWNER PREMIUM 1.0.48
+   Owner-only theme; no hiding controls, tabs, records, or business forms. */
+/* v1.0.58: bounded mobile chat, with a scrollable message list. */
+.ankur-ai-chat {
+  height: clamp(260px, 45vh, 420px);
+  height: clamp(260px, 45dvh, 420px);
+  min-width: 0;
+}
+.ankur-ai-chat > :last-child { flex-shrink: 0; }
+.ankur-owner-dashboard {
+  --owner-ink: #17243e;
+  --owner-muted: #596984;
+  --owner-brand: #7252db;
+  --owner-stroke: #dbe3f2;
+  background: linear-gradient(180deg,#eff3fc 0%,#f8faff 45%,#f1f5fc 100%) !important;
+  color: var(--owner-ink);
+  border-radius: 22px;
+  font-size: 14px;
+  max-width: 1220px !important;
+  padding-bottom: calc(28px + env(safe-area-inset-bottom,0px)) !important;
+}
+.ankur-owner-dashboard .ankur-owner-masthead {
+  padding: 18px 16px !important;
+  border: 1px solid #455b87 !important;
+  border-radius: 23px !important;
+  background: radial-gradient(circle at 96% 0%,#7050bd 0%,transparent 43%),linear-gradient(125deg,#101d37,#1d345d 80%) !important;
+  box-shadow: 0 16px 32px rgba(24,41,74,.18);
+  gap: 12px !important;
+}
+.ankur-owner-dashboard .ankur-owner-kicker {
+  display: block;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .15em;
+  color: #bec8ff;
+  margin: 5px 0 2px;
+}
+.ankur-owner-dashboard .ankur-owner-masthead h2 {
+  font-size: clamp(21px,4.5vw,29px) !important;
+  color: #fff !important;
+  line-height:1.22 !important;
+  letter-spacing:-.02em;
+}
+.ankur-owner-dashboard .ankur-owner-masthead .text-amber-700,
+.ankur-owner-dashboard .ankur-owner-masthead .text-amber-600 {color:#f4ca81!important}
+.ankur-owner-dashboard .ankur-owner-masthead .text-slate-500,
+.ankur-owner-dashboard .ankur-owner-masthead .text-slate-700,
+.ankur-owner-dashboard .ankur-owner-masthead .font-mono {color:#dae5ff!important}
+.ankur-owner-dashboard .ankur-owner-masthead button {
+  min-height: 38px;
+  border:1px solid rgba(236,242,255,.23)!important;
+  border-radius:11px!important;
+  background:rgba(255,255,255,.10)!important;
+  color:#f8fbff!important;
+  padding:8px 10px!important;
+}
+.ankur-owner-dashboard .ankur-owner-masthead button:hover {background:rgba(255,255,255,.19)!important}
+.ankur-owner-dashboard .ankur-owner-masthead button svg {color:#dddbff!important}
+.ankur-owner-dashboard .ankur-owner-nav {
+  display:grid!important;
+  grid-template-columns: repeat(3,minmax(0,1fr))!important;
+  gap:8px!important;
+  border:0!important;
+  padding:0 0 10px!important;
+  margin-bottom:14px!important;
+}
+.ankur-owner-dashboard .ankur-owner-nav>button {
+  background:#fff!important;
+  color:#26385a!important;
+  min-width:0;
+  min-height:54px;
+  padding:9px 6px!important;
+  border:1px solid #d9e2f3!important;
+  border-radius:15px!important;
+  box-shadow:0 4px 12px rgba(30,47,84,.055);
+  font-size:12px!important;
+  white-space:normal!important;
+  overflow-wrap:anywhere;
+  line-height:1.2;
+  gap:5px!important;
+}
+.ankur-owner-dashboard .ankur-owner-nav>button svg {width:16px!important;height:16px!important;flex-shrink:0}
+.ankur-owner-dashboard .ankur-owner-nav>button[class*="bg-sky-500"] {
+  background:linear-gradient(125deg,#6955d8,#345bb9)!important;
+  color:#fff!important;
+  border-color:#6e6adf!important;
+  box-shadow:0 9px 17px rgba(77,80,174,.22);
+}
+.ankur-owner-dashboard .ankur-owner-nav>button:last-child {grid-column:1/-1}
+.ankur-owner-dashboard .ankur-owner-nav>button:focus-visible,
+.ankur-owner-dashboard button:focus-visible,
+.ankur-owner-dashboard :is(input,textarea,select):focus-visible {
+  outline:3px solid #b89aff!important;outline-offset:2px;
+}
+.ankur-owner-dashboard .ankur-owner-overview {
+  border:1px solid #cfdcf4!important;
+  border-radius:21px!important;
+  background:#fff!important;
+  padding:15px!important;
+  box-shadow:0 10px 24px rgba(26,47,85,.06);
+}
+.ankur-owner-dashboard .ankur-owner-overview h3 {
+  font-size:15px!important;font-weight:900!important;color:#1e3357!important;
+}
+.ankur-owner-dashboard .ankur-owner-overview .grid>div {
+  border:1px solid #dce5f5!important;
+  background:linear-gradient(160deg,#fff,#f3f5ff)!important;
+  border-radius:15px!important;
+  padding:12px!important;
+  min-width:0;
+}
+.ankur-owner-dashboard .ankur-owner-overview .grid>div:nth-child(2) {background:linear-gradient(150deg,#fff,#fff4e7)!important}
+.ankur-owner-dashboard .ankur-owner-overview .grid>div:nth-child(3) {background:linear-gradient(150deg,#fff,#effbf6)!important}
+.ankur-owner-dashboard .ankur-owner-overview .grid>div:nth-child(4) {background:linear-gradient(150deg,#fff,#f0eeff)!important}
+.ankur-owner-dashboard .ankur-owner-overview .grid>div .text-base {
+  font-size:20px!important;letter-spacing:-.025em;
+}
+.ankur-owner-dashboard :is(.rounded-2xl,.rounded-xl) {scroll-margin-top:12px}
+.ankur-owner-dashboard div[class*="max-w-xl"][class*="bg-white"] {
+  border:1px solid var(--owner-stroke)!important;
+  border-radius:20px!important;
+  box-shadow:0 10px 26px rgba(36,55,97,.075);
+}
+.ankur-owner-dashboard :is(input,select,textarea) {
+  border-radius:11px;
+  accent-color:#6956ce;
+}
+.ankur-owner-dashboard :is(input,select,textarea):not([type="checkbox"]):not([type="radio"]) {
+  max-width:100%;
+}
+.ankur-owner-dashboard :is(section,article) {min-width:0}
+.ankur-owner-dashboard :is(table) {font-size:12px}
+.ankur-owner-dashboard :is(th,td) {overflow-wrap:anywhere}
+.ankur-owner-dashboard :is(button,a) {touch-action:manipulation}
+@media(min-width:640px){
+  .ankur-owner-dashboard .ankur-owner-nav {grid-template-columns:repeat(7,minmax(0,1fr))!important}
+  .ankur-owner-dashboard .ankur-owner-nav>button:last-child {grid-column:auto}
+}
+@media(max-width:375px){
+  .ankur-owner-dashboard{padding-left:9px!important;padding-right:9px!important}
+  .ankur-owner-dashboard .ankur-owner-nav {gap:5px!important}
+  .ankur-owner-dashboard .ankur-owner-nav>button {font-size:11px!important;padding:7px 4px!important}
+}
+@media(prefers-reduced-motion:reduce){
+  .ankur-owner-dashboard *{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}
+}
+
+/* All seven original owner sections remain visible; the accent follows the real selected state. */
+.ankur-owner-dashboard .ankur-owner-nav>button[aria-pressed="true"] {background:linear-gradient(125deg,#6955d8,#345bb9)!important;color:#fff!important;border-color:#6e6adf!important;}
+
+/* Approved dark navy-violet Owner Dashboard appearance. Scoped to owner only. */
+.ankur-owner-dashboard{
+  --owner-ink:#f2f7ff;--owner-muted:#b5c9de;--owner-stroke:#426080;--owner-brand:#986df0;
+  background:radial-gradient(ellipse 100% 40% at 100% 0%,#204971 0%,transparent 75%),#0c1c30!important;
+  color:#f2f7ff!important;
+  max-width:1220px;overflow-wrap:anywhere;
+}
+.ankur-owner-dashboard .ankur-owner-masthead{
+  background:linear-gradient(125deg,#152945 0%,#173c61 65%,#342864 100%)!important;
+  box-shadow:0 16px 38px #010b1c7a!important;
+}
+.ankur-owner-dashboard .ankur-owner-nav{
+  display:grid!important;grid-template-columns:repeat(12,minmax(0,1fr))!important;
+  gap:8px!important;border:0!important;padding:0 0 10px!important;
+}
+.ankur-owner-dashboard .ankur-owner-nav>button,
+.ankur-owner-dashboard .ankur-owner-nav>button:last-child{
+  grid-column:span 4!important;display:flex;flex-direction:column;
+  justify-content:center;gap:3px!important;
+  min-height:54px;background:#1c3555!important;color:#eaf4ff!important;
+  border:1px solid #466683!important;
+  box-shadow:inset 0 1px #ffffff1d!important;border-radius:14px!important;
+}
+.ankur-owner-dashboard .ankur-owner-nav>button:nth-child(n+4){grid-column:span 3!important;}
+.ankur-owner-dashboard .ankur-owner-nav>button[class*="bg-sky-500"]{
+  background:linear-gradient(120deg,#7654d9,#495bb8)!important;
+  border-color:#bca9ff!important;color:#fff!important;
+}
+.ankur-owner-dashboard .ankur-owner-overview,
+.ankur-owner-dashboard div[class*="max-w-xl"][class*="bg-white"]{
+  background:linear-gradient(120deg,#162c49,#242e51)!important;
+  border-color:#52708e!important;color:#fff!important;
+  box-shadow:0 12px 28px #020c1c6b!important;
+}
+.ankur-owner-dashboard .ankur-owner-overview h3{color:#fff!important}
+.ankur-owner-dashboard .ankur-owner-overview .grid>div,
+.ankur-owner-dashboard .ankur-owner-overview .grid>div:nth-child(2),
+.ankur-owner-dashboard .ankur-owner-overview .grid>div:nth-child(3),
+.ankur-owner-dashboard .ankur-owner-overview .grid>div:nth-child(4){
+  background:#263d60!important;border:1px solid #516f91!important;color:#fff!important;
+}
+.ankur-owner-dashboard :is(.bg-white,.bg-slate-50,.bg-slate-100,.bg-sky-50,.bg-purple-50,.bg-indigo-50){
+  background-color:#203654!important;
+}
+.ankur-owner-dashboard :is(.bg-sky-50\/60,.bg-slate-50\/50){background-color:#1b3050!important}
+.ankur-owner-dashboard :is(.text-slate-950,.text-slate-900,.text-slate-800,.text-slate-700){color:#f1f6ff!important}
+.ankur-owner-dashboard :is(.text-slate-600,.text-slate-500){color:#cedff1!important}
+.ankur-owner-dashboard .text-slate-400{color:#acc2d9!important}
+.ankur-owner-dashboard :is(.text-sky-900,.text-sky-800,.text-sky-700,.text-sky-600){color:#80d8ff!important}
+.ankur-owner-dashboard :is(.text-amber-900,.text-amber-800,.text-amber-700){color:#ffe2a3!important}
+.ankur-owner-dashboard :is(.text-emerald-900,.text-emerald-800,.text-emerald-700){color:#9cf3d3!important}
+.ankur-owner-dashboard :is(.text-rose-900,.text-rose-800,.text-rose-700){color:#ffb8c5!important}
+.ankur-owner-dashboard :is(.border-slate-100,.border-slate-200,.border-slate-300,.border-sky-200,.border-sky-300){border-color:#46637f!important}
+.ankur-owner-dashboard :is(input,textarea,select):not([type="checkbox"]):not([type="radio"]){
+  background:#0e263e!important;color:#fff!important;border:1px solid #6485a7!important;
+  min-width:0;max-width:100%;border-radius:11px!important;
+}
+.ankur-owner-dashboard :is(input,textarea)::placeholder{color:#bdd0e4!important;opacity:1;}
+.ankur-owner-dashboard select option{background:#132842;color:#f1f6ff;}
+.ankur-owner-dashboard :is(.bg-rose-50,.bg-rose-100){background-color:#4e293c!important}
+.ankur-owner-dashboard :is(.bg-emerald-50,.bg-emerald-100){background-color:#154e42!important}
+.ankur-owner-dashboard :is(.bg-amber-50,.bg-amber-100){background-color:#57452a!important}
+.ankur-owner-dashboard :is(.bg-blue-50,.bg-sky-100){background-color:#1d4968!important}
+.ankur-owner-dashboard .text-white{color:#fff!important}
+.ankur-owner-dashboard .bg-slate-900{background:#08192d!important;}
+.ankur-owner-dashboard :is(button.bg-sky-500,button.bg-sky-600,button.bg-sky-700){
+  background:linear-gradient(135deg,#6951d1,#8846c7)!important;color:#fff!important;
+}
+.ankur-owner-dashboard :is(button,input,select,textarea,a):focus-visible{outline:3px solid #cfb6ff!important;outline-offset:2px;}
+.ankur-owner-dashboard :is(.shadow-xs,.shadow-sm,.shadow-md){box-shadow:0 8px 21px #020c1c65!important;}
+.ankur-owner-dashboard .recharts-text{fill:#e0ebff}
+.ankur-owner-dashboard .recharts-cartesian-grid line{stroke:#48617d}
+.ankur-owner-dashboard :is(.overflow-x-auto,.no-scrollbar){max-width:100%;}
+@media(min-width:640px){
+ .ankur-owner-dashboard .ankur-owner-nav{grid-template-columns:repeat(7,minmax(0,1fr))!important}
+ .ankur-owner-dashboard .ankur-owner-nav>button,
+ .ankur-owner-dashboard .ankur-owner-nav>button:last-child,
+ .ankur-owner-dashboard .ankur-owner-nav>button:nth-child(n+4){grid-column:span 1!important;}
+}
+@media(max-width:365px){
+ .ankur-owner-dashboard .ankur-owner-nav{gap:5px!important}
+ .ankur-owner-dashboard .ankur-owner-nav>button{font-size:10px!important;padding:7px 4px!important}
+}
+
+
+/* OWNER SERVICES DRAWER: let the command center lead and keep tools one tap away. */
+.ankur-owner-tools {
+  max-width: 1220px;
+  margin: 8px auto 12px;
+  padding: 0 12px;
+  color: #f2f7ff;
+}
+.ankur-owner-tools > summary {
+  display: flex;
+  align-items: center;
+  min-height: 48px;
+  padding: 10px 14px;
+  border: 1px solid #426080;
+  border-radius: 15px;
+  background: linear-gradient(120deg,#152945,#1c3555 68%,#242e51);
+  box-shadow: inset 0 1px #ffffff1d;
+  color: #f2f7ff;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  list-style: none;
+}
+.ankur-owner-tools > summary::-webkit-details-marker { display: none; }
+.ankur-owner-tools > summary::after { content: '＋'; margin-left: auto; color: #cbbaff; font-size: 18px; }
+.ankur-owner-tools[open] > summary::after { content: '−'; }
+.ankur-owner-tools[open] > section {
+  margin-top: 8px;
+  border: 1px solid #426080 !important;
+  border-radius: 18px !important;
+  background: linear-gradient(120deg,#152945,#1c3555 68%,#242e51) !important;
+  color: #f2f7ff !important;
+}
+.ankur-owner-tools[open] > section button.c-soft {
+  border: 1px solid #466683;
+  background: #1c3555 !important;
+  color: #edf4ff !important;
+}
+.ankur-owner-tools[open] > section button svg { color: #cbbaff !important; }
+.ankur-owner-tools :focus-visible { outline: 3px solid #bca9ff; outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { .ankur-owner-tools * { transition-duration: .01ms !important; } }
+
+/* ANKUR STAFF CONTACT PRIVACY 1.0.48
+   Staff-only per-order display; not an alternative to database authorization. */
+.ankur-staff-call-trigger {
+  border:1px solid #b7d6cf !important;
+  color:#125e47!important;
+  background:#e8f7f1!important;
+  min-height:42px;
+}
+.ankur-staff-call-trigger:hover {background:#d6f0e5!important}
+.ankur-staff-contact-revealed {
+  background:#f8fbff!important;
+  border-color:#bdcdec!important;
+  color:#23395f!important;
+  max-width:100%;
+}
+.ankur-staff-contact-revealed p {overflow-wrap:anywhere}
+.ankur-staff-dial {background:#145c4a!important;color:#fff!important;min-height:38px}
+.ankur-staff-whatsapp {background:#325bc4!important;color:#fff!important;min-height:38px}
+
+/* Owner order cards use matching tap targets in slot and searched/all-order views. */
+.ankur-order-card-actions button, .ankur-order-card-actions a { min-height: 34px; }
+.ankur-order-card-actions button { font-size: 11px; }
+
+/* Soft 3D surface system for owner and customer screens. */
+:root { --radius-card: 22px; --radius-button: 999px; --shadow-small: 0 2px 5px rgb(20 22 28 / .08); --shadow-large: 0 12px 28px rgb(20 22 28 / .08); --space-card: 16px; --space-gap: 14px; }
+html[data-theme="soft-3d"], html[data-theme="soft-3d"] body { background: var(--app-bg); color: var(--text-main); }
+html[data-theme="dark"], html[data-theme="dark"] body { background: var(--app-bg); color: var(--text-main); }
+.soft-card { background: var(--card-bg, #fff); color: var(--text-main, #1C1E24); border-radius: var(--radius-card); padding: var(--space-card); box-shadow: var(--shadow-small), var(--shadow-large); }
+.soft-card-inset { background: color-mix(in srgb, var(--card-bg, #fff) 92%, var(--app-bg, #F4F5F7)); border-radius: 16px; color: var(--text-main, #1C1E24); }
+.soft-button { border: 0; border-radius: var(--radius-button); min-height: 42px; padding: 9px 16px; font-weight: 700; box-shadow: var(--shadow-small), 0 4px 10px rgb(20 22 28 / .06); transition: transform .16s ease, box-shadow .16s ease; }
+.soft-button:active { transform: scale(.97); box-shadow: var(--shadow-small); }
+.primary-button { color: #fff; background: var(--brand, #315FDB); }
+.secondary-button { color: var(--text-main, #1C1E24); background: var(--card-bg, #fff); }
+.payment-options { background: var(--card-bg, #fff); color: var(--text-main, #1C1E24); box-shadow: var(--shadow-small), var(--shadow-large); }
+.backup-upi { background: var(--app-bg, #F4F5F7); color: var(--text-main, #1C1E24); }
+.payment-pending-note { color: var(--text-sub, #50545D); }
+.owner-segmented-nav { display: flex; gap: 5px; padding: 5px; border-radius: 999px; background: var(--tool-track); }
+.owner-segmented-nav button { flex: 1; min-height: 42px; border: 0; border-radius: 999px; background: transparent; color: #343842; font-weight: 800; }
+.owner-segmented-nav button[aria-pressed="true"] { background: var(--text-main); color: var(--app-bg); box-shadow: var(--shadow-small); }
+.owner-tool-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; }
+.soft-tool-tile { border: 0; border-radius: 18px; min-height: 64px; padding: 12px; background: var(--app-bg,#F4F5F7); color: var(--text-main,#1C1E24); font-weight: 800; box-shadow: var(--shadow-small); }
+.status-chip { display: inline-flex; border-radius: 999px; padding: 3px 9px; font-weight: 800; }
+.status-total { background: var(--status-total-bg); color: var(--status-total-ink); }
+.status-pending { background: var(--status-pending-bg); color: var(--status-pending-ink); }
+.status-confirmed { background: var(--status-confirmed-bg); color: var(--status-confirmed-ink); }
+.status-packing { background: var(--status-packing-bg); color: var(--status-packing-ink); }
+.status-dispatch { background: var(--status-dispatch-bg); color: var(--status-dispatch-ink); }
+.status-delivered { background: var(--status-delivered-bg); color: var(--status-delivered-ink); }
+.status-tile { border-radius: 18px !important; box-shadow: var(--shadow-small), var(--shadow-large) !important; }
+.ankur-order-card-details { background: var(--card-bg,#fff) !important; color: var(--text-main,#1C1E24) !important; border: 0 !important; border-radius: 16px !important; box-shadow: var(--shadow-small) !important; }
+.ankur-order-card-details span, .ankur-order-card-details div { color: inherit; }
+.ankur-order-card-details .font-mono { font-weight: 800; }
+html[data-theme="dark"] .soft-card { background: #1E2129; color: #F4F5F7; }
+html[data-theme="dark"] .soft-card-inset, html[data-theme="dark"] .soft-tool-tile { background: #292D36; color: #F4F5F7; }
+html[data-theme="dark"] .owner-segmented-nav { background: var(--tool-track); }
+html[data-theme="dark"] .owner-segmented-nav button { color: #D6D9E0; }
+html[data-theme="dark"] .owner-segmented-nav button[aria-pressed="true"] { background: var(--text-main); color: var(--app-bg); }
+html[data-theme="dark"] .secondary-button { background: #292D36; color: #F4F5F7; }
+
+.owner-tools-backdrop { position: fixed; inset: 0; z-index: 80; display: flex; align-items: flex-end; justify-content: center; padding: 12px; background: var(--sheet-backdrop); }
+.owner-tools-sheet { width: min(100%, 720px); max-height: 84dvh; overflow: auto; padding-bottom: calc(var(--space-card) + env(safe-area-inset-bottom, 0px)); }
+.feature-toggle-row { background: var(--feature-row-bg); color: var(--feature-row-ink); box-shadow: var(--shadow-small); }
+.feature-toggle-row small { color: var(--text-sub); }
+.feature-toggle-row input[role="switch"] { appearance: none; position: relative; flex: 0 0 46px; width: 46px; height: 27px; border-radius: 999px; background: var(--switch-track-off); transition: background .15s ease; }
+.feature-toggle-row input[role="switch"]::after { content: ''; position: absolute; width: 21px; height: 21px; top: 3px; left: 3px; border-radius: 50%; background: var(--switch-thumb); box-shadow: var(--shadow-small); transition: transform .15s ease; }
+.feature-toggle-row input[role="switch"]:checked { background: var(--brand); }
+.feature-toggle-row input[role="switch"]:checked::after { transform: translateX(19px); }
+.feature-controls h2 { color: var(--text-main); }
+html[data-theme="dark"] .owner-segmented-nav { background: var(--tool-track); }
+
+.owner-order-card { background: var(--card-bg,#fff) !important; color: var(--text-main,#1C1E24); border: 0 !important; border-radius: var(--radius-card) !important; box-shadow: var(--shadow-small), var(--shadow-large) !important; }
+.owner-order-card .ankur-order-card-details { background: var(--card-bg,#fff) !important; }
+.status-tile span { color: inherit !important; }
+html[data-theme="dark"] .owner-order-card { color: var(--text-main); }
+html[data-theme="dark"] .owner-order-card .text-slate-900, html[data-theme="dark"] .owner-order-card .text-slate-800, html[data-theme="dark"] .owner-order-card .text-slate-700, html[data-theme="dark"] .owner-order-card .text-slate-600, html[data-theme="dark"] .owner-order-card .text-slate-500 { color: var(--text-main); }
+
+.status-action { border: 0 !important; border-radius: var(--radius-button) !important; box-shadow: var(--shadow-small); }
+.status-action span, .status-action svg { color: inherit !important; }
+
+.owner-app { background: var(--app-bg); color: var(--text-main); min-height: 100vh; }
+.owner-app button, .c-app button { border-radius: var(--radius-button); transition: transform .16s ease, box-shadow .16s ease; }
+.owner-app button:active, .c-app button:active { transform: scale(.97); box-shadow: var(--shadow-small); }
+.owner-app .bg-white, .c-app .bg-white { background: var(--card-bg) !important; }
+.owner-app .text-slate-900, .owner-app .text-slate-800, .owner-app .text-slate-700, .owner-app .text-slate-600, .owner-app .text-slate-500,
+.c-app .text-slate-900, .c-app .text-slate-800, .c-app .text-slate-700, .c-app .text-slate-600, .c-app .text-slate-500 { color: var(--text-main) !important; }
+.owner-app .text-slate-400, .c-app .text-slate-400 { color: var(--text-sub) !important; }

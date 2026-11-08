@@ -366,3 +366,15 @@ The owner requested continued implementation, holding device-dependent questions
 
 
 - v1.0.65 feedback follow-up: fixed the React UI harness mocks, kept video and service-area labels in the selected language, and made tracking validation errors re-render in the current language. GitHub Actions run 42470535759 passed lint/type-check, build, regression tests, React UI/tap tests, and the safety-boundary check. PR #24 remains open and unmerged; 303 legacy UI strings remain untranslated per the audit. No Firebase deploy or Play upload was run.
+
+
+## 8 November 2026 — v1.0.65 follow-up: UPI, customers, dates and soft 3D
+
+- Added the single app business configuration for primary/backup UPI and retail/wholesale rates, local bundled QR plus in-app QR fallback, UPI copy/deep-link controls, and manual payment verification only. Cashfree remains a later item; no payment gateway was added.
+- Added owner-only Customers screen and customers documents keyed by +91 mobile. Rules limit customers to their own document and reserve collection listing for the owner. Completion changes a recorded customer's tag from New to Old.
+- Persisted dispatchSlot alongside the IST dispatch date; added a separate Date not set group and unit coverage for today, tomorrow, past and missing dates.
+- Added the five policy pages under docs/website-policies/; website source was not present, so no website was changed.
+- Applied the soft 3D theme, shared status tokens, readable order cards, compact Orders / Customers / Tools aur Settings owner navigation, and direct owner-guarded Firestore feature settings (no new Cloud Function).
+- Local TypeScript check, 2 date unit tests, 3 static Rules contract tests, release audit contracts, and Vite build passed. Vite emitted existing mixed-import and large-chunk warnings.
+- Firestore emulator Rules tests were not run; the new Rules tests are source contract checks only. Visual before/after screenshots are not attached: the available test screenshots contain identifying order/customer details, and the isolated browser could not reach the local preview. No customer screenshots or data were published.
+- Branch codex/fix-v1065-test-feedback / PR #24 remains open and unmerged. No Firebase deployment, Play upload, paid service, billing change or signing job was run.

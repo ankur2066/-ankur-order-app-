@@ -1,0 +1,420 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // =========================================================================
+    // IDENTITY & ROLE HELPERS
+    //
+    // SECURITY MODEL (rewritten):
+    //  - OWNER  = the verified Google account ankurdryicewholesalers@gmail.com ONLY.
+    //             A `role: 'admin'` field inside users/{uid} grants NOTHING.
+    //  - STAFF / DELIVERY = users/{uid}.role, and that document can be written
+    //             ONLY by the owner. Users can never write their own role or
+    //             permissions (this closed the previous self-promotion hole).
+    //  - Customers need no account to book/track; an account is only needed to
+    //             read private data such as "My Orders".
+    // =========================================================================
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner() {
+      return isSignedIn() &&
+             request.auth.token.email == 'ankurdryicewholesalers@gmail.com' &&
+             request.auth.token.email_verified == true;
+    }
+
+    // Kept as an alias so the collection rules below read the same as before.
+    function isAdmin() {
+      return isOwner();
+    }
+
+    function userDocPath() {
+      return /databases/$(database)/documents/users/$(request.auth.uid);
+    }
+
+    function hasUserDoc() {
+      return isSignedIn() && exists(userDocPath());
+    }
+
+    function userData() {
+      return get(userDocPath()).data;
+    }
+
+    function roleIs(r) {
+      return hasUserDoc() && userData().get('role', '') == r;
+    }
+
+    function isStaff() {
+      return roleIs('staff');
+    }
+
+    function isDelivery() {
+      return roleIs('delivery');
+    }
+
+    function isFieldTeam() {
+      return isStaff() || isDelivery();
+    }
+
+    // Owner-granted permissions. `fallback` keeps staff created BEFORE this
+    // update (no permissions map yet) working exactly as they did.
+    function hasPerm(name, fallback) {
+      return userData().get('permissions', {}).get(name, fallback) == true;
+    }
+
+    function canViewOrders() {
+      return isFieldTeam() && hasPerm('viewOrders', true);
+    }
+
+    function canUpdateStatus() {
+      return isFieldTeam() && hasPerm('updateStatus', true);
+    }
+
+    function canToggleProducts() {
+      return isFieldTeam() && hasPerm('toggleProducts', false);
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // Validates document ID to prevent ID-poisoning & buffer overflow attacks
+    function isValidId(id) {
+      return id is string && id.size() >= 4 && id.size() <= 64 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // Validates compound tracking token (${orderId}_${trackingPin})
+    function isValidTrackingToken(token) {
+      return token is string && token.size() >= 14 && token.size() <= 48 && token.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isValidTimestamp(val) {
+      return val is timestamp;
+    }
+
+    // =========================================================================
+    // ENTITY VALIDATION BLUEPRINTS
+    // =========================================================================
+
+    // Validates private customer order schema with exact fixed formula:
+    // Dry Ice ₹50/kg + Thermocol ₹10/kg = ₹60/kg total (zero hidden fees/taxes)
+    function isValidOrder(data) {
+      let allowedKeys = [
+        'orderId', 'trackingToken', 'trackingPin', 'customerName', 
+        'customerPhone', 'district', 'address', 'city', 'quantityKg', 
+        'dispatchTiming', 'dispatchDate', 'slot', 'dispatchSlot', 'customerType', 'calculatedTotal', 'customerTotal', 'amountChanged', 'amountChangeReason', 'testOrder', 'thermocolIncluded', 'productName',
+        'dryIcePricePerKg', 'dryIceSubtotal', 'thermocolPricePerKg', 
+        'thermocolSubtotal', 'transportPrice', 'totalAmount',
+        'status', 'paymentStatus', 'paymentMethod', 'paymentNotes', 
+        'userId', 'isTrash', 'trashedAt', 'createdAt', 'updatedAt'
+      ];
+      let requiredKeys = [
+        'orderId', 'trackingToken', 'trackingPin', 'customerName', 
+        'customerPhone', 'district', 'quantityKg', 
+        'dispatchTiming', 'productName',
+        'dryIcePricePerKg', 'dryIceSubtotal', 'thermocolPricePerKg', 
+        'thermocolSubtotal', 'totalAmount',
+        'status', 'paymentStatus', 'paymentMethod', 'userId', 
+        'createdAt', 'updatedAt'
+      ];
+
+      let isAmountChanged = ('amountChanged' in data && data.amountChanged == true);
+      let profile = request.auth != null ? get(/databases/$(database)/documents/users/$(request.auth.uid)).data : {};
+      let formulaTotal = data.dryIceSubtotal + data.thermocolSubtotal + data.quantityKg * (('transportPrice' in data) ? data.transportPrice : 0);
+      return data.keys().hasAll(requiredKeys) &&
+             data.keys().hasOnly(allowedKeys) &&
+             data.orderId is string && data.orderId.size() <= 32 &&
+             data.trackingToken is string && data.trackingToken.size() <= 48 &&
+             data.trackingPin is string && data.trackingPin.size() >= 4 && data.trackingPin.size() <= 8 &&
+             data.customerName is string && data.customerName.size() >= 2 && data.customerName.size() <= 100 &&
+             data.customerPhone is string && data.customerPhone.size() >= 10 && data.customerPhone.size() <= 20 &&
+             data.district is string && data.district.size() >= 2 && data.district.size() <= 100 &&
+             (!('address' in data) || (data.address is string && data.address.size() <= 500)) &&
+             (!('city' in data) || (data.city is string && data.city.size() <= 100)) &&
+             (!('isTrash' in data) || data.isTrash is bool) &&
+             (!('trashedAt' in data) || data.trashedAt == null || isValidTimestamp(data.trashedAt)) &&
+             data.quantityKg is number && data.quantityKg > 0 && data.quantityKg <= 5000 &&
+             data.dispatchTiming is string && data.dispatchTiming.size() <= 100 &&
+             (!('dispatchDate' in data) || (data.dispatchDate is string && data.dispatchDate.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$'))) &&
+             (!('slot' in data) || data.slot in ['morning', 'evening']) &&
+             (!('dispatchSlot' in data) || data.dispatchSlot in ['morning', 'evening']) &&
+             (!('customerType' in data) || data.customerType in ['retail', 'wholesale']) &&
+             (!('amountChanged' in data) || data.amountChanged is bool) &&
+             (!('amountChangeReason' in data) || (data.amountChangeReason is string && data.amountChangeReason.size() <= 180)) &&
+             (!('testOrder' in data) || data.testOrder is bool) &&
+             (!('thermocolIncluded' in data) || data.thermocolIncluded is bool) &&
+             (!('calculatedTotal' in data) || (data.calculatedTotal is number && data.calculatedTotal > 0 && data.calculatedTotal <= 99000)) &&
+             (!('customerTotal' in data) || (data.customerTotal is number && data.customerTotal > 0 && data.customerTotal <= 99000)) &&
+             data.productName is string && data.productName.size() <= 100 &&
+             
+             // Dynamic booked rate pricing verification
+             data.dryIcePricePerKg is number && data.dryIcePricePerKg >= 0 &&
+             (data.dryIceSubtotal == data.quantityKg * data.dryIcePricePerKg ||
+              (data.dryIceSubtotal >= (data.quantityKg * data.dryIcePricePerKg - 0.05) &&
+               data.dryIceSubtotal <= (data.quantityKg * data.dryIcePricePerKg + 0.05))) &&
+             data.thermocolPricePerKg is number && data.thermocolPricePerKg >= 0 &&
+             (data.thermocolSubtotal == data.quantityKg * data.thermocolPricePerKg ||
+              (data.thermocolSubtotal >= (data.quantityKg * data.thermocolPricePerKg - 0.05) &&
+               data.thermocolSubtotal <= (data.quantityKg * data.thermocolPricePerKg + 0.05))) &&
+             (!('transportPrice' in data) || (data.transportPrice is number && data.transportPrice >= 0)) &&
+             (!isAmountChanged && (data.totalAmount == formulaTotal || (data.totalAmount >= formulaTotal - 0.05 && data.totalAmount <= formulaTotal + 0.05))) &&
+             (!isAmountChanged || (data.customerType == 'wholesale' && profile.customerType == 'wholesale' &&
+               data.customerTotal == data.totalAmount && data.calculatedTotal == formulaTotal &&
+               data.amountChangeReason is string && data.amountChangeReason.size() >= 3)) &&
+             (!('customerType' in data) || isAdmin() || (request.auth == null && data.customerType == 'retail') || (request.auth != null && data.customerType == profile.get('customerType', 'retail'))) &&
+
+             data.status in ['pending', 'confirmed', 'in_packing', 'dispatched', 'delivered', 'cancelled'] &&
+             data.paymentStatus in ['pending_verification', 'payment_verified', 'cash_on_delivery'] &&
+             data.paymentMethod in ['paytm_business_upi', 'manual_verification', 'cash_on_delivery'] &&
+             (!('paymentNotes' in data) || (data.paymentNotes is string && data.paymentNotes.size() <= 200)) &&
+             data.userId is string && data.userId.size() <= 128 &&
+             isValidTimestamp(data.createdAt) &&
+             isValidTimestamp(data.updatedAt);
+    }
+
+    // Validates public tracking projection (Zero PII - no customerName, phone, or address)
+    function isValidOrderTracking(data) {
+      let allowedKeys = [
+        'orderId', 'trackingToken', 'status', 'productName', 'quantityKg', 
+        'district', 'dispatchTiming', 'dispatchDate', 'slot', 'dispatchSlot', 'totalAmount', 'paymentStatus', 'lastStatusUpdate', 
+        'createdAt', 'updatedAt'
+      ];
+      let requiredKeys = [
+        'orderId', 'trackingToken', 'status', 'productName', 'quantityKg', 
+        'district', 'dispatchTiming', 'paymentStatus', 'lastStatusUpdate', 
+        'createdAt', 'updatedAt'
+      ];
+
+      return data.keys().hasAll(requiredKeys) &&
+             data.keys().hasOnly(allowedKeys) &&
+             data.orderId is string && data.orderId.size() <= 32 &&
+             data.trackingToken is string && data.trackingToken.size() <= 48 &&
+             data.status in ['pending', 'confirmed', 'in_packing', 'dispatched', 'delivered', 'cancelled'] &&
+             data.productName is string && data.productName.size() <= 100 &&
+             data.quantityKg is number && data.quantityKg > 0 && data.quantityKg <= 5000 &&
+             data.district is string && data.district.size() >= 2 && data.district.size() <= 100 &&
+             data.dispatchTiming is string && data.dispatchTiming.size() <= 100 &&
+             (!('dispatchDate' in data) || (data.dispatchDate is string && data.dispatchDate.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$'))) &&
+             (!('slot' in data) || data.slot in ['morning', 'evening']) &&
+             (!('dispatchSlot' in data) || data.dispatchSlot in ['morning', 'evening']) &&
+             data.paymentStatus in ['pending_verification', 'payment_verified', 'cash_on_delivery'] &&
+             data.lastStatusUpdate is string && data.lastStatusUpdate.size() <= 200 &&
+             isValidTimestamp(data.createdAt) &&
+             isValidTimestamp(data.updatedAt);
+    }
+
+    // Validates owner-managed product catalog (extended with optional storefront fields)
+    function isValidProduct(data) {
+      let requiredKeys = ['id', 'name', 'hindiName', 'ratePerKg', 'thermocolPerKg', 'active', 'category', 'updatedAt'];
+      let optionalKeys = ['imageUrl', 'description', 'unit', 'badge', 'sortOrder', 'mrpPerKg', 'useGlobalRates'];
+
+      return data.keys().hasAll(requiredKeys) &&
+             data.keys().hasOnly(requiredKeys.concat(optionalKeys)) &&
+             data.id is string && data.id.size() >= 2 && data.id.size() <= 64 &&
+             data.name is string && data.name.size() >= 2 && data.name.size() <= 100 &&
+             data.hindiName is string && data.hindiName.size() >= 2 && data.hindiName.size() <= 100 &&
+             data.ratePerKg is number && data.ratePerKg > 0 &&
+             data.thermocolPerKg is number && data.thermocolPerKg >= 0 &&
+             data.active is bool &&
+             data.category is string && data.category.size() <= 50 &&
+             (!('imageUrl' in data) || (data.imageUrl is string && data.imageUrl.size() <= 1000 &&
+                (data.imageUrl.size() == 0 || data.imageUrl.matches('^https://.*')))) &&
+             (!('description' in data) || (data.description is string && data.description.size() <= 300)) &&
+             (!('unit' in data) || (data.unit is string && data.unit.size() <= 20)) &&
+             (!('badge' in data) || (data.badge is string && data.badge.size() <= 30)) &&
+             (!('sortOrder' in data) || data.sortOrder is number) &&
+             (!('mrpPerKg' in data) || (data.mrpPerKg is number && data.mrpPerKg >= 0)) &&
+             (!('useGlobalRates' in data) || data.useGlobalRates is bool) &&
+             isValidTimestamp(data.updatedAt);
+    }
+
+    // Validates a staff-access request a user files about THEMSELVES
+    function isValidStaffRequest(data, uid) {
+      return data.keys().hasOnly(['uid', 'email', 'name', 'status', 'requestedAt']) &&
+             data.keys().hasAll(['uid', 'email', 'status', 'requestedAt']) &&
+             data.uid == uid &&
+             data.email == request.auth.token.email &&
+             (!('name' in data) || (data.name is string && data.name.size() <= 100)) &&
+             data.status == 'pending' &&
+             data.requestedAt == request.time;
+    }
+
+    // =========================================================================
+    // COLLECTION ACCESS RULES
+    // =========================================================================
+
+    // 1. Catch-all Global Safety Net: default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // 2. Private Customer Orders (Contains PII)
+    match /orders/{orderId} {
+      // Single order read: owner, permitted staff/delivery, or the authenticated buyer
+      allow get: if isValidId(orderId) && (
+        isAdmin() || canViewOrders() ||
+        (isSignedIn() && resource.data.userId == request.auth.uid)
+      );
+
+      allow list: if isAdmin() || canViewOrders() || (isSignedIn() && resource.data.userId == request.auth.uid);
+
+      // Customer order creation (guests allowed). Staff/Delivery cannot create orders.
+      allow create: if isValidId(orderId) &&
+        isValidOrder(incoming()) &&
+        incoming().orderId == orderId &&
+        incoming().status == 'pending' &&
+        incoming().createdAt == request.time &&
+        incoming().updatedAt == request.time &&
+        (isAdmin() || !isSignedIn() || incoming().userId == request.auth.uid || incoming().userId == 'guest' || incoming().userId == 'owner_manual_entry') &&
+        (isAdmin() || existsAfter(/databases/$(database)/documents/order_tracking/$(incoming().trackingToken)));
+
+      // Updates:
+      //  Owner: full operational updates
+      //  Staff/Delivery WITH the `updateStatus` permission: ONLY status + updatedAt
+      allow update: if isValidId(orderId) && (
+        (isAdmin() &&
+         isValidOrder(incoming()) &&
+         incoming().orderId == existing().orderId &&
+         incoming().createdAt == existing().createdAt &&
+         incoming().userId == existing().userId &&
+         incoming().updatedAt == request.time) ||
+        (canUpdateStatus() &&
+         incoming().diff(existing()).affectedKeys().hasOnly(['status', 'updatedAt']) &&
+         incoming().status in ['pending', 'confirmed', 'in_packing', 'dispatched', 'delivered', 'cancelled'] &&
+         incoming().updatedAt == request.time)
+      );
+
+      // Deletion: Owner only
+      allow delete: if isValidId(orderId) && isAdmin();
+    }
+
+    // 3. Protected Tracking Projection (Zero PII - keyed by secret token ${orderId}_${trackingPin})
+    match /order_tracking/{trackingToken} {
+      allow get: if isValidTrackingToken(trackingToken);
+      allow list: if false;
+
+      allow create: if isValidTrackingToken(trackingToken) &&
+        isValidOrderTracking(incoming()) &&
+        incoming().trackingToken == trackingToken &&
+        incoming().status == 'pending' &&
+        incoming().createdAt == request.time &&
+        incoming().updatedAt == request.time &&
+        (isAdmin() || existsAfter(/databases/$(database)/documents/orders/$(incoming().orderId)));
+
+      allow update: if isValidTrackingToken(trackingToken) && (
+        (isAdmin() &&
+         isValidOrderTracking(incoming()) &&
+         incoming().orderId == existing().orderId &&
+         incoming().trackingToken == existing().trackingToken &&
+         incoming().createdAt == existing().createdAt &&
+         incoming().updatedAt == request.time) ||
+        (canUpdateStatus() &&
+         incoming().diff(existing()).affectedKeys().hasOnly(['status', 'lastStatusUpdate', 'updatedAt']) &&
+         incoming().status in ['pending', 'confirmed', 'in_packing', 'dispatched', 'delivered', 'cancelled'] &&
+         incoming().lastStatusUpdate is string && incoming().lastStatusUpdate.size() <= 200 &&
+         incoming().updatedAt == request.time)
+      );
+
+      allow delete: if isValidTrackingToken(trackingToken) && isAdmin();
+    }
+
+    // 4. Products (Owner-managed catalog)
+    //    Customers (and anonymous visitors) can read ONLY active products, so
+    //    inactive/dummy products are not exposed even through direct API reads.
+    //    Customer queries must therefore include where('active', '==', true).
+    match /products/{productId} {
+      allow get, list: if isAdmin() || isFieldTeam() || resource.data.active == true;
+
+      allow create, update: if isValidId(productId) && isAdmin() &&
+        isValidProduct(incoming()) && incoming().id == productId && incoming().updatedAt == request.time;
+
+      // Staff/Delivery with the owner-granted `toggleProducts` permission may only
+      // switch availability on/off (e.g. out of stock).
+      allow update: if isValidId(productId) && canToggleProducts() &&
+        incoming().diff(existing()).affectedKeys().hasOnly(['active', 'updatedAt']) &&
+        incoming().active is bool &&
+        incoming().updatedAt == request.time;
+
+      allow delete: if isValidId(productId) && isAdmin();
+    }
+
+    // 5. System Settings (rates, theme, home banners, lucky winner, catalog flag).
+    //    Public read (storefront needs it), OWNER-only write.
+    match /settings/{settingId} {
+      allow read: if true;
+      allow write: if isValidId(settingId) && isAdmin();
+    }
+
+    // 5b. User profiles / role documents
+    //    - A user may READ their own document (needed to resolve their role).
+    //    - A user may create/update ONLY customer-profile fields on their own doc.
+    //      They can NEVER write role, permissions, whatsappEnabled or any other
+    //      privileged field  =>  no self-promotion to staff/admin.
+    //    - Only the OWNER can create/update/delete role documents or list users.
+    match /users/{userId} {
+      allow get: if isSignedIn() && (request.auth.uid == userId || isAdmin());
+      allow list: if isAdmin();
+
+      allow create: if isSignedIn() && request.auth.uid == userId &&
+        incoming().keys().hasOnly(['customerName', 'customerPhone', 'city', 'updatedAt', 'customerType']) &&
+        (!('customerType' in incoming()) || incoming().customerType == 'retail') &&
+        (!('customerName' in incoming()) || (incoming().customerName is string && incoming().customerName.size() <= 100)) &&
+        (!('customerPhone' in incoming()) || (incoming().customerPhone is string && incoming().customerPhone.size() <= 20)) &&
+        (!('city' in incoming()) || (incoming().city is string && incoming().city.size() <= 100)) &&
+        (!('updatedAt' in incoming()) || incoming().updatedAt == request.time);
+
+      allow update: if isSignedIn() && request.auth.uid == userId &&
+        incoming().diff(existing()).affectedKeys().hasOnly(['customerName', 'customerPhone', 'city', 'updatedAt']) &&
+        (!('customerName' in incoming()) || (incoming().customerName is string && incoming().customerName.size() <= 100)) &&
+        (!('customerPhone' in incoming()) || (incoming().customerPhone is string && incoming().customerPhone.size() <= 20)) &&
+        (!('city' in incoming()) || (incoming().city is string && incoming().city.size() <= 100));
+
+      allow create, update, delete: if isAdmin();
+    }
+
+    // 5c. Customer directory. Customers can access only their own +91 mobile
+    // document. Only the verified owner can query/list the collection.
+    match /customers/{phoneId} {
+      allow get: if isAdmin() || (isSignedIn() && resource.data.uid == request.auth.uid && resource.data.phone == phoneId);
+      allow list: if isAdmin();
+      allow create: if isSignedIn() && incoming().uid == request.auth.uid && incoming().phone == phoneId &&
+        phoneId.matches('^\\+91[6-9][0-9]{9}$') &&
+        incoming().keys().hasOnly(['uid','name','phone','firstLoginAt','lastLoginAt','orderCount','completedOrders','tag']) &&
+        incoming().name is string && incoming().name.size() >= 2 && incoming().name.size() <= 100 &&
+        incoming().firstLoginAt == request.time && incoming().lastLoginAt == request.time &&
+        incoming().orderCount in [0, 1] && incoming().completedOrders == 0 && incoming().tag == 'New';
+      allow update: if isAdmin() || (isSignedIn() && existing().uid == request.auth.uid && existing().phone == phoneId &&
+        incoming().diff(existing()).affectedKeys().hasOnly(['name','lastLoginAt','orderCount']) &&
+        incoming().lastLoginAt == request.time && (incoming().orderCount == existing().orderCount || incoming().orderCount == existing().orderCount + 1) &&
+        incoming().name is string && incoming().name.size() <= 100);
+      allow delete: if isAdmin();
+    }
+
+    // 5c. Staff access requests. A person files ONE pending request about
+    //     themselves; only the owner can read the list, approve or delete.
+    //     Approval = the owner writing users/{uid}.role (rule above).
+    match /staffRequests/{requestUid} {
+      allow get: if isSignedIn() && (request.auth.uid == requestUid || isAdmin());
+      allow list: if isAdmin();
+      allow create: if isSignedIn() && request.auth.uid == requestUid &&
+        isValidStaffRequest(incoming(), requestUid);
+      allow update, delete: if isAdmin();
+    }
+
+    // 6. Expenses (Owner only)
+    match /expenses/{expenseId} {
+      allow read, write: if isAdmin();
+    }
+
+    // 7. Anti-Escalation Gate: no client may touch this collection
+    match /admins/{adminId} {
+      allow read, write: if false;
+    }
+  }
+}
