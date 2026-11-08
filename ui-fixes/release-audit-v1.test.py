@@ -27,10 +27,10 @@ assert "collection(db, 'staffOrderViews')" not in staff
 assert 'tel:+919580882066' in tracking and '95808 82066' in tracking
 assert 'tel:+918896332066' not in tracking
 assert 'UPI ID: 8896332066@paytm' in tracking and 'paytm.s26ykus@pty' not in tracking
-assert 'QR is unavailable here.' in tracking and 'Paytm Barcode' not in tracking
+assert '/assets/paytm-upi-qr.svg' in tracking and 'Copy UPI ID' in tracking
 assert 'ankur.pending.order.v1.' in orders and 'pending.fingerprint !== fingerprint' in orders
 assert 'Your order details are saved on this device' in orders
-assert 'QR image is unavailable.' in orders and 'google_pay_qr.png' not in orders
+assert '/assets/paytm-upi-qr.svg' in orders and '8896332066@paytm' in orders
 assert 'VITE_ANDROID_VERSION_CODE' in update and 'validateUpdateManifest(json, currentVersionCode)' in update
 assert 'android:allowBackup="false"' in manifest
 print('PASS: release audit source contracts (14 switches, staff orders, contact, durable retry, native version, backup)')

@@ -349,3 +349,5 @@ The owner requested continued implementation, holding device-dependent questions
 - Update-checker regression cases now treat 65 as installed and 66 as the newer candidate; earlier fixture used an older APK code and code 65 (equal to installed), so correct rejection was reported as a failure. No live manifest or APK was published.
 
 - Release audit contract now imports the `re` module required for its whitespace-tolerant Owner FeatureHub assertion; all 71 preceding unit/regression contracts passed in hosted CI.
+
+- Updated the release audit contract to require the bundled Paytm QR SVG and Copy UPI ID action, replacing prior temporary fallback-text assertions. The four Phase A contracts and all 71 unit/regression contracts passed; this release-audit expectation was stale.
