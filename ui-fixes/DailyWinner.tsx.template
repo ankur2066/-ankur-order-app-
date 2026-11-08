@@ -1,0 +1,152 @@
+import React, {useEffect, useState} from 'react';
+import {doc,onSnapshot} from 'firebase/firestore';
+import {getFunctions,httpsCallable} from 'firebase/functions';
+import {app,db} from '../../firebase';
+import {isAndroidAppCheckReady} from '../../appCheck';
+import {useLanguage} from '../../context/LanguageContext';
+import type {User} from 'firebase/auth';
+
+function istDay(){
+ const date=new Date(Date.now()+19800000);
+ return date.toISOString().slice(0,10);
+}
+type DailyWinner={date:string;name:string;city:string;active:boolean;giftLabel:string};
+export const DailyWinnerBanner:React.FC<{currentUser:User|null}> = ({currentUser})=>{
+ const {language}=useLanguage(); const hi=language==='hi';
+ const [day,setDay]=useState(istDay);
+ const [winner,setWinner]=useState<DailyWinner|null>(null);
+ const [consent,setConsent]=useState<boolean|null>(null);
+ const [consentBusy,setConsentBusy]=useState(false);
+ const [consentMessage,setConsentMessage]=useState('');
+ useEffect(()=>{
+  const change=()=>{if(document.visibilityState!=='hidden')setDay(istDay());};
+  document.addEventListener('visibilitychange',change);
+  window.addEventListener('focus',change);
+  return ()=>{document.removeEventListener('visibilitychange',change);window.removeEventListener('focus',change);};
+ },[]);
+ useEffect(()=>{
+  setWinner(null);
+  return onSnapshot(doc(db,'dailyWinners',day),snap=>{
+   const value=snap.data();
+   setWinner(snap.exists()&&value?.active===true&&value.date===day&&
+     typeof value.name==='string'&&typeof value.city==='string'&&
+     value.name.trim().length>0&&value.city.trim().length>0 ?
+     {date:day,active:true,name:value.name.slice(0,70),city:value.city.slice(0,45),
+       giftLabel:hi?'खास गिफ्ट':'Special gift'}:null);
+  },()=>setWinner(null));
+ },[day,hi]);
+ useEffect(()=>{
+  setConsent(null);
+  setConsentMessage('');
+  if(!currentUser)return;
+  return onSnapshot(doc(db,'userPrefs',currentUser.uid),snap=>{
+   setConsent(snap.data()?.winnerPublicConsent===true);
+  },()=>{setConsent(null);setConsentMessage(hi?'सहमति की स्थिति नहीं पढ़ी जा सकी।':'Consent status could not be read.');});
+ },[currentUser?.uid]);
+ const saveConsent=async(next:boolean)=>{
+  if(!currentUser || consentBusy || !isAndroidAppCheckReady()){
+   setConsentMessage(hi?'सत्यापित Android ऐप से साइन इन करके ही सहमति बदलें।':'Sign in with the verified Android app to change consent.');return;
+  }
+  setConsentBusy(true);setConsentMessage('');
+  try{
+   await httpsCallable(getFunctions(app,'asia-southeast1'),'ankurWinnerConsent')({consent:next});
+   setConsentMessage(next?(hi?'सहमति सेव हुई।':'Consent saved.'):(hi?'सहमति वापस ली गई; प्रकाशित नाम हटाने का अनुरोध पूरा हुआ।':'Consent withdrawn; the published name removal request was submitted.'));
+  }catch{setConsentMessage(hi?'सहमति नहीं बदली। कनेक्शन या सर्वर सेटअप जाँचें।':'Consent was not changed. Check the connection or server setup.');}
+  finally{setConsentBusy(false);}
+ };
+ return <section className="ankur-daily-winner" aria-labelledby="ankur-daily-winner-title">
+  <h1 id="ankur-daily-winner-title" className="text-base font-black">{hi?'आज का Lucky Winner':"Today's Lucky Winner"}</h1>
+  {winner ? <div className="mt-2">
+   <p className="text-sm font-bold">{winner.name} · {winner.city}</p>
+   <p className="text-xs mt-1">{winner.giftLabel} · {day}</p>
+  </div> : <p className="mt-2 text-sm">{hi?'विजेता घोषित होने पर यहाँ दिखाई देगा।':'The winner will appear here after it is announced.'}</p>}
+  {currentUser && <div className="mt-3 border-t border-current/15 pt-3 space-y-2">
+   <p className="text-xs">{hi?'अपनी इच्छा से भाग लें: चुने जाने पर केवल आपका नाम और शहर सार्वजनिक दिखेगा, मोबाइल नंबर नहीं। आप सहमति वापस ले सकते हैं.':'Participation is optional. If selected, only your name and city are public; your phone number is not. You can withdraw consent.'}</p>
+   <label className="flex items-center gap-2 text-xs font-bold">
+    <input type="checkbox" checked={consent===true}
+      disabled={consent===null||consentBusy||!isAndroidAppCheckReady()}
+      onChange={e=>void saveConsent(e.target.checked)}/>
+    {hi?'Daily Winner में मेरे नाम और शहर के प्रकाशन की सहमति':'I consent to publish my name and city in Daily Winner'}
+   </label>
+   {consentMessage && <p role="status" className="text-xs">{consentMessage}</p>}
+  </div>}
+ </section>;
+};
+
+type WinnerConfig={enabled:boolean;mode:'auto'|'manual';distribution:'all3_top4'|'top3_all4'};
+const INITIAL:WinnerConfig={enabled:false,mode:'manual',distribution:'all3_top4'};
+export const DailyWinnerOwnerControls:React.FC=()=>{
+ const {language}=useLanguage(); const hi=language==='hi';
+ const [config,setConfig]=useState<WinnerConfig>(INITIAL);
+ const [source,setSource]=useState<'orders'|'product_orders'>('orders');
+ const [orderId,setOrderId]=useState('');
+ const [day,setDay]=useState(istDay);
+ const [busy,setBusy]=useState(false);
+ const [message,setMessage]=useState('');
+ useEffect(()=>onSnapshot(doc(db,'settings','dailyWinner'),snap=>{
+  const data=snap.data();
+  if(data&&typeof data.enabled==='boolean'&&['auto','manual'].includes(data.mode)&&
+     ['all3_top4','top3_all4'].includes(data.distribution))
+   setConfig({enabled:data.enabled,mode:data.mode,distribution:data.distribution});
+ },()=>setMessage(hi?'विजेता सेटिंग नहीं पढ़ी जा सकी।':'Winner settings could not be read.')),[hi]);
+ const call=async(fnName:string,data:Record<string,unknown>)=>{
+  if(!isAndroidAppCheckReady()){setMessage(hi?'सत्यापित Android ऐप में मालिक की अनुमति जरूरी है।':'Owner access in the verified Android app is required.');return;}
+  setBusy(true);setMessage('');
+  try{
+   const fn=httpsCallable(getFunctions(app,'asia-southeast1'),fnName);
+   await fn(data);
+   setMessage(fnName==='ankurWinnerSettings'?(hi?'सेटिंग सेव हुई।':'Settings saved.'):(hi?'इस दिन का चयन सुरक्षित रूप से भेजा गया।':'Selection submitted securely.'));
+  }catch{setMessage(hi?'सेव नहीं हुआ। मालिक का लॉगिन, अनुमतियाँ और सर्वर सेटअप जाँचें।':'Not saved. Check owner sign-in, permissions and server setup.');}
+  finally{setBusy(false);}
+ };
+ return <section className="rounded-2xl border b-line c-card p-4 my-3 space-y-3"
+   aria-label={hi?'Daily Winner मालिक नियंत्रण':'Daily Winner owner controls'}>
+  <h2 className="text-base font-black">{hi?'Daily Winner नियंत्रण':'Daily Winner controls'}</h2>
+  <p className="text-xs t-sub">{hi?'रिटेल रेट से कम या होलसेल ऑर्डर शामिल नहीं होंगे। एक दिन का एक विजेता। उपहार बाद में तय होगा।':'Below-retail and wholesale orders are excluded. One winner per day. The gift is set by the owner.'}</p>
+  <label className="flex items-center gap-2 text-sm">
+   <input type="checkbox" checked={config.enabled}
+     onChange={e=>setConfig(v=>({...v,enabled:e.target.checked}))}/>
+   {hi?'योजना चालू रखें':'Enable the plan'}
+  </label>
+  <label className="block text-sm font-semibold">{hi?'चयन का तरीका':'Selection mode'}
+   <select className="block w-full mt-1 rounded-xl border b-line c-card p-3"
+     value={config.mode} onChange={e=>setConfig(v=>({...v,mode:e.target.value as WinnerConfig['mode']}))}>
+   <option value="auto">{hi?'Auto (रोज़ 9 बजे, लाइव सेटअप के बाद)':'Auto (9 AM daily, after live setup)'}</option>
+   <option value="manual">{hi?'Manual (मालिक चुने)':'Manual (owner selects)'}</option>
+   </select>
+  </label>
+  <label className="block text-sm font-semibold">{hi?'साप्ताहिक वितरण':'Weekly distribution'}
+   <select className="block w-full mt-1 rounded-xl border b-line c-card p-3"
+     value={config.distribution} onChange={e=>setConfig(v=>({...v,distribution:e.target.value as WinnerConfig['distribution']}))}>
+   <option value="all3_top4">{hi?'3 दिन सभी रिटेल · 4 दिन टॉप रिटेल':'All retail customers 3 days · top retail customers 4 days'}</option>
+   <option value="top3_all4">{hi?'3 दिन टॉप रिटेल · 4 दिन सभी रिटेल':'Top retail customers 3 days · all retail customers 4 days'}</option>
+   </select>
+  </label>
+  <button type="button" disabled={busy} className="c-brand p-3 rounded-xl text-sm font-bold"
+    onClick={()=>void call('ankurWinnerSettings',config)}>{hi?'सेटिंग सेव करें':'Save settings'}</button>
+  <div className="border-t b-line pt-3 space-y-2">
+   <p className="text-sm font-bold">{hi?'एक ऑर्डर चुनें या आज का चयन बदलें':'Select an order or override today’s winner'}</p>
+   <label className="block text-sm">{hi?'तारीख (IST)':'Date (IST)'}
+    <input type="date" value={day} max={istDay()} onChange={e=>setDay(e.target.value)}
+      className="block w-full mt-1 p-3 rounded-xl border b-line c-card"/>
+   </label>
+   <label className="block text-sm">{hi?'ऑर्डर प्रकार':'Order type'}
+    <select value={source} onChange={e=>setSource(e.target.value as typeof source)}
+      className="block w-full mt-1 p-3 rounded-xl border b-line c-card">
+     <option value="orders">Dry Ice Order</option>
+     <option value="product_orders">Product Order</option>
+    </select>
+   </label>
+   <label className="block text-sm">{hi?'रिटेल ऑर्डर ID':'Retail order ID'}
+    <input value={orderId} onChange={e=>setOrderId(e.target.value.trim().slice(0,64))}
+      placeholder="ADI-..." className="block w-full mt-1 p-3 rounded-xl border b-line c-card"/>
+   </label>
+   <button type="button" disabled={busy||config.mode!=='manual'||!orderId||!config.enabled}
+     className="c-brand p-3 rounded-xl text-sm font-bold disabled:opacity-50"
+     onClick={()=>void call('ankurWinnerManualPick',{day,source,orderId,override:true})}>
+     {hi?'इसी दिन का विजेता चुनें / बदलें':'Choose / change today’s winner'}
+   </button>
+  </div>
+  {message&&<p role="status" className="text-xs t-sub">{message}</p>}
+ </section>;
+};
