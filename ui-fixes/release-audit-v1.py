@@ -188,7 +188,8 @@ app_update.write_text(app_text, encoding='utf-8')
 update_template = ROOT / 'updates/appUpdate.template'
 if update_template.exists():
     edit('updates/appUpdate.template', [
-        ("export const ANDROID_VERSION_CODE = 47;\nexport const ANDROID_VERSION_NAME = '1.0.47';", "export const ANDROID_VERSION_CODE = Number(import.meta.env?.VITE_ANDROID_VERSION_CODE || 64);\nexport const ANDROID_VERSION_NAME = import.meta.env?.VITE_ANDROID_VERSION_NAME || '10.0.64';"),
+        ("export const ANDROID_VERSION_CODE = 65;\nexport const ANDROID_VERSION_NAME = '1.0.65';", "export const ANDROID_VERSION_CODE = Number(import.meta.env?.VITE_ANDROID_VERSION_CODE || 65);\nexport const ANDROID_VERSION_NAME = import.meta.env?.VITE_ANDROID_VERSION_NAME || '1.0.65';"),
+        ("export const ANDROID_VERSION_CODE = 47;\nexport const ANDROID_VERSION_NAME = '1.0.47';", "export const ANDROID_VERSION_CODE = Number(import.meta.env?.VITE_ANDROID_VERSION_CODE || 65);\nexport const ANDROID_VERSION_NAME = import.meta.env?.VITE_ANDROID_VERSION_NAME || '1.0.65';"),
         ("export async function checkForUpdate(fetcher: typeof fetch = fetch): Promise<UpdateRelease | null> {", "export async function checkForUpdate(fetcher: typeof fetch = fetch, currentVersionCode = ANDROID_VERSION_CODE): Promise<UpdateRelease | null> {"),
         ("return validateUpdateManifest(json);", "return validateUpdateManifest(json, currentVersionCode);"),
     ])
