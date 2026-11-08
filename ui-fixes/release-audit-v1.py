@@ -66,12 +66,15 @@ tracking_path.write_text(tracking_source, encoding='utf-8')
 p = ROOT / 'src/components/StaffDashboard.tsx'
 s = p.read_text(encoding='utf-8')
 start = s.find("    const ordersCol = collection(db, 'staffOrderViews');")
+if start < 0:
+    start = s.find("    const ordersCol = collection(db, 'orders');")
 end_marker = '    return () => unsubscribe();'
 end = s.find(end_marker, start)
 if start < 0 or end < 0:
     raise SystemExit('PATCH BASELINE MISMATCH: staff order listener block missing')
 end += len(end_marker)
-new = '''    // The existing deployed Rules grant viewOrders users read access to these
+if "collection(db, 'staffOrderViews')" in s[start:end]:
+    new = '''    // The existing deployed Rules grant viewOrders users read access to these
     // collections. Keep the displayed projection PII-safe; phone is retrieved
     // only by the one-order verified contact callable above.
     const bySource = new Map<string, Order[]>();
@@ -110,6 +113,31 @@ new = '''    // The existing deployed Rules grant viewOrders users read access t
     const stopOrders = onSnapshot(collection(db, 'orders'), snap => mapOrders('orders', snap), err => onError(err, 'orders'));
     const stopProducts = onSnapshot(collection(db, 'product_orders'), snap => mapOrders('product_orders', snap), err => onError(err, 'product_orders'));
     return () => { stopOrders(); stopProducts(); };
+'''
+else:
+    new = '''    // Keep the live order list and include unit-product orders in real time.
+    const bySource = new Map<string, Order[]>();
+    const publish = () => {
+      const list = [...bySource.values()].flat().filter(order => !order.isTrash);
+      list.sort((a, b) => {
+        const timeA = a.createdAt?.seconds ? a.createdAt.seconds * 1000 : 0;
+        const timeB = b.createdAt?.seconds ? b.createdAt.seconds * 1000 : 0;
+        return timeB - timeA;
+      });
+      setOrders(list);
+      setLoading(false);
+    };
+    const listen = (source: 'orders' | 'product_orders') => onSnapshot(collection(db, source), snapshot => {
+      bySource.set(source, snapshot.docs.map(docSnap => ({...docSnap.data(), orderId: docSnap.data().orderId || docSnap.id, sourceCollection: source} as Order)));
+      publish();
+    }, error => {
+      setLoading(false);
+      try { handleFirestoreError(error, OperationType.LIST, source); }
+      catch (e: any) { setErrorMsg('ऑर्डर लोड करने में समस्या: ' + (e?.message || 'Permission denied')); }
+    });
+    const unsubscribeOrders = listen('orders');
+    const unsubscribeProducts = listen('product_orders');
+    return () => { unsubscribeOrders(); unsubscribeProducts(); };
 '''
 s = s[:start] + new + s[end:]
 p.write_text(s, encoding='utf-8')
