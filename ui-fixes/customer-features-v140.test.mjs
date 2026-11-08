@@ -14,10 +14,10 @@ const review=readFileSync(new URL('../.github/workflows/all-features-review.yml'
 const signed=readFileSync(new URL('../.github/workflows/all-features-signed-test-apk.yml',import.meta.url),'utf8');
 
 test('customer bottom navigation has exactly the four requested tabs',()=>{
- const tabs=[...nav.matchAll(/\{ id: '([^']+)', label:/g)].map(m=>m[1]);
- assert.deepEqual(tabs,['home','my-orders','ai-video','profile']);
+ assert.match(nav,/id: isOwner \? 'ai-video' : 'categories'/);
+ assert.match(nav,/label: isOwner \? 'AI Video' : 'Categories'/);
  assert.match(nav,/grid-cols-4/);
- assert.doesNotMatch(nav,/label: 'AI Features'|Sparkles|id: 'categories'/);
+ assert.match(nav,/isOwner = false/);
  assert.doesNotMatch(app,/currentTab === 'ai-features'/);
  assert.match(css,/ANKUR AI FEATURES NAV v1\.0\.40/);
 });
@@ -33,7 +33,8 @@ test('Home keeps the daily winner and opens only owner-enabled business tools',(
  assert.match(featureHub,/grid grid-cols-2 gap-2/);
  assert.match(featureHub,/id:'calculator'/);
  assert.match(app,/currentTab === 'ai-video'/);
- assert.match(app,/false && currentTab === 'categories'/);
+ assert.match(app,/currentTab === 'categories' &&/);
+ assert.match(app,/isOwner=\{role === 'admin'\}/);
 });
 
 test('existing Home booking and owner/staff workflows remain routed unchanged',()=>{
@@ -53,6 +54,6 @@ test('local reconstruction, private review and signed APK apply the same UI patc
  assert.equal(signed.split('python3 '+name).length-1,1);
  assert.ok(local.indexOf('customer_home_clean_v139.py')<local.indexOf(name));
  assert.match(signed,/paths: \['release-batches\/\*\.txt'\]/,'only explicit release batch triggers signed APK');
- assert.match(signed,/versionCode 64/);
- assert.match(signed,/versionName "10\.0\.64-combined-test"/);
+ assert.match(signed,/versionCode 65/);
+ assert.match(signed,/versionName "1\.0\.65-combined-test"/);
 });

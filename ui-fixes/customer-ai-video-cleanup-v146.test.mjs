@@ -12,8 +12,9 @@ const local=readFileSync(new URL('../all-features/reconstruct.py',import.meta.ur
 const review=readFileSync(new URL('../.github/workflows/all-features-review.yml',import.meta.url),'utf8');
 const signed=readFileSync(new URL('../.github/workflows/all-features-signed-test-apk.yml',import.meta.url),'utf8');
 
-test('AI Video bottom tab opens only the original Video Idea Builder',()=>{
- assert.match(nav,/id: 'ai-video', label: 'AI Video'/);
+test('AI Video bottom tab opens only the original Video Idea Builder for the owner',()=>{
+ assert.match(nav,/id: isOwner \? 'ai-video' : 'categories'/);
+ assert.match(nav,/label: isOwner \? 'AI Video' : 'Categories'/);
  const route=app.match(/\{currentTab === 'ai-video' &&[^\n]*/);
  assert.ok(route);
  assert.match(route[0],/initial="video" allowed=\{\['video'\]\}/);
@@ -38,7 +39,8 @@ test('Core booking and privileged dashboards remain wired as before',()=>{
  assert.match(app,/onGoToTrack=\{handleGoToTrack\}/);
  assert.match(app,/<AdminDashboard/);
  assert.match(app,/<StaffDashboard/);
- assert.match(app,/false && currentTab === 'categories' && \(/);
+ assert.match(app,/currentTab === 'categories' && \(/);
+ assert.match(app,/isOwner=\{role === 'admin'\}/);
 });
 
 test('Private review, local reconstruction and v1.0.46 signed APK share the exact cleanup',()=>{
@@ -48,6 +50,6 @@ test('Private review, local reconstruction and v1.0.46 signed APK share the exac
  assert.equal(signed.split('python3 '+p).length-1,1);
  assert.ok(local.indexOf('customer_profile_contact_v145.py')<local.indexOf(p));
  assert.match(signed,/paths: \['release-batches\/\*\.txt'\]/,'only explicit release batch triggers signed APK');
- assert.match(signed,/versionCode 64/);
- assert.match(signed,/versionName "10\.0\.64-combined-test"/);
+ assert.match(signed,/versionCode 65/);
+ assert.match(signed,/versionName "1\.0\.65-combined-test"/);
 });

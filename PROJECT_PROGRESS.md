@@ -337,3 +337,5 @@ The owner requested continued implementation, holding device-dependent questions
 - CI follow-up: the updated guard reached the post-overlay assertions but scoped persisted fields to the extracted function range; the payload sits in a nested object. Broadened the guard to verify those persisted fields in the OrderForm source while retaining assertions for owner-set wholesale rate and retail restrictions.
 
 - CI follow-up: the v1.0.65 financial guard initially expected `customerTotal:` although the TypeScript payload uses valid shorthand `customerTotal`. Adjusted the source assertion to check the property name without requiring a colon; re-running hosted CI.
+
+- CI feedback uncovered stale assertions requiring the old customer AI Video tab and disabled Categories page. Updated nav contracts to the requested role-specific behavior (AI Video for owner, Categories for customers), synchronized the local/review/signed reconstruction chains, and set the existing manual signed workflow defaults to versionCode 65 / 1.0.65. This does not trigger a signed build.

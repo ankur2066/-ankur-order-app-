@@ -10,7 +10,9 @@ const patch = readFileSync(new URL('./customer_nav_v138.py', import.meta.url), '
 
 test('duplicate customer Products/Categories tab is not rendered', () => {
   const tabIds = [...nav.matchAll(/\{ id: '([^']+)', label:/g)].map(x => x[1]);
-  assert.deepEqual(tabIds, ['home', 'my-orders', 'ai-video', 'profile']);
+  assert.deepEqual(tabIds, ['home', 'my-orders', 'profile']);
+  assert.match(nav, /id: isOwner \? 'ai-video' : 'categories'/);
+  assert.match(nav, /label: isOwner \? 'AI Video' : 'Categories'/);
   assert.match(nav, /grid-cols-4/);
   assert.doesNotMatch(nav, /Icon: LayoutGrid/);
 });
@@ -18,8 +20,8 @@ test('duplicate customer Products/Categories tab is not rendered', () => {
 test('legacy customer catalogue promo routes to Home, not dead Categories page', () => {
   assert.match(app, /else if \(action === 'categories'\) setCurrentTab\('home'\)/);
   assert.doesNotMatch(app, /else if \(action === 'categories'\) setCurrentTab\('categories'\)/);
-  assert.match(app, /\{false && currentTab === 'categories' && \(/, 'orphaned product page disabled');
-  assert.doesNotMatch(app, /\{currentTab === 'categories' && \(/, 'unreachable Categories render must stay gated');
+  assert.match(app, /\{currentTab === 'categories' && \(/, 'customer Categories remains reachable');
+  assert.match(app, /isOwner=\{role === 'admin'\}/);
 });
 
 test('existing booking and private product records remain untouched', () => {
