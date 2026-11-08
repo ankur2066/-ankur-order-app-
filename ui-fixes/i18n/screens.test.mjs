@@ -21,11 +21,12 @@ async function screen(path,name,props={},seed=[]){
  if(id.endsWith('/hooks/useProducts'))return synthetic(id,{useStorefrontProducts:()=>({products:[],loading:false,error:''})});
  if(id.endsWith('/appCheck'))return synthetic(id,{isAndroidAppCheckReady:async()=>true});
  if(/\/(data|billing)\/|utils\/(ownerReports|expenseCycles|dryIceCalc)/.test(id)||id.endsWith('/types')){const target=resolve(dirname(file),id)+'.ts';return load(target);}
- if(id.endsWith('/PaymentOptions'))return synthetic(id,{PaymentOptions:()=>null});
+ if(id==='./PaymentOptions'||id.endsWith('/PaymentOptions'))return synthetic(id,{PaymentOptions:()=>null});
  if(id.endsWith('/owner/CustomersView'))return synthetic(id,{CustomersView:()=>null});
  if(id.endsWith('/config/businessConfig'))return synthetic(id,{PRIMARY_UPI_ID:'paytm.s26ykus@pty',BACKUP_UPI_ID:'ankur.singh332066@okhdfcbank',RETAIL_RATE_PER_KG:50,WHOLESALE_RATE_PER_KG:0,THERMOCOL_RATE_PER_KG:10});
  if(/\/utils\//.test(id))return synthetic(id,Object.fromEntries(names.map(k=>[k,()=>false])));
  if(id==='./FeatureHub')return load(resolve(dirname(file),id)+'.tsx');
+ if(id.endsWith('/customer/FeatureHub'))return synthetic(id,{FeatureHub:()=>null});
  if(id.endsWith('/ReferralSharePanel'))return synthetic(id,{ReferralSharePanel:()=>null});
  if(id.endsWith('/SignInScreen'))return load(resolve(dirname(file),id)+'.tsx');
  if(id.endsWith('/customer/DailyWinner'))return synthetic(id,Object.fromEntries(names.map(k=>[k,()=>null])));
