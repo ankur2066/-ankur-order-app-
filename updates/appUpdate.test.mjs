@@ -12,7 +12,7 @@ const apk='https://ankurdryice.store/app-releases/Ankur-Dryice-v1.0.48-signed.ap
 const mk=(url,versionCode=65,channel='signed_apk')=>({versionCode,versionName:'10.0.65',channel,url,notes:'Booking and Tracking improvements'});
 
 test('version checker accepts only newer known verified destinations',()=>{
- assert.equal(update.ANDROID_VERSION_CODE,64);
+ assert.equal(update.ANDROID_VERSION_CODE,65);
  assert.equal(update.validateUpdateManifest(mk(apk))?.url,apk);
  assert.equal(update.validateUpdateManifest(mk(play,65,'play'))?.url,play);
  assert.equal(update.validateUpdateManifest(mk(apk,47)),null);
@@ -76,6 +76,6 @@ test('native only, nonblocking, bilingual notice and no silent installer permiss
  assert.match(notice,/if\(!info\)\{setRelease\(null\);return;\}/,'withdrawn/invalid releases must clear stale notice');
  assert.match(notice,/rel="noopener noreferrer"/);
  assert.doesNotMatch(notice,/REQUEST_INSTALL_PACKAGES|ACTION_INSTALL_PACKAGE|PackageInstaller|download\(/);
- assert.match(workflow,/versionCode 64/);
+ assert.match(workflow,/versionCode 65/);
  assert.match(workflow,/versionName "10\.0\.64-combined-test"/);
 });

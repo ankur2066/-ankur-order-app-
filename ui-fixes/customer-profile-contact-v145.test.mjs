@@ -37,6 +37,6 @@ test('same Profile-only fix applied in local/review/signed v1.0.45',()=>{
  assert.equal(signed.split('python3 '+patch).length-1,1);
  assert.ok(local.indexOf('video_idea_profile_v141.py')<local.indexOf(patch));
  assert.match(signed,/paths: \['release-batches\/\*\.txt'\]/,'only explicit release batch triggers signed APK');
- assert.match(signed,/versionCode 64/);
+ assert.match(signed,/versionCode 65/);
  assert.match(signed,/versionName "10\.0\.64-combined-test"/);
 });

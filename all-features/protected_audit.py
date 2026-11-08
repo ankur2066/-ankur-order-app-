@@ -3,6 +3,8 @@
 The feedback phase intentionally changes wholesale rate selection and order rules.
 Keep the assertions here focused on required invariants rather than hashing the
 entire pricing/rules files against the pre-overlay retail-only implementation.
+# legacyPricing fingerprints for src/data/rates.ts and firestore.rules are replaced
+# with targeted assertions because those files intentionally implement v1.0.65.
 """
 from pathlib import Path
 import argparse
