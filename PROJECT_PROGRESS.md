@@ -357,3 +357,5 @@ The owner requested continued implementation, holding device-dependent questions
 - TypeScript build now resolved the two missing components and exposed their shared `referralShare` helper as the remaining missing source. Added that utility to the same review overlay; no external service or Firebase change is introduced.
 
 - Order status/payment notes now use the selected app language for generated text (including initial booking, owner-created orders, and status transitions); freeform reason/owner notes remain verbatim. The legacy copy audit reports 303 untranslated legacy UI strings as `PARTIAL_LEGACY_COPY` for follow-up while still failing invalid English dictionary entries. This is explicitly reported as a remaining limitation, not a localization pass.
+
+- Corrected two snapshots that had been copied through a truncated shell output: the hosted overlay now receives the complete AdminDashboard and OrderForm source, including wholesale total persistence and language-aware order status notes. This preserves the actual local build-tested files.
