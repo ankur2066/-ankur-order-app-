@@ -16,7 +16,7 @@ files = [
     "src/components/customer/FeatureHub.tsx", "src/components/customer/BottomNav.tsx",
     "src/components/owner/FeatureSuiteSettings.tsx", "src/data/products.ts", "src/data/rates.ts",
     "src/hooks/useInlinePromo.ts", "src/index.css", "src/services/appUpdate.ts",
-    "src/types.ts", "src/utils/dispatchSchedule.ts", "public/assets/paytm-upi-qr.svg", "updates/appUpdate.template",
+    "src/types.ts", "src/utils/dispatchSchedule.ts", "src/utils/referralShare.ts", "public/assets/paytm-upi-qr.svg", "updates/appUpdate.template",
 ]
 for relative in files:
     source = overlay / relative
