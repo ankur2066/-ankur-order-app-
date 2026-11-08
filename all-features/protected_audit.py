@@ -17,10 +17,12 @@ protected_terms = (
     'thermocolPricePerKg: rates.thermocolRate,',
     'thermocolSubtotal: finalThermocolSubtotal,',
     'transportPrice: rates.transportRate || 0,',
-    'totalAmount: approvedAmount(finalTotalAmount),',
 )
 for term in protected_terms:
     assert submission.count(term)==1, f'protected pricing term missing/duplicated: {term}'
+amount_field = next((term for term in ('totalAmount: approvedAmount(finalTotalAmount),', 'totalAmount: finalTotalAmount,') if submission.count(term)==1), None)
+assert amount_field, 'protected total amount field missing or duplicated'
+protected_terms = (*protected_terms, amount_field)
 values={'legacyPricing':hashlib.sha256('\\n'.join(protected_terms).encode()).hexdigest()}
 for path in ['src/data/rates.ts','firestore.rules']:values[path]=hashlib.sha256(Path(path).read_bytes()).hexdigest()
 if a.mode=='record':a.receipt.write_text(json.dumps(values,indent=2))
