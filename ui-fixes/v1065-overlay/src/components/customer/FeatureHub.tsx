@@ -279,7 +279,7 @@ function SupportPanel(){
 function ServiceAreaPanel(){
  const {language}=useLanguage(),hi=language==='hi';const[search,setSearch]=useState('');
  const districts=UP_DISTRICTS.filter(d=>d.toLocaleLowerCase().includes(search.trim().toLocaleLowerCase()));
- const displayDistrict=(d:string)=>hi?d:(d.match(/\(([^()]*)\)\s*$/)?.[1]||d);
+ const displayDistrict=(d:string)=>hi?d:(d.match(/[A-Za-z][A-Za-z .'-]*/)?.[0]?.trim()||d);
  return <section className="space-y-3" aria-label="Uttar Pradesh delivery enquiry">
   <p className="text-sm t-sub">{hi?'पूरे उत्तर प्रदेश में डिलीवरी के लिए पूछताछ करें। जिला दिखना समय या उपलब्धता की पुष्टि नहीं है।':'Enquire across Uttar Pradesh. A listed district is not a delivery availability or timing guarantee.'}</p>
   <label className="block text-sm font-bold">{hi?'जिला खोजें':'Search district'}
