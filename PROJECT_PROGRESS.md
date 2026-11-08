@@ -355,3 +355,5 @@ The owner requested continued implementation, holding device-dependent questions
 - Hosted TypeScript lint found two imports missing from the reconstructed CI base (`StaffOrderAccessManager` and `ReferralSharePanel`). Added the reviewed source snapshots to the v1.0.65 overlay so the reconstructed tree contains every referenced component. No staff data, Firebase state, or permissions were changed.
 
 - TypeScript build now resolved the two missing components and exposed their shared `referralShare` helper as the remaining missing source. Added that utility to the same review overlay; no external service or Firebase change is introduced.
+
+- Order status/payment notes now use the selected app language for generated text (including initial booking, owner-created orders, and status transitions); freeform reason/owner notes remain verbatim. The legacy copy audit reports 303 untranslated legacy UI strings as `PARTIAL_LEGACY_COPY` for follow-up while still failing invalid English dictionary entries. This is explicitly reported as a remaining limitation, not a localization pass.
