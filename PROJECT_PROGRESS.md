@@ -330,3 +330,6 @@ The owner requested continued implementation, holding device-dependent questions
 - Follow-up in the same v1.0.65 phase: both owner order-list modes now share one call/WhatsApp action component with matching tap targets. CSV, monthly, insight and AI summary sources omit flagged test orders while those orders remain visible for operations. Local lint/build remain green.
 
 - CI run 42466358708 failed at overlay installation because the first commit staged source snapshots at app-root paths instead of the runner's `ui-fixes/v1065-overlay/` source path. The overlay copy error is corrected in the next commit; no build/test failure was reached in that run. This is being rerun before review completion.
+
+
+- CI follow-up: hosted review applied all 22 app overlays, then the legacy financial guard rejected the intended wholesale-rate / customer-type Firestore changes. Updated `all-features/protected_audit.py` to assert the v1.0.65 safeguards directly (owner-set wholesale rate, retail lock, reason-required amount override, persisted totals) rather than freezing the old retail-only hashes. No backend deployment was run.
