@@ -35,7 +35,7 @@ test('customer-only storefront gate preserves owner catalogue, native order trac
   assert.match(wiring,/DO NOT inject a duplicate Other Products page/);
   assert.doesNotMatch(wiring,/s\.replace\(anchor,"      \{currentTab === 'categories' && <details>/);
   assert.match(wiring,/\["inventory","reports","catalog","partner","subscriptions","promotions","referral","loyalty"\]/);
-  assert.match(protectedSource,/legacySubmission/);
+  assert.match(protectedSource,/legacyPricing/);
   assert.match(protectedSource,/src\/data\/rates\.ts/);
   assert.match(protectedSource,/firestore\.rules/);
 });
