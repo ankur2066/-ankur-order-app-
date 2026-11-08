@@ -361,3 +361,5 @@ The owner requested continued implementation, holding device-dependent questions
 - Corrected two snapshots that had been copied through a truncated shell output: the hosted overlay now receives the complete AdminDashboard and OrderForm source, including wholesale total persistence and language-aware order status notes. This preserves the actual local build-tested files.
 
 - Reconnected the owner's dispatch handler to the existing trusted inventory path so enabled inventory dispatch cannot double-write; disabled mode keeps the paired legacy update. Updated the React harness for the new dispatch-date helper/referral panel, and scoped old-screen language assertions to avoid claiming all legacy copy is translated. Added direct assertions for bilingual generated order notes.
+
+- The screen-language harness now asserts the saved switch and no-popup behavior without claiming full English coverage across older static screens; untranslated legacy copy remains visible in the partial copy audit.
