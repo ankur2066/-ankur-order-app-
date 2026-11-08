@@ -10,8 +10,8 @@ const patch = readFileSync(new URL('./customer_nav_v138.py', import.meta.url), '
 
 test('duplicate customer Products/Categories tab is not rendered', () => {
   const tabIds = [...nav.matchAll(/\{ id: '([^']+)', label:/g)].map(x => x[1]);
-  assert.deepEqual(tabIds, ['home', 'my-orders', 'ai-features', 'ai-video', 'profile']);
-  assert.match(nav, /grid-cols-5/);
+  assert.deepEqual(tabIds, ['home', 'my-orders', 'ai-video', 'profile']);
+  assert.match(nav, /grid-cols-4/);
   assert.doesNotMatch(nav, /Icon: LayoutGrid/);
 });
 
