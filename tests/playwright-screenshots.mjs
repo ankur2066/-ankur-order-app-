@@ -1,5 +1,6 @@
 import { chromium } from 'playwright';
 import { readdir, readFile, mkdir } from 'node:fs/promises';
+import { fileURLToPath } from 'node:url';
 
 const cssFile = (await readdir(new URL('../dist/assets/', import.meta.url))).find(f => f.endsWith('.css'));
 const css = await readFile(new URL(`../dist/assets/${cssFile}`, import.meta.url), 'utf8');
@@ -17,6 +18,6 @@ try {
   for (const [name, title, body] of cards) {
     await page.setContent(`<html><head><meta name="viewport" content="width=device-width,initial-scale=1"></head><body><main class="max-w-xl mx-auto min-h-screen p-4 bg-slate-50 text-slate-900"><header class="mb-4 font-bold">Ankur Dryice · ${title}</header>${body}</main></body></html>`);
     await page.addStyleTag({ content: css });
-    await page.screenshot({ path: new URL(`../artifacts/screenshots/${name}.png`, import.meta.url), fullPage: true });
+    await page.screenshot({ path: fileURLToPath(new URL(`../artifacts/screenshots/${name}.png`, import.meta.url)), fullPage: true });
   }
 } finally { await browser.close(); }
