@@ -205,7 +205,7 @@ function VideoIdeaPanel({user}:{user:User|null}){
         className={`ankur-video-occasion-option rounded-lg border p-2 ${occasion===item.id?'ankur-selected':''}`}
         onClick={()=>{setOccasion(item.id);setOccasionOpen(false);}}>
         <span className="block font-semibold">{item.short}</span>
-        <span className="block ankur-video-occasion-hi">{item.hi}</span>
+        {hi&&<span className="block ankur-video-occasion-hi">{item.hi}</span>}
       </button>)}
     </div>}
     {occasion==='other'&&<label className="block">Function name
@@ -278,6 +278,7 @@ function SupportPanel(){
 function ServiceAreaPanel(){
  const {language}=useLanguage(),hi=language==='hi';const[search,setSearch]=useState('');
  const districts=UP_DISTRICTS.filter(d=>d.toLocaleLowerCase().includes(search.trim().toLocaleLowerCase()));
+ const displayDistrict=(d:string)=>hi?d:(d.match(/\\(([^()]*)\\)\\s*$/)?.[1]||d);
  return <section className="space-y-3" aria-label="Uttar Pradesh delivery enquiry">
   <p className="text-sm t-sub">{hi?'पूरे उत्तर प्रदेश में डिलीवरी के लिए पूछताछ करें। जिला दिखना समय या उपलब्धता की पुष्टि नहीं है।':'Enquire across Uttar Pradesh. A listed district is not a delivery availability or timing guarantee.'}</p>
   <label className="block text-sm font-bold">{hi?'जिला खोजें':'Search district'}
@@ -285,7 +286,7 @@ function ServiceAreaPanel(){
     className="w-full border rounded-xl p-3 mt-1" placeholder={hi?'जिले का नाम':'District name'} />
   </label>
   <p role="status" className="text-xs t-sub">{districts.length} {hi?'जिले मिले':'district matches'}</p>
-  <ul className="max-h-64 overflow-y-auto rounded-xl border b-line p-2">{districts.map(d=><li className="border-b b-line p-2" key={d}>{d}</li>)}</ul>
+  <ul className="max-h-64 overflow-y-auto rounded-xl border b-line p-2">{districts.map(d=><li className="border-b b-line p-2" key={d}>{displayDistrict(d)}</li>)}</ul>
   <p className="text-xs t-sub">{hi?'पैकिंग और पहुँचने का समय टीम से कन्फर्म करें।':'Confirm packing and arrival with the team.'}</p>
  </section>;
 }
