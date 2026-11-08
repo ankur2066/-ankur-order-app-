@@ -41,7 +41,13 @@ export const OrderTrackingView: React.FC<OrderTrackingViewProps> = ({
   const [searchPin, setSearchPin] = useState(initialPin || '');
   const [loading, setLoading] = useState(false);
   const [trackingData, setTrackingData] = useState<OrderTracking | null>(null);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [errorKey, setErrorKey] = useState<string | null>(null);
+  const errorMsg = errorKey ? ({
+    missingId: t('कृपया अपना ऑर्डर नंबर दर्ज करें (उदा. ADI-20261017-XXXX)।','Enter your order ID (for example, ADI-20261017-XXXX).'),
+    missingPin: t('कृपया अपना 6 अंकों का सीक्रेट ट्रैकिंग पिन दर्ज करें।','Enter your 6-digit secret PIN.'),
+    notFound: t('ऑर्डर नहीं मिला: कृपया अपना ऑर्डर नंबर और सीक्रेट पिन जांचें।','Order not found. Check your order ID and secret PIN.'),
+    failed: t('ट्रैकिंग जानकारी प्राप्त करने में त्रुटि आई। कृपया दोबारा प्रयास करें।','Tracking could not be loaded. Please try again.'),
+  } as Record<string,string>)[errorKey] : null;
 
   const fetchTracking = async (orderIdToSearch: string, pinToSearch: string) => {
     const cleanId = orderIdToSearch.trim().toUpperCase();
@@ -59,7 +65,7 @@ export const OrderTrackingView: React.FC<OrderTrackingViewProps> = ({
 
     try {
       setLoading(true);
-      setErrorMsg(null);
+      setErrorKey(null);
       setTrackingData(null);
 
       // Server-side compound token authorization
@@ -138,7 +144,7 @@ export const OrderTrackingView: React.FC<OrderTrackingViewProps> = ({
               <input
                 type="text"
                 required
-                placeholder="{t('उदा. ADI-20261017-W82K','e.g. ADI-20261017-W82K')}"
+                placeholder={t('उदा. ADI-20261017-W82K','e.g. ADI-20261017-W82K')}
                 value={searchId}
                 onChange={(e) => setSearchId(e.target.value)}
                 className="w-full bg-white border border-slate-300 rounded-xl pl-9 pr-3 py-2 text-sm font-mono text-slate-900 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 uppercase"
