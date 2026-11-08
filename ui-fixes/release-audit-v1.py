@@ -65,6 +65,8 @@ tracking_path.write_text(tracking_source, encoding='utf-8')
 # the existing one-order verified contact callable.
 p = ROOT / 'src/components/StaffDashboard.tsx'
 s = p.read_text(encoding='utf-8')
+if 'subscribeOrderDocuments' not in s.split('interface StaffDashboardProps', 1)[0]:
+    s = s.replace("import { quantityText } from '../billing/unitBilling';", "import { quantityText } from '../billing/unitBilling';\nimport { subscribeOrderDocuments } from '../services/productOrders';")
 start = -1
 for marker in [
     "    // The existing deployed Rules",
