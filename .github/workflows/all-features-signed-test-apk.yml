@@ -70,8 +70,8 @@ jobs:
           grep -Fq 'android:allowBackup="false"' android/app/src/main/AndroidManifest.xml
           grep -Fq 'tel:+919580882066' src/components/OrderTrackingView.tsx
           ! grep -Fq 'tel:+918896332066' src/components/OrderTrackingView.tsx
-          grep -Fq "collection(db, 'orders')" src/components/StaffDashboard.tsx
-          grep -Fq "collection(db, 'product_orders')" src/components/StaffDashboard.tsx
+          grep -Fq 'subscribeOrderDocuments({}, (snapshot) =>' src/components/StaffDashboard.tsx
+          grep -Fq "docSnap.ref?.parent?.id === 'product_orders'" src/components/StaffDashboard.tsx
           python3 ui-fixes/release-audit-v1.test.py
           echo 'PASS: signed candidate includes audited staff, contact, retry, update, and feature-switch source'
       - name: Configure existing Android Firebase app and signing
