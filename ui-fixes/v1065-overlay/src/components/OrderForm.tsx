@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { UnitProductForm } from './UnitProductForm';
+import { PaymentOptions } from './PaymentOptions';
+import { PRIMARY_UPI_ID } from '../config/businessConfig';
 import { 
   Snowflake, 
   MapPin, 
@@ -118,9 +120,12 @@ const LegacyOrderForm: React.FC<OrderFormProps> = ({
   useEffect(() => {
     if (!currentUser?.uid) { setCustomerType('retail'); return; }
     void getDoc(doc(db, 'users', currentUser.uid)).then((snap) => {
-      const nextType = snap.data()?.customerType === 'wholesale' ? 'wholesale' : 'retail';
+      const profile = snap.data();
+      const nextType = profile?.customerType === 'wholesale' ? 'wholesale' : 'retail';
       setCustomerType(nextType);
       setThermocolIncluded(nextType === 'retail');
+      const phone = profile?.customerPhone || currentUser.phoneNumber;
+      if (phone) void import('../services/customers').then(({ upsertCustomerLogin }) => upsertCustomerLogin(currentUser.uid, profile?.customerName || currentUser.displayName || 'Customer', phone)).catch((error) => console.warn('Customer login record unavailable:', error));
     }).catch(() => setCustomerType('retail'));
   }, [currentUser?.uid]);
   
@@ -404,7 +409,7 @@ const LegacyOrderForm: React.FC<OrderFormProps> = ({
       `• Dispatch Time: ${timing}`,
       `• कुल राशि: ₹${amountVal}`,
       `• पेमेंट स्थिति: ${paymentStatusText}`,
-      `• भुगतान माध्यम: Paytm UPI (8896332066@paytm)`,
+      `• भुगतान माध्यम: UPI (${PRIMARY_UPI_ID})`,
       ``,
       paymentScreenshot 
         ? `📸 [नोट: पेमेंट स्क्रीनशॉट चैट में अटैच करके भेजा जा रहा है]` 
@@ -552,6 +557,7 @@ const LegacyOrderForm: React.FC<OrderFormProps> = ({
         dispatchTiming: dispatchDisplay,
         dispatchDate,
         slot,
+        dispatchSlot: slot,
         customerType,
         calculatedTotal: finalTotalAmount,
         customerTotal,
@@ -586,12 +592,14 @@ const LegacyOrderForm: React.FC<OrderFormProps> = ({
         status: 'pending',
         productName: bookedProductName,
         quantityKg: finalQuantityKg,
+        totalAmount: customerTotal,
         district: cleanAddress.slice(0, 100),
         dispatchTiming: dispatchDisplay,
         dispatchDate,
         slot,
+        dispatchSlot: slot,
         paymentStatus: 'pending_verification',
-        lastStatusUpdate: document.documentElement.dataset.appLanguage === 'en' ? 'Order received. Packing scheduled.' : 'ऑर्डर प्राप्त हुआ। पैकिंग निर्धारित है।',
+        lastStatusUpdate: 'ऑर्डर प्राप्त हुआ। पैकिंग शेड्यूल्ड।',
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       };
@@ -601,6 +609,12 @@ const LegacyOrderForm: React.FC<OrderFormProps> = ({
 
       // Commit atomically
       await batch.commit();
+      if (currentUser?.uid) {
+        try {
+          const { upsertCustomerForOrder } = await import('../services/customers');
+          await upsertCustomerForOrder(currentUser.uid, customerName, cleanPhone);
+        } catch (customerError) { console.warn('Customer directory update did not complete:', customerError); }
+      }
 
       // Save customer profile securely
       if (currentUser && currentUser.uid) {
@@ -1065,45 +1079,11 @@ const LegacyOrderForm: React.FC<OrderFormProps> = ({
                   </div>
                 </div>
 
-                {/* 5. UPI / QR PAYMENT & SCREENSHOT SHARING SECTION */}
-                <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 mb-0 text-xs space-y-2.5">
-                  <div className="font-bold text-slate-900 flex items-center justify-between text-xs">
-                    <div className="flex items-center gap-1.5">
-                      <CreditCard className="w-3.5 h-3.5 text-sky-600" />
-                      <span>UPI / QR से भुगतान करें</span>
-                    </div>
-                    <span className="text-[10px] bg-sky-100 text-sky-800 font-semibold px-2 py-0.5 rounded-full">
-                      Paytm / PhonePe / GPay
-                    </span>
-                  </div>
-
-                  <div className="bg-white border border-sky-100 rounded-xl p-3 text-center text-xs text-slate-700 space-y-2">
-                      <img src="/assets/paytm-upi-qr.svg" alt="Paytm UPI QR for 8896332066@paytm" className="mx-auto h-36 w-36 rounded border border-slate-200 bg-white" />
-                      Verify the recipient in your payment app before paying.
-                  </div>
-
-                  <div className="bg-white border border-sky-200 rounded-lg p-2.5 flex items-center justify-between shadow-2xs">
-                    <div>
-                      <div className="text-[10px] text-slate-500 font-semibold">UPI ID / Paytm नंबर:</div>
-                      <div className="font-mono font-bold text-slate-900 text-xs">8896332066@paytm</div>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        navigator.clipboard.writeText('8896332066@paytm');
-                        setCopiedUpi(true);
-                        setTimeout(() => setCopiedUpi(false), 2000);
-                      }}
-                      className="px-2 py-1 text-[11px] font-semibold text-sky-600 hover:text-sky-800 bg-sky-50 rounded-md border border-sky-200 flex items-center gap-1 cursor-pointer transition-colors"
-                      title="UPI ID कॉपी करें"
-                    >
-                      {copiedUpi ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
-                      <span>{copiedUpi ? 'कॉपी हुआ' : 'कॉपी करें'}</span>
-                    </button>
-                  </div>
-                  
-                  <p className="text-[11px] text-slate-600 leading-relaxed">
-                    Paytm Business या किसी भी UPI ऐप से राशि <strong className="text-slate-900 font-mono">₹{successData.totalAmount}</strong> का भुगतान करें। भुगतान के बाद नीचे से स्क्रीनशॉट चुनकर ओनर (+91 8896332066) को WhatsApp पर भेजें।
+                {/* UPI configuration is shared with tracking. Verification is owner-only. */}
+                <div className="mb-0 text-xs space-y-2.5">
+                  <PaymentOptions amount={successData.totalAmount} isHindi={document.documentElement.dataset.appLanguage !== 'en'} />
+                  <p className="text-[11px] leading-relaxed">
+                    UPI से ₹{successData.totalAmount} भेजें। भुगतान अपने ऐप में verify करें; ऐप में स्थिति मालिक द्वारा पुष्टि तक pending रहेगी।
                   </p>
 
                   {/* Optional Screenshot Picker */}

@@ -16,7 +16,6 @@ import { BrandMark } from './components/customer/BrandMark';
 import { DailyWinnerBanner } from './components/customer/DailyWinner';
 import { FeatureHub } from './components/customer/FeatureHub';
 import { DataFeaturePanel } from './components/customer/FeatureDataPanels';
-import { FeatureSuiteSettings } from './components/owner/FeatureSuiteSettings';
 import { ThemeProvider } from './context/ThemeContext';
 import { LanguageProvider, useLanguage } from './context/LanguageContext';
 import { AppUpdateNotice } from './components/AppUpdateNotice';
@@ -346,7 +345,7 @@ function AppShell() {
       )}
 
       {currentTab === 'admin' && role === 'admin' && (
-        <div className="bg-white min-h-screen text-slate-900">
+        <div className="owner-app min-h-screen">
           <div className="sticky top-0 z-40 bg-white border-b border-slate-200 px-3 flex items-center justify-between" style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}>
             <span className="text-xs font-black text-slate-700 flex items-center gap-1.5 py-2.5">
               <ShieldCheck className="w-4 h-4 text-sky-600" /> ओनर पैनल
@@ -355,11 +354,6 @@ function AppShell() {
               ग्राहक ऐप देखें
             </button>
           </div>
-          <details className="ankur-owner-tools">
-            <summary>सेवाएँ और टूल्स · Services and tools</summary>
-            <div className="p-3"><FeatureSuiteSettings /></div>
-            <FeatureHub currentUser={currentUser} role={role} allowed={["inventory","reports","catalog","partner","subscriptions","promotions","referral"]}/>
-          </details>
           <AdminDashboard
             notificationTarget={notificationTarget}
             currentUser={currentUser}

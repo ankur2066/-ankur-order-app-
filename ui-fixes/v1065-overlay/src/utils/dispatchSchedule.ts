@@ -1,5 +1,5 @@
 export type DispatchSlot = 'morning' | 'evening';
-export type DispatchBucket = 'today_morning' | 'today_evening' | 'tomorrow_morning' | 'tomorrow_evening' | 'old_overdue';
+export type DispatchBucket = 'today_morning' | 'today_evening' | 'tomorrow_morning' | 'tomorrow_evening' | 'old_overdue' | 'date_not_set';
 
 export function istDateKey(date: Date = new Date()): string {
   const parts = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata', year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(date);
@@ -18,17 +18,19 @@ function createdDateKey(createdAt: any): string | null {
   return date instanceof Date && !Number.isNaN(date.getTime()) ? istDateKey(date) : null;
 }
 
-export function dispatchParts(order: { dispatchDate?: string; slot?: string; dispatchTiming?: string; createdAt?: any }) {
+export function dispatchParts(order: { dispatchDate?: string; slot?: string; dispatchSlot?: string; dispatchTiming?: string; createdAt?: any }) {
   const timing = (order.dispatchTiming || '').toLowerCase();
-  const slot: DispatchSlot = order.slot === 'morning' || timing.includes('सुबह') || timing.includes('morning') ? 'morning' : 'evening';
+  const storedSlot = order.dispatchSlot || order.slot;
+  const slot: DispatchSlot = storedSlot === 'morning' || (!storedSlot && (timing.includes('सुबह') || timing.includes('morning'))) ? 'morning' : 'evening';
   let date = /^\d{4}-\d{2}-\d{2}$/.test(order.dispatchDate || '') ? order.dispatchDate! : createdDateKey(order.createdAt);
   if (date && !order.dispatchDate && (timing.includes('कल') || timing.includes('tomorrow'))) date = addIstDays(date, 1);
   return { date, slot };
 }
 
-export function dispatchBucket(order: { dispatchDate?: string; slot?: string; dispatchTiming?: string; createdAt?: any }, today = istDateKey()): DispatchBucket {
+export function dispatchBucket(order: { dispatchDate?: string; slot?: string; dispatchSlot?: string; dispatchTiming?: string; createdAt?: any }, today = istDateKey()): DispatchBucket {
   const { date, slot } = dispatchParts(order);
-  if (!date || date < today) return 'old_overdue';
+  if (!date) return 'date_not_set';
+  if (date < today) return 'old_overdue';
   if (date === today) return slot === 'morning' ? 'today_morning' : 'today_evening';
   if (date === addIstDays(today, 1)) return slot === 'morning' ? 'tomorrow_morning' : 'tomorrow_evening';
   return 'old_overdue';

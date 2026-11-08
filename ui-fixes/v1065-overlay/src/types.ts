@@ -35,7 +35,7 @@ export interface StaffRequest {
   requestedAt: any;
 }
 
-export type ThemeId = 'saffron' | 'emerald' | 'royal-blue' | 'purple' | 'ice-blue' | 'dark';
+export type ThemeId = 'soft-3d' | 'saffron' | 'emerald' | 'royal-blue' | 'purple' | 'ice-blue' | 'dark';
 
 export interface LuckyWinner {
   active: boolean;
@@ -88,6 +88,7 @@ export interface Order {
   dispatchTiming: string; // e.g., 'आज सुबह 12 AM–12 PM'
   dispatchDate?: string; // YYYY-MM-DD in Asia/Kolkata
   slot?: 'morning' | 'evening';
+  dispatchSlot?: 'morning' | 'evening';
   customerType?: 'retail' | 'wholesale';
   calculatedTotal?: number;
   customerTotal?: number;
@@ -131,10 +132,12 @@ export interface OrderTracking {
   status: OrderStatus;
   productName: string;
   quantityKg: number;
+  totalAmount?: number;
   district: string;
   dispatchTiming: string;
   dispatchDate?: string;
   slot?: 'morning' | 'evening';
+  dispatchSlot?: 'morning' | 'evening';
   paymentStatus: PaymentStatus;
   lastStatusUpdate: string;
   createdAt: any;

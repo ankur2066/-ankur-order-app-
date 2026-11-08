@@ -1,23 +1,22 @@
 import { useEffect, useState } from 'react';
-import { doc, onSnapshot } from 'firebase/firestore';
-import { getFunctions, httpsCallable } from 'firebase/functions';
-import { app, db } from '../../firebase';
+import { doc, onSnapshot, serverTimestamp, setDoc } from 'firebase/firestore';
+import { db } from '../../firebase';
 
 const FEATURES = [
-  ['loyalty', 'Loyalty'],
-  ['catalog', 'Application Catalogue'],
-  ['partner', 'Wholesale Partner'],
-  ['subscriptions', 'Regular Supply'],
-  ['promotions', 'Promotions'],
-  ['inventory', 'Inventory'],
-  ['referral', 'Referral Share'],
-  ['calculator', 'Ice Calculator'],
-  ['video', 'Video Idea Builder'],
-  ['reports', 'Reports Hub'],
-  ['faq', 'FAQ / How-to'],
-  ['rates', 'Rate Card'],
-  ['support', 'Support Hub'],
-  ['service-area', 'Service Area'],
+  ['loyalty', 'Loyalty', 'Owner-managed rewards policy and points.'],
+  ['catalog', 'Application Catalogue', 'Owner-approved dry ice and event catalogue.'],
+  ['partner', 'Wholesale Partner', 'Wholesale pricing and partner access.'],
+  ['subscriptions', 'Regular Supply', 'Recurring supply requests for owner approval.'],
+  ['promotions', 'Promotions', 'Owner-approved promotional codes and offers.'],
+  ['inventory', 'Inventory', 'Track owner-entered stock and SKUs.'],
+  ['referral', 'Referral Share', 'Share a referral link; rewards need owner review.'],
+  ['calculator', 'Ice Calculator', 'Estimate dry ice quantity for an event.'],
+  ['video', 'Video Idea Builder', 'Create a prompt for a business video.'],
+  ['reports', 'Reports Hub', 'View order and delivery summaries.'],
+  ['faq', 'FAQ / How-to', 'Read order and dry ice handling guidance.'],
+  ['rates', 'Rate Card', 'Show owner-entered rates to customers.'],
+  ['support', 'Support Hub', 'Contact the owner for order support.'],
+  ['service-area', 'Service Area', 'Show approved delivery and bus routes.'],
 ] as const;
 
 type FeatureKey = (typeof FEATURES)[number][0];
@@ -40,20 +39,20 @@ export function FeatureSuiteSettings() {
     const next = { ...flags, [key]: checked };
     setSaving(true); setMessage('');
     try {
-      await httpsCallable(getFunctions(app, 'asia-southeast1'), 'ankurFeatureAction')({ action: 'featureSettings', data: { features: next } });
+      await setDoc(doc(db, 'settings', 'featureSuite'), { features: next, updatedAt: serverTimestamp() }, { merge: true });
       setFlags(next);
       setMessage(`${FEATURES.find(([id]) => id === key)?.[1]} ${checked ? 'enabled' : 'disabled'}.`);
     } catch {
-      setMessage('Could not save. Confirm the Functions deployment and owner access.');
+      setMessage('Could not save. Check owner access and Firestore rules.');
     } finally { setSaving(false); }
   };
 
-  return <section className="c-card bg-white text-slate-900 border b-line rounded-2xl p-4 space-y-3" style={{ color: '#0f172a', backgroundColor: '#ffffff' }} aria-labelledby="feature-settings-title">
+  return <section className="feature-controls soft-card space-y-3" aria-labelledby="feature-settings-title">
     <h2 id="feature-settings-title" className="font-black">Feature controls</h2>
     <p className="text-sm t-sub">All fourteen optional features start off. Enter approved rates, codes, stock, SKUs and policies in each feature panel before enabling it.</p>
-    {!loaded ? <p role="status">Loading settings…</p> : <div className="space-y-2">{FEATURES.map(([key, label]) => <label key={key} className="flex min-h-12 items-center justify-between gap-3 rounded-xl border b-line p-3 bg-white text-slate-900" style={{ color: '#0f172a', backgroundColor: '#ffffff' }}>
-      <span className="font-bold">{label}</span>
-      <input aria-label={`Enable ${label}`} type="checkbox" checked={flags[key]} disabled={saving} onChange={event => void setFlag(key, event.target.checked)} />
+    {!loaded ? <p role="status">Loading settings…</p> : <div className="space-y-2">{FEATURES.map(([key, label, description]) => <label key={key} className="feature-toggle-row flex min-h-14 items-center justify-between gap-3 rounded-2xl p-3">
+      <span><b className="block">{label}</b><small className="block">{description}</small></span>
+      <input aria-label={`Enable ${label}`} type="checkbox" role="switch" checked={flags[key]} disabled={saving} onChange={event => void setFlag(key, event.target.checked)} />
     </label>)}</div>}
     {message && <p role="status" className="text-sm">{message}</p>}
   </section>;

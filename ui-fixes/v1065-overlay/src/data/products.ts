@@ -1,6 +1,7 @@
 import { ProductItem } from '../types';
+import { RETAIL_RATE_PER_KG } from '../config/businessConfig';
 
-export const DRY_ICE_RATE_PER_KG = 50;
+export const DRY_ICE_RATE_PER_KG = RETAIL_RATE_PER_KG;
 export const THERMOCOL_RATE_PER_KG = 10;
 export const TOTAL_RATE_PER_KG = 60;
 
@@ -145,7 +146,7 @@ export const INITIAL_PRODUCTS: ProductItem[] = [
     id: 'dry_ice_standard',
     name: 'Dry Ice (Standard)',
     hindiName: 'ड्राई आइस',
-    ratePerKg: 50,
+    ratePerKg: DRY_ICE_RATE_PER_KG,
     thermocolPerKg: 10,
     active: true,
     category: 'dry_ice',
@@ -154,7 +155,7 @@ export const INITIAL_PRODUCTS: ProductItem[] = [
     id: 'dry_ice_pellets',
     name: 'Dry Ice Pellets (16mm)',
     hindiName: 'ड्राई आइस पेलेट्स',
-    ratePerKg: 50,
+    ratePerKg: DRY_ICE_RATE_PER_KG,
     thermocolPerKg: 10,
     active: true,
     category: 'pellets',
@@ -163,7 +164,7 @@ export const INITIAL_PRODUCTS: ProductItem[] = [
     id: 'dry_ice_blocks',
     name: 'Dry Ice Solid Blocks',
     hindiName: 'ड्राई आइस ब्लॉक',
-    ratePerKg: 50,
+    ratePerKg: DRY_ICE_RATE_PER_KG,
     thermocolPerKg: 10,
     active: true,
     category: 'blocks',

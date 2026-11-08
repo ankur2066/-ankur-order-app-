@@ -108,7 +108,7 @@ service cloud.firestore {
       let allowedKeys = [
         'orderId', 'trackingToken', 'trackingPin', 'customerName', 
         'customerPhone', 'district', 'address', 'city', 'quantityKg', 
-        'dispatchTiming', 'dispatchDate', 'slot', 'customerType', 'calculatedTotal', 'customerTotal', 'amountChanged', 'amountChangeReason', 'testOrder', 'thermocolIncluded', 'productName',
+        'dispatchTiming', 'dispatchDate', 'slot', 'dispatchSlot', 'customerType', 'calculatedTotal', 'customerTotal', 'amountChanged', 'amountChangeReason', 'testOrder', 'thermocolIncluded', 'productName',
         'dryIcePricePerKg', 'dryIceSubtotal', 'thermocolPricePerKg', 
         'thermocolSubtotal', 'transportPrice', 'totalAmount',
         'status', 'paymentStatus', 'paymentMethod', 'paymentNotes', 
@@ -143,6 +143,7 @@ service cloud.firestore {
              data.dispatchTiming is string && data.dispatchTiming.size() <= 100 &&
              (!('dispatchDate' in data) || (data.dispatchDate is string && data.dispatchDate.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$'))) &&
              (!('slot' in data) || data.slot in ['morning', 'evening']) &&
+             (!('dispatchSlot' in data) || data.dispatchSlot in ['morning', 'evening']) &&
              (!('customerType' in data) || data.customerType in ['retail', 'wholesale']) &&
              (!('amountChanged' in data) || data.amountChanged is bool) &&
              (!('amountChangeReason' in data) || (data.amountChangeReason is string && data.amountChangeReason.size() <= 180)) &&
@@ -181,7 +182,7 @@ service cloud.firestore {
     function isValidOrderTracking(data) {
       let allowedKeys = [
         'orderId', 'trackingToken', 'status', 'productName', 'quantityKg', 
-        'district', 'dispatchTiming', 'dispatchDate', 'slot', 'paymentStatus', 'lastStatusUpdate', 
+        'district', 'dispatchTiming', 'dispatchDate', 'slot', 'dispatchSlot', 'totalAmount', 'paymentStatus', 'lastStatusUpdate', 
         'createdAt', 'updatedAt'
       ];
       let requiredKeys = [
@@ -201,6 +202,7 @@ service cloud.firestore {
              data.dispatchTiming is string && data.dispatchTiming.size() <= 100 &&
              (!('dispatchDate' in data) || (data.dispatchDate is string && data.dispatchDate.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$'))) &&
              (!('slot' in data) || data.slot in ['morning', 'evening']) &&
+             (!('dispatchSlot' in data) || data.dispatchSlot in ['morning', 'evening']) &&
              data.paymentStatus in ['pending_verification', 'payment_verified', 'cash_on_delivery'] &&
              data.lastStatusUpdate is string && data.lastStatusUpdate.size() <= 200 &&
              isValidTimestamp(data.createdAt) &&
@@ -374,6 +376,24 @@ service cloud.firestore {
         (!('city' in incoming()) || (incoming().city is string && incoming().city.size() <= 100));
 
       allow create, update, delete: if isAdmin();
+    }
+
+    // 5c. Customer directory. Customers can access only their own +91 mobile
+    // document. Only the verified owner can query/list the collection.
+    match /customers/{phoneId} {
+      allow get: if isAdmin() || (isSignedIn() && resource.data.uid == request.auth.uid && resource.data.phone == phoneId);
+      allow list: if isAdmin();
+      allow create: if isSignedIn() && incoming().uid == request.auth.uid && incoming().phone == phoneId &&
+        phoneId.matches('^\\+91[6-9][0-9]{9}$') &&
+        incoming().keys().hasOnly(['uid','name','phone','firstLoginAt','lastLoginAt','orderCount','completedOrders','tag']) &&
+        incoming().name is string && incoming().name.size() >= 2 && incoming().name.size() <= 100 &&
+        incoming().firstLoginAt == request.time && incoming().lastLoginAt == request.time &&
+        incoming().orderCount in [0, 1] && incoming().completedOrders == 0 && incoming().tag == 'New';
+      allow update: if isAdmin() || (isSignedIn() && existing().uid == request.auth.uid && existing().phone == phoneId &&
+        incoming().diff(existing()).affectedKeys().hasOnly(['name','lastLoginAt','orderCount']) &&
+        incoming().lastLoginAt == request.time && (incoming().orderCount == existing().orderCount || incoming().orderCount == existing().orderCount + 1) &&
+        incoming().name is string && incoming().name.size() <= 100);
+      allow delete: if isAdmin();
     }
 
     // 5c. Staff access requests. A person files ONE pending request about

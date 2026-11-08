@@ -1,11 +1,13 @@
 import { doc, getDoc, setDoc, serverTimestamp, onSnapshot } from 'firebase/firestore';
 import { db } from '../firebase';
 import type { RateSettings } from '../types';
+import { RETAIL_RATE_PER_KG, WHOLESALE_RATE_PER_KG } from '../config/businessConfig';
 
 export const DEFAULT_RATES: RateSettings = {
-  dryIceRate: 50,
+  dryIceRate: RETAIL_RATE_PER_KG,
   thermocolRate: 10,
   transportRate: 0,
+  ...(WHOLESALE_RATE_PER_KG > 0 ? { wholesaleRate: WHOLESALE_RATE_PER_KG } : {}),
 };
 
 const LOCAL_STORAGE_KEY = 'ankur_dryice_rates_v1';

@@ -1842,3 +1842,67 @@ html[data-theme='dark'] .ankur-video-idea-page .ankur-video-occasion-trigger {
 /* Owner order cards use matching tap targets in slot and searched/all-order views. */
 .ankur-order-card-actions button, .ankur-order-card-actions a { min-height: 34px; }
 .ankur-order-card-actions button { font-size: 11px; }
+
+/* Soft 3D surface system for owner and customer screens. */
+:root { --radius-card: 22px; --radius-button: 999px; --shadow-small: 0 2px 5px rgb(20 22 28 / .08); --shadow-large: 0 12px 28px rgb(20 22 28 / .08); --space-card: 16px; --space-gap: 14px; }
+html[data-theme="soft-3d"], html[data-theme="soft-3d"] body { background: var(--app-bg); color: var(--text-main); }
+html[data-theme="dark"], html[data-theme="dark"] body { background: var(--app-bg); color: var(--text-main); }
+.soft-card { background: var(--card-bg, #fff); color: var(--text-main, #1C1E24); border-radius: var(--radius-card); padding: var(--space-card); box-shadow: var(--shadow-small), var(--shadow-large); }
+.soft-card-inset { background: color-mix(in srgb, var(--card-bg, #fff) 92%, var(--app-bg, #F4F5F7)); border-radius: 16px; color: var(--text-main, #1C1E24); }
+.soft-button { border: 0; border-radius: var(--radius-button); min-height: 42px; padding: 9px 16px; font-weight: 700; box-shadow: var(--shadow-small), 0 4px 10px rgb(20 22 28 / .06); transition: transform .16s ease, box-shadow .16s ease; }
+.soft-button:active { transform: scale(.97); box-shadow: var(--shadow-small); }
+.primary-button { color: #fff; background: var(--brand, #315FDB); }
+.secondary-button { color: var(--text-main, #1C1E24); background: var(--card-bg, #fff); }
+.payment-options { background: var(--card-bg, #fff); color: var(--text-main, #1C1E24); box-shadow: var(--shadow-small), var(--shadow-large); }
+.backup-upi { background: var(--app-bg, #F4F5F7); color: var(--text-main, #1C1E24); }
+.payment-pending-note { color: var(--text-sub, #50545D); }
+.owner-segmented-nav { display: flex; gap: 5px; padding: 5px; border-radius: 999px; background: var(--tool-track); }
+.owner-segmented-nav button { flex: 1; min-height: 42px; border: 0; border-radius: 999px; background: transparent; color: #343842; font-weight: 800; }
+.owner-segmented-nav button[aria-pressed="true"] { background: var(--text-main); color: var(--app-bg); box-shadow: var(--shadow-small); }
+.owner-tool-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; }
+.soft-tool-tile { border: 0; border-radius: 18px; min-height: 64px; padding: 12px; background: var(--app-bg,#F4F5F7); color: var(--text-main,#1C1E24); font-weight: 800; box-shadow: var(--shadow-small); }
+.status-chip { display: inline-flex; border-radius: 999px; padding: 3px 9px; font-weight: 800; }
+.status-total { background: var(--status-total-bg); color: var(--status-total-ink); }
+.status-pending { background: var(--status-pending-bg); color: var(--status-pending-ink); }
+.status-confirmed { background: var(--status-confirmed-bg); color: var(--status-confirmed-ink); }
+.status-packing { background: var(--status-packing-bg); color: var(--status-packing-ink); }
+.status-dispatch { background: var(--status-dispatch-bg); color: var(--status-dispatch-ink); }
+.status-delivered { background: var(--status-delivered-bg); color: var(--status-delivered-ink); }
+.status-tile { border-radius: 18px !important; box-shadow: var(--shadow-small), var(--shadow-large) !important; }
+.ankur-order-card-details { background: var(--card-bg,#fff) !important; color: var(--text-main,#1C1E24) !important; border: 0 !important; border-radius: 16px !important; box-shadow: var(--shadow-small) !important; }
+.ankur-order-card-details span, .ankur-order-card-details div { color: inherit; }
+.ankur-order-card-details .font-mono { font-weight: 800; }
+html[data-theme="dark"] .soft-card { background: #1E2129; color: #F4F5F7; }
+html[data-theme="dark"] .soft-card-inset, html[data-theme="dark"] .soft-tool-tile { background: #292D36; color: #F4F5F7; }
+html[data-theme="dark"] .owner-segmented-nav { background: var(--tool-track); }
+html[data-theme="dark"] .owner-segmented-nav button { color: #D6D9E0; }
+html[data-theme="dark"] .owner-segmented-nav button[aria-pressed="true"] { background: var(--text-main); color: var(--app-bg); }
+html[data-theme="dark"] .secondary-button { background: #292D36; color: #F4F5F7; }
+
+.owner-tools-backdrop { position: fixed; inset: 0; z-index: 80; display: flex; align-items: flex-end; justify-content: center; padding: 12px; background: var(--sheet-backdrop); }
+.owner-tools-sheet { width: min(100%, 720px); max-height: 84dvh; overflow: auto; padding-bottom: calc(var(--space-card) + env(safe-area-inset-bottom, 0px)); }
+.feature-toggle-row { background: var(--feature-row-bg); color: var(--feature-row-ink); box-shadow: var(--shadow-small); }
+.feature-toggle-row small { color: var(--text-sub); }
+.feature-toggle-row input[role="switch"] { appearance: none; position: relative; flex: 0 0 46px; width: 46px; height: 27px; border-radius: 999px; background: var(--switch-track-off); transition: background .15s ease; }
+.feature-toggle-row input[role="switch"]::after { content: ''; position: absolute; width: 21px; height: 21px; top: 3px; left: 3px; border-radius: 50%; background: var(--switch-thumb); box-shadow: var(--shadow-small); transition: transform .15s ease; }
+.feature-toggle-row input[role="switch"]:checked { background: var(--brand); }
+.feature-toggle-row input[role="switch"]:checked::after { transform: translateX(19px); }
+.feature-controls h2 { color: var(--text-main); }
+html[data-theme="dark"] .owner-segmented-nav { background: var(--tool-track); }
+
+.owner-order-card { background: var(--card-bg,#fff) !important; color: var(--text-main,#1C1E24); border: 0 !important; border-radius: var(--radius-card) !important; box-shadow: var(--shadow-small), var(--shadow-large) !important; }
+.owner-order-card .ankur-order-card-details { background: var(--card-bg,#fff) !important; }
+.status-tile span { color: inherit !important; }
+html[data-theme="dark"] .owner-order-card { color: var(--text-main); }
+html[data-theme="dark"] .owner-order-card .text-slate-900, html[data-theme="dark"] .owner-order-card .text-slate-800, html[data-theme="dark"] .owner-order-card .text-slate-700, html[data-theme="dark"] .owner-order-card .text-slate-600, html[data-theme="dark"] .owner-order-card .text-slate-500 { color: var(--text-main); }
+
+.status-action { border: 0 !important; border-radius: var(--radius-button) !important; box-shadow: var(--shadow-small); }
+.status-action span, .status-action svg { color: inherit !important; }
+
+.owner-app { background: var(--app-bg); color: var(--text-main); min-height: 100vh; }
+.owner-app button, .c-app button { border-radius: var(--radius-button); transition: transform .16s ease, box-shadow .16s ease; }
+.owner-app button:active, .c-app button:active { transform: scale(.97); box-shadow: var(--shadow-small); }
+.owner-app .bg-white, .c-app .bg-white { background: var(--card-bg) !important; }
+.owner-app .text-slate-900, .owner-app .text-slate-800, .owner-app .text-slate-700, .owner-app .text-slate-600, .owner-app .text-slate-500,
+.c-app .text-slate-900, .c-app .text-slate-800, .c-app .text-slate-700, .c-app .text-slate-600, .c-app .text-slate-500 { color: var(--text-main) !important; }
+.owner-app .text-slate-400, .c-app .text-slate-400 { color: var(--text-sub) !important; }
