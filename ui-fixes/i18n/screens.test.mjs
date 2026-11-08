@@ -25,7 +25,7 @@ async function screen(path,name,props={},seed=[]){
  if(id==='./FeatureHub')return load(resolve(dirname(file),id)+'.tsx');
  if(id.endsWith('/ReferralSharePanel'))return synthetic(id,{ReferralSharePanel:()=>null});
  if(id.endsWith('/SignInScreen'))return load(resolve(dirname(file),id)+'.tsx');
- if(/\/(OwnerStorefrontManager|ExpensesView|UserManagement|AIChat|UnitProductForm|FeatureDataPanels|PreferencesPanel|FeatureSuiteSettings)$/.test(id))return synthetic(id,Object.fromEntries(names.map(k=>[k,()=>null])));
+ if(/\/(OwnerStorefrontManager|ExpensesView|UserManagement|AIChat|UnitProductForm|FeatureDataPanels|PreferencesPanel|FeatureSuiteSettings|StaffOrderAccessManager)$/.test(id))return synthetic(id,Object.fromEntries(names.map(k=>[k,()=>null])));
  throw Error('Unmocked UI boundary '+id+' in '+file);
  });await m.evaluate();return m;}
  const m=await load(resolve(root,'src',path)),Component=m.namespace[name];let view;await act(async()=>{view=create(React.createElement(Component,props));});
