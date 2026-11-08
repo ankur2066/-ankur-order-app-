@@ -2,6 +2,7 @@ import { StaffOrderAccessManager } from './StaffOrderAccessManager';
 import { DailyWinnerOwnerControls } from './customer/DailyWinner';
 import { CustomersView } from './owner/CustomersView';
 import { FeatureSuiteSettings } from './owner/FeatureSuiteSettings';
+import { PaymentProofPreview } from './owner/PaymentProofPreview';
 import { FeatureHub } from './customer/FeatureHub';
 import { subscribeOrderDocuments, orderRef as resolvedOrderRef, trackingRef as resolvedTrackingRef } from '../services/productOrders';
 import { quantityText } from '../billing/unitBilling';
@@ -56,6 +57,7 @@ import {
   onSnapshot,
   doc, 
   updateDoc, 
+  setDoc,
   writeBatch, 
   serverTimestamp,
   increment 
@@ -210,6 +212,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
   // Firebase orders
   const migratedScheduleIds = React.useRef(new Set<string>());
+  const staffProjectionSeedIds = React.useRef(new Set<string>());
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -277,6 +280,22 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       (snapshot) => {
         const list: Order[] = snapshot.docs.map((d) => d.data() as Order);
         list.forEach((order) => {
+          if (!staffProjectionSeedIds.current.has(order.orderId)) {
+            staffProjectionSeedIds.current.add(order.orderId);
+            const safeView = {
+              orderId: order.orderId, sourceCollection: 'orders', customerName: order.customerName || '',
+              city: order.city || order.district || '', district: order.district || order.city || '',
+              productName: order.productName || 'Dry Ice', dispatchTiming: order.dispatchTiming || '',
+              ...(order.dispatchDate ? { dispatchDate: order.dispatchDate } : {}),
+              ...(order.slot ? { slot: order.slot } : {}), status: order.status,
+              quantityKg: Number(order.quantityKg) || 0, isTrash: !!order.isTrash,
+              createdAt: order.createdAt, updatedAt: order.updatedAt,
+            };
+            void getDoc(doc(db, 'staffOrderViews', order.orderId)).then((projection) => {
+              if (!projection.exists()) return setDoc(doc(db, 'staffOrderViews', order.orderId), safeView);
+              return;
+            }).catch((error) => { staffProjectionSeedIds.current.delete(order.orderId); console.warn('Staff order projection seed deferred:', error); });
+          }
           if (order.dispatchDate || migratedScheduleIds.current.has(order.orderId)) return;
           const parts = dispatchParts(order);
           if (!parts.date) return;
@@ -530,6 +549,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         status: newStatus,
         updatedAt: serverTimestamp(),
       });
+      batch.set(doc(db, 'staffOrderViews', ord.orderId), { status: newStatus, updatedAt: serverTimestamp() }, { merge: true });
 
       if (ord.trackingToken) {
         const trackRef = resolvedTrackingRef(ord.trackingToken);
@@ -608,11 +628,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     try {
       setActionLoadingId(ord.orderId);
       const orderRef = resolvedOrderRef(ord.orderId);
-      await updateDoc(orderRef, {
+      const trashBatch = writeBatch(db);
+      trashBatch.update(orderRef, {
         isTrash: true,
         trashedAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       });
+      trashBatch.set(doc(db, 'staffOrderViews', ord.orderId), { isTrash: true, updatedAt: serverTimestamp() }, { merge: true });
+      await trashBatch.commit();
 
       setOrders((prev) =>
         prev.map((o) => (o.orderId === ord.orderId ? { ...o, isTrash: true } : o))
@@ -635,11 +658,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     try {
       setActionLoadingId(ord.orderId);
       const orderRef = resolvedOrderRef(ord.orderId);
-      await updateDoc(orderRef, {
+      const restoreBatch = writeBatch(db);
+      restoreBatch.update(orderRef, {
         isTrash: false,
         trashedAt: null,
         updatedAt: serverTimestamp(),
       });
+      restoreBatch.set(doc(db, 'staffOrderViews', ord.orderId), { isTrash: false, updatedAt: serverTimestamp() }, { merge: true });
+      await restoreBatch.commit();
 
       setOrders((prev) =>
         prev.map((o) => (o.orderId === ord.orderId ? { ...o, isTrash: false } : o))
@@ -1637,7 +1663,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                             </div>
                           </div>
 
-                          {/* 2. COMPACT PAYMENT ROW */}
+                          <PaymentProofPreview orderId={ord.orderId} />
+                          <PaymentProofPreview orderId={ord.orderId} />
+                        {/* 2. COMPACT PAYMENT ROW */}
                           <div className="flex items-center justify-between gap-1 text-[11px]">
                             <div className="flex items-center gap-1.5 min-w-0">
                               <span className="text-[10px] text-slate-500 font-medium">Payment:</span>
@@ -2141,6 +2169,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                           </div>
                         </div>
 
+                        <PaymentProofPreview orderId={ord.orderId} />
                         {/* 2. COMPACT PAYMENT ROW */}
                         <div className="flex items-center justify-between gap-1 text-[11px]">
                           <div className="flex items-center gap-1.5 min-w-0">

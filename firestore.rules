@@ -256,13 +256,14 @@ service cloud.firestore {
 
     // 2. Private Customer Orders (Contains PII)
     match /orders/{orderId} {
-      // Single order read: owner, permitted staff/delivery, or the authenticated buyer
+      // Private order reads are owner or buyer only. Field-level read filtering is
+      // not supported by Firestore rules; staff use staffOrderViews below.
       allow get: if isValidId(orderId) && (
-        isAdmin() || canViewOrders() ||
+        isAdmin() ||
         (isSignedIn() && resource.data.userId == request.auth.uid)
       );
 
-      allow list: if isAdmin() || canViewOrders() || (isSignedIn() && resource.data.userId == request.auth.uid);
+      allow list: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
 
       // Customer order creation (guests allowed). Staff/Delivery cannot create orders.
       allow create: if isValidId(orderId) &&
@@ -292,6 +293,47 @@ service cloud.firestore {
 
       // Deletion: Owner only
       allow delete: if isValidId(orderId) && isAdmin();
+    }
+
+    // Narrow order projection for staff. It contains no prices, totals, phone,
+    // payment status, payment notes, tracking PIN, or proof image.
+    match /staffOrderViews/{orderId} {
+      allow get, list: if isAdmin() || canViewOrders();
+      allow create: if isAdmin() || (
+        isValidId(orderId) && existsAfter(/databases/$(database)/documents/orders/$(orderId)) &&
+        incoming().keys().hasOnly(['orderId','sourceCollection','customerName','city','district','productName','dispatchTiming','dispatchDate','slot','status','quantityKg','createdAt','updatedAt','isTrash']) &&
+        incoming().orderId == orderId && incoming().sourceCollection == 'orders' &&
+        incoming().keys().hasAll(['orderId','sourceCollection','customerName','city','district','productName','dispatchTiming','status','quantityKg','createdAt','updatedAt','isTrash']) &&
+        incoming().customerName == getAfter(/databases/$(database)/documents/orders/$(orderId)).data.customerName &&
+        incoming().city == getAfter(/databases/$(database)/documents/orders/$(orderId)).data.city &&
+        incoming().district == getAfter(/databases/$(database)/documents/orders/$(orderId)).data.district &&
+        incoming().productName == getAfter(/databases/$(database)/documents/orders/$(orderId)).data.productName &&
+        incoming().quantityKg == getAfter(/databases/$(database)/documents/orders/$(orderId)).data.quantityKg &&
+        incoming().status == getAfter(/databases/$(database)/documents/orders/$(orderId)).data.status
+      );
+      allow update: if isAdmin() || (canUpdateStatus() &&
+        incoming().diff(existing()).affectedKeys().hasOnly(['status','updatedAt']) &&
+        incoming().status in ['pending','confirmed','in_packing','dispatched','delivered','cancelled'] &&
+        incoming().updatedAt == request.time);
+      allow delete: if isAdmin();
+    }
+
+    // Payment screenshots are private proof documents. Staff and delivery roles
+    // have no matching read grant, so the default deny applies to them.
+    match /orders/{orderId}/paymentProof/{proofId} {
+      function orderOwner() {
+        return isSignedIn() && get(/databases/$(database)/documents/orders/$(orderId)).data.userId == request.auth.uid;
+      }
+      allow get: if isAdmin() || orderOwner();
+      allow list: if false;
+      allow create, update: if proofId == 'latest' && orderOwner() &&
+        incoming().keys().hasOnly(['dataUrl','sizeBytes','contentType','uploadedBy','createdAt']) &&
+        incoming().dataUrl is string && incoming().dataUrl.size() <= 320000 &&
+        incoming().dataUrl.matches('^data:image/jpeg;base64,[A-Za-z0-9+/=]+$') &&
+        incoming().sizeBytes is number && incoming().sizeBytes > 0 && incoming().sizeBytes <= 230000 &&
+        incoming().contentType == 'image/jpeg' && incoming().uploadedBy == request.auth.uid &&
+        incoming().createdAt == request.time;
+      allow delete: if isAdmin() || orderOwner();
     }
 
     // 3. Protected Tracking Projection (Zero PII - keyed by secret token ${orderId}_${trackingPin})

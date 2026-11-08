@@ -269,7 +269,7 @@ export const OrderTrackingView: React.FC<OrderTrackingViewProps> = ({
             </p>
           </div>
           
-          <PaymentOptions amount={trackingData.totalAmount || 0} isHindi={isHindi} />
+          <PaymentOptions amount={trackingData.totalAmount || 0} orderId={trackingData.orderId} isHindi={isHindi} />
 
           {/* Payment Status */}
           <div className="flex items-center justify-between text-xs pt-2 border-t border-slate-100">

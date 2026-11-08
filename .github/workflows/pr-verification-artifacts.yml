@@ -1,0 +1,89 @@
+name: PR verification and visual artifacts
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [codex/fix-v1065-test-feedback]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: '22', cache: npm }
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: '17' }
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run check:theme-colors
+      - run: npm run test:unit
+      - name: Firestore security rules in emulator (no deploy)
+        run: npm run test:rules:emulator
+      - run: npm run build
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Capture mock-data screen previews using built theme assets
+        run: node tests/playwright-screenshots.mjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pr-24-ui-screenshots
+          path: artifacts/screenshots/*.png
+          if-no-files-found: error
+          retention-days: 30
+
+  private-signed-apk:
+    if: github.event_name == 'pull_request' && github.head_ref == 'codex/fix-v1065-test-feedback'
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '22', cache: npm }
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: '17' }
+      - uses: android-actions/setup-android@v3
+      - name: Prepare temporary signing key
+        env:
+          KEYSTORE_B64: ${{ secrets.ANKUR_RELEASE_KEYSTORE_BASE64 }}
+          STORE_PASSWORD: ${{ secrets.ANKUR_RELEASE_STORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANKUR_RELEASE_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.ANKUR_RELEASE_KEY_PASSWORD }}
+        run: |
+          test -n "$KEYSTORE_B64" && test -n "$STORE_PASSWORD" && test -n "$KEY_ALIAS" && test -n "$KEY_PASSWORD"
+          printf '%s' "$KEYSTORE_B64" | base64 --decode > "$RUNNER_TEMP/ankur-release.jks"
+          test -s "$RUNNER_TEMP/ankur-release.jks"
+      - run: npm ci && npm run lint && npm run build && npx cap sync android
+      - name: Build and verify signed private test APK
+        working-directory: android
+        env:
+          STORE_PASSWORD: ${{ secrets.ANKUR_RELEASE_STORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANKUR_RELEASE_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.ANKUR_RELEASE_KEY_PASSWORD }}
+        run: |
+          bash ./gradlew assembleRelease --no-daemon \
+            -PankurKeystorePath="$RUNNER_TEMP/ankur-release.jks" \
+            -PankurStorePassword="$STORE_PASSWORD" \
+            -PankurKeyAlias="$KEY_ALIAS" \
+            -PankurKeyPassword="$KEY_PASSWORD" \
+            -PankurVersionCode=65 -PankurVersionName=1.0.65
+          APK=app/build/outputs/apk/release/app-release.apk
+          test -s "$APK"
+          TOOLS="$ANDROID_HOME/build-tools/$(ls "$ANDROID_HOME/build-tools" | sort -V | tail -1)"
+          "$TOOLS/apksigner" verify --verbose "$APK"
+          "$TOOLS/aapt" dump badging "$APK" | grep -F "package: name='com.ankurdryice.events' versionCode='65' versionName='1.0.65'"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Ankur-Dryice-v1.0.65-Private-Test-Signed-APK
+          path: android/app/build/outputs/apk/release/app-release.apk
+          if-no-files-found: error
+          retention-days: 7
+      - name: Remove temporary signing key
+        if: always()
+        run: rm -f "$RUNNER_TEMP/ankur-release.jks"
+

@@ -37,6 +37,7 @@ import {
   serverTimestamp 
 } from 'firebase/firestore';
 import { db, handleFirestoreError, OperationType, signInWithGoogle, signOutUser } from '../firebase';
+import { savePaymentProof } from '../services/paymentProof';
 import { 
   getDispatchSlots, 
   BUSINESS_PHONE_DISPLAY,
@@ -360,13 +361,24 @@ const LegacyOrderForm: React.FC<OrderFormProps> = ({
     return cleaned.length >= 10 ? cleaned.slice(-10) : cleaned;
   };
 
-  const handleScreenshotChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      setPaymentScreenshot(file);
-      const previewUrl = URL.createObjectURL(file);
-      setScreenshotPreview(previewUrl);
-      setShareFeedback(null);
+  const handleScreenshotChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setPaymentScreenshot(file);
+    if (screenshotPreview) URL.revokeObjectURL(screenshotPreview);
+    const previewUrl = URL.createObjectURL(file);
+    setScreenshotPreview(previewUrl);
+    setShareFeedback('स्क्रीनशॉट compress और save हो रहा है…');
+    if (!successData?.orderId || !currentUser?.uid) {
+      setShareFeedback('ऑर्डर बना है, लेकिन सुरक्षित upload के लिए ग्राहक login जरूरी है। मालिक को WhatsApp पर भेजें।');
+      return;
+    }
+    try {
+      const saved = await savePaymentProof(successData.orderId, file, currentUser.uid);
+      setShareFeedback(`स्क्रीनशॉट सुरक्षित save हुआ (${Math.round(saved.sizeBytes / 1024)} KB)। Payment owner verification तक pending रहेगा।`);
+    } catch (error) {
+      console.error('Payment proof upload failed:', error);
+      setShareFeedback('स्क्रीनशॉट save नहीं हुआ। इसे WhatsApp पर मालिक को भेजें; payment verification pending है।');
     }
   };
 
@@ -606,6 +618,14 @@ const LegacyOrderForm: React.FC<OrderFormProps> = ({
 
       batch.set(privateOrderRef, privateOrderPayload);
       batch.set(publicTrackingRef, publicTrackingPayload);
+      batch.set(doc(db, 'staffOrderViews', generatedOrderId), {
+        orderId: generatedOrderId, sourceCollection: 'orders',
+        customerName: privateOrderPayload.customerName, city: privateOrderPayload.city,
+        district: privateOrderPayload.district, productName: privateOrderPayload.productName,
+        dispatchTiming: privateOrderPayload.dispatchTiming, dispatchDate, slot,
+        status: 'pending', quantityKg: finalQuantityKg, isTrash: false,
+        createdAt: serverTimestamp(), updatedAt: serverTimestamp(),
+      });
 
       // Commit atomically
       await batch.commit();
@@ -1081,7 +1101,7 @@ const LegacyOrderForm: React.FC<OrderFormProps> = ({
 
                 {/* UPI configuration is shared with tracking. Verification is owner-only. */}
                 <div className="mb-0 text-xs space-y-2.5">
-                  <PaymentOptions amount={successData.totalAmount} isHindi={document.documentElement.dataset.appLanguage !== 'en'} />
+                  <PaymentOptions amount={successData.totalAmount} orderId={successData.orderId} isHindi={document.documentElement.dataset.appLanguage !== 'en'} />
                   <p className="text-[11px] leading-relaxed">
                     UPI से ₹{successData.totalAmount} भेजें। भुगतान अपने ऐप में verify करें; ऐप में स्थिति मालिक द्वारा पुष्टि तक pending रहेगी।
                   </p>
@@ -1129,7 +1149,7 @@ const LegacyOrderForm: React.FC<OrderFormProps> = ({
                           </div>
                         </div>
                         <div className="text-[10px] text-emerald-900 bg-white/90 p-1.5 rounded border border-emerald-100 font-medium">
-                          💡 <strong>निर्देश:</strong> नीचे &quot;WhatsApp पर पेमेंट फोटो भेजें&quot; दबाने पर <strong>+91 8896332066</strong> की चैट खुलेगी। वहां <strong>Attach (+) / गैलरी</strong> से यही स्क्रीनशॉट सेंड करें।
+                          💡 स्क्रीनशॉट 150 KB के करीब compress होकर इस order के सुरक्षित payment proof में save होगा। केवल मालिक इसे देख सकता है; भुगतान सत्यापन तक pending रहेगा।
                         </div>
                       </div>
                     )}

@@ -49,3 +49,35 @@ test('owner feature switches hide promo UI until enabled and QR stays bundled lo
   assert.doesNotMatch(tracking, /https?:\/\/.*qr/i);
   assert.match(formSource, /if \(currentUser\?\.uid\) \{\s+const existingOrder = await getDoc/);
 });
+
+test('payment proof is compressed, stored under its order, and owner-only in the UI', async () => {
+  const form = await source('src/components/OrderForm.tsx');
+  const proofService = await source('src/services/paymentProof.ts');
+  const ownerPreview = await source('src/components/owner/PaymentProofPreview.tsx');
+  const rules = await source('firestore.rules');
+  assert.match(form, /savePaymentProof\(successData\.orderId, file, currentUser\.uid\)/);
+  assert.match(proofService, /doc\(db, 'orders', orderId, 'paymentProof', 'latest'\)/);
+  assert.match(proofService, /TARGET_BYTES = 150 \* 1024/);
+  assert.match(ownerPreview, /Full payment proof/);
+  assert.match(rules, /match \/orders\/\{orderId\}\/paymentProof\/\{proofId\}/);
+  assert.match(rules, /allow get: if isAdmin\(\) \|\| orderOwner\(\)/);
+});
+
+test('UPI links carry merchant, amount and order ID and payment remains owner-verified', async () => {
+  const upi = await source('src/utils/upi.ts');
+  const payment = await source('src/components/PaymentOptions.tsx');
+  const form = await source('src/components/OrderForm.tsx');
+  assert.match(upi, /params\.set\('tn', `Order \$\{orderId\}`\)/);
+  assert.match(payment, /primaryUpiUri\(amount, orderId\)/);
+  assert.match(payment, /Copy/);
+  assert.match(form, /paymentStatus: 'pending_verification'/);
+});
+
+test('staff orders use a safe projection without billing or proof access', async () => {
+  const staff = await source('src/components/StaffDashboard.tsx');
+  const rules = await source('firestore.rules');
+  assert.match(staff, /collection\(db, 'staffOrderViews'\)/);
+  assert.doesNotMatch(staff, /subscribeOrderDocuments/);
+  assert.match(rules, /Field-level read filtering is\s*\n\s*\/\/ not supported by Firestore rules; staff use staffOrderViews/);
+  assert.match(rules, /allow get: if isAdmin\(\) \|\| orderOwner\(\)/);
+});

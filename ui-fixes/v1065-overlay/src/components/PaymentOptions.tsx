@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import primaryUpiQr from '../assets/primary-upi.svg';
 import { BACKUP_UPI_ID, PRIMARY_UPI_ID } from '../config/businessConfig';
 import { backupUpiUri, makePrimaryUpiQr, primaryUpiUri } from '../utils/upi';
 
-export function PaymentOptions({ amount, isHindi = true }: { amount: number; isHindi?: boolean }) {
+export function PaymentOptions({ amount, orderId, isHindi = true }: { amount: number; orderId?: string; isHindi?: boolean }) {
   const [qrFallback, setQrFallback] = useState('');
   const [copied, setCopied] = useState<'primary' | 'backup' | ''>('');
+  useEffect(() => { let live = true; void makePrimaryUpiQr(amount, orderId).then(value => { if (live) setQrFallback(value); }).catch(() => {}); return () => { live = false; }; }, [amount, orderId]);
   const copy = async (value: string, which: 'primary' | 'backup') => {
     try {
       await navigator.clipboard.writeText(value);
@@ -23,10 +24,10 @@ export function PaymentOptions({ amount, isHindi = true }: { amount: number; isH
       src={qrFallback || primaryUpiQr}
       alt={`UPI QR for ${PRIMARY_UPI_ID}`}
       className="mx-auto h-36 w-36 rounded-xl bg-white p-2"
-      onError={() => { if (!qrFallback) void makePrimaryUpiQr(amount).then(setQrFallback).catch(() => {}); }}
+      onError={() => { if (!qrFallback) void makePrimaryUpiQr(amount, orderId).then(setQrFallback).catch(() => {}); }}
     />
     <div className="flex flex-wrap items-center justify-center gap-2">
-      <button type="button" className="soft-button primary-button" onClick={() => openPay(primaryUpiUri(amount))}>
+      <button type="button" className="soft-button primary-button" onClick={() => openPay(primaryUpiUri(amount, orderId))}>
         {isHindi ? 'UPI ऐप से भुगतान करें' : 'Pay with UPI app'}
       </button>
       <span className="font-mono text-sm">{PRIMARY_UPI_ID}</span>
@@ -41,7 +42,7 @@ export function PaymentOptions({ amount, isHindi = true }: { amount: number; isH
           {copied === 'backup' ? 'कॉपी हुआ' : 'Copy'}
         </button>
       </div>
-      <button type="button" className="soft-button secondary-button mt-2" onClick={() => openPay(backupUpiUri(amount))}>
+      <button type="button" className="soft-button secondary-button mt-2" onClick={() => openPay(backupUpiUri(amount, orderId))}>
         Dusre UPI se pay karein
       </button>
     </div>
