@@ -316,3 +316,13 @@ The owner requested continued implementation, holding device-dependent questions
 
 
 - CI follow-up: run 42463311578 reached release-audit contract tests; an exact-string check for FeatureHub spacing failed despite the owner-switch expression being present. Replaced it with a whitespace-tolerant expression check. Re-running CI on the corrected test; no app-build error was reported in that run.
+
+
+## 8 November 2026 — v1.0.65 customer feedback branch
+
+- Branch `codex/fix-v1065-test-feedback` is based on `codex/release-audit-14features-20261108` (v1.0.64 private test). Owner-requested scope is implemented in the v1.0.65 overlay and mapped item-by-item in its PR description.
+- Booking/rules: owner-controlled retail/wholesale customer type; retail total is fixed; wholesale total edits require a reason; calculated/customer totals are stored; totals are checked in Firestore rules. Wholesale rate remains unset until the owner enters it. Thermocol is itemized and optional.
+- Orders: local Paytm QR; UPI copy button; IST dispatch date and slot with legacy-date migration; overdue bucket; IST slot cutoffs; resilient pending-order retry; test-order reporting exclusion; city suggestions and validation.
+- UI: high-contrast feature settings/order cards/status tiles, system inset handling, owner labels and paid/unpaid confirmation, status-consistent order tracking, customer Categories navigation, promo controls hidden until the Promotions switch is on.
+- Version defaults: Android versionCode 65 and versionName 1.0.65. `allowBackup=false` retained.
+- Local verification: `npm run lint`, `npm run build`, and v1.0.65 feedback contracts PASS. GitHub Actions/PR CI is pending after push. No Firebase deploy, Play upload, merge, signing-key change, or paid service was performed.
