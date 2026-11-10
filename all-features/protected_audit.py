@@ -30,7 +30,7 @@ else:
     assert "rates.wholesaleRate" in form
     assert "amountChangeReason" in form and "amountChanged" in form
     assert "customerType == 'wholesale'" in rules
-    assert "profile.get('customerType', 'retail')" in rules
+    assert "function profileCustomerType()" in rules and "get('customerType', 'retail')" in rules
     assert "wholesaleRate" in rates
     # The order object persists both totals and the booked rate breakdown.
     for field in ("calculatedTotal:", "customerTotal", "amountChanged:", "dryIceSubtotal:", "thermocolSubtotal:", "totalAmount:"):
