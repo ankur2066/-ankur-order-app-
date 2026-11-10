@@ -121,7 +121,7 @@ jobs:
           PY
           cd android
           chmod +x gradlew
-          ./gradlew assembleRelease bundleRelease --no-daemon -PankurKeystorePath="$RUNNER_TEMP/ankur-release.jks" -PankurStorePassword="$STORE_PASSWORD" -PankurKeyAlias="$KEY_ALIAS" -PankurKeyPassword="$KEY_PASSWORD"
+          ./gradlew assembleRelease bundleRelease --no-daemon -PankurVersionCode=66 -PankurVersionName=1.0.66-combined-test -PankurKeystorePath="$RUNNER_TEMP/ankur-release.jks" -PankurStorePassword="$STORE_PASSWORD" -PankurKeyAlias="$KEY_ALIAS" -PankurKeyPassword="$KEY_PASSWORD"
       - name: Verify package and signature
         run: |
           APK=android/app/build/outputs/apk/release/app-release.apk
