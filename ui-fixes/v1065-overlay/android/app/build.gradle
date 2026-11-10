@@ -7,8 +7,8 @@ android {
         applicationId "com.ankurdryice.events"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode (project.findProperty("ankurVersionCode") ?: "65").toInteger()
-        versionName (project.findProperty("ankurVersionName") ?: "1.0.65")
+        versionCode((project.findProperty("ankurVersionCode") ?: "66").toString().toInteger())
+        versionName((project.findProperty("ankurVersionName") ?: "1.0.66").toString())
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
