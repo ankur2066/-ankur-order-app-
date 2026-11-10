@@ -24,10 +24,10 @@ test('every scheduled date maps to the current, next-day, or old bucket', () => 
 
 test('retail total edit is rejected by rules; wholesale requires owner profile and reason', async () => {
   const rules = await source('firestore.rules');
-  assert.match(rules, /data\.customerType == 'wholesale' && profile\.customerType == 'wholesale'/);
+  assert.match(rules, /data\.customerType == 'wholesale' && \(isAdmin\(\) \|\| profileCustomerType\(\) == 'wholesale'\)/);
   assert.match(rules, /data\.amountChangeReason\.size\(\) >= 3/);
   assert.match(rules, /data\.quantityKg \* \(\('transportPrice' in data\)/);
-  assert.match(rules, /!isAmountChanged && \(data\.totalAmount == formulaTotal/);
+  assert.match(rules, /\(isAmountChanged \|\| data\.totalAmount == formulaTotal/);
   assert.match(rules, /customerType' in incoming\(\)\) \|\| incoming\(\)\.customerType == 'retail'/);
 });
 
@@ -47,7 +47,8 @@ test('owner feature switches hide promo UI until enabled and QR stays bundled lo
   assert.match(config, /ankur\.singh332066@okhdfcbank/);
   assert.doesNotMatch(form, /8896332066@paytm/);
   assert.doesNotMatch(tracking, /https?:\/\/.*qr/i);
-  assert.match(formSource, /if \(currentUser\?\.uid\) \{\s+const existingOrder = await getDoc/);
+  assert.match(formSource, /existingOrder = await getDoc\(doc\(db, 'orders', generatedOrderId\)\)/);
+  assert.match(formSource, /if \(!isPermissionDenied\(precheckError\)\) throw precheckError;/);
 });
 
 test('payment proof is compressed, stored under its order, and owner-only in the UI', async () => {

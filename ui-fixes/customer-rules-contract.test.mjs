@@ -16,6 +16,22 @@ test('customer create and update enforce self ownership and narrow field changes
   assert.match(rules, /affectedKeys\(\)\.hasOnly\(\['name','lastLoginAt','orderCount'\]\)/);
 });
 test('retail orders cannot submit a changed amount', () => {
-  assert.match(rules, /!isAmountChanged \&\& \(data\.totalAmount == formulaTotal/);
-  assert.match(rules, /data\.customerType == 'wholesale' \&\& profile\.customerType == 'wholesale'/);
+  // v1.0.66 hotfix: an unchanged total must match the formula; a changed total is
+  // only for a wholesale order whose buyer profile is wholesale (owner exempt).
+  assert.match(rules, /\(isAmountChanged \|\| data\.totalAmount == formulaTotal/);
+  assert.match(rules, /data\.customerType == 'wholesale' \&\& \(isAdmin\(\) \|\| profileCustomerType\(\) == 'wholesale'\)/);
+  assert.doesNotMatch(rules, /!isAmountChanged \&\& \(data\.totalAmount == formulaTotal/);
+});
+
+test('v1.0.66 hotfix: missing users/{uid} reads as retail, customers cannot self-verify payment, push paths kept', () => {
+  assert.match(rules, /isSignedIn\(\) && exists\(userDocPath\(\)\) \? userData\(\)\.get\('customerType', 'retail'\) : 'retail'/);
+  assert.doesNotMatch(rules, /let profile = /);
+  assert.equal(rules.match(/\(isAdmin\(\) \|\| incoming\(\)\.paymentStatus == 'pending_verification'\)/g)?.length, 2);
+  for (const path of ['push_owner_devices/{deviceId}', 'push_team_devices/{uid}/devices/{deviceId}', 'order_push_subscriptions/{trackingToken}/devices/{deviceId}']) {
+    assert.ok(rules.includes('match /' + path), path);
+  }
+  // Older installed apps never write staffOrderViews; orders create must not require it.
+  const orders = rules.indexOf('match /orders/{orderId}');
+  const create = rules.slice(rules.indexOf('allow create', orders), rules.indexOf('allow update', orders));
+  assert.doesNotMatch(create, /staffOrderViews/);
 });

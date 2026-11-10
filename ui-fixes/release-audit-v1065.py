@@ -22,6 +22,8 @@ files = [
     "src/services/deliverySettings.ts", "src/services/staffRegistry.ts", "src/services/staffSync.ts",
     "src/utils/delivery.ts", "src/utils/delivery.test.ts", "src/utils/staffProjection.ts", "src/utils/staffProjection.test.ts",
     "src/utils/contrast.ts", "src/utils/contrast.test.ts",
+    # v1.0.66 hotfix: permission-denied message, average-rate note
+    "src/utils/orderFormCopy.ts", "src/utils/orderFormCopy.test.ts",
 ]
 for relative in files:
     source = overlay / relative

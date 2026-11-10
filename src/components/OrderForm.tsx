@@ -43,12 +43,14 @@ import { db, handleFirestoreError, OperationType, signInWithGoogle, signOutUser 
 import { savePaymentProof } from '../services/paymentProof';
 import { 
   getDispatchSlots, 
-  BUSINESS_PHONE_DISPLAY,
+  BUSINESS_CALL_DISPLAY,
+  BUSINESS_WHATSAPP_DISPLAY,
   BUSINESS_CALL_HREF,
   BUSINESS_WHATSAPP_BASE,
   UP_DISTRICTS
 } from '../data/products';
 import { addIstDays, formatDispatchDate, istDateKey } from '../utils/dispatchSchedule';
+import { averageRateNote, classifyOrderSubmitError, isPermissionDenied, orderSubmitErrorMessage } from '../utils/orderFormCopy';
 import { useInlinePromo } from '../hooks/useInlinePromo';
 import { subscribeToRates, getLocalRates } from '../data/rates';
 import type { Order, OrderTracking, ProductItem, RateSettings } from '../types';
@@ -554,8 +556,15 @@ const LegacyOrderForm: React.FC<OrderFormProps> = ({
       // A network drop can hide a successful Firestore acknowledgement. Reconcile
       // the persisted order before attempting another create with the same ID.
       if (currentUser?.uid) {
-        const existingOrder = await getDoc(doc(db, 'orders', generatedOrderId));
-        if (existingOrder.exists() && existingOrder.data().userId === currentUser.uid) {
+        // Rules refuse a customer read of an order id that does not exist yet
+        // (resource == null), so permission-denied here simply means "not saved".
+        let existingOrder: Awaited<ReturnType<typeof getDoc>> | null = null;
+        try {
+          existingOrder = await getDoc(doc(db, 'orders', generatedOrderId));
+        } catch (precheckError) {
+          if (!isPermissionDenied(precheckError)) throw precheckError;
+        }
+        if (existingOrder && existingOrder.exists() && (existingOrder.data() as Order).userId === currentUser.uid) {
           const saved = existingOrder.data() as Order;
           const pin = saved.trackingPin || generatedPin;
           setSuccessData({ orderId: generatedOrderId, trackingPin: pin, customerName: saved.customerName, customerPhone: saved.customerPhone, address: saved.address || saved.city || '', quantityKg: saved.quantityKg, totalAmount: saved.totalAmount, dispatchTiming: saved.dispatchTiming });
@@ -669,15 +678,19 @@ const LegacyOrderForm: React.FC<OrderFormProps> = ({
 
       // Save customer profile securely
       if (currentUser && currentUser.uid) {
-        const userProfileRef = doc(db, 'users', currentUser.uid);
-        const existingProfile = await getDoc(userProfileRef);
-        await setDoc(userProfileRef, {
-          customerName: customerName.trim(),
-          customerPhone: cleanPhone,
-          city: cleanAddress.slice(0, 100),
-          ...(!existingProfile.exists() ? { customerType: 'retail' } : {}),
-          updatedAt: serverTimestamp()
-        }, { merge: true });
+        // The order is already committed; a profile-save failure must not show
+        // an order error (the customer would retry an order that exists).
+        try {
+          const userProfileRef = doc(db, 'users', currentUser.uid);
+          const existingProfile = await getDoc(userProfileRef);
+          await setDoc(userProfileRef, {
+            customerName: customerName.trim(),
+            customerPhone: cleanPhone,
+            city: cleanAddress.slice(0, 100),
+            ...(!existingProfile.exists() ? { customerType: 'retail' } : {}),
+            updatedAt: serverTimestamp()
+          }, { merge: true });
+        } catch (profileError) { console.warn('Customer profile save did not complete:', profileError); }
       }
 
       // Save to localStorage for offline resilience & duplicate protection
@@ -710,10 +723,14 @@ const LegacyOrderForm: React.FC<OrderFormProps> = ({
       if (onClearReorder) onClearReorder();
     } catch (err: unknown) {
       console.error('Failed to submit order:', err);
+      // permission-denied = published Firestore rules refused the batch; it is
+      // not a network problem, so do not tell the customer to check internet.
+      const submitErrorKind = classifyOrderSubmitError(err);
+      const submitLanguage = typeof document !== 'undefined' && document.documentElement?.dataset?.appLanguage === 'en' ? 'en' : 'hi';
       try {
         handleFirestoreError(err, OperationType.WRITE, 'orders');
-      } catch (e: any) {
-        setErrorMsg('Connection failed. Your order details are saved on this device. Check the connection and tap Place Order to retry.');
+      } catch {
+        setErrorMsg(orderSubmitErrorMessage(submitErrorKind, submitLanguage));
       }
     } finally {
       setSubmitting(false);
@@ -1435,9 +1452,9 @@ const LegacyOrderForm: React.FC<OrderFormProps> = ({
                       aria-label={customerType === 'wholesale' ? 'Edit wholesale customer total' : 'Retail total amount'}
                       className="apb-extra-amount-input" />
                   </label>
-                    <span className="text-[10px] text-slate-500 block">
-                      (₹{currentUnitRate}/kg, सभी लागू शुल्क सहित)
-                    </span>
+                    {!(customerType === 'wholesale' && extraAmountText.trim()) && <span className="text-[10px] text-slate-500 block">
+                      {averageRateNote(currentUnitRate, { thermocolIncluded, transportRate: rates.transportRate || 0 }, typeof document !== 'undefined' && document.documentElement?.dataset?.appLanguage === 'en' ? 'en' : 'hi')}
+                    </span>}
                   </div>
                 </div>
               </div>
@@ -1491,24 +1508,24 @@ const LegacyOrderForm: React.FC<OrderFormProps> = ({
               </button>
             </form>
 
-            {/* Contact Strip with Business Contact +91 8896332066 */}
+            {/* Contact strip: Call +91 95808 82066, WhatsApp +91 88963 32066 */}
             <div className="apb-contact mt-4 pt-4 border-t flex flex-wrap items-center justify-between gap-3 text-sm">
               <span>सहायता के लिए संपर्क करें:</span>
               <div className="flex items-center gap-3">
                 <a
                   href={BUSINESS_CALL_HREF}
                   className="text-sky-700 font-bold hover:underline flex items-center gap-1"
-                  title={`कॉल करें (${BUSINESS_PHONE_DISPLAY})`}
+                  title={`कॉल करें (${BUSINESS_CALL_DISPLAY})`}
                 >
                   <Phone className="w-3 h-3" />
-                  <span>कॉल ({BUSINESS_PHONE_DISPLAY})</span>
+                  <span>कॉल ({BUSINESS_CALL_DISPLAY})</span>
                 </a>
                 <a
                   href={getFormWhatsAppInquiryLink()}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-emerald-700 font-bold hover:underline flex items-center gap-1"
-                  title={`WhatsApp (${BUSINESS_PHONE_DISPLAY})`}
+                  title={`WhatsApp (${BUSINESS_WHATSAPP_DISPLAY})`}
                 >
                   <MessageCircle className="w-3 h-3" />
                   <span>व्हाट्सएप</span>

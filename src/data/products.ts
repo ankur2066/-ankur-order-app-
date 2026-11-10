@@ -86,6 +86,9 @@ export const UP_DISTRICTS: { id: string; name: string }[] = [
 
 export const BUSINESS_PHONE = '8896332066';
 export const BUSINESS_PHONE_DISPLAY = '+91 8896332066';
+// Call and WhatsApp are different numbers: Call 95808 82066, WhatsApp 88963 32066.
+export const BUSINESS_CALL_DISPLAY = '+91 95808 82066';
+export const BUSINESS_WHATSAPP_DISPLAY = '+91 88963 32066';
 export const BUSINESS_CALL_HREF = 'tel:+919580882066';
 export const BUSINESS_WHATSAPP_BASE = 'https://wa.me/918896332066';
 

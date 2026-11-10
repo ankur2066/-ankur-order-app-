@@ -38,5 +38,36 @@ Legend: **Done** = implemented in this pass · **Verified** = already present, c
 
 ## Deploy notes (owner)
 
-- Deploy only `firestore.rules` (Spark): `firebase deploy --only firestore:rules`. No functions deploy.
+- Deploy only `firestore.rules` (Spark), **to the named database** `ai-studio-ankurdryiceorder-f4d89318-c640-47a5-a9f7-98543eff2673` — see "v1.0.66 hotfix: publish rules from Firebase Console" below. Do **not** run plain `firebase deploy --only firestore:rules`: `firebase.json` has no `database` key, so the CLI would update the unused `(default)` database. No functions deploy.
 - After deploy: Tools › Bus stops › Save once (creates `settings/delivery` with Alambagh, Kaiserbagh, Bus Stop 3).
+
+## v1.0.66 hotfix — "Connection failed" + owner screenshot items
+
+| Item | Status | Where | How to check |
+|---|---|---|---|
+| H1 Order "Connection failed" cause | Confirmed by rules analysis | live named-DB ruleset (2026-11-01, `notifications/live-review/firestore.candidate.rules`) | Old `hasOnly` rejects new order/tracking keys; no `staffOrderViews` match → batch `permission-denied` |
+| H2 Signed-in pre-check | Fixed | `OrderForm.tsx` | Refused read of not-yet-created `orders/{id}` treated as absent; profile save after commit cannot show an order error |
+| H3 Permission message | Done | `utils/orderFormCopy.ts`, `OrderForm.tsx` | Unpublished rules → "ऑर्डर सर्वर ने मना कर दिया (permission)…"; airplane mode → offline-retry message |
+| H4 Rules compat old + new apps | Done | `firestore.rules` (root = overlay) | `tests/firestore.rules.test.mjs` › "Order create compatibility across installed app versions" (CI emulator) |
+| H5 Push paths kept | Done | `firestore.rules` | push_owner_devices / push_team_devices / order_push_subscriptions copied from the live ruleset |
+| H6 AI Video empty state | Done | `customer/FeatureHub.tsx` | Feature controls › Video Idea Builder OFF → AI Video tab shows "… अभी बंद है" message, ON → builder |
+| H7 Call number | Done | `OrderForm.tsx`, `data/products.ts`, `i18n/messages.json` | Order form bottom: "कॉल (+91 95808 82066)" dials 9580882066; WhatsApp opens 88963 32066 |
+| H8 Price note | Done | `OrderForm.tsx`, `utils/orderFormCopy.ts` | 10 kg retail → "(औसत ₹60/kg, पैकिंग सहित)" |
+| H9 Notification Hindi | Done | `ui-fixes/i18n/messages.json` | Profile › सूचना सेटिंग (Hindi mode) |
+
+### v1.0.66 hotfix: publish rules from Firebase Console (Spark, no CLI)
+
+1. Open https://console.firebase.google.com → project **ankur-dryice-app** → Build → **Firestore Database**.
+2. At the top, open the database dropdown and pick **ai-studio-ankurdryiceorder-f4d89318-c640-47a5-a9f7-98543eff2673** (not `(default)`).
+3. Open the **Rules** tab. Optional backup: copy the current text into a note first.
+4. Select all, delete, paste the full contents of `firestore.rules` from this branch (starts `rules_version = '2';`, ends with the `order_push_subscriptions` block).
+5. Click **Publish**. If the editor shows a red error, do not publish; send a screenshot.
+6. Wait 1–2 minutes, then test:
+   - Guest (signed out) order, 10 kg, any delivery mode → success screen with Order ID + PIN.
+   - Signed-in customer order → success; then My Orders shows it.
+   - Owner app: the new order appears (and the new-order push arrives, where push is already working).
+   - Track page with Order ID + PIN shows status.
+   - Upload a payment screenshot on the success screen → owner sees thumbnail.
+   - Staff phone (v1.0.66, registered in Tools › Staff): Packing screen lists the order; "Packing done" works.
+   - An old v1.0.65 phone (if still installed) can still place an order.
+7. If anything fails, Rules tab → history (clock icon) → restore the previous ruleset.

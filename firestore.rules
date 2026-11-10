@@ -101,6 +101,14 @@ service cloud.firestore {
              (!('deliveryNote' in data) || (data.deliveryNote is string && data.deliveryNote.size() <= 200));
     }
 
+    // Customer type from the signed-in user's own profile. A first-time
+    // customer has no users/{uid} document until after the order batch, so
+    // a missing profile must read as 'retail' instead of erroring (an error
+    // inside a create rule denies the whole batch).
+    function profileCustomerType() {
+      return isSignedIn() && exists(userDocPath()) ? userData().get('customerType', 'retail') : 'retail';
+    }
+
     function canToggleProducts() {
       return isFieldTeam() && hasPerm('toggleProducts', false);
     }
@@ -155,7 +163,6 @@ service cloud.firestore {
       ];
 
       let isAmountChanged = ('amountChanged' in data && data.amountChanged == true);
-      let profile = request.auth != null ? get(/databases/$(database)/documents/users/$(request.auth.uid)).data : {};
       let formulaTotal = data.dryIceSubtotal + data.thermocolSubtotal + data.quantityKg * (('transportPrice' in data) ? data.transportPrice : 0);
       return data.keys().hasAll(requiredKeys) &&
              data.keys().hasOnly(allowedKeys) &&
@@ -193,11 +200,14 @@ service cloud.firestore {
               (data.thermocolSubtotal >= (data.quantityKg * data.thermocolPricePerKg - 0.05) &&
                data.thermocolSubtotal <= (data.quantityKg * data.thermocolPricePerKg + 0.05))) &&
              (!('transportPrice' in data) || (data.transportPrice is number && data.transportPrice >= 0)) &&
-             (!isAmountChanged && (data.totalAmount == formulaTotal || (data.totalAmount >= formulaTotal - 0.05 && data.totalAmount <= formulaTotal + 0.05))) &&
-             (!isAmountChanged || (data.customerType == 'wholesale' && profile.customerType == 'wholesale' &&
-               data.customerTotal == data.totalAmount && data.calculatedTotal == formulaTotal &&
+             // Normal orders: total must match the rate formula. An owner-approved
+             // wholesale amount change (amountChanged == true) is checked below.
+             (isAmountChanged || data.totalAmount == formulaTotal || (data.totalAmount >= formulaTotal - 0.05 && data.totalAmount <= formulaTotal + 0.05)) &&
+             (!isAmountChanged || (data.customerType == 'wholesale' && (isAdmin() || profileCustomerType() == 'wholesale') &&
+               data.customerTotal == data.totalAmount &&
+               data.calculatedTotal >= formulaTotal - 0.05 && data.calculatedTotal <= formulaTotal + 0.05 &&
                data.amountChangeReason is string && data.amountChangeReason.size() >= 3)) &&
-             (!('customerType' in data) || isAdmin() || (request.auth == null && data.customerType == 'retail') || (request.auth != null && data.customerType == profile.get('customerType', 'retail'))) &&
+             (!('customerType' in data) || isAdmin() || (request.auth == null && data.customerType == 'retail') || (request.auth != null && data.customerType == profileCustomerType())) &&
 
              data.status in ['pending', 'confirmed', 'in_packing', 'dispatched', 'delivered', 'cancelled'] &&
              data.paymentStatus in ['pending_verification', 'payment_verified', 'cash_on_delivery'] &&
@@ -301,6 +311,7 @@ service cloud.firestore {
         isValidOrder(incoming()) &&
         incoming().orderId == orderId &&
         incoming().status == 'pending' &&
+        (isAdmin() || incoming().paymentStatus == 'pending_verification') &&
         incoming().createdAt == request.time &&
         incoming().updatedAt == request.time &&
         (isAdmin() || !isSignedIn() || incoming().userId == request.auth.uid || incoming().userId == 'guest' || incoming().userId == 'owner_manual_entry') &&
@@ -391,6 +402,7 @@ service cloud.firestore {
         isValidOrderTracking(incoming()) &&
         incoming().trackingToken == trackingToken &&
         incoming().status == 'pending' &&
+        (isAdmin() || incoming().paymentStatus == 'pending_verification') &&
         incoming().createdAt == request.time &&
         incoming().updatedAt == request.time &&
         (isAdmin() || existsAfter(/databases/$(database)/documents/orders/$(incoming().orderId)));
@@ -535,6 +547,43 @@ service cloud.firestore {
     // 7. Anti-Escalation Gate: no client may touch this collection
     match /admins/{adminId} {
       allow read, write: if false;
+    }
+
+    // v1.0.29: private Android FCM device registration (carried over unchanged
+    // from the live ruleset deployed 2026-11-01 so a rules publish does not
+    // break push registration). Clients cannot read or list device tokens.
+    function isValidPushDevice(data) {
+      return data.keys().hasAll(['token', 'platform', 'updatedAt']) &&
+        data.keys().hasOnly(['token', 'platform', 'updatedAt']) &&
+        data.token is string && data.token.size() >= 30 && data.token.size() <= 4096 &&
+        data.platform == 'android' &&
+        data.updatedAt == request.time;
+    }
+
+    // Only the verified owner may register a device to get ALL new-order alerts.
+    match /push_owner_devices/{deviceId} {
+      allow get, list: if false;
+      allow create, update, delete: if isValidId(deviceId) && isOwner() &&
+        (request.method == 'delete' || isValidPushDevice(incoming()));
+    }
+
+    // Staff and delivery team are eligible only while allowed to view orders.
+    match /push_team_devices/{uid}/devices/{deviceId} {
+      allow get, list: if false;
+      allow create, update, delete: if isValidId(deviceId) &&
+        isSignedIn() && uid == request.auth.uid && canViewOrders() &&
+        (request.method == 'delete' || isValidPushDevice(incoming()));
+    }
+
+    // Customer/guest: possessing an exact secret tracking token grants the
+    // ability to register push for that ONE order only. No order PII exposed.
+    match /order_push_subscriptions/{trackingToken}/devices/{deviceId} {
+      allow get, list: if false;
+      allow create, update: if isValidId(deviceId) &&
+        isValidTrackingToken(trackingToken) &&
+        exists(/databases/$(database)/documents/order_tracking/$(trackingToken)) &&
+        isValidPushDevice(incoming());
+      allow delete: if false; // invalid/expired tokens are cleaned server-side
     }
   }
 }

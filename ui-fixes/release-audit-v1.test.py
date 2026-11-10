@@ -35,7 +35,10 @@ assert 'tel:+918896332066' not in tracking
 assert 'PaymentOptions' in tracking and '8896332066@paytm' not in tracking
 assert 'PaymentOptions' in orders and '8896332066@paytm' not in orders
 assert 'ankur.pending.order.v1.' in orders and 'pending.fingerprint !== fingerprint' in orders
-assert 'Your order details are saved on this device' in orders
+# v1.0.66: offline-retry copy lives in utils/orderFormCopy.ts; permission-denied gets its own message.
+order_copy = (root / 'src/utils/orderFormCopy.ts').read_text()
+assert 'orderSubmitErrorMessage(submitErrorKind, submitLanguage)' in orders
+assert 'Your order details are saved on this device' in order_copy and "code === 'permission-denied'" in order_copy
 assert 'primaryUpiQr' in payment and 'makePrimaryUpiQr' in payment and 'Copy UPI ID' in payment
 assert 'backupUpiUri' in payment and 'Dusre UPI se pay karein' in payment
 assert 'paytm.s26ykus@pty' in config and 'ankur.singh332066@okhdfcbank' in config

@@ -97,14 +97,37 @@ function ReportsHub({user,onOpenReports}:{user:User|null;onOpenReports:()=>void}
 export const FeatureHub: React.FC<{currentUser:User|null; role:string|null; initial?:FeatureId|null; onClose?:()=>void;allowed?:FeatureId[]}> = ({currentUser,role,initial=null,onClose,allowed}) => {
   const {language,t}=useLanguage(); const [active,setActive]=useState<FeatureId|null>(initial);
   const [featureFlags,setFeatureFlags]=useState<Record<string,boolean>>({});
-  React.useEffect(()=>onSnapshot(doc(db,'settings','featureSuite'),snapshot=>setFeatureFlags(snapshot.data()?.features||{}),()=>setFeatureFlags({})),[]);
+  // 'loading' until the first snapshot; 'error' if settings/featureSuite cannot be read.
+  const [flagsState,setFlagsState]=useState<'loading'|'ready'|'error'>('loading');
+  React.useEffect(()=>onSnapshot(doc(db,'settings','featureSuite'),snapshot=>{setFeatureFlags(snapshot.data()?.features||{});setFlagsState('ready');},()=>{setFeatureFlags({});setFlagsState('error');}),[]);
   // Customer visibility is NOT a permission grant. Existing authenticated rules remain mandatory.
   const visible=useMemo(()=>FEATURES.filter(f=>(!f.owner||role==='admin')&&
     (!allowed||allowed.includes(f.id))&&
     featureFlags[f.id]===true),[role,allowed,featureFlags]);
   const selected=visible.find(f=>f.id===active);
+  // A direct tab (e.g. AI Video, allowed=['video']) must never render blank.
+  if(!selected&&visible.length===0&&allowed&&allowed.length>0) return <FeatureOffNotice state={flagsState} only={allowed&&allowed.length===1?allowed[0]:null} onClose={onClose}/>;
   if(selected) return <div className="c-app ankur-readable-customer-page min-h-screen page-with-bottom-nav"><header className="c-card border-b b-line px-3 py-3 flex items-center gap-2"><button aria-label={t('back')} onClick={()=>setActive(null)} className="w-11 h-11 rounded-full flex items-center justify-center"><ArrowLeft className="w-5 h-5"/></button><h1 className="font-black">{language==='hi'?selected.hi:selected.en}</h1></header><main className="p-4 max-w-lg mx-auto"><SafePanel id={selected.id} state={selected.state} user={currentUser} role={role} onOpenReports={()=>{setActive(null);window.dispatchEvent(new Event('ankur-owner-reports'));}}/>{selected.auth&&!currentUser&&<p className="mt-3 text-sm text-amber-700">Sign in is required to use account actions.</p>}</main></div>;
   return <section className="c-card border b-line rounded-2xl p-4"><div className="flex items-center justify-between"><h2 className="text-sm font-black">{t('features')}</h2>{onClose&&<button onClick={onClose} className="text-xs t-brand">Close</button>}</div><div className="grid grid-cols-2 gap-2 mt-3">{visible.map(({id,icon:Icon,en,hi})=><button key={id} type="button" onClick={()=>setActive(id)} className="focus-ring min-h-20 c-soft rounded-xl p-3 text-left"><Icon className="w-5 h-5 t-brand"/><span className="block mt-2 text-xs font-extrabold">{language==='hi'?hi:en}</span></button>)}</div></section>;
+};
+
+// Shown when the owner has switched a feature off in Feature settings, while the
+// setting is loading, or when settings/featureSuite cannot be read.
+const FeatureOffNotice: React.FC<{state:'loading'|'ready'|'error';only:FeatureId|null;onClose?:()=>void}> = ({state,only,onClose}) => {
+  const {language}=useLanguage(),hi=language==='hi';
+  const feature=only?FEATURES.find(f=>f.id===only):undefined;
+  const name=feature?(hi?feature.hi:feature.en):(hi?'सेवाएँ और टूल':'Services and tools');
+  let title:string,body:string;
+  if(state==='loading'){title=hi?'लोड हो रहा है…':'Loading…';body=hi?'फ़ीचर की सेटिंग देखी जा रही है।':'Checking feature settings.';}
+  else if(state==='error'){title=hi?'अभी फ़ीचर लोड नहीं हो सका':'Could not load this feature';body=hi?'इंटरनेट चेक करें और यह टैब दोबारा खोलें। दिक्कत रहे तो कॉल करें 95808 82066।':'Check your internet and open this tab again. If it continues, call 95808 82066.';}
+  else{title=hi?`${name} अभी बंद है`:`${name} is turned off`;body=only==='video'
+    ?(hi?'मालिक इसे Owner Dashboard → Tools aur Settings → Feature controls (Feature settings) में "Video Idea Builder" चालू करके खोल सकते हैं।':'The owner can turn on "Video Idea Builder" in Owner Dashboard → Tools aur Settings → Feature controls (Feature settings).')
+    :(hi?'मालिक इसे Owner Dashboard → Tools aur Settings → Feature controls (Feature settings) में चालू कर सकते हैं।':'The owner can turn it on in Owner Dashboard → Tools aur Settings → Feature controls (Feature settings).');}
+  return <section className="ankur-feature-off c-card border b-line rounded-2xl p-4 m-4 max-w-lg mx-auto" role="status" aria-live="polite" data-feature-state={state}>
+    <h2 className="text-base font-black">{title}</h2>
+    <p className="mt-2 text-sm t-sub">{body}</p>
+    {onClose&&<button type="button" onClick={onClose} className="mt-3 min-h-11 rounded-xl border b-line px-4 font-bold">{hi?'बंद करें':'Close'}</button>}
+  </section>;
 };
 
 export const LanguageSettings = () => { const {language,setLanguage,t}=useLanguage(); return <section className="c-card border b-line rounded-2xl p-4"><h2 className="text-sm font-black flex items-center gap-2"><Languages className="w-5 h-5 t-brand"/>{t('settings')}</h2><p className="mt-3 text-xs font-bold t-sub">{t('language')}</p><div className="grid grid-cols-2 gap-2 mt-2"><button type="button" aria-pressed={language==='en'} onClick={()=>setLanguage('en')} className={`min-h-11 rounded-xl border ${language==='en'?'b-brand c-soft':'b-line c-card'} font-bold`}>{t('english')}</button><button type="button" aria-pressed={language==='hi'} onClick={()=>setLanguage('hi')} className={`min-h-11 rounded-xl border ${language==='hi'?'b-brand c-soft':'b-line c-card'} font-bold`}>{t('hindi')}</button></div></section> };

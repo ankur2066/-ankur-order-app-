@@ -2,7 +2,7 @@ import { readFile } from 'node:fs/promises';
 import { after, before, describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import { initializeTestEnvironment, assertFails, assertSucceeds } from '@firebase/rules-unit-testing';
-import { collection, doc, getDoc, getDocs, serverTimestamp, setDoc, updateDoc } from 'firebase/firestore';
+import { collection, doc, getDoc, getDocs, serverTimestamp, setDoc, updateDoc, writeBatch } from 'firebase/firestore';
 
 const projectId = 'demo-ankur-dryice-rules';
 let testEnv;
@@ -25,6 +25,7 @@ before(async () => {
     await db.doc('staffEmails/former@example.com').set({phone:'+919800000002',name:'Former',active:false,role:'STAFF',updatedAt:new Date()});
     await db.doc('settings/delivery').set({busStops:[{id:'alambagh',name:'Alambagh',color:'teal',active:true}],districtStopMap:{sitapur:'alambagh'},updatedAt:new Date()});
     await db.doc('orders/order-2').set({orderId:'order-2',userId:'customer',customerName:'Customer',district:'Sitapur',quantityKg:12,status:'confirmed',totalAmount:720,paymentStatus:'pending_verification',deliveryMode:'BUS',busStopId:'alambagh',createdAt:new Date(),updatedAt:new Date()});
+    await db.doc('users/wholesale-buyer').set({customerType:'wholesale',customerName:'Wholesale Buyer'});
     await db.doc('staffOrderViews/order-2').set({orderId:'order-2',sourceCollection:'orders',customerName:'Customer',city:'Sitapur',district:'Sitapur',productName:'Dry Ice',quantityKg:12,status:'confirmed',dispatchTiming:'Today morning',deliveryMode:'BUS',busStopId:'alambagh',isTrash:false,createdAt:new Date(),updatedAt:new Date()});
   });
 });
@@ -138,3 +139,97 @@ describe('Firestore privacy and role rules', () => {
   });
 });
 
+
+// v1.0.66 hotfix: installed v1.0.64 / v1.0.65 apps keep placing orders after the
+// new rules are published, and the v1.0.66 batch (orders + order_tracking +
+// staffOrderViews) is accepted. Payloads mirror the old OrderForm.tsx sources
+// (base zip, commit 2fb7f16) field for field.
+describe('Order create compatibility across installed app versions', () => {
+  const ownerDb=()=>testEnv.authenticatedContext('owner',{email:'ankurdryicewholesalers@gmail.com',email_verified:true}).firestore();
+  const ids=(suffix)=>({orderId:`ADI-20261111-${suffix}`,trackingPin:'654321',trackingToken:`ADI-20261111-${suffix}_654321`});
+  const v64Order=(suffix,userId)=>{const k=ids(suffix);return {...k,customerName:'Old App Buyer',customerPhone:'9876543210',district:'Lucknow Jankipuram',address:'Lucknow Jankipuram',city:'Lucknow Jankipuram',quantityKg:10,dispatchTiming:'कल सुबह',productName:'ड्राई आइस (Dry Ice)',dryIcePricePerKg:50,dryIceSubtotal:500,thermocolPricePerKg:10,thermocolSubtotal:100,transportPrice:0,totalAmount:600,status:'pending',paymentStatus:'pending_verification',paymentMethod:'paytm_business_upi',paymentNotes:'Paytm Business / UPI द्वारा ओनर वेरिफिकेशन प्रतीक्षित',userId,createdAt:serverTimestamp(),updatedAt:serverTimestamp()};};
+  const v64Tracking=(o)=>({orderId:o.orderId,trackingToken:o.trackingToken,status:'pending',productName:o.productName,quantityKg:o.quantityKg,district:o.district,dispatchTiming:o.dispatchTiming,paymentStatus:'pending_verification',lastStatusUpdate:'ऑर्डर प्राप्त हुआ। पैकिंग शेड्यूल्ड।',createdAt:serverTimestamp(),updatedAt:serverTimestamp()});
+  const v65Order=(suffix,userId,extra={})=>({...v64Order(suffix,userId),dispatchTiming:'12 Nov, सुबह',dispatchDate:'2026-11-12',slot:'morning',customerType:'retail',calculatedTotal:600,customerTotal:600,amountChanged:false,amountChangeReason:'',thermocolIncluded:true,testOrder:false,paymentNotes:'Paytm Business / UPI - मालिक के सत्यापन की प्रतीक्षा',...extra});
+  const v65Tracking=(o)=>({...v64Tracking(o),dispatchDate:o.dispatchDate,slot:o.slot});
+  const v66Tracking=(o)=>({...v65Tracking(o),dispatchSlot:o.slot,totalAmount:o.totalAmount});
+  const v66View=(o)=>({orderId:o.orderId,sourceCollection:'orders',customerName:o.customerName,city:o.city,district:o.district,productName:o.productName,dispatchTiming:o.dispatchTiming,dispatchDate:o.dispatchDate,slot:o.slot,status:'pending',quantityKg:o.quantityKg,isTrash:false,...(o.deliveryMode?{deliveryMode:o.deliveryMode}:{}),...(o.busStopId?{busStopId:o.busStopId}:{}),createdAt:serverTimestamp(),updatedAt:serverTimestamp()});
+  const commit=(db,o,tracking,view)=>{const b=writeBatch(db);b.set(doc(db,'orders',o.orderId),o);b.set(doc(db,'order_tracking',o.trackingToken),tracking);if(view)b.set(doc(db,'staffOrderViews',o.orderId),view);return b.commit();};
+
+  it('v1.0.64 guest order (orders + order_tracking only, flat legacy keys) is accepted', async () => {
+    const guest=testEnv.unauthenticatedContext().firestore();
+    const o=v64Order('G64A','guest');
+    await assertSucceeds(commit(guest,o,v64Tracking(o)));
+  });
+  it('v1.0.64 signed-in order and its users profile write are accepted', async () => {
+    const buyer=testEnv.authenticatedContext('buyer64').firestore();
+    const o=v64Order('S64A','buyer64');
+    await assertSucceeds(commit(buyer,o,v64Tracking(o)));
+    await assertSucceeds(setDoc(doc(buyer,'users/buyer64'),{customerName:o.customerName,customerPhone:o.customerPhone,city:o.city,updatedAt:serverTimestamp()},{merge:true}));
+  });
+  it('v1.0.65 order (dispatchDate/slot/customerType/calculatedTotal, no staffOrderViews) is accepted for guest and a first-time signed-in buyer', async () => {
+    const guest=testEnv.unauthenticatedContext().firestore();
+    const g=v65Order('G65A','guest');
+    await assertSucceeds(commit(guest,g,v65Tracking(g)));
+    // First-time buyer: users/{uid} does not exist yet when the batch commits.
+    const buyer=testEnv.authenticatedContext('buyer65').firestore();
+    const o=v65Order('S65A','buyer65');
+    await assertSucceeds(commit(buyer,o,v65Tracking(o)));
+    await assertSucceeds(setDoc(doc(buyer,'users/buyer65'),{customerName:o.customerName,customerPhone:o.customerPhone,city:o.city,customerType:'retail',updatedAt:serverTimestamp()},{merge:true}));
+    // ...and its first customers/{+91mobile} record (orderCount via increment(1) -> 1).
+    await assertSucceeds(setDoc(doc(buyer,'customers/+919876543299'),{uid:'buyer65',name:o.customerName,phone:'+919876543299',firstLoginAt:serverTimestamp(),lastLoginAt:serverTimestamp(),orderCount:1,completedOrders:0,tag:'New'}));
+  });
+  it('v1.0.66 batch (orders + order_tracking + staffOrderViews, delivery mode) is accepted', async () => {
+    const guest=testEnv.unauthenticatedContext().firestore();
+    const g=v65Order('G66A','guest',{dispatchSlot:'morning',deliveryMode:'BUS',busStopId:'alambagh'});
+    await assertSucceeds(commit(guest,g,v66Tracking(g),v66View(g)));
+    const buyer=testEnv.authenticatedContext('buyer66').firestore();
+    const o=v65Order('S66A','buyer66',{dispatchSlot:'evening',slot:'evening',deliveryMode:'SHOP_PICKUP'});
+    await assertSucceeds(commit(buyer,o,v66Tracking(o),v66View(o)));
+  });
+  it('a customer still cannot self-verify payment, skip pending, or add owner-only fields', async () => {
+    const guest=testEnv.unauthenticatedContext().firestore();
+    const paid=v65Order('BADP','guest',{paymentStatus:'payment_verified'});
+    await assertFails(commit(guest,paid,{...v65Tracking(paid),paymentStatus:'payment_verified'}));
+    const confirmed=v65Order('BADS','guest',{status:'confirmed'});
+    await assertFails(commit(guest,confirmed,v65Tracking(confirmed)));
+    const pickup=v64Order('BADK','guest');
+    await assertFails(commit(guest,{...pickup,selfPickup:{status:'pickup_completed'}},v64Tracking(pickup)));
+    const cheap=v64Order('BADT','guest');
+    await assertFails(commit(guest,{...cheap,totalAmount:100},v64Tracking(cheap)));
+    const wholesaleGuest=v65Order('BADW','guest',{customerType:'wholesale'});
+    await assertFails(commit(guest,wholesaleGuest,v65Tracking(wholesaleGuest)));
+    // A staffOrderViews row cannot be forged without its order in the same batch.
+    await assertFails(setDoc(doc(guest,'staffOrderViews/ADI-20261111-NOPE'),v66View(v65Order('NOPE','guest'))));
+  });
+  it('a wholesale buyer can place an owner-approved changed amount; a retail buyer cannot', async () => {
+    const wholesale=testEnv.authenticatedContext('wholesale-buyer').firestore();
+    const base={customerType:'wholesale',thermocolIncluded:false,thermocolPricePerKg:0,thermocolSubtotal:0,calculatedTotal:500,customerTotal:750,totalAmount:750,amountChanged:true,amountChangeReason:'Pyro add kiya'};
+    const w=v65Order('W66A','wholesale-buyer',base);
+    await assertSucceeds(commit(wholesale,w,{...v65Tracking(w),totalAmount:750},v66View(w)));
+    const retail=testEnv.authenticatedContext('retail-buyer').firestore();
+    const r=v65Order('R66A','retail-buyer',base);
+    await assertFails(commit(retail,r,{...v65Tracking(r),totalAmount:750}));
+    // The owner can still move that wholesale order forward.
+    const owner=ownerDb();
+    await assertSucceeds(updateDoc(doc(owner,`orders/${w.orderId}`),{status:'confirmed',updatedAt:serverTimestamp()}));
+  });
+  it('signed-in pre-check read of a not-yet-created order id is denied (client must treat it as absent)', async () => {
+    const buyer=testEnv.authenticatedContext('buyer-precheck').firestore();
+    await assertFails(getDoc(doc(buyer,'orders/ADI-20261111-NEW1')));
+  });
+  it('push registration paths from the live ruleset still work', async () => {
+    const guest=testEnv.unauthenticatedContext().firestore();
+    const o=v64Order('PUSH','guest');
+    await assertSucceeds(commit(guest,o,v64Tracking(o)));
+    const device={token:'x'.repeat(40),platform:'android',updatedAt:serverTimestamp()};
+    await assertSucceeds(setDoc(doc(guest,`order_push_subscriptions/${o.trackingToken}/devices/device-001`),device));
+    await assertFails(setDoc(doc(guest,'order_push_subscriptions/ADI-20261111-NONE_654321/devices/device-001'),device));
+    await assertSucceeds(setDoc(doc(ownerDb(),'push_owner_devices/owner-phone'),device));
+    await assertFails(setDoc(doc(guest,'push_owner_devices/owner-phone'),device));
+    await assertSucceeds(setDoc(doc(testEnv.authenticatedContext('packer',{email:'packer@example.com',email_verified:true}).firestore(),'push_team_devices/packer/devices/device-001'),device));
+  });
+  it('signed-in buyer (v1.0.64 path, no trackingPin) can attach a payment proof to their own order', async () => {
+    const buyer=testEnv.authenticatedContext('buyer64').firestore();
+    await assertSucceeds(setDoc(doc(buyer,'orders/ADI-20261111-S64A/paymentProof/latest'),{...proof,uploadedBy:'buyer64',createdAt:serverTimestamp()}));
+  });
+});
