@@ -109,6 +109,34 @@ service cloud.firestore {
       return isSignedIn() && exists(userDocPath()) ? userData().get('customerType', 'retail') : 'retail';
     }
 
+    // Value a within ±0.05 of b (float-safe rupee totals).
+    function withinPaisa(a, b) {
+      return a >= b - 0.05 && a <= b + 0.05;
+    }
+
+    // Customer type + owner-approved wholesale amount change. `ptype` is the
+    // signed-in buyer's profile type, looked up ONCE by the caller (each
+    // lookup costs expressions; a batch has a 1000-expression budget).
+    function customerTypeOk(data, isAmountChanged, formulaTotal, ptype) {
+      return (!isAmountChanged || (data.customerType == 'wholesale' && (isAdmin() || ptype == 'wholesale') &&
+               data.customerTotal == data.totalAmount &&
+               withinPaisa(data.calculatedTotal, formulaTotal) &&
+               data.amountChangeReason is string && data.amountChangeReason.size() >= 3)) &&
+             (!('customerType' in data) || isAdmin() || (request.auth == null && data.customerType == 'retail') || (request.auth != null && data.customerType == ptype));
+    }
+
+    // Staff view must mirror the order written in the same batch. `o` is the
+    // order's post-batch data, fetched once by the caller.
+    function isValidStaffView(v, id, o) {
+      return v.keys().hasOnly(['orderId','sourceCollection','customerName','city','district','productName','dispatchTiming','dispatchDate','slot','status','quantityKg','createdAt','updatedAt','isTrash','deliveryMode','busStopId','packCount','deliveryNote']) &&
+        v.keys().hasAll(['orderId','sourceCollection','customerName','city','district','productName','dispatchTiming','status','quantityKg','createdAt','updatedAt','isTrash']) &&
+        v.orderId == id && v.sourceCollection == 'orders' &&
+        v.customerName == o.customerName && v.city == o.city && v.district == o.district &&
+        v.productName == o.productName && v.quantityKg == o.quantityKg && v.status == o.status &&
+        v.get('deliveryMode', null) == o.get('deliveryMode', null) &&
+        v.get('busStopId', null) == o.get('busStopId', null);
+    }
+
     function canToggleProducts() {
       return isFieldTeam() && hasPerm('toggleProducts', false);
     }
@@ -192,22 +220,14 @@ service cloud.firestore {
              
              // Dynamic booked rate pricing verification
              data.dryIcePricePerKg is number && data.dryIcePricePerKg >= 0 &&
-             (data.dryIceSubtotal == data.quantityKg * data.dryIcePricePerKg ||
-              (data.dryIceSubtotal >= (data.quantityKg * data.dryIcePricePerKg - 0.05) &&
-               data.dryIceSubtotal <= (data.quantityKg * data.dryIcePricePerKg + 0.05))) &&
+             withinPaisa(data.dryIceSubtotal, data.quantityKg * data.dryIcePricePerKg) &&
              data.thermocolPricePerKg is number && data.thermocolPricePerKg >= 0 &&
-             (data.thermocolSubtotal == data.quantityKg * data.thermocolPricePerKg ||
-              (data.thermocolSubtotal >= (data.quantityKg * data.thermocolPricePerKg - 0.05) &&
-               data.thermocolSubtotal <= (data.quantityKg * data.thermocolPricePerKg + 0.05))) &&
+             withinPaisa(data.thermocolSubtotal, data.quantityKg * data.thermocolPricePerKg) &&
              (!('transportPrice' in data) || (data.transportPrice is number && data.transportPrice >= 0)) &&
              // Normal orders: total must match the rate formula. An owner-approved
              // wholesale amount change (amountChanged == true) is checked below.
-             (isAmountChanged || data.totalAmount == formulaTotal || (data.totalAmount >= formulaTotal - 0.05 && data.totalAmount <= formulaTotal + 0.05)) &&
-             (!isAmountChanged || (data.customerType == 'wholesale' && (isAdmin() || profileCustomerType() == 'wholesale') &&
-               data.customerTotal == data.totalAmount &&
-               data.calculatedTotal >= formulaTotal - 0.05 && data.calculatedTotal <= formulaTotal + 0.05 &&
-               data.amountChangeReason is string && data.amountChangeReason.size() >= 3)) &&
-             (!('customerType' in data) || isAdmin() || (request.auth == null && data.customerType == 'retail') || (request.auth != null && data.customerType == profileCustomerType())) &&
+             (isAmountChanged || withinPaisa(data.totalAmount, formulaTotal)) &&
+             customerTypeOk(data, isAmountChanged, formulaTotal, profileCustomerType()) &&
 
              data.status in ['pending', 'confirmed', 'in_packing', 'dispatched', 'delivered', 'cancelled'] &&
              data.paymentStatus in ['pending_verification', 'payment_verified', 'cash_on_delivery'] &&
@@ -344,17 +364,7 @@ service cloud.firestore {
       allow get, list: if isAdmin() || canViewOrders();
       allow create: if isAdmin() || (
         isValidId(orderId) && existsAfter(/databases/$(database)/documents/orders/$(orderId)) &&
-        incoming().keys().hasOnly(['orderId','sourceCollection','customerName','city','district','productName','dispatchTiming','dispatchDate','slot','status','quantityKg','createdAt','updatedAt','isTrash','deliveryMode','busStopId','packCount','deliveryNote']) &&
-        incoming().orderId == orderId && incoming().sourceCollection == 'orders' &&
-        incoming().keys().hasAll(['orderId','sourceCollection','customerName','city','district','productName','dispatchTiming','status','quantityKg','createdAt','updatedAt','isTrash']) &&
-        incoming().customerName == getAfter(/databases/$(database)/documents/orders/$(orderId)).data.customerName &&
-        incoming().city == getAfter(/databases/$(database)/documents/orders/$(orderId)).data.city &&
-        incoming().district == getAfter(/databases/$(database)/documents/orders/$(orderId)).data.district &&
-        incoming().productName == getAfter(/databases/$(database)/documents/orders/$(orderId)).data.productName &&
-        incoming().quantityKg == getAfter(/databases/$(database)/documents/orders/$(orderId)).data.quantityKg &&
-        incoming().status == getAfter(/databases/$(database)/documents/orders/$(orderId)).data.status &&
-        incoming().get('deliveryMode', null) == getAfter(/databases/$(database)/documents/orders/$(orderId)).data.get('deliveryMode', null) &&
-        incoming().get('busStopId', null) == getAfter(/databases/$(database)/documents/orders/$(orderId)).data.get('busStopId', null)
+        isValidStaffView(incoming(), orderId, getAfter(/databases/$(database)/documents/orders/$(orderId)).data)
       );
       // Staff (Spark path): status buttons only. statusSyncPending asks the
       // owner client to copy the status to the public tracking document.

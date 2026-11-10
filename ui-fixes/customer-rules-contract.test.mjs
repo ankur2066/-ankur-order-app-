@@ -18,8 +18,8 @@ test('customer create and update enforce self ownership and narrow field changes
 test('retail orders cannot submit a changed amount', () => {
   // v1.0.66 hotfix: an unchanged total must match the formula; a changed total is
   // only for a wholesale order whose buyer profile is wholesale (owner exempt).
-  assert.match(rules, /\(isAmountChanged \|\| data\.totalAmount == formulaTotal/);
-  assert.match(rules, /data\.customerType == 'wholesale' \&\& \(isAdmin\(\) \|\| profileCustomerType\(\) == 'wholesale'\)/);
+  assert.match(rules, /\(isAmountChanged \|\| withinPaisa\(data\.totalAmount, formulaTotal\)\)/);
+  assert.match(rules, /data\.customerType == 'wholesale' && \(isAdmin\(\) \|\| ptype == 'wholesale'\)/);
   assert.doesNotMatch(rules, /!isAmountChanged \&\& \(data\.totalAmount == formulaTotal/);
 });
 

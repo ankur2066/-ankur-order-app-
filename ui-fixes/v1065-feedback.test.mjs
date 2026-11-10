@@ -24,10 +24,10 @@ test('every scheduled date maps to the current, next-day, or old bucket', () => 
 
 test('retail total edit is rejected by rules; wholesale requires owner profile and reason', async () => {
   const rules = await source('firestore.rules');
-  assert.match(rules, /data\.customerType == 'wholesale' && \(isAdmin\(\) \|\| profileCustomerType\(\) == 'wholesale'\)/);
+  assert.match(rules, /data\.customerType == 'wholesale' && \(isAdmin\(\) \|\| ptype == 'wholesale'\)/);
   assert.match(rules, /data\.amountChangeReason\.size\(\) >= 3/);
   assert.match(rules, /data\.quantityKg \* \(\('transportPrice' in data\)/);
-  assert.match(rules, /\(isAmountChanged \|\| data\.totalAmount == formulaTotal/);
+  assert.match(rules, /\(isAmountChanged \|\| withinPaisa\(data\.totalAmount, formulaTotal\)\)/);
   assert.match(rules, /customerType' in incoming\(\)\) \|\| incoming\(\)\.customerType == 'retail'/);
 });
 
