@@ -72,8 +72,9 @@ jobs:
           grep -Fq 'android:allowBackup="false"' android/app/src/main/AndroidManifest.xml
           grep -Fq 'tel:+919580882066' src/components/OrderTrackingView.tsx
           ! grep -Fq 'tel:+918896332066' src/components/OrderTrackingView.tsx
-          # Staff status changes go only through the trusted callable since v1.0.65.
-          grep -Fq 'ankurStaffUpdateOrderStatus' src/components/StaffDashboard.tsx
+          # Since v1.0.66 staff status changes use the rules-enforced Spark batch (no Blaze callable).
+          if grep -Fq 'ankurStaffUpdateOrderStatus' src/components/StaffDashboard.tsx; then echo 'FAIL: Blaze staff callable still referenced'; exit 1; fi
+          grep -Fq "doc(db, 'staffOrderViews'" src/components/StaffDashboard.tsx
           python3 ui-fixes/release-audit-v1.test.py
           echo 'PASS: signed candidate includes audited staff, contact, retry, update, and feature-switch source'
       - name: Configure existing Android Firebase app and signing
