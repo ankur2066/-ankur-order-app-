@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { useLanguage } from '../context/LanguageContext';
 import { trackingRef as resolvedTrackingRef } from '../services/productOrders';
-import { quantityText } from '../billing/unitBilling';
+import { quantityText, quantityTextEnglish } from '../billing/unitBilling';
 import { 
   Search, 
   Truck, 
@@ -20,7 +21,6 @@ import {
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import type { OrderTracking, OrderStatus } from '../types';
-import { useLanguage } from '../context/LanguageContext';
 import { dispatchParts, formatDispatchDate } from '../utils/dispatchSchedule';
 import { PaymentOptions } from './PaymentOptions';
 
@@ -35,25 +35,27 @@ export const OrderTrackingView: React.FC<OrderTrackingViewProps> = ({
   initialPin,
   onQuickReorder 
 }) => {
-  const { language } = useLanguage();
-  const isHindi = language === 'hi';
+  const {language}=useLanguage();
+  const hi=language==='hi';
+  const tr=(en:string,hindi:string)=>hi?hindi:en;
+  const errors={id:tr('Enter your order ID (for example ADI-20261017-XXXX).','कृपया अपना ऑर्डर नंबर दर्ज करें (उदा. ADI-20261017-XXXX)।'),pin:tr('Enter your 6-digit secret tracking PIN.','कृपया अपना 6 अंकों का सीक्रेट ट्रैकिंग पिन दर्ज करें।'),missing:tr('Order not found. Check your order ID and secret PIN.','ऑर्डर नहीं मिला: कृपया अपना ऑर्डर नंबर और सीक्रेट पिन जांचें।'),failed:tr('Tracking could not be loaded. Please try again.','ट्रैकिंग जानकारी प्राप्त नहीं हुई। कृपया दोबारा प्रयास करें।')};
   const [searchId, setSearchId] = useState(initialOrderId || '');
   const [searchPin, setSearchPin] = useState(initialPin || '');
   const [loading, setLoading] = useState(false);
   const [trackingData, setTrackingData] = useState<OrderTracking | null>(null);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [errorMsg, setErrorMsg] = useState<'id'|'pin'|'missing'|'failed'|null>(null);
 
   const fetchTracking = async (orderIdToSearch: string, pinToSearch: string) => {
     const cleanId = orderIdToSearch.trim().toUpperCase();
     const cleanPin = pinToSearch.trim();
 
     if (!cleanId) {
-      setErrorMsg('कृपया अपना ऑर्डर नंबर दर्ज करें (उदा. ADI-20261017-XXXX)।');
+      setErrorMsg('id');
       return;
     }
 
     if (!cleanPin || cleanPin.length < 4) {
-      setErrorMsg('कृपया अपना 6 अंकों का सीक्रेट ट्रैकिंग पिन दर्ज करें।');
+      setErrorMsg('pin');
       return;
     }
 
@@ -68,7 +70,7 @@ export const OrderTrackingView: React.FC<OrderTrackingViewProps> = ({
       const trackingDocSnap = await getDoc(trackingDocRef);
 
       if (!trackingDocSnap.exists()) {
-        setErrorMsg('ऑर्डर नहीं मिला: कृपया अपना ऑर्डर नंबर और सीक्रेट पिन जांचें।');
+        setErrorMsg('missing');
         return;
       }
 
@@ -76,7 +78,7 @@ export const OrderTrackingView: React.FC<OrderTrackingViewProps> = ({
       setTrackingData(data);
     } catch (err: unknown) {
       console.error('Error fetching order tracking:', err);
-      setErrorMsg('ट्रैकिंग जानकारी प्राप्त करने में त्रुटि आई। कृपया दोबारा प्रयास करें।');
+      setErrorMsg('failed');
     } finally {
       setLoading(false);
     }
@@ -98,17 +100,17 @@ export const OrderTrackingView: React.FC<OrderTrackingViewProps> = ({
   const getStatusInfo = (status: OrderStatus) => {
     switch (status) {
       case 'pending':
-        return { label: isHindi ? 'ऑर्डर प्राप्त हुआ' : 'Order received', color: 'bg-amber-50 text-amber-800 border-amber-300', icon: Clock };
+        return { label: tr('Order Received','ऑर्डर प्राप्त हुआ'), color: 'bg-amber-50 text-amber-800 border-amber-300', icon: Clock };
       case 'confirmed':
-        return { label: isHindi ? 'ऑर्डर कन्फर्म हुआ' : 'Order confirmed', color: 'bg-sky-50 text-sky-800 border-sky-300', icon: CheckCircle2 };
+        return { label: tr('Order Confirmed','ऑर्डर कन्फर्म हुआ'), color: 'bg-sky-50 text-sky-800 border-sky-300', icon: CheckCircle2 };
       case 'in_packing':
-        return { label: isHindi ? 'थर्मोकोल पैकिंग में' : 'Packing', color: 'bg-blue-50 text-blue-800 border-blue-300', icon: Snowflake };
+        return { label: tr('Packing Your Order','थर्मोकोल पैकिंग में'), color: 'bg-blue-50 text-blue-800 border-blue-300', icon: Snowflake };
       case 'dispatched':
-        return { label: isHindi ? 'डिस्पैच / रास्ते में' : 'Dispatched', color: 'bg-indigo-50 text-indigo-800 border-indigo-300', icon: Truck };
+        return { label: tr('Dispatched / In Transit','डिस्पैच / रास्ते में'), color: 'bg-indigo-50 text-indigo-800 border-indigo-300', icon: Truck };
       case 'delivered':
-        return { label: isHindi ? 'डिलीवर हो गया' : 'Delivered', color: 'bg-emerald-50 text-emerald-800 border-emerald-300', icon: PackageCheck };
+        return { label: tr('Delivered','डिलीवर हो गया'), color: 'bg-emerald-50 text-emerald-800 border-emerald-300', icon: PackageCheck };
       case 'cancelled':
-        return { label: isHindi ? 'ऑर्डर रद्द' : 'Cancelled', color: 'bg-rose-50 text-rose-800 border-rose-300', icon: AlertCircle };
+        return { label: tr('Order Cancelled','ऑर्डर रद्द'), color: 'bg-rose-50 text-rose-800 border-rose-300', icon: AlertCircle };
       default:
         return { label: status, color: 'bg-slate-100 text-slate-700 border-slate-300', icon: Clock };
     }
@@ -119,10 +121,10 @@ export const OrderTrackingView: React.FC<OrderTrackingViewProps> = ({
       {/* Header */}
       <div className="text-center mb-4">
         <h2 className="text-lg sm:text-xl font-bold text-slate-900">
-          ऑर्डर ट्रैक करें (Track Order)
+          {tr('Track Order','ऑर्डर ट्रैक करें (Track Order)')}
         </h2>
         <p className="text-xs text-slate-500 mt-0.5">
-          ऑर्डर नंबर और सीक्रेट पिन दर्ज करके अपनी ड्राई आइस की स्थिति देखें।
+          {tr('Enter your order ID and secret PIN to check your order status.','ऑर्डर नंबर और सीक्रेट पिन दर्ज करके अपनी ड्राई आइस की स्थिति देखें।')}
         </p>
       </div>
 
@@ -131,14 +133,14 @@ export const OrderTrackingView: React.FC<OrderTrackingViewProps> = ({
         <div className="space-y-3">
           <div>
             <label className="text-xs font-semibold text-slate-700 block mb-1">
-              ऑर्डर नंबर (Order ID)
+              {tr('Order ID','ऑर्डर नंबर (Order ID)')}
             </label>
             <div className="relative">
               <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
               <input
                 type="text"
                 required
-                placeholder="उदा. ADI-20261017-W82K"
+                placeholder={tr("Example: ADI-20261017-W82K","उदा. ADI-20261017-W82K")}
                 value={searchId}
                 onChange={(e) => setSearchId(e.target.value)}
                 className="w-full bg-white border border-slate-300 rounded-xl pl-9 pr-3 py-2 text-sm font-mono text-slate-900 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 uppercase"
@@ -148,7 +150,7 @@ export const OrderTrackingView: React.FC<OrderTrackingViewProps> = ({
 
           <div>
             <label className="text-xs font-semibold text-slate-700 block mb-1">
-              6-अंकों का सीक्रेट पिन (Secret PIN)
+              {tr('6-digit Secret PIN','6-अंकों का सीक्रेट पिन (Secret PIN)')}
             </label>
             <div className="relative">
               <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
@@ -156,7 +158,7 @@ export const OrderTrackingView: React.FC<OrderTrackingViewProps> = ({
                 type="text"
                 required
                 maxLength={8}
-                placeholder="उदा. 482910"
+                placeholder={tr("Example: 482910","उदा. 482910")}
                 value={searchPin}
                 onChange={(e) => setSearchPin(e.target.value)}
                 className="w-full bg-white border border-slate-300 rounded-xl pl-9 pr-3 py-2 text-sm font-mono text-slate-900 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500"
@@ -172,7 +174,7 @@ export const OrderTrackingView: React.FC<OrderTrackingViewProps> = ({
             {loading ? (
               <RefreshCw className="w-4 h-4 animate-spin text-white" />
             ) : (
-              <span>ट्रैक करें</span>
+              <span>{tr('Track','ट्रैक करें')}</span>
             )}
           </button>
         </div>
@@ -180,18 +182,18 @@ export const OrderTrackingView: React.FC<OrderTrackingViewProps> = ({
         {errorMsg && (
           <div className="mt-3 p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center gap-2">
             <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
-            <span>{errorMsg}</span>
+            <span role="alert">{errors[errorMsg]}</span>
           </div>
         )}
       </form>
 
       {/* Result Card */}
-      {trackingData && (trackingData as any).etaMs && <p role="status" className="p-3">Estimated arrival: {new Date((trackingData as any).etaMs).toLocaleString()} · Manual estimate; last updated {String((trackingData as any).etaUpdatedAt?.toDate?.().toLocaleString()||'recently')}</p>}
+      {trackingData && (trackingData as any).etaMs && <p role="status" className="p-3">{tr("Estimated arrival:","अनुमानित आगमन:")} {new Date((trackingData as any).etaMs).toLocaleString(hi?"hi-IN":"en-IN")} · {tr("Manual estimate; last updated","मैन्युअल अनुमान; अंतिम अपडेट")} {String((trackingData as any).etaUpdatedAt?.toDate?.().toLocaleString(hi?"hi-IN":"en-IN")||tr("recently","हाल में"))}</p>}
       {trackingData && (
         <div className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-xs space-y-4">
           <div className="flex items-center justify-between pb-3 border-b border-slate-100">
             <div>
-              <span className="text-[10px] text-slate-400 uppercase font-semibold block">ऑर्डर नंबर</span>
+              <span className="text-[10px] text-slate-400 uppercase font-semibold block">{tr('Order ID','ऑर्डर नंबर')}</span>
               <span className="font-mono font-bold text-base text-slate-900">{trackingData.orderId}</span>
             </div>
 
@@ -217,10 +219,10 @@ export const OrderTrackingView: React.FC<OrderTrackingViewProps> = ({
                   </div>
                   <div>
                     <h4 className="text-xs font-bold text-slate-900">
-                      यह ऑर्डर सफलतापूर्वक डिलीवर हो चुका है!
+                      {tr('Your order has been delivered!','यह ऑर्डर सफलतापूर्वक डिलीवर हो चुका है!')}
                     </h4>
                     <p className="text-[11px] text-slate-600">
-                      क्या आपको दोबारा <strong className="text-slate-800">{quantityText(trackingData)}</strong> {trackingData.billingVersion===2?trackingData.productName:'ड्राई आइस'} की आवश्यकता है?
+                      {tr('Need another order of','क्या आपको दोबारा')} <strong className="text-slate-800">{hi?quantityText(trackingData):quantityTextEnglish(trackingData)}</strong> {trackingData.billingVersion===2?trackingData.productName:tr('Dry Ice','ड्राई आइस')} {tr('?','की आवश्यकता है?')}
                     </p>
                   </div>
                 </div>
@@ -231,7 +233,7 @@ export const OrderTrackingView: React.FC<OrderTrackingViewProps> = ({
                     className="w-full sm:w-auto px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-bold text-xs flex items-center justify-center gap-1.5 shrink-0 shadow-xs transition-colors cursor-pointer"
                   >
                     <RotateCcw className="w-3.5 h-3.5" />
-                    <span>पुनः ऑर्डर करें (Quick Reorder)</span>
+                    <span>{tr('Quick Reorder','पुनः ऑर्डर करें (Quick Reorder)')}</span>
                   </button>
                 )}
               </div>
@@ -241,12 +243,12 @@ export const OrderTrackingView: React.FC<OrderTrackingViewProps> = ({
           {/* Details */}
           <div className="grid grid-cols-2 gap-3 text-xs">
             <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-100">
-              <span className="text-slate-400 block mb-0.5">मात्रा (Quantity)</span>
-              <span className="font-mono font-bold text-sky-700 text-sm">{quantityText(trackingData)}</span>
+              <span className="text-slate-400 block mb-0.5">{tr('Quantity','मात्रा (Quantity)')}</span>
+              <span className="font-mono font-bold text-sky-700 text-sm">{hi?quantityText(trackingData):quantityTextEnglish(trackingData)}</span>
             </div>
 
             <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-100">
-              <span className="text-slate-400 block mb-0.5">स्थान / पता</span>
+              <span className="text-slate-400 block mb-0.5">{tr('Location','स्थान / पता')}</span>
               <span className="font-semibold text-slate-900 flex items-center gap-1">
                 <MapPin className="w-3 h-3 text-sky-600" />
                 <span className="truncate">{trackingData.district}</span>
@@ -254,59 +256,59 @@ export const OrderTrackingView: React.FC<OrderTrackingViewProps> = ({
             </div>
 
             <div className="col-span-2 bg-slate-50 p-2.5 rounded-xl border border-slate-100">
-              <span className="text-slate-700 block mb-0.5 font-semibold">Dispatch slot</span>
-              <span className="font-semibold text-slate-800">{formatDispatchDate(dispatchParts(trackingData).date, dispatchParts(trackingData).slot, isHindi ? 'hi' : 'en')}</span>
+              <span className="text-slate-700 block mb-0.5 font-semibold">{tr('Dispatch slot','डिस्पैच स्लॉट')}</span>
+              <span className="font-semibold text-slate-800">{formatDispatchDate(dispatchParts(trackingData).date, dispatchParts(trackingData).slot, hi ? 'hi' : 'en')}</span>
             </div>
           </div>
 
           {/* Status Update Note */}
           <div className="p-3 rounded-xl bg-sky-50 border border-sky-100 text-xs">
             <span className="text-[10px] uppercase font-bold text-sky-700 block mb-0.5">
-              ताज़ा अपडेट
+              {tr('Latest update','ताज़ा अपडेट')}
             </span>
             <p className="text-slate-800 font-medium">
               {getStatusInfo(trackingData.status).label}
             </p>
           </div>
           
-          <PaymentOptions amount={trackingData.totalAmount || 0} orderId={trackingData.orderId} isHindi={isHindi} />
+          <PaymentOptions amount={trackingData.totalAmount || 0} orderId={trackingData.orderId} isHindi={hi} />
 
           {/* Payment Status */}
           <div className="flex items-center justify-between text-xs pt-2 border-t border-slate-100">
             <div className="flex items-center gap-1.5 text-slate-600">
               <CreditCard className="w-3.5 h-3.5 text-sky-600" />
-              <span>पेमेंट स्थिति:</span>
+              <span>{tr('Payment Status:','पेमेंट स्थिति:')}</span>
             </div>
             <span className={`px-2 py-0.5 rounded font-bold text-[11px] ${
               trackingData.paymentStatus === 'payment_verified'
                 ? 'bg-emerald-50 text-emerald-700 border border-emerald-300'
                 : 'bg-amber-50 text-amber-700 border border-amber-300'
             }`}>
-              {trackingData.paymentStatus === 'payment_verified' ? 'वेरीफाइड (सफल)' : 'वेरिफिकेशन प्रतीक्षित'}
+              {trackingData.paymentStatus === 'payment_verified' ? tr('Payment Verified','भुगतान सत्यापित') : tr('Awaiting Verification','सत्यापन प्रतीक्षित')}
             </span>
           </div>
 
           {/* Contact Owner */}
           <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
-            <span className="text-slate-500">ओनर से बात करें:</span>
+            <span className="text-slate-500">{tr('Contact owner:','ओनर से बात करें:')}</span>
             <div className="flex gap-2">
               <a
                 href="tel:+919580882066"
                 className="px-2.5 py-1 rounded-lg bg-sky-50 hover:bg-sky-100 text-sky-800 font-semibold border border-sky-200 flex items-center gap-1"
-                title={isHindi ? 'कॉल करें (95808 82066)' : 'Call (95808 82066)'}
+                title={tr("Call (+91 95808 82066)","कॉल करें (+91 95808 82066)")}
               >
                 <Phone className="w-3 h-3" />
-                <span>{isHindi ? 'कॉल' : 'Call'}</span>
+                <span>{tr('Call','कॉल')}</span>
               </a>
               <a
                 href={`https://wa.me/918896332066?text=${encodeURIComponent(`नमस्ते अंकुर ड्राई आइस, मुझे ऑर्डर नंबर ${trackingData.orderId} के बारे में जानकारी चाहिए।`)}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="px-2.5 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-semibold border border-emerald-200 flex items-center gap-1"
-                title="व्हाट्सएप (+91 8896332066)"
+                title={tr("WhatsApp (+91 8896332066)","व्हाट्सएप (+91 8896332066)")}
               >
                 <MessageCircle className="w-3 h-3" />
-                <span>व्हाट्सएप</span>
+                <span>{tr('WhatsApp','व्हाट्सएप')}</span>
               </a>
             </div>
           </div>

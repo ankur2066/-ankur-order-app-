@@ -6,6 +6,7 @@ import { PaymentProofPreview } from './owner/PaymentProofPreview';
 import { FeatureHub } from './customer/FeatureHub';
 import { subscribeOrderDocuments, orderRef as resolvedOrderRef, trackingRef as resolvedTrackingRef } from '../services/productOrders';
 import { quantityText } from '../billing/unitBilling';
+import { tryInventoryDispatch } from '../services/inventoryDispatch';
 import React, { useState, useEffect, useMemo } from 'react';
 import { 
   ShieldCheck, 
@@ -543,13 +544,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       else if (newStatus === 'dispatched') statusMsg = 'ड्राई आइस बस / ट्रांसपोर्टर को हैंडओवर कर दी गई है।';
       else if (newStatus === 'delivered') statusMsg = 'ऑर्डर सफलतापूर्वक डिलीवर हो गया।';
 
+      // Trusted inventory dispatch (stock deduction) when enabled; old batch only when not handled.
+      if (!(await tryInventoryDispatch(ord.orderId, newStatus))) {
       const batch = writeBatch(db);
       const orderRef = resolvedOrderRef(ord.orderId);
       batch.update(orderRef, {
         status: newStatus,
         updatedAt: serverTimestamp(),
       });
-      batch.set(doc(db, 'staffOrderViews', ord.orderId), { status: newStatus, updatedAt: serverTimestamp() }, { merge: true });
 
       if (ord.trackingToken) {
         const trackRef = resolvedTrackingRef(ord.trackingToken);
@@ -561,6 +563,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       }
 
       await batch.commit();
+      }
+      // Staff projection is separate so staff see the new status in both paths.
+      try {
+        await setDoc(doc(db, 'staffOrderViews', ord.orderId), { status: newStatus, updatedAt: serverTimestamp() }, { merge: true });
+      } catch (viewErr) { console.error('Staff view update error:', viewErr); }
       if (newStatus === 'delivered' && ord.status !== 'delivered' && ord.customerPhone) {
         try {
           const { customerDocId } = await import('../services/customers');
@@ -1663,7 +1670,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                             </div>
                           </div>
 
-                          <PaymentProofPreview orderId={ord.orderId} />
                           <PaymentProofPreview orderId={ord.orderId} />
                         {/* 2. COMPACT PAYMENT ROW */}
                           <div className="flex items-center justify-between gap-1 text-[11px]">

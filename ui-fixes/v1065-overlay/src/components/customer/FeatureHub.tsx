@@ -182,6 +182,7 @@ function VideoIdeaPanel({user}:{user:User|null}){
     'Include cinematic scenes, Hindi captions, smooth transitions and a clear call to action in the final video.',
     'Show safe dry-ice handling. Use your available video-generation tool. If the requested duration or video generation is unavailable, clearly say so instead of presenting written text as a finished video.',
     contact.name.trim()?'Requested name or brand: '+contact.name.trim()+'.':'Do not add any business name, logo, watermark, phone number or branding unless explicitly provided in these details.',
+    (contact.name.trim()||contact.mobile.length===10)?'Show a stylish, clearly readable banner in the background of every scene with '+[contact.name.trim(),contact.mobile.length===10?contact.mobile:''].filter(Boolean).map(v=>'"'+v+'"').join(' and ')+' written on it.':'',
     contact.city.trim()?'Location: '+contact.city.trim()+'.':'',
     contact.mobile.length===10?'Contact number for the requested video: '+contact.mobile+'.':'',
   ].filter(Boolean).join(' ');
@@ -228,9 +229,9 @@ function VideoIdeaPanel({user}:{user:User|null}){
     <p role="status" className="text-sm t-sub">{notice}</p>
     <section className="ankur-video-saved-details c-card rounded-2xl border b-line p-4"
       aria-label="Saved video contact details">
-      <h2 className="font-extrabold text-base">Your details (saved on this device)</h2>
+      <h2 className="font-extrabold text-base">Banner details (saved on this device)</h2>
       <p className="text-xs t-sub mt-1 mb-3">Fill once. These details stay on this phone for this account until app data is cleared. They are included only when you copy the prompt.</p>
-      <label className="block font-semibold">Name / Brand
+      <label className="block font-semibold">{language==='hi'?'कंपनी / नाम':'Company / Name'}
         <input type="text" autoComplete="name" maxLength={80} value={contact.name}
           onChange={e=>changeContact('name',e.target.value)}
           className="block w-full rounded-xl border p-3 mt-1" />
@@ -240,7 +241,7 @@ function VideoIdeaPanel({user}:{user:User|null}){
           onChange={e=>changeContact('city',e.target.value)}
           className="block w-full rounded-xl border p-3 mt-1" />
       </label>
-      <label className="block font-semibold mt-3">Mobile Number
+      <label className="block font-semibold mt-3">{language==='hi'?'मोबाइल नंबर':'Mobile Number'}
         <input type="tel" inputMode="numeric" autoComplete="tel-national" maxLength={10}
           value={contact.mobile} onChange={e=>changeContact('mobile',e.target.value)}
           className="block w-full rounded-xl border p-3 mt-1" />

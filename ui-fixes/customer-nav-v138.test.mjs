@@ -10,9 +10,9 @@ const patch = readFileSync(new URL('./customer_nav_v138.py', import.meta.url), '
 
 test('duplicate customer Products/Categories tab is not rendered', () => {
   const tabIds = [...nav.matchAll(/\{ id: '([^']+)', label:/g)].map(x => x[1]);
-  assert.deepEqual(tabIds, ['home', 'my-orders', 'profile']);
-  assert.match(nav, /id: isOwner \? 'ai-video' : 'categories'/);
-  assert.match(nav, /label: isOwner \? 'AI Video' : 'Categories'/);
+  assert.deepEqual(tabIds, ['home', 'ai-video', 'my-orders', 'profile']);
+  assert.match(nav, /id: 'ai-video', label: 'AI Video'/); // 2026-11-11: AI Video tab for customers too (owner request)
+  
   assert.match(nav, /grid-cols-4/);
   assert.doesNotMatch(nav, /Icon: LayoutGrid/);
 });

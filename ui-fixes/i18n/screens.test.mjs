@@ -23,6 +23,8 @@ async function screen(path,name,props={},seed=[]){
  if(/\/(data|billing)\/|utils\/(ownerReports|expenseCycles|dryIceCalc)/.test(id)||id.endsWith('/types')){const target=resolve(dirname(file),id)+'.ts';return load(target);}
  if(id==='./PaymentOptions'||id.endsWith('/PaymentOptions'))return synthetic(id,{PaymentOptions:()=>null});
  if(id.endsWith('/owner/CustomersView'))return synthetic(id,{CustomersView:()=>null});
+ if(id.endsWith('/services/paymentProof'))return synthetic(id,{savePaymentProof:async()=>{},compressPaymentProof:async()=>({dataUrl:'',sizeBytes:0})});
+ if(id.endsWith('/owner/PaymentProofPreview'))return synthetic(id,{PaymentProofPreview:()=>null});
  if(id.endsWith('/config/businessConfig'))return synthetic(id,{PRIMARY_UPI_ID:'paytm.s26ykus@pty',BACKUP_UPI_ID:'ankur.singh332066@okhdfcbank',RETAIL_RATE_PER_KG:50,WHOLESALE_RATE_PER_KG:0,THERMOCOL_RATE_PER_KG:10});
  if(/\/utils\//.test(id))return synthetic(id,Object.fromEntries(names.map(k=>[k,()=>false])));
  if(id==='./FeatureHub')return load(resolve(dirname(file),id)+'.tsx');

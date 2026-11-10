@@ -12,7 +12,7 @@ interface BottomNavProps {
 export const BottomNav: React.FC<BottomNavProps> = ({ active, onChange, isOwner = false }) => {
   const items: { id: CustomerTab; label: string; Icon: React.ComponentType<{ className?: string }> }[] = [
     { id: 'home', label: 'Home', Icon: House },
-    { id: isOwner ? 'ai-video' : 'categories', label: isOwner ? 'AI Video' : 'Categories', Icon: isOwner ? Clapperboard : ClipboardList },
+    { id: 'ai-video', label: 'AI Video', Icon: Clapperboard },
     { id: 'my-orders', label: 'My Orders', Icon: ClipboardList },
     { id: 'profile', label: 'Profile', Icon: User },
   ];

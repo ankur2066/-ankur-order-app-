@@ -14,8 +14,8 @@ const review=readFileSync(new URL('../.github/workflows/all-features-review.yml'
 const signed=readFileSync(new URL('../.github/workflows/all-features-signed-test-apk.yml',import.meta.url),'utf8');
 
 test('customer bottom navigation has exactly the four requested tabs',()=>{
- assert.match(nav,/id: isOwner \? 'ai-video' : 'categories'/);
- assert.match(nav,/label: isOwner \? 'AI Video' : 'Categories'/);
+ assert.match(nav,/id: 'ai-video', label: 'AI Video'/); // 2026-11-11: customers get AI Video tab
+ 
  assert.match(nav,/grid-cols-4/);
  assert.match(nav,/isOwner = false/);
  assert.doesNotMatch(app,/currentTab === 'ai-features'/);
@@ -54,6 +54,6 @@ test('local reconstruction, private review and signed APK apply the same UI patc
  assert.equal(signed.split('python3 '+name).length-1,1);
  assert.ok(local.indexOf('customer_home_clean_v139.py')<local.indexOf(name));
  assert.match(signed,/paths: \['release-batches\/\*\.txt'\]/,'only explicit release batch triggers signed APK');
- assert.match(signed,/versionCode 65/);
- assert.match(signed,/versionName "1\.0\.65-combined-test"/);
+ assert.match(signed,/versionCode 66/);
+ assert.match(signed,/versionName "1\.0\.66-combined-test"/);
 });

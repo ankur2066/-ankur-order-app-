@@ -13,7 +13,7 @@ files = [
     "src/components/customer/FeatureHub.tsx", "src/components/customer/BottomNav.tsx", "src/components/customer/ReferralSharePanel.tsx",
     "src/components/owner/FeatureSuiteSettings.tsx", "src/components/owner/CustomersView.tsx", "src/components/owner/PaymentProofPreview.tsx", "src/components/PaymentOptions.tsx",
     "src/data/products.ts", "src/data/rates.ts", "src/hooks/useInlinePromo.ts", "src/index.css",
-    "src/services/appUpdate.ts", "src/services/customers.ts", "src/services/paymentProof.ts", "src/theme/designTokens.ts", "src/theme/themes.ts",
+    "src/services/appUpdate.ts", "src/services/customers.ts", "src/services/paymentProof.ts", "src/theme/designTokens.ts", "src/theme/themes.ts", "src/theme/themes.css",
     "src/types.ts", "src/utils/dispatchSchedule.ts", "src/utils/dispatchSchedule.test.ts", "src/utils/referralShare.ts", "src/utils/upi.ts", "src/utils/upi.test.ts",
     "src/config/businessConfig.ts", "src/assets/primary-upi.svg",
 ]
