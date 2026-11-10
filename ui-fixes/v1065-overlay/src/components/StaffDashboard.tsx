@@ -1,6 +1,6 @@
 import { quantityText } from '../billing/unitBilling';
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { collection, doc, onSnapshot, serverTimestamp, updateDoc } from 'firebase/firestore';
+import { collection, doc, onSnapshot, serverTimestamp, writeBatch } from 'firebase/firestore';
 import { db, signOutUser, handleFirestoreError, OperationType, auth } from '../firebase';
 import { Order, OrderStatus, UserRole, StaffPermissions } from '../types';
 import { 
@@ -26,6 +26,10 @@ import { type User as FirebaseUser } from 'firebase/auth';
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import { getApp } from 'firebase/app';
 import { isAndroidAppCheckReady } from '../appCheck';
+import { PackingBoard, type PackingBoardOrder } from './PackingBoard';
+import { subscribeDeliverySettings } from '../services/deliverySettings';
+import { DEFAULT_DELIVERY_SETTINGS, type DeliverySettings } from '../utils/delivery';
+import type { StaffAction } from '../utils/staffProjection';
 
 interface StaffDashboardProps {
   notificationTarget?: {orderId:string} | null;
@@ -49,6 +53,9 @@ export const StaffDashboard: React.FC<StaffDashboardProps> = ({
   const canUpdate = permissions?.updateStatus === true;
 
   const [orders, setOrders] = useState<Order[]>([]);
+  const [deliverySettings, setDeliverySettings] = useState<DeliverySettings>(DEFAULT_DELIVERY_SETTINGS);
+  useEffect(() => subscribeDeliverySettings(setDeliverySettings), []);
+  const [showList, setShowList] = useState(false);
   // One order at a time; do not keep all contacts visible in the dashboard.
   const [contact, setContact] = useState<{ key: string; phone: string } | null>(null);
   const contactVersion = useRef(0);
@@ -168,6 +175,9 @@ export const StaffDashboard: React.FC<StaffDashboardProps> = ({
           billingVersion: value.billingVersion === 2 ? 2 : undefined,
           billing: value.billingVersion === 2 ? {unit:value.billing?.unit || 'piece', quantityUnits:value.billing?.quantityUnits || 0} : undefined,
           createdAt: value.createdAt, updatedAt: value.updatedAt, selfPickup: value.selfPickup || undefined,
+          dispatchDate: value.dispatchDate, slot: value.slot, isTrash: value.isTrash === true,
+          deliveryMode: value.deliveryMode, busStopId: value.busStopId, packCount: value.packCount,
+          deliveryNote: value.deliveryNote, packingStatus: value.packingStatus,
         } as unknown as Order;
       }).filter((order: Order) => !order.isTrash);
       list.sort((a, b) => {
@@ -254,27 +264,34 @@ export const StaffDashboard: React.FC<StaffDashboardProps> = ({
     return { total, pending, packing, dispatched, delivered, totalKg };
   }, [orders]);
 
-  // Update order status handler (Only updates status and lastStatusUpdate)
+  // Spark-only status update (no Cloud Function / Blaze). One atomic batch:
+  //  - orders/{id}: rules allow staff to change ONLY status + updatedAt, and only
+  //    to in_packing / dispatched / delivered.
+  //  - staffOrderViews/{id}: status + packing flag + statusSyncPending, which the
+  //    owner app uses to copy the status to the public tracking document.
   const handleUpdateStatus = async (ord: Order, newStatus: OrderStatus) => {
     if (!canUpdate) {
       setErrorMsg('आपको ऑर्डर का स्टेटस बदलने की अनुमति नहीं है।');
       return;
     }
+    if (newStatus !== 'in_packing' && newStatus !== 'dispatched' && newStatus !== 'delivered') {
+      setErrorMsg('स्टाफ केवल Packing done, Dispatched या Handed over कर सकता है।');
+      return;
+    }
     try {
       setUpdatingId(ord.orderId);
       setErrorMsg(null);
-
-      if (!user || !isAndroidAppCheckReady()) {
-        throw Error('इस कार्य के लिए सत्यापित Android ऐप जरूरी है।');
-      }
-      if (!staffSource(ord)) throw Error('ऑर्डर का स्रोत सत्यापित नहीं है।');
-      const fn = httpsCallable(getFunctions(getApp(), 'asia-southeast1'), 'ankurStaffUpdateOrderStatus');
-      await fn({
-        sourceCollection: staffSource(ord),
-        orderId: ord.orderId,
-        status: newStatus
+      if (!user?.uid) throw Error('लॉगिन जरूरी है।');
+      const batch = writeBatch(db);
+      batch.update(doc(db, 'orders', ord.orderId), { status: newStatus, updatedAt: serverTimestamp() });
+      batch.update(doc(db, 'staffOrderViews', ord.orderId), {
+        status: newStatus,
+        ...(newStatus === 'in_packing' ? { packingStatus: 'packed' } : {}),
+        statusSyncPending: true,
+        statusUpdatedBy: user.uid,
+        updatedAt: serverTimestamp(),
       });
-      await updateDoc(doc(db, 'staffOrderViews', ord.orderId), { status: newStatus, updatedAt: serverTimestamp() });
+      await batch.commit();
 
       setSuccessMsg(`ऑर्डर #${ord.orderId.split('-').pop()} का स्टेटस '${getStatusHindi(newStatus)}' अपडेट हो गया!`);
       setTimeout(() => setSuccessMsg(null), 3000);
@@ -284,6 +301,12 @@ export const StaffDashboard: React.FC<StaffDashboardProps> = ({
     } finally {
       setUpdatingId(null);
     }
+  };
+
+  const handlePackingAction = (ord: PackingBoardOrder, action: StaffAction) => {
+    const full = orders.find((item) => item.orderId === ord.orderId);
+    if (!full) return;
+    void handleUpdateStatus(full, action === 'packing_done' ? 'in_packing' : action === 'dispatched' ? 'dispatched' : 'delivered');
   };
 
   const getStatusHindi = (s: OrderStatus) => {
@@ -394,7 +417,17 @@ export const StaffDashboard: React.FC<StaffDashboardProps> = ({
         </div>
       )}
 
-      {/* 2. FILTER & SEARCH BAR */}
+      {/* 2. STAFF HOME = PACKING SCREEN: one big pill per active bus stop + Local. */}
+      <div className="mb-4">
+        <PackingBoard orders={orders as unknown as PackingBoardOrder[]} settings={deliverySettings} mode="staff"
+          canUpdate={canUpdate} updatingId={updatingId} onAction={handlePackingAction} title="Packing" />
+      </div>
+      <button type="button" className="soft-button secondary-button mb-3" aria-expanded={showList} onClick={() => setShowList(!showList)}>
+        {showList ? 'Order list band karein' : 'Sabhi orders · search / contact'}
+      </button>
+
+      {showList && <>
+      {/* 3. FILTER & SEARCH BAR */}
       <div className="bg-white rounded-2xl p-3.5 sm:p-4 border border-slate-200/80 shadow-xs mb-4 space-y-3">
         {/* Search Input */}
         <div className="relative">
@@ -477,7 +510,7 @@ export const StaffDashboard: React.FC<StaffDashboardProps> = ({
         </div>
       </div>
 
-      {/* 3. ORDERS LIST */}
+      {/* 4. ORDERS LIST */}
       <div className="space-y-3">
         {loading ? (
           <div className="bg-white rounded-2xl p-10 text-center border border-slate-200">
@@ -577,11 +610,6 @@ export const StaffDashboard: React.FC<StaffDashboardProps> = ({
                       </span>
                     </div>
 
-                    {ord.paymentNotes && (
-                      <div className="mt-2 text-xs bg-slate-50 p-1.5 rounded-lg text-slate-600 border border-slate-200">
-                        <strong>नोट:</strong> {ord.paymentNotes}
-                      </div>
-                    )}
                   </div>
                 </div>
 
@@ -630,65 +658,21 @@ export const StaffDashboard: React.FC<StaffDashboardProps> = ({
                   {!canUpdate && (
                     <p className="text-[11px] text-amber-700 mb-2">स्टेटस बदलने की अनुमति मालिक ने नहीं दी है।</p>
                   )}
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                    {/* 1. Confirmed */}
-                    <button
-                      type="button"
-                      disabled={isThisUpdating || !canUpdate}
-                      onClick={() => handleUpdateStatus(ord, 'confirmed')}
-                      className={`py-2 px-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1 transition-all cursor-pointer ${
-                        ord.status === 'confirmed'
-                          ? 'bg-sky-600 text-white ring-2 ring-sky-600 ring-offset-1 shadow-xs'
-                          : 'bg-white hover:bg-sky-50 text-slate-700 border border-slate-200 hover:border-sky-300'
-                      }`}
-                    >
-                      <CheckCircle2 className="w-3.5 h-3.5" />
-                      <span>1. कन्फर्म करें</span>
-                    </button>
-
-                    {/* 2. In Packing */}
-                    <button
-                      type="button"
-                      disabled={isThisUpdating || !canUpdate}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    <button type="button" disabled={isThisUpdating || !canUpdate || ord.status === 'dispatched' || ord.status === 'delivered'}
                       onClick={() => handleUpdateStatus(ord, 'in_packing')}
-                      className={`py-2 px-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1 transition-all cursor-pointer ${
-                        ord.status === 'in_packing'
-                          ? 'bg-indigo-600 text-white ring-2 ring-indigo-600 ring-offset-1 shadow-xs'
-                          : 'bg-white hover:bg-indigo-50 text-slate-700 border border-slate-200 hover:border-indigo-300'
-                      }`}
-                    >
-                      <Package className="w-3.5 h-3.5" />
-                      <span>2. पैकिंग जारी</span>
+                      className="soft-button status-action status-packing py-2 px-2 text-xs font-bold flex items-center justify-center gap-1 cursor-pointer">
+                      <Package className="w-3.5 h-3.5" /><span>Packing done</span>
                     </button>
-
-                    {/* 3. Dispatched */}
-                    <button
-                      type="button"
-                      disabled={isThisUpdating || !canUpdate}
+                    <button type="button" disabled={isThisUpdating || !canUpdate || ord.status === 'dispatched' || ord.status === 'delivered'}
                       onClick={() => handleUpdateStatus(ord, 'dispatched')}
-                      className={`py-2 px-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1 transition-all cursor-pointer ${
-                        ord.status === 'dispatched'
-                          ? 'bg-purple-600 text-white ring-2 ring-purple-600 ring-offset-1 shadow-xs'
-                          : 'bg-white hover:bg-purple-50 text-slate-700 border border-slate-200 hover:border-purple-300'
-                      }`}
-                    >
-                      <Truck className="w-3.5 h-3.5" />
-                      <span>3. बस/डिस्पैच</span>
+                      className="soft-button status-action status-dispatch py-2 px-2 text-xs font-bold flex items-center justify-center gap-1 cursor-pointer">
+                      <Truck className="w-3.5 h-3.5" /><span>Dispatched</span>
                     </button>
-
-                    {/* 4. Delivered */}
-                    <button
-                      type="button"
-                      disabled={isThisUpdating || !canUpdate}
+                    <button type="button" disabled={isThisUpdating || !canUpdate || ord.status === 'delivered'}
                       onClick={() => handleUpdateStatus(ord, 'delivered')}
-                      className={`py-2 px-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1 transition-all cursor-pointer ${
-                        ord.status === 'delivered'
-                          ? 'bg-emerald-600 text-white ring-2 ring-emerald-600 ring-offset-1 shadow-xs'
-                          : 'bg-white hover:bg-emerald-50 text-slate-700 border border-slate-200 hover:border-emerald-300'
-                      }`}
-                    >
-                      <CheckCircle2 className="w-3.5 h-3.5" />
-                      <span>4. डिलीवर हुआ</span>
+                      className="soft-button status-action status-delivered py-2 px-2 text-xs font-bold flex items-center justify-center gap-1 cursor-pointer">
+                      <CheckCircle2 className="w-3.5 h-3.5" /><span>Handed over / Delivered</span>
                     </button>
                   </div>
                 </div>
@@ -697,6 +681,7 @@ export const StaffDashboard: React.FC<StaffDashboardProps> = ({
           })
         )}
       </div>
+      </>}
 
     </div>
   );

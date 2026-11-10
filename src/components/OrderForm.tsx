@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { UnitProductForm } from './UnitProductForm';
 import { PaymentOptions } from './PaymentOptions';
+import { DeliveryModePicker } from './DeliveryModePicker';
+import { subscribeDeliverySettings } from '../services/deliverySettings';
+import { DEFAULT_DELIVERY_SETTINGS, resolveDeliveryDefault, validateDeliveryChoice, type DeliveryMode, type DeliverySettings } from '../utils/delivery';
 import { PRIMARY_UPI_ID } from '../config/businessConfig';
 import { 
   Snowflake, 
@@ -343,6 +346,31 @@ const LegacyOrderForm: React.FC<OrderFormProps> = ({
   const currentQuantityKg = (quantityInput.trim() === '' || isNaN(parsedQuantity) || parsedQuantity <= 0) ? 0 : parsedQuantity;
   const promo = useInlinePromo({ customerName: customerName.trim(), customerPhone: customerPhone.replace(/[^0-9]/g, '').slice(-10), address: address.trim(), quantityKg: currentQuantityKg, dispatchTiming }, currentUser?.uid || 'guest');
   const [promoNotice, setPromoNotice] = useState('');
+  // v1.0.66 delivery mode: customer default -> district mapping -> ask (utils/delivery).
+  const [deliverySettings, setDeliverySettings] = useState<DeliverySettings>(DEFAULT_DELIVERY_SETTINGS);
+  const [deliveryMode, setDeliveryMode] = useState<DeliveryMode | undefined>(undefined);
+  const [deliveryStopId, setDeliveryStopId] = useState<string | undefined>(undefined);
+  const [deliveryStaleStop, setDeliveryStaleStop] = useState<string | undefined>(undefined);
+  const [deliveryTouched, setDeliveryTouched] = useState(false);
+  const [customerDeliveryDefaults, setCustomerDeliveryDefaults] = useState<{ defaultDeliveryMode?: string; defaultBusStopId?: string } | null>(null);
+  useEffect(() => subscribeDeliverySettings(setDeliverySettings), []);
+  const deliveryPhoneDigits = customerPhone.replace(/[^0-9]/g, '').slice(-10);
+  useEffect(() => {
+    // Customers may read only their own customers/{+91mobile} document (rules).
+    if (!currentUser?.uid || !/^[6-9][0-9]{9}$/.test(deliveryPhoneDigits)) { setCustomerDeliveryDefaults(null); return; }
+    let live = true;
+    void getDoc(doc(db, 'customers', `+91${deliveryPhoneDigits}`)).then((snap) => {
+      if (live) setCustomerDeliveryDefaults(snap.exists() ? (snap.data() as any) : null);
+    }).catch(() => { if (live) setCustomerDeliveryDefaults(null); });
+    return () => { live = false; };
+  }, [currentUser?.uid, deliveryPhoneDigits]);
+  useEffect(() => {
+    if (deliveryTouched) return;
+    const resolved = resolveDeliveryDefault(customerDeliveryDefaults, address, deliverySettings);
+    setDeliveryMode(resolved?.mode);
+    setDeliveryStopId(resolved?.busStopId);
+    setDeliveryStaleStop(resolved?.source === 'ask' && resolved.warning ? resolved.staleStopId : undefined);
+  }, [customerDeliveryDefaults, address, deliverySettings, deliveryTouched]);
   const activeDryIceRate = customerType === 'wholesale' ? rates.wholesaleRate : rates.dryIceRate;
   const currentUnitRate = (activeDryIceRate || 0) + (thermocolIncluded ? rates.thermocolRate : 0) + (rates.transportRate || 0);
   const dryIceSubtotal = Math.round(currentQuantityKg * (activeDryIceRate || 0) * 100) / 100;
@@ -509,7 +537,7 @@ const LegacyOrderForm: React.FC<OrderFormProps> = ({
       const cleanAddress = address.trim();
 
       // Reuse a saved order identity if the form still matches the pending draft.
-      const fingerprint = JSON.stringify([customerName.trim(), cleanPhone, cleanAddress, parsedQty, dispatchTiming, customerType, thermocolIncluded, extraAmountText.trim(), extraAmountReason.trim(), selectedProduct?.id || 'dry-ice']);
+      const fingerprint = JSON.stringify([customerName.trim(), cleanPhone, cleanAddress, parsedQty, dispatchTiming, customerType, thermocolIncluded, extraAmountText.trim(), extraAmountReason.trim(), selectedProduct?.id || 'dry-ice', deliveryMode || '', deliveryStopId || '']);
       let pending: any = null;
       try { pending = JSON.parse(localStorage.getItem(pendingOrderStorageKey) || 'null'); } catch { pending = null; }
       if (!pending || pending.fingerprint !== fingerprint || typeof pending.orderId !== 'string' || typeof pending.trackingPin !== 'string') {
@@ -587,6 +615,7 @@ const LegacyOrderForm: React.FC<OrderFormProps> = ({
         transportPrice: rates.transportRate || 0,
         totalAmount: customerTotal,
 
+        ...(deliveryMode ? { deliveryMode, ...(deliveryMode === 'BUS' && deliveryStopId ? { busStopId: deliveryStopId } : {}) } : {}),
         status: 'pending',
         paymentStatus: 'pending_verification',
         paymentMethod: 'paytm_business_upi',
@@ -624,6 +653,8 @@ const LegacyOrderForm: React.FC<OrderFormProps> = ({
         district: privateOrderPayload.district, productName: privateOrderPayload.productName,
         dispatchTiming: privateOrderPayload.dispatchTiming, dispatchDate, slot,
         status: 'pending', quantityKg: finalQuantityKg, isTrash: false,
+        ...(privateOrderPayload.deliveryMode ? { deliveryMode: privateOrderPayload.deliveryMode } : {}),
+        ...(privateOrderPayload.busStopId ? { busStopId: privateOrderPayload.busStopId } : {}),
         createdAt: serverTimestamp(), updatedAt: serverTimestamp(),
       });
 
@@ -751,6 +782,10 @@ const LegacyOrderForm: React.FC<OrderFormProps> = ({
       setErrorMsg('अधिकतम ऑर्डर मात्रा 5,000 kg तक है। बड़ी मात्रा के लिए कृपया सीधे कॉल करें।');
       return;
     }
+
+    // Delivery mode: BUS needs an ACTIVE stop; an inactive saved stop is never auto-replaced.
+    const deliveryError = validateDeliveryChoice(deliveryMode, deliveryStopId, deliverySettings);
+    if (deliveryError) { setErrorMsg(deliveryError); return; }
 
     // Validate selected dispatch timing slot
     const selectedSlotObj = dispatchSlots.find(s => s.label === dispatchTiming);
@@ -1314,6 +1349,13 @@ const LegacyOrderForm: React.FC<OrderFormProps> = ({
                 <input type="checkbox" checked={thermocolIncluded} onChange={(e) => setThermocolIncluded(e.target.checked)} />
                 Thermocol full packing (owner rate)
               </label>
+
+              {/* 4b. Delivery mode (Bus stop / Dukan pickup / Porter / Local) */}
+              <div className="apb-delivery-mode">
+                <DeliveryModePicker mode={deliveryMode} busStopId={deliveryStopId} settings={deliverySettings} staleStopId={deliveryStaleStop}
+                  language={typeof document !== 'undefined' && document.documentElement?.dataset?.appLanguage === 'en' ? 'en' : 'hi'}
+                  onChange={(next) => { setDeliveryTouched(true); setDeliveryStaleStop(undefined); setDeliveryMode(next.mode); setDeliveryStopId(next.busStopId); }} />
+              </div>
 
               {/* 5. डिस्पैच का समय (Exact IST Slots) */}
               <div className="pt-0.5">

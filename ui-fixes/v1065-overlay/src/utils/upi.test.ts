@@ -17,4 +17,10 @@ describe('order UPI links', () => {
     assert.equal(url.searchParams.get('am'), '600.00');
     assert.equal(url.searchParams.get('tn'), 'Order ORDER-9');
   });
+  it('percent-encodes the merchant name (pn=Ankur%20Dryice) and omits a zero amount', () => {
+    const raw = primaryUpiUri(600, 'ADI-1');
+    assert.match(raw, /^upi:\/\/pay\?pa=paytm\.s26ykus@pty&pn=Ankur%20Dryice&cu=INR&am=600\.00&tn=Order%20ADI-1$/);
+    assert.doesNotMatch(primaryUpiUri(0), /am=/);
+    assert.doesNotMatch(raw, /\+/);
+  });
 });

@@ -89,6 +89,11 @@ export interface Order {
   dispatchDate?: string; // YYYY-MM-DD in Asia/Kolkata
   slot?: 'morning' | 'evening';
   dispatchSlot?: 'morning' | 'evening';
+  /** v1.0.66 delivery: BUS needs busStopId (settings/delivery). */
+  deliveryMode?: 'BUS' | 'SHOP_PICKUP' | 'PORTER' | 'LOCAL';
+  busStopId?: string;
+  packCount?: number;
+  deliveryNote?: string;
   customerType?: 'retail' | 'wholesale';
   calculatedTotal?: number;
   customerTotal?: number;

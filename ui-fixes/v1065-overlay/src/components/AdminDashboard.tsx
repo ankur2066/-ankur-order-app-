@@ -3,6 +3,14 @@ import { DailyWinnerOwnerControls } from './customer/DailyWinner';
 import { CustomersView } from './owner/CustomersView';
 import { FeatureSuiteSettings } from './owner/FeatureSuiteSettings';
 import { PaymentProofPreview } from './owner/PaymentProofPreview';
+import { BusStopSettings } from './owner/BusStopSettings';
+import { StaffMembersManager } from './owner/StaffMembersManager';
+import { OrderDeliveryEditor } from './owner/OrderDeliveryEditor';
+import { PackingBoard, type PackingBoardOrder } from './PackingBoard';
+import { CHART_COLORS } from '../theme/designTokens';
+import { subscribeDeliverySettings } from '../services/deliverySettings';
+import { syncStaffProjection, watchStaffStatusSync } from '../services/staffSync';
+import { DEFAULT_DELIVERY_SETTINGS, packingGroupKey, type DeliverySettings } from '../utils/delivery';
 import { FeatureHub } from './customer/FeatureHub';
 import { subscribeOrderDocuments, orderRef as resolvedOrderRef, trackingRef as resolvedTrackingRef } from '../services/productOrders';
 import { quantityText } from '../billing/unitBilling';
@@ -184,7 +192,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const isAdmin = isUserAdmin(currentUser);
 
   // Main navigation tabs: 'new-entry' | 'orders' | 'insights' | 'expenses' | 'users' | 'ai-chat'
-  const [activeSection, setActiveSection] = useState<'new-entry' | 'orders' | 'insights' | 'expenses' | 'users' | 'ai-chat' | 'storefront' | 'customers' | 'tools'>('orders');
+  const [activeSection, setActiveSection] = useState<'new-entry' | 'orders' | 'insights' | 'expenses' | 'users' | 'ai-chat' | 'storefront' | 'customers' | 'tools' | 'bus-stops' | 'staff'>('orders');
+  // v1.0.66 delivery: bus stop settings + owner stop filter (Packing board pills).
+  const [deliverySettings, setDeliverySettings] = useState<DeliverySettings>(DEFAULT_DELIVERY_SETTINGS);
+  const [stopFilter, setStopFilter] = useState<string | null>(null);
+  useEffect(() => subscribeDeliverySettings(setDeliverySettings), []);
   useEffect(() => {
     const openReports = () => {
       setActiveSection('insights');
@@ -268,6 +280,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     return () => unsub();
   }, []);
 
+  // Spark staff path: copy staff status changes (staffOrderViews.statusSyncPending)
+  // to the public tracking document, which staff cannot address.
+  const ordersById = React.useRef(new Map<string, Order>());
+  useEffect(() => { ordersById.current = new Map(orders.map((order) => [order.orderId, order])); }, [orders]);
+  useEffect(() => {
+    if (!isAdmin) return;
+    return watchStaffStatusSync((orderId) => ordersById.current.get(orderId));
+  }, [isAdmin]);
+
   // Real-time listener for all orders
   useEffect(() => {
     if (!isAdmin) return;
@@ -283,19 +304,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         list.forEach((order) => {
           if (!staffProjectionSeedIds.current.has(order.orderId)) {
             staffProjectionSeedIds.current.add(order.orderId);
-            const safeView = {
-              orderId: order.orderId, sourceCollection: 'orders', customerName: order.customerName || '',
-              city: order.city || order.district || '', district: order.district || order.city || '',
-              productName: order.productName || 'Dry Ice', dispatchTiming: order.dispatchTiming || '',
-              ...(order.dispatchDate ? { dispatchDate: order.dispatchDate } : {}),
-              ...(order.slot ? { slot: order.slot } : {}), status: order.status,
-              quantityKg: Number(order.quantityKg) || 0, isTrash: !!order.isTrash,
-              createdAt: order.createdAt, updatedAt: order.updatedAt,
-            };
-            void getDoc(doc(db, 'staffOrderViews', order.orderId)).then((projection) => {
-              if (!projection.exists()) return setDoc(doc(db, 'staffOrderViews', order.orderId), safeView);
-              return;
-            }).catch((error) => { staffProjectionSeedIds.current.delete(order.orderId); console.warn('Staff order projection seed deferred:', error); });
+            // Staff-safe projection (no price/total/payment/phone). Seeds missing
+            // views and patches delivery fields that changed (utils/staffProjection).
+            void syncStaffProjection(order).catch((error) => { staffProjectionSeedIds.current.delete(order.orderId); console.warn('Staff order projection seed deferred:', error); });
           }
           if (order.dispatchDate || migratedScheduleIds.current.has(order.orderId)) return;
           const parts = dispatchParts(order);
@@ -469,8 +480,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
   // Active orders for currently selected dispatch slot
   const slotOrders = useMemo(() => {
-    return activeOrders.filter((o) => matchesDispatchSlot(o, selectedDispatchSlot));
-  }, [activeOrders, selectedDispatchSlot]);
+    return activeOrders.filter((o) => matchesDispatchSlot(o, selectedDispatchSlot) && (!stopFilter || packingGroupKey(o) === stopFilter));
+  }, [activeOrders, selectedDispatchSlot, stopFilter]);
 
   // Filtered orders in All Orders tab
   const displayedOrders = useMemo(() => {
@@ -497,6 +508,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       baseList = baseList.filter((ord) => matchesDispatchSlot(ord, dispatchTimeFilter));
     }
 
+    // Bus stop / Local filter (same pills as the staff Packing screen)
+    if (stopFilter) baseList = baseList.filter((ord) => packingGroupKey(ord) === stopFilter);
+
     // Filter by selected district
     if (selectedDistrict !== 'all') {
       baseList = baseList.filter((ord) => {
@@ -517,7 +531,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     }
 
     return baseList;
-  }, [activeOrders, trashedOrders, orderFilterTab, paymentFilter, dispatchTimeFilter, selectedDistrict, searchQuery]);
+  }, [activeOrders, trashedOrders, orderFilterTab, paymentFilter, dispatchTimeFilter, selectedDistrict, searchQuery, stopFilter]);
 
   // Status Counts for filter tabs
   const statusCounts = useMemo(() => {
@@ -1440,6 +1454,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       {/* ========================================================================= */}
       {activeSection === 'orders' && (
         <div className="space-y-3">
+          <PackingBoard orders={activeOrders as unknown as PackingBoardOrder[]} settings={deliverySettings} mode="owner"
+            title="Packing by stop" onFilterChange={({ groupKey }) => setStopFilter(groupKey)} />
           {ordersViewMode === 'slot' ? (
             /* ========================================================= */
             /* 1. DISPATCH SLOT DEFAULT SELECTION VIEW                   */
@@ -1671,6 +1687,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                           </div>
 
                           <PaymentProofPreview orderId={ord.orderId} />
+                          <OrderDeliveryEditor order={ord} settings={deliverySettings} />
                         {/* 2. COMPACT PAYMENT ROW */}
                           <div className="flex items-center justify-between gap-1 text-[11px]">
                             <div className="flex items-center gap-1.5 min-w-0">
@@ -2176,6 +2193,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         </div>
 
                         <PaymentProofPreview orderId={ord.orderId} />
+                        <OrderDeliveryEditor order={ord} settings={deliverySettings} />
                         {/* 2. COMPACT PAYMENT ROW */}
                         <div className="flex items-center justify-between gap-1 text-[11px]">
                           <div className="flex items-center gap-1.5 min-w-0">
@@ -2348,10 +2366,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       {/* ========================================================================= */}
 
       {activeSection === 'customers' && <CustomersView user={currentUser} />}
+      {activeSection === 'bus-stops' && isUserAdmin(currentUser) && <BusStopSettings />}
+      {activeSection === 'staff' && isUserAdmin(currentUser) && <StaffMembersManager />}
       {activeSection === 'tools' && isUserAdmin(currentUser) && <div className="owner-tools-backdrop" onClick={() => setActiveSection('orders')}><section className="owner-tools-sheet soft-card space-y-4" onClick={event => event.stopPropagation()}>
         <div className="flex items-center justify-between"><h2 className="text-xl font-black">Tools aur Settings</h2><button type="button" className="soft-button secondary-button" onClick={() => setActiveSection('orders')}>Close</button></div>
         <div className="owner-tool-grid">
-          {[['new-entry','New Entry'],['insights','Reports'],['expenses','Expenses'],['users','Users'],['storefront','Store / Theme'],['ai-chat','AI Chat']].map(([id,label]) => <button type="button" className="soft-tool-tile" key={id} onClick={() => setActiveSection(id as any)}>{label}</button>)}
+          {[['new-entry','New Entry'],['insights','Reports'],['expenses','Expenses'],['users','Users'],['storefront','Store / Theme'],['ai-chat','AI Chat'],['bus-stops','Bus stops'],['staff','Staff']].map(([id,label]) => <button type="button" className="soft-tool-tile" key={id} onClick={() => setActiveSection(id as any)}>{label}</button>)}
         </div>
         <h3 className="font-bold">Services and tools</h3>
         <FeatureSuiteSettings />
@@ -2652,15 +2672,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               <div className="h-56 w-full pt-1">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={[...insightsData.dayBreakdown].reverse()} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={CHART_COLORS.grid} />
                     <XAxis 
                       dataKey="date" 
-                      tick={{ fontSize: 10, fill: '#64748b' }} 
-                      axisLine={{ stroke: '#e2e8f0' }}
+                      tick={{ fontSize: 10, fill: CHART_COLORS.axisText }} 
+                      axisLine={{ stroke: CHART_COLORS.axisLine }}
                       tickLine={false}
                     />
                     <YAxis 
-                      tick={{ fontSize: 10, fill: '#64748b' }} 
+                      tick={{ fontSize: 10, fill: CHART_COLORS.axisText }} 
                       axisLine={false}
                       tickLine={false}
                       unit="kg"
@@ -2682,7 +2702,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         return null;
                       }}
                     />
-                    <Bar dataKey="kg" fill="#0284c7" radius={[4, 4, 0, 0]} maxBarSize={36} />
+                    <Bar dataKey="kg" fill={CHART_COLORS.bar} radius={[4, 4, 0, 0]} maxBarSize={36} />
                   </BarChart>
                 </ResponsiveContainer>
               </div>

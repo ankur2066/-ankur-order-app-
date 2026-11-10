@@ -52,7 +52,8 @@ export function FeatureSuiteSettings() {
     <p className="text-sm t-sub">All fourteen optional features start off. Enter approved rates, codes, stock, SKUs and policies in each feature panel before enabling it.</p>
     {!loaded ? <p role="status">Loading settings…</p> : <div className="space-y-2">{FEATURES.map(([key, label, description]) => <label key={key} className="feature-toggle-row flex min-h-14 items-center justify-between gap-3 rounded-2xl p-3">
       <span><b className="block">{label}</b><small className="block">{description}</small></span>
-      <input aria-label={`Enable ${label}`} type="checkbox" role="switch" checked={flags[key]} disabled={saving} onChange={event => void setFlag(key, event.target.checked)} />
+      <span className="flex items-center gap-2"><b className="text-sm" aria-hidden="true">{flags[key] ? 'ON' : 'OFF'}</b>
+      <input aria-label={`Enable ${label}`} type="checkbox" role="switch" checked={flags[key]} disabled={saving} onChange={event => void setFlag(key, event.target.checked)} /></span>
     </label>)}</div>}
     {message && <p role="status" className="text-sm">{message}</p>}
   </section>;

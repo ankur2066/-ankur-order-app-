@@ -68,7 +68,8 @@ test('UPI links carry merchant, amount and order ID and payment remains owner-ve
   const upi = await source('src/utils/upi.ts');
   const payment = await source('src/components/PaymentOptions.tsx');
   const form = await source('src/components/OrderForm.tsx');
-  assert.match(upi, /params\.set\('tn', `Order \$\{orderId\}`\)/);
+  assert.match(upi, /\['tn', `Order \$\{orderId\}`\]/);
+  assert.match(upi, /encodeURIComponent/);
   assert.match(payment, /primaryUpiUri\(amount, orderId\)/);
   assert.match(payment, /Copy/);
   assert.match(form, /paymentStatus: 'pending_verification'/);

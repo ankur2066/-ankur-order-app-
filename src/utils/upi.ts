@@ -1,11 +1,13 @@
 import QRCode from 'qrcode';
 import { BACKUP_UPI_ID, PRIMARY_UPI_ID, UPI_MERCHANT_NAME } from '../config/businessConfig.ts';
 
+// Percent-encoding (not URLSearchParams' "+") so every UPI app shows "Ankur Dryice":
+// upi://pay?pa=...&pn=Ankur%20Dryice&cu=INR&am=<total>&tn=Order%20<id>
 function upiUri(payee: string, amount?: number, orderId?: string): string {
-  const params = new URLSearchParams({ pa: payee, pn: UPI_MERCHANT_NAME, cu: 'INR' });
-  if (Number.isFinite(amount) && (amount || 0) > 0) params.set('am', Number(amount).toFixed(2));
-  if (orderId) params.set('tn', `Order ${orderId}`);
-  return `upi://pay?${params.toString()}`;
+  const params: Array<[string, string]> = [['pa', payee], ['pn', UPI_MERCHANT_NAME], ['cu', 'INR']];
+  if (Number.isFinite(amount) && (amount || 0) > 0) params.push(['am', Number(amount).toFixed(2)]);
+  if (orderId) params.push(['tn', `Order ${orderId}`]);
+  return `upi://pay?${params.map(([key, value]) => `${key}=${encodeURIComponent(value).replace(/%40/g, '@')}`).join('&')}`;
 }
 
 export const primaryUpiUri = (amount?: number, orderId?: string) => upiUri(PRIMARY_UPI_ID, amount, orderId);

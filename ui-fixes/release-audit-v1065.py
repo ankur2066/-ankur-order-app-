@@ -16,6 +16,12 @@ files = [
     "src/services/appUpdate.ts", "src/services/customers.ts", "src/services/paymentProof.ts", "src/theme/designTokens.ts", "src/theme/themes.ts", "src/theme/themes.css",
     "src/types.ts", "src/utils/dispatchSchedule.ts", "src/utils/dispatchSchedule.test.ts", "src/utils/referralShare.ts", "src/utils/upi.ts", "src/utils/upi.test.ts",
     "src/config/businessConfig.ts", "src/assets/primary-upi.svg",
+    # v1.0.66: delivery mode, bus stops, packing, Spark staff path, theme contrast
+    "src/hooks/useAccess.ts", "src/components/PackingBoard.tsx", "src/components/DeliveryModePicker.tsx",
+    "src/components/owner/BusStopSettings.tsx", "src/components/owner/StaffMembersManager.tsx", "src/components/owner/OrderDeliveryEditor.tsx",
+    "src/services/deliverySettings.ts", "src/services/staffRegistry.ts", "src/services/staffSync.ts",
+    "src/utils/delivery.ts", "src/utils/delivery.test.ts", "src/utils/staffProjection.ts", "src/utils/staffProjection.test.ts",
+    "src/utils/contrast.ts", "src/utils/contrast.test.ts",
 ]
 for relative in files:
     source = overlay / relative

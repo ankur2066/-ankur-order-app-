@@ -1,4 +1,4 @@
-import { DESIGN_TOKENS } from './designTokens';
+import { DESIGN_TOKENS, GROUP_COLORS, STOP_PALETTE } from './designTokens';
 import type { ThemeId } from '../types';
 
 /**
@@ -206,6 +206,13 @@ export function applyTheme(id: string | undefined | null): ThemeDef {
   root.style.setProperty('--shadow-large', theme.vars['--shadow-large'] || DESIGN_TOKENS.shadow.large);
   root.style.setProperty('--space-card', theme.vars['--space-card'] || DESIGN_TOKENS.spacing.card);
   root.style.setProperty('--space-gap', theme.vars['--space-gap'] || DESIGN_TOKENS.spacing.gap);
+  root.style.setProperty('--radius-inset', DESIGN_TOKENS.radius.inset);
+  root.style.setProperty('--shadow-raised', theme.isDark ? '0 2px 6px rgb(0 0 0 / 0.32), 0 10px 22px rgb(0 0 0 / 0.26)' : DESIGN_TOKENS.shadow.raised);
+  root.style.setProperty('--shadow-pressed', theme.isDark ? 'inset 0 2px 6px rgb(0 0 0 / 0.45)' : DESIGN_TOKENS.shadow.pressed);
+  root.style.setProperty('--space-pill', DESIGN_TOKENS.spacing.pill);
+  // Bus stop colour tags keep the light chip palette in both themes (ink pairs are contrast-tested).
+  STOP_PALETTE.forEach((item) => { root.style.setProperty(`--stop-${item.id}-bg`, item.bg); root.style.setProperty(`--stop-${item.id}-ink`, item.ink); });
+  Object.entries(GROUP_COLORS).forEach(([key, item]) => { root.style.setProperty(`--stop-${key}-bg`, item.bg); root.style.setProperty(`--stop-${key}-ink`, item.ink); });
   root.setAttribute('data-theme', theme.id);
   root.style.colorScheme = theme.isDark ? 'dark' : 'light';
   try {

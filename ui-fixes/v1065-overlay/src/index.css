@@ -1907,3 +1907,29 @@ html[data-theme="dark"] .owner-order-card .text-slate-900, html[data-theme="dark
 .owner-app .text-slate-900, .owner-app .text-slate-800, .owner-app .text-slate-700, .owner-app .text-slate-600, .owner-app .text-slate-500,
 .c-app .text-slate-900, .c-app .text-slate-800, .c-app .text-slate-700, .c-app .text-slate-600, .c-app .text-slate-500 { color: var(--text-main) !important; }
 .owner-app .text-slate-400, .c-app .text-slate-400 { color: var(--text-sub) !important; }
+
+/* ===== v1.0.66 soft 3D: pill tabs, raised cards, pressed buttons, bus stop tags (tokens only) ===== */
+.raised-card, .packing-board { box-shadow: var(--shadow-raised, var(--shadow-small)); border-radius: var(--radius-card); }
+.pill-tab { border: 0; border-radius: var(--radius-button); min-height: 40px; padding: var(--space-pill, 10px 18px); font-weight: 800; background: var(--card-bg); color: var(--text-main); box-shadow: var(--shadow-raised, var(--shadow-small)); transition: transform .14s ease, box-shadow .14s ease; }
+.pill-tab[aria-pressed="true"] { background: var(--brand); color: var(--on-brand); box-shadow: var(--shadow-pressed, var(--shadow-small)); }
+.pill-tab:active, .soft-button:active, .stop-pill:active { box-shadow: var(--shadow-pressed, var(--shadow-small)); transform: scale(.97); }
+.pill-date, .delivery-select { background: var(--card-bg); color: var(--text-main); border: 1px solid var(--line); border-radius: 14px; min-height: 40px; padding: 6px 10px; }
+.packing-stop-pills { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: var(--space-gap, 14px); }
+.stop-pill { border: 0; border-radius: 26px; min-height: 64px; padding: 12px 16px; text-align: left; font-weight: 800; font-size: 1.05rem; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px; box-shadow: var(--shadow-raised, var(--shadow-small)); }
+.stop-pill b { font-size: 1.35rem; }
+.stop-pill small { width: 100%; font-weight: 700; font-size: .78rem; }
+.stop-pill[aria-pressed="true"] { box-shadow: var(--shadow-pressed, var(--shadow-small)); outline: 3px solid var(--text-main); outline-offset: 2px; }
+.stop-chip { display: inline-flex; align-items: center; border-radius: var(--radius-button); padding: 3px 10px; font-weight: 800; font-size: .8rem; }
+.status-chip { display: inline-flex; align-items: center; border-radius: var(--radius-button); padding: 3px 10px; font-weight: 800; font-size: .8rem; }
+.stop-tag-teal { background: var(--stop-teal-bg); color: var(--stop-teal-ink); }
+.stop-tag-orange { background: var(--stop-orange-bg); color: var(--stop-orange-ink); }
+.stop-tag-violet { background: var(--stop-violet-bg); color: var(--stop-violet-ink); }
+.stop-tag-rose { background: var(--stop-rose-bg); color: var(--stop-rose-ink); }
+.stop-tag-lime { background: var(--stop-lime-bg); color: var(--stop-lime-ink); }
+.stop-tag-sky { background: var(--stop-sky-bg); color: var(--stop-sky-ink); }
+.stop-tag-local { background: var(--stop-local-bg); color: var(--stop-local-ink); }
+.stop-tag-unassigned { background: var(--stop-unassigned-bg); color: var(--stop-unassigned-ink); }
+.packing-card { box-shadow: var(--shadow-small); }
+.packing-total { font-size: 1.1rem; }
+.delivery-warning { background: var(--status-pending-bg); color: var(--status-pending-ink); font-weight: 700; }
+.delivery-picker legend { color: var(--text-main); }

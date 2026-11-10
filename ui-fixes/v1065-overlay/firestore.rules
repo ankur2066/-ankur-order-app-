@@ -46,8 +46,24 @@ service cloud.firestore {
       return hasUserDoc() && userData().get('role', '') == r;
     }
 
+    // Staff added by the owner in Tools aur Settings > Staff (by mobile). The
+    // owner also records the staff member's Google email in staffEmails/{email}
+    // so the signed-in identity can be verified on Spark (no Cloud Functions).
+    function registryStaffPath() {
+      return /databases/$(database)/documents/staffEmails/$(request.auth.token.email);
+    }
+
+    function isRegistryStaff() {
+      return isSignedIn() &&
+             request.auth.token.get('email', '') is string &&
+             request.auth.token.get('email', '').size() > 3 &&
+             request.auth.token.get('email_verified', false) == true &&
+             exists(registryStaffPath()) &&
+             get(registryStaffPath()).data.get('active', false) == true;
+    }
+
     function isStaff() {
-      return roleIs('staff');
+      return roleIs('staff') || isRegistryStaff();
     }
 
     function isDelivery() {
@@ -65,11 +81,24 @@ service cloud.firestore {
     }
 
     function canViewOrders() {
-      return isFieldTeam() && hasPerm('viewOrders', true);
+      return isRegistryStaff() || (isFieldTeam() && hasPerm('viewOrders', true));
     }
 
     function canUpdateStatus() {
-      return isFieldTeam() && hasPerm('updateStatus', true);
+      return isRegistryStaff() || (isFieldTeam() && hasPerm('updateStatus', true));
+    }
+
+    // Staff buttons: Packing done (in_packing), Dispatched, Handed over (delivered).
+    function staffStatuses() {
+      return ['in_packing', 'dispatched', 'delivered'];
+    }
+
+    function isValidDelivery(data) {
+      return (!('deliveryMode' in data) || data.deliveryMode in ['BUS', 'SHOP_PICKUP', 'PORTER', 'LOCAL']) &&
+             (!('busStopId' in data) || (data.busStopId is string && data.busStopId.size() >= 2 && data.busStopId.size() <= 64)) &&
+             (data.get('deliveryMode', '') != 'BUS' || 'busStopId' in data) &&
+             (!('packCount' in data) || (data.packCount is int && data.packCount >= 0 && data.packCount <= 500)) &&
+             (!('deliveryNote' in data) || (data.deliveryNote is string && data.deliveryNote.size() <= 200));
     }
 
     function canToggleProducts() {
@@ -112,7 +141,8 @@ service cloud.firestore {
         'dryIcePricePerKg', 'dryIceSubtotal', 'thermocolPricePerKg', 
         'thermocolSubtotal', 'transportPrice', 'totalAmount',
         'status', 'paymentStatus', 'paymentMethod', 'paymentNotes', 
-        'userId', 'isTrash', 'trashedAt', 'createdAt', 'updatedAt'
+        'userId', 'isTrash', 'trashedAt', 'createdAt', 'updatedAt',
+        'deliveryMode', 'busStopId', 'packCount', 'deliveryNote'
       ];
       let requiredKeys = [
         'orderId', 'trackingToken', 'trackingPin', 'customerName', 
@@ -174,6 +204,7 @@ service cloud.firestore {
              data.paymentMethod in ['paytm_business_upi', 'manual_verification', 'cash_on_delivery'] &&
              (!('paymentNotes' in data) || (data.paymentNotes is string && data.paymentNotes.size() <= 200)) &&
              data.userId is string && data.userId.size() <= 128 &&
+             isValidDelivery(data) &&
              isValidTimestamp(data.createdAt) &&
              isValidTimestamp(data.updatedAt);
     }
@@ -277,7 +308,8 @@ service cloud.firestore {
 
       // Updates:
       //  Owner: full operational updates
-      //  Staff/Delivery WITH the `updateStatus` permission: ONLY status + updatedAt
+      //  Staff/Delivery WITH the `updateStatus` permission: ONLY status + updatedAt,
+      //  and only the packing/dispatch statuses (Spark path, no Cloud Function).
       allow update: if isValidId(orderId) && (
         (isAdmin() &&
          isValidOrder(incoming()) &&
@@ -287,7 +319,7 @@ service cloud.firestore {
          incoming().updatedAt == request.time) ||
         (canUpdateStatus() &&
          incoming().diff(existing()).affectedKeys().hasOnly(['status', 'updatedAt']) &&
-         incoming().status in ['pending', 'confirmed', 'in_packing', 'dispatched', 'delivered', 'cancelled'] &&
+         incoming().status in staffStatuses() &&
          incoming().updatedAt == request.time)
       );
 
@@ -301,7 +333,7 @@ service cloud.firestore {
       allow get, list: if isAdmin() || canViewOrders();
       allow create: if isAdmin() || (
         isValidId(orderId) && existsAfter(/databases/$(database)/documents/orders/$(orderId)) &&
-        incoming().keys().hasOnly(['orderId','sourceCollection','customerName','city','district','productName','dispatchTiming','dispatchDate','slot','status','quantityKg','createdAt','updatedAt','isTrash']) &&
+        incoming().keys().hasOnly(['orderId','sourceCollection','customerName','city','district','productName','dispatchTiming','dispatchDate','slot','status','quantityKg','createdAt','updatedAt','isTrash','deliveryMode','busStopId','packCount','deliveryNote']) &&
         incoming().orderId == orderId && incoming().sourceCollection == 'orders' &&
         incoming().keys().hasAll(['orderId','sourceCollection','customerName','city','district','productName','dispatchTiming','status','quantityKg','createdAt','updatedAt','isTrash']) &&
         incoming().customerName == getAfter(/databases/$(database)/documents/orders/$(orderId)).data.customerName &&
@@ -309,11 +341,18 @@ service cloud.firestore {
         incoming().district == getAfter(/databases/$(database)/documents/orders/$(orderId)).data.district &&
         incoming().productName == getAfter(/databases/$(database)/documents/orders/$(orderId)).data.productName &&
         incoming().quantityKg == getAfter(/databases/$(database)/documents/orders/$(orderId)).data.quantityKg &&
-        incoming().status == getAfter(/databases/$(database)/documents/orders/$(orderId)).data.status
+        incoming().status == getAfter(/databases/$(database)/documents/orders/$(orderId)).data.status &&
+        incoming().get('deliveryMode', null) == getAfter(/databases/$(database)/documents/orders/$(orderId)).data.get('deliveryMode', null) &&
+        incoming().get('busStopId', null) == getAfter(/databases/$(database)/documents/orders/$(orderId)).data.get('busStopId', null)
       );
+      // Staff (Spark path): status buttons only. statusSyncPending asks the
+      // owner client to copy the status to the public tracking document.
       allow update: if isAdmin() || (canUpdateStatus() &&
-        incoming().diff(existing()).affectedKeys().hasOnly(['status','updatedAt']) &&
-        incoming().status in ['pending','confirmed','in_packing','dispatched','delivered','cancelled'] &&
+        incoming().diff(existing()).affectedKeys().hasOnly(['status','packingStatus','statusSyncPending','statusUpdatedBy','updatedAt']) &&
+        incoming().status in staffStatuses() &&
+        (!('packingStatus' in incoming()) || incoming().packingStatus in ['packed']) &&
+        incoming().statusSyncPending == true &&
+        incoming().statusUpdatedBy == request.auth.uid &&
         incoming().updatedAt == request.time);
       allow delete: if isAdmin();
     }
@@ -397,7 +436,12 @@ service cloud.firestore {
     //    Public read (storefront needs it), OWNER-only write.
     match /settings/{settingId} {
       allow read: if true;
-      allow write: if isValidId(settingId) && isAdmin();
+      allow write: if isValidId(settingId) && isAdmin() &&
+        // settings/delivery: bus stops + district->stop mapping (no prices).
+        (settingId != 'delivery' || (
+          incoming().keys().hasOnly(['busStops', 'districtStopMap', 'updatedAt']) &&
+          incoming().busStops is list && incoming().busStops.size() <= 30 &&
+          (!('districtStopMap' in incoming()) || incoming().districtStopMap is map)));
     }
 
     // 5b. User profiles / role documents
@@ -432,6 +476,10 @@ service cloud.firestore {
     match /customers/{phoneId} {
       allow get: if isAdmin() || (isSignedIn() && resource.data.uid == request.auth.uid && resource.data.phone == phoneId);
       allow list: if isAdmin();
+      // Owner may create a directory entry for a phone/manual order and save
+      // "Hamesha ke liye" delivery defaults (defaultDeliveryMode/defaultBusStopId).
+      allow create: if isAdmin() && phoneId.matches('^\\+91[6-9][0-9]{9}$') && incoming().phone == phoneId &&
+        (!('defaultDeliveryMode' in incoming()) || incoming().defaultDeliveryMode in ['BUS', 'SHOP_PICKUP', 'PORTER', 'LOCAL']);
       allow create: if isSignedIn() && incoming().uid == request.auth.uid && incoming().phone == phoneId &&
         phoneId.matches('^\\+91[6-9][0-9]{9}$') &&
         incoming().keys().hasOnly(['uid','name','phone','firstLoginAt','lastLoginAt','orderCount','completedOrders','tag']) &&
@@ -445,7 +493,30 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
-    // 5c. Staff access requests. A person files ONE pending request about
+    // 5d. Staff registry (roles OWNER / STAFF). Owner adds or removes staff by
+    //     mobile; staffEmails/{email} is the verified sign-in index. Staff can
+    //     read only their own index entry (to open the Packing screen).
+    match /staffMembers/{phoneId} {
+      allow read: if isAdmin();
+      allow create, update: if isAdmin() && phoneId.matches('^\\+91[6-9][0-9]{9}$') &&
+        incoming().keys().hasOnly(['phone','name','email','active','role','updatedAt']) &&
+        incoming().phone == phoneId && incoming().role == 'STAFF' && incoming().active is bool &&
+        incoming().name is string && incoming().name.size() <= 100 &&
+        incoming().email is string && incoming().email.size() <= 200;
+      allow delete: if isAdmin();
+    }
+
+    match /staffEmails/{email} {
+      allow get: if isAdmin() || (isSignedIn() && request.auth.token.get('email', '') == email && request.auth.token.get('email_verified', false) == true);
+      allow list: if isAdmin();
+      allow create, update: if isAdmin() &&
+        incoming().keys().hasOnly(['phone','name','active','role','updatedAt']) &&
+        incoming().phone is string && incoming().phone.matches('^\\+91[6-9][0-9]{9}$') &&
+        incoming().role == 'STAFF' && incoming().active is bool;
+      allow delete: if isAdmin();
+    }
+
+    // 5e. Staff access requests. A person files ONE pending request about
     //     themselves; only the owner can read the list, approve or delete.
     //     Approval = the owner writing users/{uid}.role (rule above).
     match /staffRequests/{requestUid} {

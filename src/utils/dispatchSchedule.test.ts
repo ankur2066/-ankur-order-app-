@@ -17,3 +17,10 @@ test('dispatch labels use Aaj/Kal only for the actual IST date', () => {
   assert.match(formatDispatchDate('2026-11-06', 'evening', 'hi', now), /6/);
   assert.match(formatDispatchDate(undefined, 'morning', 'en', now), /Date not set/);
 });
+
+test('IST day boundary: just after midnight IST is already the next day even though UTC is still the previous date', () => {
+  const now = new Date('2026-11-10T19:00:00Z'); // 00:30 IST on 11 Nov
+  assert.match(formatDispatchDate('2026-11-11', 'morning', 'en', now), /^Today/);
+  assert.match(formatDispatchDate('2026-11-12', 'evening', 'en', now), /^Tomorrow/);
+  assert.doesNotMatch(formatDispatchDate('2026-11-10', 'evening', 'en', now), /^(Today|Tomorrow)/);
+});

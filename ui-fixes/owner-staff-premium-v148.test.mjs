@@ -60,7 +60,9 @@ test('Staff reads redacted order projections while status and role permissions s
  assert.match(staff,/if \(!canUpdate\)/);
  assert.match(staff,/collection\(db, 'staffOrderViews'\)/);
  assert.doesNotMatch(staff,/subscribeOrderDocuments\(/);
- assert.match(staff,/ankurStaffUpdateOrderStatus/);
+ // v1.0.66 Spark: staff status goes through a rules-enforced client batch, not the Blaze callable.
+ assert.doesNotMatch(staff,/ankurStaffUpdateOrderStatus/);
+ assert.match(staff,/statusSyncPending: true/);
  assert.match(staff,/setOrders\(list\)/);
  assert.match(staff,/handleSelfPickup/);
  assert.match(app,/<StaffDashboard/);
