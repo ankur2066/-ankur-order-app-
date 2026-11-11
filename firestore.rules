@@ -184,20 +184,12 @@ service cloud.firestore {
         'userId', 'isTrash', 'trashedAt', 'createdAt', 'updatedAt',
         'deliveryMode', 'busStopId', 'packCount', 'deliveryNote'
       ];
-      let requiredKeys = [
-        'orderId', 'trackingToken', 'trackingPin', 'customerName', 
-        'customerPhone', 'district', 'quantityKg', 
-        'dispatchTiming', 'productName',
-        'dryIcePricePerKg', 'dryIceSubtotal', 'thermocolPricePerKg', 
-        'thermocolSubtotal', 'totalAmount',
-        'status', 'paymentStatus', 'paymentMethod', 'userId', 
-        'createdAt', 'updatedAt'
-      ];
+      // Every required field is dereferenced below, so a missing one already
+      // denies; no separate hasAll() (saves ~25 expressions per order).
 
       let isAmountChanged = ('amountChanged' in data && data.amountChanged == true);
       let formulaTotal = data.dryIceSubtotal + data.thermocolSubtotal + data.quantityKg * (('transportPrice' in data) ? data.transportPrice : 0);
-      return data.keys().hasAll(requiredKeys) &&
-             data.keys().hasOnly(allowedKeys) &&
+      return data.keys().hasOnly(allowedKeys) &&
              data.orderId is string && data.orderId.size() <= 32 &&
              data.trackingToken is string && data.trackingToken.size() <= 48 &&
              data.trackingPin is string && data.trackingPin.size() >= 4 && data.trackingPin.size() <= 8 &&
@@ -250,14 +242,9 @@ service cloud.firestore {
         'district', 'dispatchTiming', 'dispatchDate', 'slot', 'dispatchSlot', 'totalAmount', 'paymentStatus', 'lastStatusUpdate', 
         'createdAt', 'updatedAt'
       ];
-      let requiredKeys = [
-        'orderId', 'trackingToken', 'status', 'productName', 'quantityKg', 
-        'district', 'dispatchTiming', 'paymentStatus', 'lastStatusUpdate', 
-        'createdAt', 'updatedAt'
-      ];
+      // All required fields are dereferenced below; no separate hasAll().
 
-      return data.keys().hasAll(requiredKeys) &&
-             data.keys().hasOnly(allowedKeys) &&
+      return data.keys().hasOnly(allowedKeys) &&
              data.orderId is string && data.orderId.size() <= 32 &&
              data.trackingToken is string && data.trackingToken.size() <= 48 &&
              data.status in ['pending', 'confirmed', 'in_packing', 'dispatched', 'delivered', 'cancelled'] &&
@@ -332,14 +319,14 @@ service cloud.firestore {
 
       // Customer order creation (guests allowed). Staff/Delivery cannot create orders.
       allow create: if isValidId(orderId) &&
-        isValidOrder(incoming()) &&
-        incoming().orderId == orderId &&
-        incoming().status == 'pending' &&
-        (isAdmin() || incoming().paymentStatus == 'pending_verification') &&
-        incoming().createdAt == request.time &&
-        incoming().updatedAt == request.time &&
-        (isAdmin() || !isSignedIn() || incoming().userId == request.auth.uid || incoming().userId == 'guest' || incoming().userId == 'owner_manual_entry') &&
-        (isAdmin() || existsAfter(/databases/$(database)/documents/order_tracking/$(incoming().trackingToken)));
+        isValidOrder(request.resource.data) &&
+        request.resource.data.orderId == orderId &&
+        request.resource.data.status == 'pending' &&
+        (isAdmin() || request.resource.data.paymentStatus == 'pending_verification') &&
+        request.resource.data.createdAt == request.time &&
+        request.resource.data.updatedAt == request.time &&
+        (isAdmin() || !isSignedIn() || request.resource.data.userId == request.auth.uid || request.resource.data.userId == 'guest' || request.resource.data.userId == 'owner_manual_entry') &&
+        (isAdmin() || existsAfter(/databases/$(database)/documents/order_tracking/$(request.resource.data.trackingToken)));
 
       // Updates:
       //  Owner: full operational updates
