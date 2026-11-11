@@ -1852,20 +1852,20 @@ html[data-theme="dark"] .owner-order-card .text-slate-900, html[data-theme="dark
 .delivery-picker legend { color: var(--text-main); }
 
 /* v1.0.66 light owner theme: one consistent look (white cards, navy text, violet accent). */
-.ankur-owner-dashboard{color:#17243e!important}
+.ankur-owner-dashboard{color:var(--ankur-owner-l-17243e)!important}
 .ankur-owner-dashboard :is(input,textarea,select):not([type="checkbox"]):not([type="radio"]){
-  background:#fff!important;color:#17243e!important;border:1px solid #c9d5ea!important;}
-.ankur-owner-dashboard :is(input,textarea)::placeholder{color:#7a879e!important;opacity:1}
-.ankur-owner-dashboard :is(.text-slate-500,.text-slate-400){color:#4f5f7a!important}
-.ankur-owner-dashboard .ankur-owner-overview .grid>div :is(span,p,div){color:#1e3357}
+  background:var(--ankur-owner-l-fff)!important;color:var(--ankur-owner-l-17243e)!important;border:1px solid var(--ankur-owner-l-c9d5ea)!important;}
+.ankur-owner-dashboard :is(input,textarea)::placeholder{color:var(--ankur-owner-l-7a879e)!important;opacity:1}
+.ankur-owner-dashboard :is(.text-slate-500,.text-slate-400){color:var(--ankur-owner-l-4f5f7a)!important}
+.ankur-owner-dashboard .ankur-owner-overview .grid>div :is(span,p,div){color:var(--ankur-owner-l-1e3357)}
 .ankur-owner-dashboard .ankur-owner-overview .grid>div .text-\[10px\],
-.ankur-owner-dashboard .ankur-owner-overview .grid>div .text-xs{color:#4f5f7a!important;font-weight:700}
-.ankur-owner-tools{color:#17243e!important}
-.ankur-owner-tools>summary{background:#fff!important;color:#17243e!important;border:1px solid #d9e2f3!important;box-shadow:0 4px 12px rgba(30,47,84,.06)!important}
+.ankur-owner-dashboard .ankur-owner-overview .grid>div .text-xs{color:var(--ankur-owner-l-4f5f7a)!important;font-weight:700}
+.ankur-owner-tools{color:var(--ankur-owner-l-17243e)!important}
+.ankur-owner-tools>summary{background:var(--ankur-owner-l-fff)!important;color:var(--ankur-owner-l-17243e)!important;border:1px solid var(--ankur-owner-l-d9e2f3)!important;box-shadow:0 4px 12px rgba(30,47,84,.06)!important}
 .ankur-owner-tools :is(h3,h4,p,span,label){color:inherit}
 [role="dialog"] :is(input,select,textarea):not([type="checkbox"]):not([type="radio"]),
 .fixed.inset-0 .bg-white :is(input,select,textarea):not([type="checkbox"]):not([type="radio"]){
-  background:#fff!important;color:#17243e!important;border:1px solid #c9d5ea!important;}
-.ankur-owner-tools[open]>section{background:#fff!important;color:#17243e!important;border:1px solid #d9e2f3!important}
-.ankur-owner-tools[open]>section button.c-soft{background:#f3f6fd!important;color:#17243e!important;border:1px solid #d9e2f3!important}
-.ankur-owner-tools[open]>section button svg,.ankur-owner-tools>summary::after{color:#6955d8!important}
+  background:var(--ankur-owner-l-fff)!important;color:var(--ankur-owner-l-17243e)!important;border:1px solid var(--ankur-owner-l-c9d5ea)!important;}
+.ankur-owner-tools[open]>section{background:var(--ankur-owner-l-fff)!important;color:var(--ankur-owner-l-17243e)!important;border:1px solid var(--ankur-owner-l-d9e2f3)!important}
+.ankur-owner-tools[open]>section button.c-soft{background:var(--ankur-owner-l-f3f6fd)!important;color:var(--ankur-owner-l-17243e)!important;border:1px solid var(--ankur-owner-l-d9e2f3)!important}
+.ankur-owner-tools[open]>section button svg,.ankur-owner-tools>summary::after{color:var(--ankur-owner-l-6955d8)!important}
