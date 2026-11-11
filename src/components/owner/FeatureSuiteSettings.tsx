@@ -38,9 +38,10 @@ export function FeatureSuiteSettings() {
   // Firestore keeps the write queued offline; we do not wait for the server ack (it can hang).
   const setFlag = (key: FeatureKey, checked: boolean) => {
     const label = FEATURES.find(([id]) => id === key)?.[1];
-    setFlags(prev => ({ ...prev, [key]: checked }));
+    const next = { ...flags, [key]: checked };
+    setFlags(next);
     setMessage(`${label} ${checked ? 'ON' : 'OFF'}`);
-    setDoc(doc(db, 'settings', 'featureSuite'), { features: { [key]: checked }, updatedAt: serverTimestamp() }, { merge: true })
+    setDoc(doc(db, 'settings', 'featureSuite'), { features: { [key]: checked }, enabled: Object.values(next).some(Boolean), updatedAt: serverTimestamp() }, { merge: true })
       .catch(() => {
         setFlags(prev => ({ ...prev, [key]: !checked }));
         setMessage(`${label}: save nahi hua. Owner access / Firestore rules check karein.`);

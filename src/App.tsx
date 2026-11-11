@@ -271,7 +271,7 @@ function AppShell() {
 
       {currentTab === 'home' && (
         <section className="c-app ankur-readable-customer-page max-w-lg mx-auto px-3 pb-4">
-          <details className="c-card border b-line rounded-2xl p-4">
+          <details open className="c-card border b-line rounded-2xl p-4">
             <summary className="font-black">{language === 'hi' ? 'AI सुविधाएँ और सेवाएँ' : 'AI Features and Services'}</summary>
             <div className="mt-3"><DailyWinnerBanner currentUser={currentUser} /></div>
             <div className="mt-3"><FeatureHub currentUser={currentUser} role={role}

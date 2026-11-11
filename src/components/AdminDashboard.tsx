@@ -2331,7 +2331,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
       {/* ========================================================================= */}
 
-      {activeSection === 'customers' && <CustomersView user={currentUser} />}
+      {activeSection === 'customers' && <CustomersView user={currentUser} orders={orders} />}
       {activeSection === 'bus-stops' && isUserAdmin(currentUser) && <BusStopSettings />}
       {activeSection === 'staff' && isUserAdmin(currentUser) && <StaffMembersManager />}
       {activeSection === 'tools' && isUserAdmin(currentUser) && <div className="owner-tools-backdrop" onClick={() => setActiveSection('orders')}><section className="owner-tools-sheet soft-card space-y-4" onClick={event => event.stopPropagation()}>
