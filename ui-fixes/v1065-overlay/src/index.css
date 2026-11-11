@@ -1869,3 +1869,6 @@ html[data-theme="dark"] .owner-order-card .text-slate-900, html[data-theme="dark
 .ankur-owner-tools[open]>section{background:var(--ankur-owner-l-fff)!important;color:var(--ankur-owner-l-17243e)!important;border:1px solid var(--ankur-owner-l-d9e2f3)!important}
 .ankur-owner-tools[open]>section button.c-soft{background:var(--ankur-owner-l-f3f6fd)!important;color:var(--ankur-owner-l-17243e)!important;border:1px solid var(--ankur-owner-l-d9e2f3)!important}
 .ankur-owner-tools[open]>section button svg,.ankur-owner-tools>summary::after{color:var(--ankur-owner-l-6955d8)!important}
+
+/* Owner request 2026-11-11: base app font 13.5px (all rem sizes scale from this). */
+html { font-size: 13.5px; }
