@@ -114,10 +114,12 @@ service cloud.firestore {
       return a >= b - 0.05 && a <= b + 0.05;
     }
 
-    // Customer type + owner-approved wholesale amount change. `ptype` is the
-    // signed-in buyer's profile type, looked up ONCE by the caller (each
-    // lookup costs expressions; a batch has a 1000-expression budget).
-    function customerTypeOk(data, isAmountChanged, formulaTotal, ptype) {
+    // Customer type + owner-approved wholesale amount change. The signed-in
+    // buyer's profile type is bound ONCE with `let` (a function argument or a
+    // repeated helper call can be re-evaluated on every reference, and each
+    // profile lookup costs expressions; a batch has a 1000-expression budget).
+    function customerTypeOk(data, isAmountChanged, formulaTotal) {
+      let ptype = profileCustomerType();
       return (!isAmountChanged || (data.customerType == 'wholesale' && (isAdmin() || ptype == 'wholesale') &&
                data.customerTotal == data.totalAmount &&
                withinPaisa(data.calculatedTotal, formulaTotal) &&
@@ -125,9 +127,11 @@ service cloud.firestore {
              (!('customerType' in data) || isAdmin() || (request.auth == null && data.customerType == 'retail') || (request.auth != null && data.customerType == ptype));
     }
 
-    // Staff view must mirror the order written in the same batch. `o` is the
-    // order's post-batch data, fetched once by the caller.
-    function isValidStaffView(v, id, o) {
+    // Staff view must mirror the order written in the same batch. The order's
+    // post-batch data is bound ONCE with `let` so getAfter() is not
+    // re-evaluated for every compared field.
+    function isValidStaffView(v, id) {
+      let o = getAfter(/databases/$(database)/documents/orders/$(id)).data;
       return v.keys().hasOnly(['orderId','sourceCollection','customerName','city','district','productName','dispatchTiming','dispatchDate','slot','status','quantityKg','createdAt','updatedAt','isTrash','deliveryMode','busStopId','packCount','deliveryNote']) &&
         v.keys().hasAll(['orderId','sourceCollection','customerName','city','district','productName','dispatchTiming','status','quantityKg','createdAt','updatedAt','isTrash']) &&
         v.orderId == id && v.sourceCollection == 'orders' &&
@@ -227,7 +231,7 @@ service cloud.firestore {
              // Normal orders: total must match the rate formula. An owner-approved
              // wholesale amount change (amountChanged == true) is checked below.
              (isAmountChanged || withinPaisa(data.totalAmount, formulaTotal)) &&
-             customerTypeOk(data, isAmountChanged, formulaTotal, profileCustomerType()) &&
+             customerTypeOk(data, isAmountChanged, formulaTotal) &&
 
              data.status in ['pending', 'confirmed', 'in_packing', 'dispatched', 'delivered', 'cancelled'] &&
              data.paymentStatus in ['pending_verification', 'payment_verified', 'cash_on_delivery'] &&
@@ -364,7 +368,7 @@ service cloud.firestore {
       allow get, list: if isAdmin() || canViewOrders();
       allow create: if isAdmin() || (
         isValidId(orderId) && existsAfter(/databases/$(database)/documents/orders/$(orderId)) &&
-        isValidStaffView(incoming(), orderId, getAfter(/databases/$(database)/documents/orders/$(orderId)).data)
+        isValidStaffView(incoming(), orderId)
       );
       // Staff (Spark path): status buttons only. statusSyncPending asks the
       // owner client to copy the status to the public tracking document.
