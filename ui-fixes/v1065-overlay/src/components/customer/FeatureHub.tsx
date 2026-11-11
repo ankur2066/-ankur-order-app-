@@ -14,7 +14,7 @@ import {ReferralSharePanel} from './ReferralSharePanel';
 
 export type FeatureId = 'calculator'|'video'|'loyalty'|'catalog'|'partner'|'subscriptions'|'promotions'|'inventory'|'reports'|'faq'|'rates'|'support'|'service-area'|'referral';
 
-const FEATURES: Array<{id:FeatureId; icon:React.ComponentType<{className?:string}>; en:string; hi:string; auth?:boolean; owner?:boolean; state?:string}> = [
+export const FEATURES: Array<{id:FeatureId; icon:React.ComponentType<{className?:string}>; en:string; hi:string; auth?:boolean; owner?:boolean; state?:string}> = [
   {id:'calculator',icon:Calculator,en:'Ice Calculator',hi:'आइस कैलकुलेटर'},
   {id:'video',icon:Lightbulb,en:'Video Idea Builder',hi:'वीडियो आइडिया बिल्डर'},
   {id:'loyalty',icon:Gift,en:'Loyalty Rewards',hi:'लॉयल्टी रिवार्ड',auth:true,state:'Reward policy is not configured.'},
@@ -93,6 +93,15 @@ function ReportsHub({user,onOpenReports}:{user:User|null;onOpenReports:()=>void}
     <details className="border b-line rounded-xl p-3"><summary className="font-bold">{hi?'डिलीवरी की रसीदें':'Delivery receipts'}</summary><div className="mt-3"><DataFeaturePanel id="reports" user={user} role="admin"/></div></details>
   </section>;
 }
+
+/** One feature rendered in place (customer Home feature row). Owner switch is still respected by the row. */
+export const FeatureInline: React.FC<{id:FeatureId; currentUser:User|null; role:string|null}> = ({id,currentUser,role}) => {
+  const meta=FEATURES.find(f=>f.id===id);
+  return <div className="ankur-feature-inline space-y-3">
+    <SafePanel id={id} state={meta?.state} user={currentUser} role={role} onOpenReports={()=>window.dispatchEvent(new Event('ankur-owner-reports'))}/>
+    {meta?.auth&&!currentUser&&<p className="text-sm text-amber-700">Sign in is required to use account actions.</p>}
+  </div>;
+};
 
 export const FeatureHub: React.FC<{currentUser:User|null; role:string|null; initial?:FeatureId|null; onClose?:()=>void;allowed?:FeatureId[]}> = ({currentUser,role,initial=null,onClose,allowed}) => {
   const {language,t}=useLanguage(); const [active,setActive]=useState<FeatureId|null>(initial);

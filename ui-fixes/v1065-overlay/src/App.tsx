@@ -13,8 +13,10 @@ import { ProfileTab } from './components/customer/ProfileTab';
 import { NotificationSheet } from './components/customer/NotificationSheet';
 import { NotificationToast } from './components/customer/NotificationToast';
 import { BrandMark } from './components/customer/BrandMark';
-import { DailyWinnerBanner } from './components/customer/DailyWinner';
-import { FeatureHub } from './components/customer/FeatureHub';
+import { DailyWinnerBanner, DailyWinnerStrip } from './components/customer/DailyWinner';
+import { FeatureHub, FeatureInline } from './components/customer/FeatureHub';
+import { HomeFeatureRow, type HomeFeature } from './components/customer/HomeFeatureRow';
+import { AutoTranslate } from './i18n/AutoTranslate';
 import { DataFeaturePanel } from './components/customer/FeatureDataPanels';
 import { ThemeProvider } from './context/ThemeContext';
 import { LanguageProvider, useLanguage } from './context/LanguageContext';
@@ -60,6 +62,7 @@ function AppShell() {
   const [notificationMessage, setNotificationMessage] = useState('');
   const [notificationTarget, setNotificationTarget] = useState<{orderId:string} | null>(null);
   const [rates, setRates] = useState<RateSettings>(getLocalRates());
+  const [homeFeature, setHomeFeature] = useState<HomeFeature>('booking');
 
   const { products, loading: productsLoading, error: productsError } = useStorefrontProducts();
   const { banners, winner } = useStorefrontSettings();
@@ -139,6 +142,7 @@ function AppShell() {
       if(!Number.isInteger(kg)||kg<10||kg>5000)return;
       try{window.sessionStorage.setItem('ankur.pending.calculated.kg',String(kg));}
       catch{return;}
+      setHomeFeature('booking');
       setCurrentTab('home');
     };
     window.addEventListener('ankur-open-calculator-booking',applyEstimate);
@@ -258,25 +262,32 @@ function AppShell() {
           onReorder={handleReorder}
           onPromoAction={handlePromoAction}
           bookingForm={(inlineProduct) => (
-            <OrderForm
-              currentUser={currentUser}
-              onOrderSuccess={handleOrderSuccess}
-              onGoToTrack={handleGoToTrack}
-              onGoToMyOrders={() => setCurrentTab('my-orders')}
-              selectedProduct={inlineProduct}
-            />
+            <>
+              <HomeFeatureRow active={homeFeature} onSelect={setHomeFeature} role={role} />
+              {homeFeature === 'booking' ? (
+                <>
+                  <DailyWinnerStrip />
+                  <OrderForm
+                    currentUser={currentUser}
+                    onOrderSuccess={handleOrderSuccess}
+                    onGoToTrack={handleGoToTrack}
+                    onGoToMyOrders={() => setCurrentTab('my-orders')}
+                    selectedProduct={inlineProduct}
+                  />
+                </>
+              ) : (
+                <FeatureInline key={homeFeature} id={homeFeature} currentUser={currentUser} role={role} />
+              )}
+            </>
           )}
         />
       )}
 
-      {currentTab === 'home' && (
-        <section className="c-app ankur-readable-customer-page max-w-lg mx-auto px-3 pb-4">
-          <details open className="c-card border b-line rounded-2xl p-4">
-            <summary className="font-black">{language === 'hi' ? 'AI सुविधाएँ और सेवाएँ' : 'AI Features and Services'}</summary>
-            <div className="mt-3"><DailyWinnerBanner currentUser={currentUser} /></div>
-            <div className="mt-3"><FeatureHub currentUser={currentUser} role={role}
-              allowed={['calculator','loyalty','catalog','partner','subscriptions','promotions','faq','rates','support','service-area','referral']} /></div>
-          </details>
+      {/* v1.0.66: features moved to the scrolling row at the top of Home; only the optional
+          Daily Winner consent stays below the form (hidden when there is nothing to show). */}
+      {currentTab === 'home' && homeFeature === 'booking' && currentUser && (
+        <section className="c-app ankur-readable-customer-page max-w-lg mx-auto px-3 pb-24">
+          <DailyWinnerBanner currentUser={currentUser} />
         </section>
       )}
 
@@ -382,6 +393,7 @@ export default function App() {
   return (
     <LanguageProvider>
       <ThemeProvider>
+        <AutoTranslate />
         <AppUpdateNotice />
         <AppShell />
       </ThemeProvider>

@@ -24,6 +24,11 @@ files = [
     "src/utils/contrast.ts", "src/utils/contrast.test.ts",
     # v1.0.66 hotfix: permission-denied message, average-rate note
     "src/utils/orderFormCopy.ts", "src/utils/orderFormCopy.test.ts",
+    # v1.0.66 night batch: whole-app Hindi/English, Home feature row, winner strip,
+    # owner chat local order answers, GitHub-release update check
+    "src/i18n/AutoTranslate.tsx", "src/i18n/messagesV1066.json",
+    "src/components/customer/HomeFeatureRow.tsx", "src/components/customer/DailyWinner.tsx",
+    "src/components/AIChat.tsx", "src/utils/orderChatAnswer.ts", "src/utils/orderChatAnswer.test.ts",
 ]
 for relative in files:
     source = overlay / relative

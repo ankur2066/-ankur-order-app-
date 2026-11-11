@@ -1,0 +1,1054 @@
+{
+ "AI Chat": {
+  "en": "AI Chat",
+  "hi": "AI चैट"
+ },
+ "Bus stops": {
+  "en": "Bus stops",
+  "hi": "बस स्टॉप"
+ },
+ "CSV तैयार हो रही है…": {
+  "en": "Preparing CSV…",
+  "hi": "CSV तैयार हो रही है…"
+ },
+ "CSV सेव / शेयर नहीं हुई। दोबारा कोशिश करें।": {
+  "en": "CSV could not be saved / shared. Please try again.",
+  "hi": "CSV सेव / शेयर नहीं हुई। दोबारा कोशिश करें।"
+ },
+ "Customer Form": {
+  "en": "Customer Form",
+  "hi": "ग्राहक फ़ॉर्म"
+ },
+ "Customers": {
+  "en": "Customers",
+  "hi": "ग्राहक"
+ },
+ "Date not set": {
+  "en": "Date not set",
+  "hi": "तारीख तय नहीं"
+ },
+ "Error": {
+  "en": "Error",
+  "hi": "गड़बड़ी"
+ },
+ "Expenses": {
+  "en": "Expenses",
+  "hi": "खर्च"
+ },
+ "Firebase rules ने मना किया (permission-denied)।": {
+  "en": "Firebase rules denied this (permission-denied).",
+  "hi": "Firebase rules ने मना किया (permission-denied)।"
+ },
+ "Logout": {
+  "en": "Log out",
+  "hi": "लॉगआउट"
+ },
+ "Mark Unpaid": {
+  "en": "Mark Unpaid",
+  "hi": "बकाया करें"
+ },
+ "Mark this order as unpaid?": {
+  "en": "Mark this order as unpaid?",
+  "hi": "इस ऑर्डर को बकाया (unpaid) करें?"
+ },
+ "New": {
+  "en": "New",
+  "hi": "नया"
+ },
+ "New Entry": {
+  "en": "New Entry",
+  "hi": "नई एंट्री"
+ },
+ "Old": {
+  "en": "Old",
+  "hi": "पुराना"
+ },
+ "Old / Overdue": {
+  "en": "Old / Overdue",
+  "hi": "पुराने / बकाया"
+ },
+ "Orders (": {
+  "en": "Orders (",
+  "hi": "ऑर्डर ("
+ },
+ "Owner must set the wholesale rate first.": {
+  "en": "Owner must set the wholesale rate first.",
+  "hi": "पहले मालिक होलसेल रेट सेट करें।"
+ },
+ "Owner sections": {
+  "en": "Owner sections",
+  "hi": "मालिक के सेक्शन"
+ },
+ "Packing by stop": {
+  "en": "Packing by stop",
+  "hi": "स्टॉप के हिसाब से पैकिंग"
+ },
+ "Rate changed · ₹": {
+  "en": "Rate changed · ₹",
+  "hi": "रेट बदला · ₹"
+ },
+ "Reports": {
+  "en": "Reports",
+  "hi": "रिपोर्ट"
+ },
+ "Set owner-approved rate": {
+  "en": "Set owner-approved rate",
+  "hi": "मालिक का तय रेट सेट करें"
+ },
+ "Shaam (12 PM–10 PM)": {
+  "en": "Evening (12 PM–10 PM)",
+  "hi": "शाम (12 PM–10 PM)"
+ },
+ "Staff": {
+  "en": "Staff",
+  "hi": "स्टाफ"
+ },
+ "Subah (6 AM–12 PM)": {
+  "en": "Morning (6 AM–12 PM)",
+  "hi": "सुबह (6 AM–12 PM)"
+ },
+ "Test order — exclude from reports": {
+  "en": "Test order — exclude from reports",
+  "hi": "टेस्ट ऑर्डर — रिपोर्ट में शामिल नहीं"
+ },
+ "Tomorrow evening (12 PM–10 PM)": {
+  "en": "Tomorrow evening (12 PM–10 PM)",
+  "hi": "कल शाम (12 PM–10 PM)"
+ },
+ "Tomorrow morning (6 AM–12 PM)": {
+  "en": "Tomorrow morning (6 AM–12 PM)",
+  "hi": "कल सुबह (6 AM–12 PM)"
+ },
+ "Tools aur Settings": {
+  "en": "Tools and Settings",
+  "hi": "टूल और सेटिंग्स"
+ },
+ "Users": {
+  "en": "Users",
+  "hi": "यूज़र"
+ },
+ "Wholesale Dry Ice Rate (₹/KG):": {
+  "en": "Wholesale Dry Ice Rate (₹/KG):",
+  "hi": "होलसेल ड्राई आइस रेट (₹/KG):"
+ },
+ "Wholesale booking stays unavailable until this owner-set rate is saved.": {
+  "en": "Wholesale booking stays unavailable until this owner-set rate is saved.",
+  "hi": "मालिक का यह रेट सेव होने तक होलसेल बुकिंग बंद रहेगी।"
+ },
+ "ऑर्डर का स्टेटस WhatsApp पर भेजें": {
+  "en": "Send order status on WhatsApp",
+  "hi": "ऑर्डर का स्टेटस WhatsApp पर भेजें"
+ },
+ "कंडक्टर/ड्राइवर मोबाइल (खाली छोड़ सकते हैं)": {
+  "en": "Conductor/driver mobile (optional)",
+  "hi": "कंडक्टर/ड्राइवर मोबाइल (खाली छोड़ सकते हैं)"
+ },
+ "पर्ची नंबर (खाली छोड़ सकते हैं)": {
+  "en": "Slip number (optional)",
+  "hi": "पर्ची नंबर (खाली छोड़ सकते हैं)"
+ },
+ "बस नंबर (खाली छोड़ सकते हैं)": {
+  "en": "Bus number (optional)",
+  "hi": "बस नंबर (खाली छोड़ सकते हैं)"
+ },
+ "सभी ऑर्डर CSV सेव / शेयर": {
+  "en": "Save / share all orders as CSV",
+  "hi": "सभी ऑर्डर CSV सेव / शेयर"
+ },
+ "सर्वर से जवाब नहीं आया (नेटवर्क धीमा)। इंटरनेट देखें और दोबारा दबाएँ।": {
+  "en": "No reply from the server (slow network). Check the internet and tap again.",
+  "hi": "सर्वर से जवाब नहीं आया (नेटवर्क धीमा)। इंटरनेट देखें और दोबारा दबाएँ।"
+ },
+ "Pickup receipt is not available for this order.": {
+  "en": "Pickup receipt is not available for this order.",
+  "hi": "इस ऑर्डर की पिकअप रसीद उपलब्ध नहीं है।"
+ },
+ "Receipt could not be generated.": {
+  "en": "Receipt could not be generated.",
+  "hi": "रसीद नहीं बन सकी।"
+ },
+ "नया ड्राई आइस ऑर्डर बुक करें (₹": {
+  "en": "Book a new dry ice order (₹",
+  "hi": "नया ड्राई आइस ऑर्डर बुक करें (₹"
+ },
+ "A saved order is waiting for connection. Review the details and tap Place Order to retry.": {
+  "en": "A saved order is waiting for connection. Review the details and tap Place Order to retry.",
+  "hi": "एक सेव ऑर्डर इंटरनेट का इंतज़ार कर रहा है। जानकारी देखें और दोबारा ऑर्डर करें दबाएँ।"
+ },
+ "After promo": {
+  "en": "After promo",
+  "hi": "प्रोमो के बाद"
+ },
+ "Apply the promo code and review the updated amount first.": {
+  "en": "Apply the promo code and review the updated amount first.",
+  "hi": "पहले प्रोमो कोड लगाएँ और नई राशि देखें।"
+ },
+ "Base amount": {
+  "en": "Base amount",
+  "hi": "मूल राशि"
+ },
+ "Code checked. Review the discount below.": {
+  "en": "Code checked. Review the discount below.",
+  "hi": "कोड जाँच लिया। नीचे छूट देखें।"
+ },
+ "Code is unavailable, expired or does not match this quantity.": {
+  "en": "Code is unavailable, expired or does not match this quantity.",
+  "hi": "कोड उपलब्ध नहीं, खत्म हो गया या इस मात्रा पर लागू नहीं।"
+ },
+ "Edit wholesale customer total": {
+  "en": "Edit wholesale customer total",
+  "hi": "होलसेल ग्राहक की कुल राशि बदलें"
+ },
+ "Paytm Business / UPI - owner verification pending": {
+  "en": "Paytm Business / UPI - owner verification pending",
+  "hi": "Paytm Business / UPI - मालिक के सत्यापन की प्रतीक्षा"
+ },
+ "Promo booking could not complete. Check your connection and the active code, then retry.": {
+  "en": "Promo booking could not complete. Check your connection and the active code, then retry.",
+  "hi": "प्रोमो बुकिंग पूरी नहीं हुई। इंटरनेट और कोड जाँचकर दोबारा करें।"
+ },
+ "Promo codes apply to standard retail Dry Ice orders only.": {
+  "en": "Promo codes apply to standard retail Dry Ice orders only.",
+  "hi": "प्रोमो कोड केवल सामान्य रिटेल ड्राई आइस ऑर्डर पर लागू है।"
+ },
+ "Promo discount": {
+  "en": "Promo discount",
+  "hi": "प्रोमो छूट"
+ },
+ "Promotions are currently disabled.": {
+  "en": "Promotions are currently disabled.",
+  "hi": "अभी प्रोमोशन बंद हैं।"
+ },
+ "Reason for Amount Change is required.": {
+  "en": "Reason for Amount Change is required.",
+  "hi": "राशि बदलने का कारण लिखना ज़रूरी है।"
+ },
+ "Requested total: ₹": {
+  "en": "Requested total: ₹",
+  "hi": "माँगी गई कुल राशि: ₹"
+ },
+ "Retail total amount": {
+  "en": "Retail total amount",
+  "hi": "रिटेल कुल राशि"
+ },
+ "Thermocol full packing (owner rate)": {
+  "en": "Thermocol full packing (owner rate)",
+  "hi": "थर्मोकोल फुल पैकिंग (मालिक का रेट)"
+ },
+ "UPI से ₹": {
+  "en": "Pay ₹",
+  "hi": "UPI से ₹"
+ },
+ "Wholesale rate is not set yet. Please contact the owner.": {
+  "en": "Wholesale rate is not set yet. Please contact the owner.",
+  "hi": "होलसेल रेट अभी सेट नहीं है। कृपया मालिक से संपर्क करें।"
+ },
+ "ऑर्डर ID मिलने के बाद ही स्क्रीनशॉट save किया जा सकता है।": {
+  "en": "The screenshot can be saved only after the order ID is created.",
+  "hi": "ऑर्डर ID मिलने के बाद ही स्क्रीनशॉट सेव किया जा सकता है।"
+ },
+ "कारण:": {
+  "en": "Reason:",
+  "hi": "कारण:"
+ },
+ "कृपया शहर के कम से कम 3 अक्षर दर्ज करें।": {
+  "en": "Please enter at least 3 letters of the city.",
+  "hi": "कृपया शहर के कम से कम 3 अक्षर दर्ज करें।"
+ },
+ "ग्राहक की राशि: ₹": {
+  "en": "Customer amount: ₹",
+  "hi": "ग्राहक की राशि: ₹"
+ },
+ "भेजें। भुगतान अपने ऐप में verify करें; ऐप में स्थिति मालिक द्वारा पुष्टि तक pending रहेगी।": {
+  "en": "via UPI. Check the payment in your app; the status stays pending until the owner confirms it.",
+  "hi": "भेजें। भुगतान अपने ऐप में जाँचें; मालिक की पुष्टि तक स्थिति बाकी रहेगी।"
+ },
+ "स्क्रीनशॉट compress और save हो रहा है…": {
+  "en": "Compressing and saving the screenshot…",
+  "hi": "स्क्रीनशॉट छोटा करके सेव हो रहा है…"
+ },
+ "स्क्रीनशॉट save नहीं हुआ। इसे WhatsApp पर मालिक को भेजें; payment verification pending है।": {
+  "en": "Screenshot not saved. Send it to the owner on WhatsApp; payment verification is pending.",
+  "hi": "स्क्रीनशॉट सेव नहीं हुआ। इसे WhatsApp पर मालिक को भेजें; भुगतान सत्यापन बाकी है।"
+ },
+ "💡 स्क्रीनशॉट 150 KB के करीब compress होकर इस order के सुरक्षित payment proof में save होगा। केवल मालिक इसे देख सकता है; भुगतान सत्यापन तक pending रहेगा।": {
+  "en": "💡 The screenshot is compressed to about 150 KB and saved as this order's secure payment proof. Only the owner can see it; it stays pending until the payment is verified.",
+  "hi": "💡 स्क्रीनशॉट लगभग 150 KB का होकर इस ऑर्डर के सुरक्षित भुगतान प्रमाण में सेव होगा। केवल मालिक इसे देख सकता है; सत्यापन तक बाकी रहेगा।"
+ },
+ "Dispatch slot": {
+  "en": "Dispatch slot",
+  "hi": "डिस्पैच समय"
+ },
+ "Latest update": {
+  "en": "Latest update",
+  "hi": "ताज़ा अपडेट"
+ },
+ "ट्रैकिंग जानकारी प्राप्त नहीं हुई। कृपया दोबारा प्रयास करें।": {
+  "en": "Tracking details could not be loaded. Please try again.",
+  "hi": "ट्रैकिंग जानकारी प्राप्त नहीं हुई। कृपया दोबारा प्रयास करें।"
+ },
+ "सत्यापन प्रतीक्षित": {
+  "en": "Verification pending",
+  "hi": "सत्यापन प्रतीक्षित"
+ },
+ "Aaj": {
+  "en": "Today",
+  "hi": "आज"
+ },
+ "Bus stops and Local": {
+  "en": "Bus stops and Local",
+  "hi": "बस स्टॉप और लोकल"
+ },
+ "Handed over": {
+  "en": "Handed over",
+  "hi": "सौंप दिया"
+ },
+ "Is stop par": {
+  "en": "At this stop",
+  "hi": "इस स्टॉप पर"
+ },
+ "Kal": {
+  "en": "Tomorrow",
+  "hi": "कल"
+ },
+ "Mode not set": {
+  "en": "Mode not set",
+  "hi": "तरीका तय नहीं"
+ },
+ "Packed": {
+  "en": "Packed",
+  "hi": "पैक हो गया"
+ },
+ "Packing date": {
+  "en": "Packing date",
+  "hi": "पैकिंग की तारीख"
+ },
+ "Packing done": {
+  "en": "Packing done",
+  "hi": "पैकिंग पूरी"
+ },
+ "Sab stops": {
+  "en": "All stops",
+  "hi": "सभी स्टॉप"
+ },
+ "Share (WhatsApp)": {
+  "en": "Share (WhatsApp)",
+  "hi": "शेयर (WhatsApp)"
+ },
+ "Upar stop ya Local chunein.": {
+  "en": "Choose a stop or Local above.",
+  "hi": "ऊपर स्टॉप या लोकल चुनें।"
+ },
+ "Update ho raha hai…": {
+  "en": "Updating…",
+  "hi": "अपडेट हो रहा है…"
+ },
+ "ke liye koi order nahi.": {
+  "en": "has no orders.",
+  "hi": "के लिए कोई ऑर्डर नहीं।"
+ },
+ "order ·": {
+  "en": "orders ·",
+  "hi": "ऑर्डर ·"
+ },
+ "Dusre UPI se pay karein": {
+  "en": "Pay with another UPI",
+  "hi": "दूसरे UPI से भुगतान करें"
+ },
+ "QR se payment na ho to is UPI ID par bhejein:": {
+  "en": "If the QR does not work, send to this UPI ID:",
+  "hi": "QR से भुगतान न हो तो इस UPI ID पर भेजें:"
+ },
+ "Confirm physical handover to the customer?": {
+  "en": "Confirm physical handover to the customer?",
+  "hi": "ग्राहक को सामान सौंपने की पुष्टि करें?"
+ },
+ "Handed over / Delivered": {
+  "en": "Handed over / Delivered",
+  "hi": "सौंप दिया / डिलीवर"
+ },
+ "Invalid contact response": {
+  "en": "Invalid contact response",
+  "hi": "संपर्क का जवाब सही नहीं"
+ },
+ "Order list band karein": {
+  "en": "Close order list",
+  "hi": "ऑर्डर सूची बंद करें"
+ },
+ "Permission denied": {
+  "en": "Permission denied",
+  "hi": "अनुमति नहीं है"
+ },
+ "Pickup confirmation undone.": {
+  "en": "Pickup confirmation undone.",
+  "hi": "पिकअप पुष्टि वापस ली गई।"
+ },
+ "Pickup confirmed • receipt": {
+  "en": "Pickup confirmed • receipt",
+  "hi": "पिकअप पक्का • रसीद"
+ },
+ "Pickup confirmed.": {
+  "en": "Pickup confirmed.",
+  "hi": "पिकअप पक्का हुआ।"
+ },
+ "Pickup update failed.": {
+  "en": "Pickup update failed.",
+  "hi": "पिकअप अपडेट नहीं हुआ।"
+ },
+ "Sabhi orders · search / contact": {
+  "en": "All orders · search / contact",
+  "hi": "सभी ऑर्डर · खोजें / संपर्क"
+ },
+ "Undo reason (required):": {
+  "en": "Undo reason (required):",
+  "hi": "वापस लेने का कारण (ज़रूरी):"
+ },
+ "अधिकृत नंबर — 15 सेकंड में अपने-आप छिपेगा।": {
+  "en": "Authorised number — hides itself in 15 seconds.",
+  "hi": "अधिकृत नंबर — 15 सेकंड में अपने-आप छिपेगा।"
+ },
+ "इस एक ऑर्डर के ग्राहक से संपर्क करें": {
+  "en": "Contact this order's customer",
+  "hi": "इस एक ऑर्डर के ग्राहक से संपर्क करें"
+ },
+ "इस ऑर्डर का नंबर देखने की अनुमति नहीं है।": {
+  "en": "You are not allowed to see this order's number.",
+  "hi": "इस ऑर्डर का नंबर देखने की अनुमति नहीं है।"
+ },
+ "ऑर्डर का स्रोत सत्यापित नहीं हो सका।": {
+  "en": "The order source could not be verified.",
+  "hi": "ऑर्डर का स्रोत सत्यापित नहीं हो सका।"
+ },
+ "ग्राहक से संपर्क के लिए सत्यापित Android ऐप और अनुमति जरूरी है।": {
+  "en": "Contacting the customer needs the verified Android app and permission.",
+  "hi": "ग्राहक से संपर्क के लिए सत्यापित Android ऐप और अनुमति जरूरी है।"
+ },
+ "नंबर छिपाएँ": {
+  "en": "Hide number",
+  "hi": "नंबर छिपाएँ"
+ },
+ "लॉगिन जरूरी है।": {
+  "en": "Sign-in is required.",
+  "hi": "लॉगिन जरूरी है।"
+ },
+ "शहर दर्ज नहीं": {
+  "en": "City not entered",
+  "hi": "शहर दर्ज नहीं"
+ },
+ "स्टाफ केवल Packing done, Dispatched या Handed over कर सकता है।": {
+  "en": "Staff can only mark Packing done, Dispatched or Handed over.",
+  "hi": "स्टाफ केवल पैकिंग पूरी, डिस्पैच या सौंप दिया कर सकता है।"
+ },
+ "Dry Ice Order": {
+  "en": "Dry Ice Order",
+  "hi": "ड्राई आइस ऑर्डर"
+ },
+ "Product Order": {
+  "en": "Product Order",
+  "hi": "प्रोडक्ट ऑर्डर"
+ },
+ "· ऑर्डर देखने का अधिकार:": {
+  "en": "· Order view access:",
+  "hi": "· ऑर्डर देखने का अधिकार:"
+ },
+ "· नंबर-संपर्क अधिकार:": {
+  "en": "· Number-contact access:",
+  "hi": "· नंबर-संपर्क अधिकार:"
+ },
+ "इस ऑर्डर की अनुमति वापस ली गई।": {
+  "en": "Access to this order was removed.",
+  "hi": "इस ऑर्डर की अनुमति वापस ली गई।"
+ },
+ "इस ऑर्डर की अनुमति वापस लें": {
+  "en": "Remove access to this order",
+  "hi": "इस ऑर्डर की अनुमति वापस लें"
+ },
+ "एक बार में एक ऑर्डर की अनुमति दें। स्टाफ को सभी ग्राहकों के नंबर कभी नहीं भेजे जाते।": {
+  "en": "Give access one order at a time. Staff never receive all customers' numbers.",
+  "hi": "एक बार में एक ऑर्डर की अनुमति दें। स्टाफ को सभी ग्राहकों के नंबर कभी नहीं भेजे जाते।"
+ },
+ "ऑर्डर अनुमति नहीं बदली। रोल, सक्रिय स्थिति, App Check और ऑर्डर ID जाँचें।": {
+  "en": "Order access not changed. Check the role, active status, App Check and order ID.",
+  "hi": "ऑर्डर अनुमति नहीं बदली। रोल, सक्रिय स्थिति, App Check और ऑर्डर ID जाँचें।"
+ },
+ "ऑर्डर अनुमति बदलने के लिए App Check सक्रिय Android ऐप चाहिए।": {
+  "en": "Changing order access needs the Android app with App Check active.",
+  "hi": "ऑर्डर अनुमति बदलने के लिए App Check सक्रिय Android ऐप चाहिए।"
+ },
+ "कर्मचारी": {
+  "en": "Employee",
+  "hi": "कर्मचारी"
+ },
+ "केवल इस ऑर्डर की अनुमति दें": {
+  "en": "Allow this order only",
+  "hi": "केवल इस ऑर्डर की अनुमति दें"
+ },
+ "केवल ग्राहक नंबर-संपर्क की अनुमति चालू हुई।": {
+  "en": "Customer number-contact access turned on.",
+  "hi": "केवल ग्राहक नंबर-संपर्क की अनुमति चालू हुई।"
+ },
+ "केवल नंबर अधिकार बंद": {
+  "en": "Turn off number access only",
+  "hi": "केवल नंबर अधिकार बंद"
+ },
+ "कोई स्टाफ उपलब्ध नहीं": {
+  "en": "No staff available",
+  "hi": "कोई स्टाफ उपलब्ध नहीं"
+ },
+ "ग्राहक नंबर-संपर्क की अनुमति बंद हुई; स्टाफ लॉगिन चालू रहेगा।": {
+  "en": "Customer number-contact access turned off; staff sign-in stays on.",
+  "hi": "ग्राहक नंबर-संपर्क की अनुमति बंद हुई; स्टाफ लॉगिन चालू रहेगा।"
+ },
+ "नंबर-संपर्क की अनुमति नहीं बदली। मालिक का सत्यापित लॉगिन जाँचें।": {
+  "en": "Number-contact access not changed. Check the owner's verified sign-in.",
+  "hi": "नंबर-संपर्क की अनुमति नहीं बदली। मालिक का सत्यापित लॉगिन जाँचें।"
+ },
+ "नहीं": {
+  "en": "No",
+  "hi": "नहीं"
+ },
+ "निष्क्रिय": {
+  "en": "Inactive",
+  "hi": "निष्क्रिय"
+ },
+ "पहले स्टाफ की सक्रिय स्थिति और ऑर्डर देखने की अनुमति अलग से जाँचें।": {
+  "en": "First check the staff member's active status and order-view access separately.",
+  "hi": "पहले स्टाफ की सक्रिय स्थिति और ऑर्डर देखने की अनुमति अलग से जाँचें।"
+ },
+ "संपर्क अधिकार चालू": {
+  "en": "Contact access on",
+  "hi": "संपर्क अधिकार चालू"
+ },
+ "सक्रिय": {
+  "en": "Active",
+  "hi": "सक्रिय"
+ },
+ "सिर्फ इस ऑर्डर के लिए 24 घंटे की अनुमति दी गई।": {
+  "en": "24-hour access given for this order only.",
+  "hi": "सिर्फ इस ऑर्डर के लिए 24 घंटे की अनुमति दी गई।"
+ },
+ "स्टाफ की सुरक्षित सूची अभी लोड नहीं हो सकी।": {
+  "en": "The secure staff list could not load right now.",
+  "hi": "स्टाफ की सुरक्षित सूची अभी लोड नहीं हो सकी।"
+ },
+ "स्टाफ के ग्राहक-संपर्क की सुरक्षा": {
+  "en": "Staff customer-contact safety",
+  "hi": "स्टाफ के ग्राहक-संपर्क की सुरक्षा"
+ },
+ "स्टाफ ग्राहक-संपर्क अनुमति": {
+  "en": "Staff customer-contact access",
+  "hi": "स्टाफ ग्राहक-संपर्क अनुमति"
+ },
+ "स्टाफ, सही ऑर्डर ID और सत्यापित Android ऐप जरूरी है।": {
+  "en": "Staff, a correct order ID and the verified Android app are required.",
+  "hi": "स्टाफ, सही ऑर्डर ID और सत्यापित Android ऐप जरूरी है।"
+ },
+ "स्थिति:": {
+  "en": "Status:",
+  "hi": "स्थिति:"
+ },
+ "हाँ": {
+  "en": "Yes",
+  "hi": "हाँ"
+ },
+ "Retail": {
+  "en": "Retail",
+  "hi": "रिटेल"
+ },
+ "Wholesale": {
+  "en": "Wholesale",
+  "hi": "होलसेल"
+ },
+ "ग्राहक प्रकार / Customer Type (": {
+  "en": "Customer type (",
+  "hi": "ग्राहक प्रकार ("
+ },
+ "ग्राहक प्रकार नहीं बदला जा सका:": {
+  "en": "Customer type could not be changed:",
+  "hi": "ग्राहक प्रकार नहीं बदला जा सका:"
+ },
+ "नए ग्राहक Retail माने जाएँगे। Wholesale बदलने का अधिकार केवल मालिक को है।": {
+  "en": "New customers are treated as Retail. Only the owner can change Wholesale.",
+  "hi": "नए ग्राहक रिटेल माने जाएँगे। होलसेल बदलने का अधिकार केवल मालिक को है।"
+ },
+ "PDF could not be shared. Please try again.": {
+  "en": "PDF could not be shared. Please try again.",
+  "hi": "PDF शेयर नहीं हुई। कृपया दोबारा कोशिश करें।"
+ },
+ "Pending approval": {
+  "en": "Pending approval",
+  "hi": "मंज़ूरी बाकी"
+ },
+ "Submit for owner review": {
+  "en": "Submit for owner review",
+  "hi": "मालिक की जाँच के लिए भेजें"
+ },
+ "/ KG": {
+  "en": "/ KG",
+  "hi": "/ KG"
+ },
+ "Application Catalogue": {
+  "en": "Application Catalogue",
+  "hi": "उपयोग कैटलॉग"
+ },
+ "Banner details (saved on this device)": {
+  "en": "Banner details (saved on this device)",
+  "hi": "बैनर की जानकारी (इसी फ़ोन में सेव)"
+ },
+ "Contact number for the requested video:": {
+  "en": "Contact number for the requested video:",
+  "hi": "वीडियो के लिए संपर्क नंबर:"
+ },
+ "Customer support": {
+  "en": "Customer support",
+  "hi": "ग्राहक सहायता"
+ },
+ "Dry ice FAQs": {
+  "en": "Dry ice FAQs",
+  "hi": "ड्राई आइस सवाल-जवाब"
+ },
+ "Dry ice calculator": {
+  "en": "Dry ice calculator",
+  "hi": "ड्राई आइस कैलकुलेटर"
+ },
+ "FAQ / How-to": {
+  "en": "FAQ / How-to",
+  "hi": "सवाल-जवाब / तरीका"
+ },
+ "Ice Calculator": {
+  "en": "Ice Calculator",
+  "hi": "आइस कैलकुलेटर"
+ },
+ "Inventory": {
+  "en": "Inventory",
+  "hi": "स्टॉक"
+ },
+ "Loyalty Rewards": {
+  "en": "Loyalty Rewards",
+  "hi": "लॉयल्टी रिवार्ड"
+ },
+ "Loyalty": {
+  "en": "Loyalty",
+  "hi": "लॉयल्टी"
+ },
+ "No public promotion is active.": {
+  "en": "No public promotion is active.",
+  "hi": "अभी कोई ऑफ़र चालू नहीं है।"
+ },
+ "Opening stock is not configured.": {
+  "en": "Opening stock is not configured.",
+  "hi": "शुरुआती स्टॉक सेट नहीं है।"
+ },
+ "Owner approval is required. No automatic charge.": {
+  "en": "Owner approval is required. No automatic charge.",
+  "hi": "मालिक की मंज़ूरी ज़रूरी है। अपने-आप कोई पैसा नहीं कटेगा।"
+ },
+ "Partner approval is required.": {
+  "en": "Partner approval is required.",
+  "hi": "पार्टनर मंज़ूरी ज़रूरी है।"
+ },
+ "Promotions": {
+  "en": "Promotions",
+  "hi": "ऑफ़र"
+ },
+ "Rate Card": {
+  "en": "Rate Card",
+  "hi": "रेट कार्ड"
+ },
+ "Rate card": {
+  "en": "Rate card",
+  "hi": "रेट कार्ड"
+ },
+ "Referral Share": {
+  "en": "Referral Share",
+  "hi": "रेफ़रल शेयर"
+ },
+ "Referral share": {
+  "en": "Referral share",
+  "hi": "रेफ़रल शेयर"
+ },
+ "Referral rewards require owner review.": {
+  "en": "Referral rewards require owner review.",
+  "hi": "रेफ़रल इनाम के लिए मालिक की जाँच ज़रूरी है।"
+ },
+ "Reports Hub": {
+  "en": "Reports Hub",
+  "hi": "रिपोर्ट"
+ },
+ "Requested name or brand:": {
+  "en": "Requested name or brand:",
+  "hi": "नाम या ब्रांड:"
+ },
+ "Reward policy is not configured.": {
+  "en": "Reward policy is not configured.",
+  "hi": "इनाम नियम सेट नहीं है।"
+ },
+ "Service Area": {
+  "en": "Service Area",
+  "hi": "सेवा क्षेत्र"
+ },
+ "Support Hub": {
+  "en": "Support Hub",
+  "hi": "सहायता केंद्र"
+ },
+ "Uttar Pradesh delivery enquiry": {
+  "en": "Uttar Pradesh delivery enquiry",
+  "hi": "उत्तर प्रदेश डिलीवरी पूछताछ"
+ },
+ "Video Idea Builder": {
+  "en": "Video Idea Builder",
+  "hi": "वीडियो आइडिया"
+ },
+ "Wholesale Partner": {
+  "en": "Wholesale Partner",
+  "hi": "होलसेल पार्टनर"
+ },
+ "Active": {
+  "en": "Active",
+  "hi": "सक्रिय"
+ },
+ "Add stop": {
+  "en": "Add stop",
+  "hi": "स्टॉप जोड़ें"
+ },
+ "Bus stop settings save ho gayi.": {
+  "en": "Bus stop settings saved.",
+  "hi": "बस स्टॉप सेटिंग सेव हो गई।"
+ },
+ "Cancel": {
+  "en": "Cancel",
+  "hi": "रद्द करें"
+ },
+ "District": {
+  "en": "District",
+  "hi": "ज़िला"
+ },
+ "District / city": {
+  "en": "District / city",
+  "hi": "ज़िला / शहर"
+ },
+ "District → Bus stop": {
+  "en": "District → Bus stop",
+  "hi": "ज़िला → बस स्टॉप"
+ },
+ "Inactive": {
+  "en": "Inactive",
+  "hi": "निष्क्रिय"
+ },
+ "Inactive stop naye orders me nahi dikhega. Purane orders apne stop par hi rahenge.": {
+  "en": "An inactive stop won't show for new orders. Old orders stay on their stop.",
+  "hi": "बंद स्टॉप नए ऑर्डर में नहीं दिखेगा। पुराने ऑर्डर अपने स्टॉप पर ही रहेंगे।"
+ },
+ "Map": {
+  "en": "Map",
+  "hi": "मैप"
+ },
+ "Naya bus stop": {
+  "en": "New bus stop",
+  "hi": "नया बस स्टॉप"
+ },
+ "New bus stop name": {
+  "en": "New bus stop name",
+  "hi": "नए बस स्टॉप का नाम"
+ },
+ "Remove": {
+  "en": "Remove",
+  "hi": "हटाएँ"
+ },
+ "Save nahi hua. Owner login aur Firestore rules check karein.": {
+  "en": "Not saved. Check the owner sign-in and Firestore rules.",
+  "hi": "सेव नहीं हुआ। मालिक लॉगिन और Firestore rules जाँचें।"
+ },
+ "Stop chunein": {
+  "en": "Choose stop",
+  "hi": "स्टॉप चुनें"
+ },
+ "Stop for district": {
+  "en": "Stop for district",
+  "hi": "ज़िले का स्टॉप"
+ },
+ "Custom": {
+  "en": "Custom",
+  "hi": "अपनी तारीख"
+ },
+ "Customer ledger": {
+  "en": "Customer ledger",
+  "hi": "ग्राहक खाता"
+ },
+ "Due": {
+  "en": "Due",
+  "hi": "बाकी"
+ },
+ "From date": {
+  "en": "From date",
+  "hi": "शुरू तारीख"
+ },
+ "KG ·": {
+  "en": "KG ·",
+  "hi": "किलो ·"
+ },
+ "Last:": {
+  "en": "Last:",
+  "hi": "आखिरी:"
+ },
+ "Search customers": {
+  "en": "Search customers",
+  "hi": "ग्राहक खोजें"
+ },
+ "Search name or mobile": {
+  "en": "Search name or mobile",
+  "hi": "नाम या मोबाइल खोजें"
+ },
+ "To date": {
+  "en": "To date",
+  "hi": "अंतिम तारीख"
+ },
+ "· आखिरी": {
+  "en": "· Last",
+  "hi": "· आखिरी"
+ },
+ "· पूरा हिसाब देखें ›": {
+  "en": "· See full ledger ›",
+  "hi": "· पूरा हिसाब देखें ›"
+ },
+ "ऑर्डर का पूरा हिसाब": {
+  "en": "Full order ledger",
+  "hi": "ऑर्डर का पूरा हिसाब"
+ },
+ "कुल किलो": {
+  "en": "Total KG",
+  "hi": "कुल किलो"
+ },
+ "कुल रकम": {
+  "en": "Total amount",
+  "hi": "कुल रकम"
+ },
+ "कोई बाकी नहीं ✓": {
+  "en": "Nothing due ✓",
+  "hi": "कोई बाकी नहीं ✓"
+ },
+ "पहला ऑर्डर": {
+  "en": "First order",
+  "hi": "पहला ऑर्डर"
+ },
+ "बाकी:": {
+  "en": "Due:",
+  "hi": "बाकी:"
+ },
+ "मिला (Paid)": {
+  "en": "Paid",
+  "hi": "मिला (Paid)"
+ },
+ "← सभी ग्राहक": {
+  "en": "← All customers",
+  "hi": "← सभी ग्राहक"
+ },
+ "All fourteen optional features start off. Enter approved rates, codes, stock, SKUs and policies in each feature panel before enabling it.": {
+  "en": "All fourteen optional features start off. Enter approved rates, codes, stock, SKUs and policies in each feature panel before enabling it.",
+  "hi": "सभी 14 सुविधाएँ शुरू में बंद रहती हैं। चालू करने से पहले हर सुविधा में रेट, कोड, स्टॉक, SKU और नियम भरें।"
+ },
+ "Contact the owner for order support.": {
+  "en": "Contact the owner for order support.",
+  "hi": "ऑर्डर सहायता के लिए मालिक से संपर्क करें।"
+ },
+ "Create a prompt for a business video.": {
+  "en": "Create a prompt for a business video.",
+  "hi": "बिज़नेस वीडियो के लिए प्रॉम्प्ट बनाएँ।"
+ },
+ "Estimate dry ice quantity for an event.": {
+  "en": "Estimate dry ice quantity for an event.",
+  "hi": "इवेंट के लिए ड्राई आइस की मात्रा का अनुमान।"
+ },
+ "Feature controls": {
+  "en": "Feature controls",
+  "hi": "सुविधा नियंत्रण"
+ },
+ "Loading settings…": {
+  "en": "Loading settings…",
+  "hi": "सेटिंग लोड हो रही है…"
+ },
+ "Owner-approved dry ice and event catalogue.": {
+  "en": "Owner-approved dry ice and event catalogue.",
+  "hi": "मालिक द्वारा मंज़ूर ड्राई आइस और इवेंट कैटलॉग।"
+ },
+ "Owner-approved promotional codes and offers.": {
+  "en": "Owner-approved promotional codes and offers.",
+  "hi": "मालिक द्वारा मंज़ूर प्रोमो कोड और ऑफ़र।"
+ },
+ "Owner-managed rewards policy and points.": {
+  "en": "Owner-managed rewards policy and points.",
+  "hi": "मालिक द्वारा तय इनाम नियम और पॉइंट।"
+ },
+ "Read order and dry ice handling guidance.": {
+  "en": "Read order and dry ice handling guidance.",
+  "hi": "ऑर्डर और ड्राई आइस संभालने की जानकारी।"
+ },
+ "Recurring supply requests for owner approval.": {
+  "en": "Recurring supply requests for owner approval.",
+  "hi": "नियमित सप्लाई अनुरोध, मालिक की मंज़ूरी से।"
+ },
+ "Settings could not be read. Check Firebase Rules.": {
+  "en": "Settings could not be read. Check Firebase Rules.",
+  "hi": "सेटिंग नहीं पढ़ी जा सकी। Firebase Rules जाँचें।"
+ },
+ "Show approved delivery and bus routes.": {
+  "en": "Show approved delivery and bus routes.",
+  "hi": "मंज़ूर डिलीवरी और बस रूट दिखाएँ।"
+ },
+ "Show owner-entered rates to customers.": {
+  "en": "Show owner-entered rates to customers.",
+  "hi": "ग्राहकों को मालिक के रेट दिखाएँ।"
+ },
+ "Track owner-entered stock and SKUs.": {
+  "en": "Track owner-entered stock and SKUs.",
+  "hi": "मालिक का भरा स्टॉक और SKU देखें।"
+ },
+ "View order and delivery summaries.": {
+  "en": "View order and delivery summaries.",
+  "hi": "ऑर्डर और डिलीवरी का सार देखें।"
+ },
+ "Wholesale pricing and partner access.": {
+  "en": "Wholesale pricing and partner access.",
+  "hi": "होलसेल रेट और पार्टनर सुविधा।"
+ },
+ "Apply delivery change": {
+  "en": "Apply delivery change",
+  "hi": "डिलीवरी बदलाव लागू करें"
+ },
+ "Delivery badlein": {
+  "en": "Change delivery",
+  "hi": "डिलीवरी बदलें"
+ },
+ "Delivery mode not set": {
+  "en": "Delivery mode not set",
+  "hi": "डिलीवरी का तरीका तय नहीं"
+ },
+ "Delivery update nahi hua.": {
+  "en": "Delivery not updated.",
+  "hi": "डिलीवरी अपडेट नहीं हुई।"
+ },
+ "Hamesha ke liye": {
+  "en": "Always",
+  "hi": "हमेशा के लिए"
+ },
+ "Order aur customer default dono update.": {
+  "en": "Updates both the order and the customer default.",
+  "hi": "ऑर्डर और ग्राहक का डिफ़ॉल्ट दोनों अपडेट।"
+ },
+ "Sirf is order ka delivery update.": {
+  "en": "Updates delivery for this order only.",
+  "hi": "सिर्फ इस ऑर्डर की डिलीवरी अपडेट।"
+ },
+ "Sirf is order ke liye": {
+  "en": "This order only",
+  "hi": "सिर्फ इस ऑर्डर के लिए"
+ },
+ "Stop inactive — naya stop chunein": {
+  "en": "Stop inactive — choose a new stop",
+  "hi": "स्टॉप बंद है — नया स्टॉप चुनें"
+ },
+ "Payment proof": {
+  "en": "Payment proof",
+  "hi": "भुगतान प्रमाण"
+ },
+ "Payment proof thumbnail": {
+  "en": "Payment proof thumbnail",
+  "hi": "भुगतान प्रमाण की छोटी फ़ोटो"
+ },
+ "Payment proof ·": {
+  "en": "Payment proof ·",
+  "hi": "भुगतान प्रमाण ·"
+ },
+ "View payment proof": {
+  "en": "View payment proof",
+  "hi": "भुगतान प्रमाण देखें"
+ },
+ "Add staff": {
+  "en": "Add staff",
+  "hi": "स्टाफ जोड़ें"
+ },
+ "Google email (login)": {
+  "en": "Google email (login)",
+  "hi": "Google ईमेल (लॉगिन)"
+ },
+ "Mobile (10 digit)": {
+  "en": "Mobile (10 digit)",
+  "hi": "मोबाइल (10 अंक)"
+ },
+ "Naam": {
+  "en": "Name",
+  "hi": "नाम"
+ },
+ "Remove nahi hua.": {
+  "en": "Could not remove.",
+  "hi": "हटाया नहीं जा सका।"
+ },
+ "Staff Google email": {
+  "en": "Staff Google email",
+  "hi": "स्टाफ का Google ईमेल"
+ },
+ "Staff add ho gaya.": {
+  "en": "Staff added.",
+  "hi": "स्टाफ जुड़ गया।"
+ },
+ "Staff add nahi hua.": {
+  "en": "Staff not added.",
+  "hi": "स्टाफ नहीं जुड़ा।"
+ },
+ "Staff list load nahi hui.": {
+  "en": "Staff list did not load.",
+  "hi": "स्टाफ सूची लोड नहीं हुई।"
+ },
+ "Staff mobile": {
+  "en": "Staff mobile",
+  "hi": "स्टाफ मोबाइल"
+ },
+ "Staff name": {
+  "en": "Staff name",
+  "hi": "स्टाफ का नाम"
+ },
+ "Staff sirf Packing screen dekhega: rate, total, payment, UPI, customer list aur reports nahi.": {
+  "en": "Staff see only the Packing screen: no rates, totals, payments, UPI, customer list or reports.",
+  "hi": "स्टाफ सिर्फ पैकिंग स्क्रीन देखेगा: रेट, कुल, भुगतान, UPI, ग्राहक सूची और रिपोर्ट नहीं।"
+ },
+ "Update nahi hua.": {
+  "en": "Not updated.",
+  "hi": "अपडेट नहीं हुआ।"
+ },
+ "Home": {
+  "en": "Home",
+  "hi": "होम"
+ },
+ "AI Video": {
+  "en": "AI Video",
+  "hi": "AI वीडियो"
+ },
+ "My Orders": {
+  "en": "My Orders",
+  "hi": "मेरे ऑर्डर"
+ },
+ "Profile": {
+  "en": "Profile",
+  "hi": "प्रोफ़ाइल"
+ },
+ "Main navigation": {
+  "en": "Main navigation",
+  "hi": "मुख्य नेविगेशन"
+ },
+ "Contact us": {
+  "en": "Contact us",
+  "hi": "संपर्क करें"
+ },
+ "Log out": {
+  "en": "Log out",
+  "hi": "लॉगआउट"
+ },
+ "Services and tools": {
+  "en": "Services and tools",
+  "hi": "सेवाएँ और टूल"
+ },
+ "Setup pending": {
+  "en": "Setup pending",
+  "hi": "सेटअप बाकी है"
+ }
+}

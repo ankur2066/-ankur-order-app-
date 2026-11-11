@@ -1439,6 +1439,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             AI चैट - ऑर्डर इनसाइट्स
           </h3>
           <AIChat
+            today={todayISTStr}
+            orders={reportingOrders.map((o) => ({
+              orderId: o.orderId, customerName: o.customerName, customerPhone: o.customerPhone,
+              quantityKg: Number(o.quantityKg) || 0, totalAmount: Number(o.totalAmount) || 0,
+              customerTotal: typeof (o as any).customerTotal === 'number' ? (o as any).customerTotal : undefined,
+              status: o.status, paymentStatus: o.paymentStatus, dispatchDate: o.dispatchDate,
+              bookedDate: getOrderISTDate(o)?.dateStr ?? null,
+            }))}
             context={JSON.stringify({
               todayDate: todayISTStr,
               totalActiveOrders: reportingOrders.length,
