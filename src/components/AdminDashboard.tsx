@@ -1984,24 +1984,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
               {/* Status Filters (2 per row) */}
               <div className="space-y-2">
+                {/* Status tiles above are the filters; only Trash stays here (duplicate status buttons removed) */}
                 <div className="grid grid-cols-2 gap-2">
                   <button
                     type="button"
-                    onClick={() => setOrderFilterTab('all')}
-                    className={`w-full py-2 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer border ${
-                      orderFilterTab === 'all'
-                        ? 'bg-sky-500 border-sky-600 text-white shadow-xs'
-                        : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
-                    }`}
-                  >
-                    <Package className="w-3.5 h-3.5" />
-                    <span>सभी ({statusCounts.all})</span>
-                  </button>
-
-                  <button
-                    type="button"
                     onClick={() => setOrderFilterTab('trash')}
-                    className={`w-full py-2 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer border ${
+                    className={`w-full py-1.5 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer border ${
                       orderFilterTab === 'trash'
                         ? 'bg-slate-900 border-slate-950 text-white shadow-xs'
                         : 'bg-white border-slate-200 text-rose-700 hover:bg-rose-50'
@@ -2011,57 +1999,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     <span>Trash ({statusCounts.trash})</span>
                   </button>
 
-                  <button
-                    type="button"
-                    onClick={() => setOrderFilterTab('pending')}
-                    className={`status-action status-pending w-full py-2 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer border ${
-                      orderFilterTab === 'pending'
-                        ? 'bg-amber-500 border-amber-600 text-white shadow-xs'
-                        : 'bg-white border-slate-200 text-slate-700 hover:bg-amber-50'
-                    }`}
-                  >
-                    <Clock className="w-3.5 h-3.5" />
-                    <span>Pending ({statusCounts.pending})</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setOrderFilterTab('confirmed')}
-                    className={`status-action status-confirmed w-full py-2 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer border ${
-                      orderFilterTab === 'confirmed'
-                        ? 'bg-sky-500 border-sky-600 text-white shadow-xs'
-                        : 'bg-white border-slate-200 text-slate-700 hover:bg-sky-50'
-                    }`}
-                  >
-                    <CheckCircle2 className="w-3.5 h-3.5" />
-                    <span>Confirmed ({statusCounts.confirmed})</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setOrderFilterTab('packing')}
-                    className={`status-action status-packing w-full py-2 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer border ${
-                      orderFilterTab === 'packing'
-                        ? 'bg-blue-600 border-blue-700 text-white shadow-xs'
-                        : 'bg-white border-slate-200 text-slate-700 hover:bg-blue-50'
-                    }`}
-                  >
-                    <PackageCheck className="w-3.5 h-3.5" />
-                    <span>Packing ({statusCounts.packing})</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setOrderFilterTab('dispatched')}
-                    className={`status-action status-dispatch w-full py-2 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer border ${
-                      orderFilterTab === 'dispatched'
-                        ? 'bg-indigo-600 border-indigo-700 text-white shadow-xs'
-                        : 'bg-white border-slate-200 text-slate-700 hover:bg-indigo-50'
-                    }`}
-                  >
-                    <Truck className="w-3.5 h-3.5" />
-                    <span>Dispatched ({statusCounts.dispatched})</span>
-                  </button>
                 </div>
 
                 {/* Payment Filter */}
