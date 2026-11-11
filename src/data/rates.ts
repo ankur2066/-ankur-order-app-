@@ -70,13 +70,23 @@ export async function saveCurrentRates(rates: RateSettings): Promise<void> {
 
   try {
     const ratesRef = doc(db, 'settings', 'rates');
-    await setDoc(ratesRef, {
+    // Firestore queues the write offline and resolves only on server ack,
+    // which can hang the "सेव हो रहा है..." button. Wait at most 8 s; the
+    // queued write still syncs in the background after that.
+    const write = setDoc(ratesRef, {
       dryIceRate: rates.dryIceRate,
       thermocolRate: rates.thermocolRate,
       transportRate: rates.transportRate || 0,
       wholesaleRate: typeof rates.wholesaleRate === 'number' && rates.wholesaleRate > 0 ? rates.wholesaleRate : 0,
       updatedAt: serverTimestamp(),
     }, { merge: true });
+    const timedOut = await Promise.race([
+      write.then(() => false),
+      new Promise<boolean>((resolve) => setTimeout(() => resolve(true), 8000)),
+    ]);
+    if (timedOut) {
+      write.catch((e) => console.error('Rates sync failed later:', e));
+    }
   } catch (err) {
     console.error('Failed to sync rates to Firestore settings:', err);
     // Even if firestore write failed, local storage is preserved
