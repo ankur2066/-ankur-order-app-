@@ -29,6 +29,8 @@ files = [
     "src/i18n/AutoTranslate.tsx", "src/i18n/messagesV1066.json",
     "src/components/customer/HomeFeatureRow.tsx", "src/components/customer/DailyWinner.tsx",
     "src/components/AIChat.tsx", "src/utils/orderChatAnswer.ts", "src/utils/orderChatAnswer.test.ts",
+    # v1.0.67 front page: floating winner/offer/poll slide
+    "src/components/customer/HomeSlides.tsx",
 ]
 for relative in files:
     source = overlay / relative

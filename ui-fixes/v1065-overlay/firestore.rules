@@ -586,5 +586,19 @@ service cloud.firestore {
         isValidPushDevice(incoming());
       allow delete: if false; // invalid/expired tokens are cleaned server-side
     }
+
+    // v1.0.67 home poll: a signed-in customer may cast ONE vote per poll
+    // (doc id = pollId_uid), never read others' votes. Owner reads all.
+    match /homePollVotes/{voteId} {
+      allow get, list: if isOwner();
+      allow create: if isSignedIn() && isValidId(voteId) &&
+        voteId == incoming().pollId + '_' + request.auth.uid &&
+        incoming().keys().hasOnly(['pollId', 'uid', 'option', 'votedAt']) &&
+        incoming().uid == request.auth.uid &&
+        incoming().pollId is string && incoming().pollId.size() <= 40 &&
+        incoming().option is string && incoming().option.size() <= 40 &&
+        incoming().votedAt == request.time;
+      allow update, delete: if false;
+    }
   }
 }

@@ -13,7 +13,8 @@ import { ProfileTab } from './components/customer/ProfileTab';
 import { NotificationSheet } from './components/customer/NotificationSheet';
 import { NotificationToast } from './components/customer/NotificationToast';
 import { BrandMark } from './components/customer/BrandMark';
-import { DailyWinnerBanner, DailyWinnerStrip } from './components/customer/DailyWinner';
+import { DailyWinnerBanner } from './components/customer/DailyWinner';
+import { HomeSlides } from './components/customer/HomeSlides';
 import { FeatureHub, FeatureInline } from './components/customer/FeatureHub';
 import { HomeFeatureRow, type HomeFeature } from './components/customer/HomeFeatureRow';
 import { AutoTranslate } from './i18n/AutoTranslate';
@@ -263,10 +264,10 @@ function AppShell() {
           onPromoAction={handlePromoAction}
           bookingForm={(inlineProduct) => (
             <>
+              <HomeSlides currentUser={currentUser} />
               <HomeFeatureRow active={homeFeature} onSelect={setHomeFeature} role={role} />
               {homeFeature === 'booking' ? (
                 <>
-                  <DailyWinnerStrip />
                   <OrderForm
                     currentUser={currentUser}
                     onOrderSuccess={handleOrderSuccess}

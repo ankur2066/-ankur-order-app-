@@ -1,5 +1,6 @@
 import { StaffOrderAccessManager } from './StaffOrderAccessManager';
 import { DailyWinnerOwnerControls } from './customer/DailyWinner';
+import { HomeSlidesOwnerControls } from './customer/HomeSlides';
 import { CustomersView } from './owner/CustomersView';
 import { FeatureSuiteSettings } from './owner/FeatureSuiteSettings';
 import { PaymentProofPreview } from './owner/PaymentProofPreview';
@@ -2362,6 +2363,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       {activeSection === 'users' && <>
             <StaffOrderAccessManager />
             <DailyWinnerOwnerControls />
+            <HomeSlidesOwnerControls />
             <UserManagement />
           </>}
 

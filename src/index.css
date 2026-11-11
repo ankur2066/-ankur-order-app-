@@ -1883,3 +1883,10 @@ html { font-size: 13.5px; }
   color: rgb(253, 224, 71) !important; -webkit-text-fill-color: rgb(253, 224, 71);
   font-size: 1.75rem; font-weight: 900; text-align: right; width: 6.5ch; padding: 0;
 }
+
+/* v1.0.67 front page (Ankur 2026-11-12): no big booking heading (the highlighted tab shows
+   what is open), total never hidden behind the bottom menu. */
+#aqp-booking-title, .ankur-premium-booking .apb-form-header .apb-form-title { display: none !important; }
+.ankur-premium-booking .apb-form-header { border-bottom: 0 !important; padding-bottom: 0 !important; margin-bottom: 8px !important; }
+.aqp-booking-form { padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px)) !important; }
+.ankur-home-feature-row::-webkit-scrollbar { display: none; }

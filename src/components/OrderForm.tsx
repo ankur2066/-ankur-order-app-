@@ -1364,7 +1364,7 @@ const LegacyOrderForm: React.FC<OrderFormProps> = ({
 
               <label className="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-800">
                 <input type="checkbox" checked={thermocolIncluded} onChange={(e) => setThermocolIncluded(e.target.checked)} />
-                Thermocol full packing (owner rate)
+                {typeof document !== 'undefined' && document.documentElement?.dataset?.appLanguage === 'en' ? `Thermocol full packing (+₹${rates.thermocolRate}/kg)` : `थर्माकोल पूरी पैकिंग (+₹${rates.thermocolRate}/kg)`}
               </label>
 
               {/* 4b. Delivery mode (Bus stop / Dukan pickup / Porter / Local) */}
