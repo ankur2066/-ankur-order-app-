@@ -164,6 +164,19 @@ function orderDispatchLabel(ord: Order): string {
   return formatDispatchDate(parts.date, parts.slot, document.documentElement.dataset.appLanguage === 'en' ? 'en' : 'hi');
 }
 
+
+/** Firestore resolves writes only on server ack; never keep a button locked longer than `ms`. */
+async function withAckTimeout<T>(p: Promise<T>, ms = 10000): Promise<void> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const timeout = new Promise<'timeout'>((resolve) => { timer = setTimeout(() => resolve('timeout'), ms); });
+  const r = await Promise.race([p.then(() => 'ok' as const), timeout]);
+  if (timer) clearTimeout(timer);
+  if (r === 'timeout') {
+    p.catch((e) => console.error('Late write failure:', e));
+    throw new Error('सर्वर से जवाब नहीं आया (नेटवर्क धीमा)। इंटरनेट देखें और दोबारा दबाएँ।');
+  }
+}
+
 const OwnerOrderContactActions: React.FC<{ order: Order; settings?: DeliverySettings }> = ({ order, settings }) => {
   const phone = order.customerPhone.slice(-10);
   const openWhatsApp = (e: React.MouseEvent) => {
@@ -573,7 +586,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       else if (newStatus === 'delivered') statusMsg = 'ऑर्डर सफलतापूर्वक डिलीवर हो गया।';
 
       // Trusted inventory dispatch (stock deduction) when enabled; old batch only when not handled.
-      if (!(await tryInventoryDispatch(ord.orderId, newStatus))) {
+      let inventoryHandled = false;
+      await withAckTimeout(tryInventoryDispatch(ord.orderId, newStatus).then((v) => { inventoryHandled = v; }), 15000);
+      if (!inventoryHandled) {
       const batch = writeBatch(db);
       const orderRef = resolvedOrderRef(ord.orderId);
       batch.update(orderRef, {
@@ -590,11 +605,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         });
       }
 
-      await batch.commit();
+      await withAckTimeout(batch.commit());
       }
       // Staff projection is separate so staff see the new status in both paths.
       try {
-        await setDoc(doc(db, 'staffOrderViews', ord.orderId), { status: newStatus, updatedAt: serverTimestamp() }, { merge: true });
+        void setDoc(doc(db, 'staffOrderViews', ord.orderId), { status: newStatus, updatedAt: serverTimestamp() }, { merge: true }).catch((e) => console.error('Staff view update error:', e));
       } catch (viewErr) { console.error('Staff view update error:', viewErr); }
       if (newStatus === 'delivered' && ord.status !== 'delivered' && ord.customerPhone) {
         try {
@@ -612,7 +627,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       setTimeout(() => setSuccessMsg(null), 3000);
     } catch (err: any) {
       console.error('Status update error:', err);
-      setErrorMsg('स्थिति अपडेट करने में त्रुटि: ' + (err.message || 'Error'));
+      setErrorMsg(`#${ord.orderId} स्थिति नहीं बदली: ` + (String(err?.code||'').includes('permission') ? 'Firebase rules ने मना किया (permission-denied)।' : (err.message || 'Error')));
     } finally {
       setActionLoadingId(null);
     }
@@ -642,7 +657,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         });
       }
 
-      await batch.commit();
+      await withAckTimeout(batch.commit());
 
       setOrders((prev) =>
         prev.map((o) => (o.orderId === ord.orderId ? { ...o, paymentStatus: nextPaymentStatus } : o))
@@ -1077,7 +1092,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
       {/* Alerts */}
       {errorMsg && (
-        <div className="mb-3 p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center justify-between">
+        <div role="alert" className="fixed left-3 right-3 bottom-20 z-[9999] p-3 rounded-xl bg-rose-50 border border-rose-300 shadow-lg text-rose-800 text-sm font-semibold flex items-center justify-between gap-2">
           <span>{errorMsg}</span>
           <button onClick={() => setErrorMsg(null)} className="text-rose-500 hover:text-rose-700">
             <X className="w-4 h-4" />
@@ -1085,7 +1100,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         </div>
       )}
       {successMsg && (
-        <div className="mb-3 p-2.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center justify-between">
+        <div role="status" className="fixed left-3 right-3 bottom-20 z-[9998] p-3 rounded-xl bg-emerald-50 border border-emerald-300 shadow-lg text-emerald-800 text-sm font-semibold flex items-center justify-between gap-2">
           <div className="flex items-center gap-1.5">
             <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
             <span>{successMsg}</span>
