@@ -26,7 +26,6 @@ const OFF: FeatureFlags = Object.fromEntries(FEATURES.map(([key]) => [key, false
 export function FeatureSuiteSettings() {
   const [flags, setFlags] = useState<FeatureFlags>(OFF);
   const [loaded, setLoaded] = useState(false);
-  const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
 
   useEffect(() => onSnapshot(doc(db, 'settings', 'featureSuite'), snapshot => {
@@ -35,16 +34,17 @@ export function FeatureSuiteSettings() {
     setLoaded(true);
   }, () => { setFlags(OFF); setLoaded(true); setMessage('Settings could not be read. Check Firebase Rules.'); }), []);
 
-  const setFlag = async (key: FeatureKey, checked: boolean) => {
-    const next = { ...flags, [key]: checked };
-    setSaving(true); setMessage('');
-    try {
-      await setDoc(doc(db, 'settings', 'featureSuite'), { features: next, updatedAt: serverTimestamp() }, { merge: true });
-      setFlags(next);
-      setMessage(`${FEATURES.find(([id]) => id === key)?.[1]} ${checked ? 'enabled' : 'disabled'}.`);
-    } catch {
-      setMessage('Could not save. Check owner access and Firestore rules.');
-    } finally { setSaving(false); }
+  // Optimistic toggle: flip at once, write only this one key, never lock the other switches.
+  // Firestore keeps the write queued offline; we do not wait for the server ack (it can hang).
+  const setFlag = (key: FeatureKey, checked: boolean) => {
+    const label = FEATURES.find(([id]) => id === key)?.[1];
+    setFlags(prev => ({ ...prev, [key]: checked }));
+    setMessage(`${label} ${checked ? 'ON' : 'OFF'}`);
+    setDoc(doc(db, 'settings', 'featureSuite'), { features: { [key]: checked }, updatedAt: serverTimestamp() }, { merge: true })
+      .catch(() => {
+        setFlags(prev => ({ ...prev, [key]: !checked }));
+        setMessage(`${label}: save nahi hua. Owner access / Firestore rules check karein.`);
+      });
   };
 
   return <section className="feature-controls soft-card space-y-3" aria-labelledby="feature-settings-title">
@@ -53,7 +53,7 @@ export function FeatureSuiteSettings() {
     {!loaded ? <p role="status">Loading settings…</p> : <div className="space-y-2">{FEATURES.map(([key, label, description]) => <label key={key} className="feature-toggle-row flex min-h-14 items-center justify-between gap-3 rounded-2xl p-3">
       <span><b className="block">{label}</b><small className="block">{description}</small></span>
       <span className="flex items-center gap-2"><b className="text-sm" aria-hidden="true">{flags[key] ? 'ON' : 'OFF'}</b>
-      <input aria-label={`Enable ${label}`} type="checkbox" role="switch" checked={flags[key]} disabled={saving} onChange={event => void setFlag(key, event.target.checked)} /></span>
+      <input aria-label={`Enable ${label}`} type="checkbox" role="switch" checked={flags[key]} onChange={event => setFlag(key, event.target.checked)} /></span>
     </label>)}</div>}
     {message && <p role="status" className="text-sm">{message}</p>}
   </section>;
