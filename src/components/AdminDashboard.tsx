@@ -10,7 +10,8 @@ import { PackingBoard, type PackingBoardOrder } from './PackingBoard';
 import { CHART_COLORS } from '../theme/designTokens';
 import { subscribeDeliverySettings } from '../services/deliverySettings';
 import { syncStaffProjection, watchStaffStatusSync } from '../services/staffSync';
-import { DEFAULT_DELIVERY_SETTINGS, packingGroupKey, type DeliverySettings } from '../utils/delivery';
+import { DEFAULT_DELIVERY_SETTINGS, packingGroupKey, findStop, type DeliverySettings } from '../utils/delivery';
+import { customerStatusMessage, type BusInfo } from '../utils/customerWhatsapp';
 import { FeatureHub } from './customer/FeatureHub';
 import { subscribeOrderDocuments, orderRef as resolvedOrderRef, trackingRef as resolvedTrackingRef } from '../services/productOrders';
 import { quantityText } from '../billing/unitBilling';
@@ -163,13 +164,26 @@ function orderDispatchLabel(ord: Order): string {
   return formatDispatchDate(parts.date, parts.slot, document.documentElement.dataset.appLanguage === 'en' ? 'en' : 'hi');
 }
 
-const OwnerOrderContactActions: React.FC<{ order: Order }> = ({ order }) => {
-  const message = `नमस्ते ${order.customerName}, अंकुर ड्राई आइस से आपके ऑर्डर #${order.orderId} (${quantityText(order)}) के संबंध में।`;
+const OwnerOrderContactActions: React.FC<{ order: Order; settings?: DeliverySettings }> = ({ order, settings }) => {
+  const phone = order.customerPhone.slice(-10);
+  const openWhatsApp = (e: React.MouseEvent) => {
+    e.preventDefault();
+    let bus: BusInfo | undefined;
+    if (order.status === 'dispatched' && order.deliveryMode === 'BUS') {
+      const busNumber = window.prompt('बस नंबर (खाली छोड़ सकते हैं)', '') || '';
+      const conductorPhone = window.prompt('कंडक्टर/ड्राइवर मोबाइल (खाली छोड़ सकते हैं)', '') || '';
+      const slipNo = window.prompt('पर्ची नंबर (खाली छोड़ सकते हैं)', '') || '';
+      bus = { busNumber: busNumber.trim(), conductorPhone: conductorPhone.trim(), slipNo: slipNo.trim() };
+    }
+    const stopName = settings ? findStop(settings, order.busStopId)?.name : undefined;
+    const message = customerStatusMessage(order, quantityText(order), stopName, bus);
+    window.open(`https://wa.me/91${phone}?text=${encodeURIComponent(message)}`, '_blank', 'noopener,noreferrer');
+  };
   return <div className="ankur-order-card-actions flex items-center gap-1.5 pt-0.5">
     <a href={`tel:${order.customerPhone}`} className="flex-1 min-h-[34px] px-1.5 sm:px-2 bg-white hover:bg-slate-50 border border-slate-200 rounded-lg text-slate-800 font-mono font-bold text-[11px] sm:text-xs flex items-center justify-center gap-1 transition-colors" title="कॉल करें">
-      <Phone className="w-3 h-3 text-sky-600" /><span>Call {order.customerPhone.slice(-10)}</span>
+      <Phone className="w-3 h-3 text-sky-600" /><span>Call {phone}</span>
     </a>
-    <a href={`https://wa.me/91${order.customerPhone.slice(-10)}?text=${encodeURIComponent(message)}`} target="_blank" rel="noopener noreferrer" className="flex-1 min-h-[34px] px-1.5 sm:px-2 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-lg text-emerald-800 font-bold text-[11px] sm:text-xs flex items-center justify-center gap-1 transition-colors" title="WhatsApp पर चैट करें">
+    <a href={`https://wa.me/91${phone}`} onClick={openWhatsApp} target="_blank" rel="noopener noreferrer" className="flex-1 min-h-[34px] px-1.5 sm:px-2 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-lg text-emerald-800 font-bold text-[11px] sm:text-xs flex items-center justify-center gap-1 transition-colors" title="ऑर्डर का स्टेटस WhatsApp पर भेजें">
       <MessageCircle className="w-3 h-3 text-emerald-600" /><span>WhatsApp</span>
     </a>
   </div>;
@@ -1833,7 +1847,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                               <span>{ord.paymentNotes}</span>
                             </div>
                           )}
-                          <OwnerOrderContactActions order={ord} />
+                          <OwnerOrderContactActions order={ord} settings={deliverySettings} />
 
                           {ord.isTrash && (
                             <div className="p-1 rounded-lg bg-rose-50 border border-rose-200 flex items-center justify-between text-[10px] text-rose-700">
@@ -2335,7 +2349,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                             <span>{ord.paymentNotes}</span>
                           </div>
                         )}
-                          <OwnerOrderContactActions order={ord} />
+                          <OwnerOrderContactActions order={ord} settings={deliverySettings} />
 
                           {ord.isTrash && (
                           <div className="p-1 rounded-lg bg-rose-50 border border-rose-200 flex items-center justify-between text-[10px] text-rose-700">
