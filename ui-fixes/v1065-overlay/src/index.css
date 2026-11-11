@@ -1872,3 +1872,14 @@ html[data-theme="dark"] .owner-order-card .text-slate-900, html[data-theme="dark
 
 /* Owner request 2026-11-11: base app font 13.5px (all rem sizes scale from this). */
 html { font-size: 13.5px; }
+
+/* Owner request 2026-11-11: retail Total Amount reads as a highlighted figure on the dark price card, not a white input box. */
+.aqp-form-only-main .ankur-premium-booking .apb-amount-editor:has(.apb-extra-amount-input[readonly]) {
+  background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.25); border-radius: 14px;
+  padding: 4px 12px; box-shadow: none; color: rgb(253, 224, 71); font-size: 1.6rem; font-weight: 900;
+}
+.aqp-form-only-main .ankur-premium-booking .apb-extra-amount-input[readonly] {
+  background: transparent !important; border: 0 !important; box-shadow: none !important; outline: none;
+  color: rgb(253, 224, 71) !important; -webkit-text-fill-color: rgb(253, 224, 71);
+  font-size: 1.75rem; font-weight: 900; text-align: right; width: 6.5ch; padding: 0;
+}
