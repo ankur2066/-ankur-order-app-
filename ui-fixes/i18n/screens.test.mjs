@@ -27,10 +27,11 @@ async function screen(path,name,props={},seed=[]){
  if(id.endsWith('/owner/PaymentProofPreview'))return synthetic(id,{PaymentProofPreview:()=>null});
  if(id.endsWith('/config/businessConfig'))return synthetic(id,{PRIMARY_UPI_ID:'paytm.s26ykus@pty',BACKUP_UPI_ID:'ankur.singh332066@okhdfcbank',RETAIL_RATE_PER_KG:50,WHOLESALE_RATE_PER_KG:0,THERMOCOL_RATE_PER_KG:10});
  if(id.endsWith('/theme/designTokens'))return synthetic(id,{CHART_COLORS:{grid:'',axisText:'',axisLine:'',bar:''},STOP_PALETTE:[],GROUP_COLORS:{},DESIGN_TOKENS:{},stopColor:()=>({bg:'',ink:''}),statusTokenKey:()=>'total'});
- if(id.endsWith('/utils/delivery'))return synthetic(id,{DEFAULT_DELIVERY_SETTINGS:{busStops:[],districtStopMap:{}},resolveDeliveryDefault:()=>({source:'ask'}),validateDeliveryChoice:()=>null,packingGroupKey:()=>'UNASSIGNED'});
+ if(id.endsWith('/utils/delivery'))return synthetic(id,{DEFAULT_DELIVERY_SETTINGS:{busStops:[],districtStopMap:{}},resolveDeliveryDefault:()=>({source:'ask'}),validateDeliveryChoice:()=>null,packingGroupKey:()=>'UNASSIGNED',findStop:(settings,stopId)=>stopId?(settings?.busStops||[]).find(s=>s.id===stopId):undefined});
  if(/\/services\/(deliverySettings|staffSync|staffRegistry)$/.test(id))return synthetic(id,Object.fromEntries(names.map(k=>[k,/^(sync|save|remove)/.test(k)?async()=>{}:()=>()=>{}])));
  if(/\/(PackingBoard|DeliveryModePicker|BusStopSettings|StaffMembersManager|OrderDeliveryEditor)$/.test(id))return synthetic(id,Object.fromEntries(names.map(k=>[k,()=>null])));
  if(/\/utils\//.test(id))return synthetic(id,Object.fromEntries(names.map(k=>[k,()=>false])));
+ if(id==='./customer/HomeSlides')return load(resolve(dirname(file),id)+'.tsx');// real owner slide editor, rendered in the language check
  if(id==='./FeatureHub')return load(resolve(dirname(file),id)+'.tsx');
  if(id.endsWith('/customer/FeatureHub'))return synthetic(id,{FeatureHub:()=>null});
  if(id.endsWith('/ReferralSharePanel'))return synthetic(id,{ReferralSharePanel:()=>null});
