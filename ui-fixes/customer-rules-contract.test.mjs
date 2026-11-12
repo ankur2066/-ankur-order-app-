@@ -26,7 +26,7 @@ test('retail orders cannot submit a changed amount', () => {
 test('v1.0.66 hotfix: missing users/{uid} reads as retail, customers cannot self-verify payment, push paths kept', () => {
   assert.match(rules, /isSignedIn\(\) && exists\(userDocPath\(\)\) \? userData\(\)\.get\('customerType', 'retail'\) : 'retail'/);
   assert.doesNotMatch(rules, /let profile = /);
-  assert.equal(rules.match(/\(isAdmin\(\) \|\| incoming\(\)\.paymentStatus == 'pending_verification'\)/g)?.length, 2);
+  assert.equal(rules.match(/\(isAdmin\(\) \|\| (?:incoming\(\)|request\.resource\.data)\.paymentStatus == 'pending_verification'\)/g)?.length, 2); // 0ac167b inlined incoming() in order create (expression budget)
   for (const path of ['push_owner_devices/{deviceId}', 'push_team_devices/{uid}/devices/{deviceId}', 'order_push_subscriptions/{trackingToken}/devices/{deviceId}']) {
     assert.ok(rules.includes('match /' + path), path);
   }
