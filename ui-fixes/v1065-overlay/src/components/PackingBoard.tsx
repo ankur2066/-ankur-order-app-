@@ -97,6 +97,8 @@ export function PackingBoard({ orders, settings, mode, canUpdate = false, updati
               <span className={`status-chip ${STATUS_CLASS[order.status || ''] || 'status-total'}`}>{order.packingStatus === 'packed' && order.status === 'in_packing' ? 'Packed' : STATUS_LABEL[order.status || ''] || order.status}</span>
               {busy && <span className="text-sm" role="status">Update ho raha hai…</span>}
             </div>
+            {(order as any).waPhone && /^[0-9]{10}$/.test((order as any).waPhone) && <a className="soft-button secondary-button block text-center" target="_blank" rel="noopener noreferrer" aria-label={`${order.customerName || 'Customer'} ko WhatsApp`}
+              href={`https://wa.me/91${(order as any).waPhone}?text=${encodeURIComponent(`नमस्ते ${order.customerName || ''} जी, Ankur Dryice से बात कर रहे हैं। आपके ${Number(order.quantityKg) || 0} KG ड्राई आइस ऑर्डर के बारे में।`)}`}>Customer ko WhatsApp</a>}
             {canUpdate && onAction && <div className="grid grid-cols-2 gap-2">
               <button type="button" className="soft-button status-action status-packing" disabled={busy || order.packingStatus === 'packed' || order.status === 'dispatched' || order.status === 'delivered'} onClick={() => onAction(order, 'packing_done')}>Packing done</button>
               {isLocal

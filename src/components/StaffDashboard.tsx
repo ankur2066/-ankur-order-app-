@@ -178,6 +178,7 @@ export const StaffDashboard: React.FC<StaffDashboardProps> = ({
           dispatchDate: value.dispatchDate, slot: value.slot, isTrash: value.isTrash === true,
           deliveryMode: value.deliveryMode, busStopId: value.busStopId, packCount: value.packCount,
           deliveryNote: value.deliveryNote, packingStatus: value.packingStatus,
+          waPhone: typeof value.waPhone === 'string' ? value.waPhone : undefined,
         } as unknown as Order;
       }).filter((order: Order) => !order.isTrash);
       list.sort((a, b) => {

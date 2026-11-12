@@ -1,7 +1,8 @@
 /**
  * Staff-safe order projection (staffOrderViews/{orderId}).
  * Staff never receive rate, price, total, payment status, UPI, payment proof,
- * phone, tracking PIN or reports. Firestore rules enforce the same key list.
+ * raw phone, tracking PIN or reports. Exception (Ankur, 12 Nov 2026): waPhone,
+ * the 10-digit mobile used only for the staff WhatsApp button. Firestore rules enforce the key list.
  */
 import { isDeliveryMode } from './delivery.ts';
 
@@ -9,6 +10,9 @@ export const STAFF_VIEW_FIELDS = [
   'orderId', 'sourceCollection', 'customerName', 'city', 'district', 'productName',
   'dispatchTiming', 'dispatchDate', 'slot', 'status', 'quantityKg', 'createdAt', 'updatedAt', 'isTrash',
   'deliveryMode', 'busStopId', 'packCount', 'deliveryNote',
+  // v1.0.68 (Ankur, 12 Nov 2026): 10-digit number used ONLY for the staff
+  // "Customer ko WhatsApp" button; never rendered as text. Written by the owner client.
+  'waPhone',
   // staff-writable status fields
   'packingStatus', 'statusSyncPending', 'statusUpdatedBy',
 ] as const;
@@ -29,6 +33,12 @@ export interface StaffSourceOrder {
   dispatchTiming?: string; dispatchDate?: string; slot?: string; status?: string; quantityKg?: number;
   isTrash?: boolean; createdAt?: any; updatedAt?: any; deliveryMode?: string; busStopId?: string;
   packCount?: number; deliveryNote?: string; [key: string]: unknown;
+}
+
+/** Last 10 digits of an Indian mobile, or '' when it is not a valid mobile. */
+export function staffWhatsappPhone(phone: unknown): string {
+  const digits = typeof phone === 'string' ? phone.replace(/[^0-9]/g, '').slice(-10) : '';
+  return /^[6-9][0-9]{9}$/.test(digits) ? digits : '';
 }
 
 /** Builds the projection the owner client writes. Unknown/private keys are dropped. */
@@ -55,11 +65,13 @@ export function toStaffOrderView(order: StaffSourceOrder): Record<string, unknow
   }
   if (typeof order.packCount === 'number' && order.packCount > 0) view.packCount = Math.round(order.packCount);
   if (typeof order.deliveryNote === 'string' && order.deliveryNote.trim()) view.deliveryNote = order.deliveryNote.trim().slice(0, 200);
+  const waPhone = staffWhatsappPhone(order.customerPhone);
+  if (waPhone) view.waPhone = waPhone;
   return view;
 }
 
 /** Fields the owner client re-syncs when an order's delivery details change. */
-export const DELIVERY_SYNC_FIELDS = ['deliveryMode', 'busStopId', 'packCount', 'deliveryNote', 'dispatchDate', 'slot', 'quantityKg', 'customerName', 'district', 'city'] as const;
+export const DELIVERY_SYNC_FIELDS = ['deliveryMode', 'busStopId', 'packCount', 'deliveryNote', 'dispatchDate', 'slot', 'quantityKg', 'customerName', 'district', 'city', 'waPhone'] as const;
 
 export function projectionDrift(view: Record<string, unknown> | undefined, order: StaffSourceOrder): Record<string, unknown> | null {
   const next = toStaffOrderView(order);

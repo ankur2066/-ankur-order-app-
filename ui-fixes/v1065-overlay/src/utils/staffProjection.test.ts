@@ -41,3 +41,14 @@ test('projection drift patches only changed delivery fields', () => {
   assert.deepEqual(projectionDrift(view, { ...order, busStopId: 'kaiserbagh' }), { busStopId: 'kaiserbagh' });
   assert.ok(projectionDrift(undefined, order));
 });
+
+test('v1.0.68: staff WhatsApp button gets only a 10-digit waPhone, never the raw phone field', async () => {
+  const { staffWhatsappPhone } = await import('./staffProjection.ts');
+  const view = toStaffOrderView({ ...order, customerPhone: '+91 98765-43210' });
+  assert.equal(view.waPhone, '9876543210');
+  assert.equal('customerPhone' in view, false);
+  assert.equal(staffWhatsappPhone('12345'), '');
+  assert.equal(staffWhatsappPhone(undefined), '');
+  assert.equal(toStaffOrderView({ ...order, customerPhone: 'abc' }).waPhone, undefined);
+  assert.deepEqual(projectionDrift({ ...toStaffOrderView(order), waPhone: undefined }, order), { waPhone: '9876543210' });
+});
