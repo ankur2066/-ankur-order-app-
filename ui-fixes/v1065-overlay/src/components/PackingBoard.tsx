@@ -5,6 +5,7 @@ import {
   LOCAL_GROUP, LOCAL_SUBTAG, DELIVERY_MODE_LABELS, type DeliverySettings, type PackingOrder,
 } from '../utils/delivery';
 import type { StaffAction } from '../utils/staffProjection';
+import { isLoaded, loadCounts, loadToggleStatus } from '../utils/orderWorkflow';
 
 export type PackingBoardOrder = PackingOrder & { status?: string; packingStatus?: string };
 
@@ -19,6 +20,8 @@ interface Props {
   /** Owner: tell the parent which group/date is selected so All Orders can filter. */
   onFilterChange?: (filter: { groupKey: string | null; dateKey: string }) => void;
   title?: string;
+  /** Owner (v1.0.70): tick an order as loaded (confirmed <-> in_packing). Shows the per-stop checklist. */
+  onToggleLoaded?: (order: PackingBoardOrder, loaded: boolean) => void;
 }
 
 const STATUS_LABEL: Record<string, string> = {
@@ -28,7 +31,7 @@ const STATUS_CLASS: Record<string, string> = {
   pending: 'status-pending', confirmed: 'status-confirmed', in_packing: 'status-packing', dispatched: 'status-dispatch', delivered: 'status-delivered',
 };
 
-export function PackingBoard({ orders, settings, mode, canUpdate = false, updatingId, onAction, onFilterChange, title }: Props) {
+export function PackingBoard({ orders, settings, mode, canUpdate = false, updatingId, onAction, onFilterChange, title, onToggleLoaded }: Props) {
   const today = istDateKey();
   const [dateKey, setDateKey] = useState(today);
   const [groupKey, setGroupKey] = useState<string | null>(null);
@@ -70,6 +73,7 @@ export function PackingBoard({ orders, settings, mode, canUpdate = false, updati
       </button>}
       {groups.map((group) => <button type="button" role="tab" key={group.key} className={`stop-pill stop-tag-${group.color}`} aria-pressed={groupKey === group.key} aria-selected={groupKey === group.key} onClick={() => choose(groupKey === group.key && mode === 'owner' ? null : group.key)}>
         <span>{group.label}</span><b>{group.count}</b>
+        {mode === 'owner' && onToggleLoaded && group.count > 0 && (() => { const c = loadCounts(group.orders); return <small className="block packing-load-count"><span className="tabular-nums">{c.loaded}/{c.total}</span> <span>loaded</span></small>; })()}
         {group.key === LOCAL_GROUP && group.count > 0 && <small className="block">{Object.entries(group.subTags).map(([tag, count]) => `${tag} ${count}`).join(' · ')}</small>}
       </button>)}
     </div>
@@ -79,6 +83,25 @@ export function PackingBoard({ orders, settings, mode, canUpdate = false, updati
         <p className="font-bold">{selected.label} · {selected.count} order · <span className="packing-total">{selected.totalKg} KG</span></p>
         <button type="button" className="soft-button secondary-button" disabled={!selected.count} onClick={() => void share()}>{copied ? 'Copied' : 'Share (WhatsApp)'}</button>
       </div>
+      {mode === 'owner' && onToggleLoaded && (() => {
+        const c = loadCounts(selected.orders);
+        return <div className="packing-checklist space-y-2">
+          <p className={`font-black ${c.loaded < c.total ? 'text-red-700' : 'text-emerald-700'}`} aria-live="polite">{selected.label}: <span className="tabular-nums">{c.total}</span> <span>orders,</span> <span className="tabular-nums">{c.loaded}</span> <span>loaded</span></p>
+          {selected.count === 0 ? <p className="soft-card-inset p-3 text-sm">Is stop par {dateKey} ke liye koi order nahi.</p> :
+          <ul className="space-y-1.5">{selected.orders.map((order) => {
+            const loaded = isLoaded(order);
+            const canToggle = loadToggleStatus(order, !loaded) !== null;
+            const busy = updatingId === order.orderId;
+            return <li key={order.orderId}>
+              <label className={`packing-tick flex items-center gap-3 rounded-xl border p-2.5 ${loaded ? 'bg-emerald-50 border-emerald-300' : 'bg-white border-red-300'}`}>
+                <input type="checkbox" className="w-6 h-6 shrink-0" checked={loaded} disabled={!canToggle || busy || !!updatingId} onChange={(event) => onToggleLoaded(order, event.target.checked)} aria-label={`${order.customerName || 'Customer'} loaded`} />
+                <span className="min-w-0 flex-1"><b className="block">{order.customerName || 'Customer'}</b><span className="text-sm">{order.district || order.city || '—'} · <b>{Number(order.quantityKg) || 0} KG</b>{order.packCount ? ` · ${order.packCount} box` : ''}</span></span>
+                <span className={`status-chip ${STATUS_CLASS[order.status || ''] || 'status-total'}`}>{busy ? 'Update ho raha hai…' : loaded ? (order.status === 'in_packing' ? 'Loaded' : STATUS_LABEL[order.status || ''] || order.status) : 'Not loaded'}</span>
+              </label>
+            </li>;
+          })}</ul>}
+        </div>;
+      })()}
       {mode === 'staff' && (selected.count === 0 ? <p className="soft-card-inset p-3 text-sm">Is stop par {dateKey} ke liye koi order nahi.</p> :
         <ul className="space-y-2">{selected.orders.map((order) => {
           const stop = order.deliveryMode === 'BUS' ? findStop(settings, order.busStopId) : undefined;

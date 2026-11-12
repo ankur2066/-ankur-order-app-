@@ -1106,5 +1106,73 @@
  "Store / Theme": {
   "en": "Store / Theme",
   "hi": "स्टोर / थीम"
+ },
+ "पेंडिंग": {
+  "en": "Pending",
+  "hi": "पेंडिंग"
+ },
+ "New orders": {
+  "en": "New orders",
+  "hi": "नए ऑर्डर"
+ },
+ "Open new orders": {
+  "en": "Open new orders",
+  "hi": "नए ऑर्डर खोलें"
+ },
+ "Open packing": {
+  "en": "Open packing",
+  "hi": "पैकिंग खोलें"
+ },
+ "Before the bus leaves, check today's orders": {
+  "en": "Before the bus leaves, check today's orders",
+  "hi": "बस जाने से पहले आज के ऑर्डर देखें"
+ },
+ "not confirmed": {
+  "en": "not confirmed",
+  "hi": "कन्फर्म बाकी"
+ },
+ "not loaded": {
+  "en": "not loaded",
+  "hi": "लोड बाकी"
+ },
+ "Only unconfirmed orders. Confirm an order to move it to packing by stop and dispatch.": {
+  "en": "Only unconfirmed orders. Confirm an order to move it to packing by stop and dispatch.",
+  "hi": "सिर्फ़ बिना कन्फर्म वाले ऑर्डर। कन्फर्म करते ही ऑर्डर स्टॉप वाली पैकिंग और डिस्पैच में चला जाएगा।"
+ },
+ "No new orders. Every order is confirmed.": {
+  "en": "No new orders. Every order is confirmed.",
+  "hi": "कोई नया ऑर्डर नहीं। सारे ऑर्डर कन्फर्म हैं।"
+ },
+ "✓ Confirm order": {
+  "en": "✓ Confirm order",
+  "hi": "✓ ऑर्डर कन्फर्म करें"
+ },
+ "Updating…": {
+  "en": "Updating…",
+  "hi": "अपडेट हो रहा है…"
+ },
+ "Old date": {
+  "en": "Old date",
+  "hi": "पुरानी तारीख"
+ },
+ "Upcoming dates": {
+  "en": "Upcoming dates",
+  "hi": "आगे की तारीख"
+ },
+ "orders,": {
+  "en": "orders,",
+  "hi": "में से"
+ },
+ "loaded": {
+  "en": "loaded",
+  "hi": "लोड"
+ },
+ "Loaded": {
+  "en": "Loaded",
+  "hi": "लोड हुआ"
+ },
+ "Not loaded": {
+  "en": "Not loaded",
+  "hi": "लोड नहीं"
  }
 }

@@ -83,6 +83,7 @@ import { calculateOwnerOverview, downloadOrdersCsv } from '../utils/ownerReports
 import { UserManagement } from './UserManagement';
 import { AIChat } from './AIChat';
 import { addIstDays, istDateKey, dispatchBucket, dispatchParts, formatDispatchDate, type DispatchBucket } from '../utils/dispatchSchedule';
+import { isConfirmedWork, loadToggleStatus, workSlotMatches, todayAttention, sortNewOrders } from '../utils/orderWorkflow';
 
 import { generateMonthlyPDF } from '../utils/monthlyReport';
 import type { Order, OrderStatus, PaymentStatus, RateSettings } from '../types';
@@ -244,7 +245,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const [selectedDistrict, setSelectedDistrict] = useState<string>('all');
 
   // Orders View Mode: 'slot' (default dispatch slot view) | 'all' (complete order management view)
-  const [ordersViewMode, setOrdersViewMode] = useState<'slot' | 'all'>('slot');
+  const [ordersViewMode, setOrdersViewMode] = useState<'new' | 'slot' | 'all'>('slot');
   const [selectedDispatchSlot, setSelectedDispatchSlot] = useState<DispatchSlotKey>('today_morning');
   const [paymentFilter, setPaymentFilter] = useState<'all' | 'pending' | 'paid'>('all');
   const [dispatchTimeFilter, setDispatchTimeFilter] = useState<'all' | DispatchSlotKey>('all');
@@ -497,22 +498,30 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     return Array.from(set).sort((a, b) => a.localeCompare(b, 'hi'));
   }, [orders]);
 
-  // Every active order belongs to exactly one current, next-day, or old/overdue bucket.
+  // v1.0.70: dispatch slots count only owner-confirmed work (new orders wait in the "New orders" tab);
+  // Old / Overdue = past date and still not dispatched; dates after tomorrow are "upcoming".
   const slotCounts = useMemo(() => {
+    const count = (key: DispatchSlotKey) => activeOrders.filter((o) => workSlotMatches(o, key, todayISTStr)).length;
     return {
-      today_morning: activeOrders.filter((o) => matchesDispatchSlot(o, 'today_morning')).length,
-      today_evening: activeOrders.filter((o) => matchesDispatchSlot(o, 'today_evening')).length,
-      tomorrow_morning: activeOrders.filter((o) => matchesDispatchSlot(o, 'tomorrow_morning')).length,
-      tomorrow_evening: activeOrders.filter((o) => matchesDispatchSlot(o, 'tomorrow_evening')).length,
-      old_overdue: activeOrders.filter((o) => matchesDispatchSlot(o, 'old_overdue')).length,
-      date_not_set: activeOrders.filter((o) => matchesDispatchSlot(o, 'date_not_set')).length,
+      today_morning: count('today_morning'),
+      today_evening: count('today_evening'),
+      tomorrow_morning: count('tomorrow_morning'),
+      tomorrow_evening: count('tomorrow_evening'),
+      upcoming: count('upcoming'),
+      old_overdue: count('old_overdue'),
+      date_not_set: count('date_not_set'),
     };
-  }, [activeOrders]);
+  }, [activeOrders, todayISTStr]);
 
   // Active orders for currently selected dispatch slot
   const slotOrders = useMemo(() => {
-    return activeOrders.filter((o) => matchesDispatchSlot(o, selectedDispatchSlot) && (!stopFilter || packingGroupKey(o) === stopFilter));
-  }, [activeOrders, selectedDispatchSlot, stopFilter]);
+    return activeOrders.filter((o) => workSlotMatches(o, selectedDispatchSlot, todayISTStr) && (!stopFilter || packingGroupKey(o) === stopFilter));
+  }, [activeOrders, selectedDispatchSlot, stopFilter, todayISTStr]);
+
+  // v1.0.70: "New orders" tab (unconfirmed only), packing by stop with confirmed work only, today's red alert.
+  const newOrders = useMemo(() => sortNewOrders(activeOrders), [activeOrders]);
+  const confirmedWorkOrders = useMemo(() => activeOrders.filter(isConfirmedWork), [activeOrders]);
+  const todayNeeds = useMemo(() => todayAttention(activeOrders, todayISTStr), [activeOrders, todayISTStr]);
 
   // Filtered orders in All Orders tab
   const displayedOrders = useMemo(() => {
@@ -635,6 +644,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     } finally {
       setActionLoadingId(null);
     }
+  };
+
+  // v1.0.70 packing tick: loaded = existing 'in_packing' status (same as staff "Packing done").
+  const handleToggleLoaded = (order: { orderId: string }, loaded: boolean) => {
+    const full = activeOrders.find((o) => o.orderId === order.orderId);
+    if (!full || actionLoadingId) return;
+    const next = loadToggleStatus(full, loaded);
+    if (next) void handleUpdateStatus(full, next);
   };
 
   // Payment status toggle
@@ -1113,9 +1130,23 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             <div className="soft-card-inset p-2.5"><p className="text-[11px] font-semibold">Today's orders</p><p className="text-lg font-black tabular-nums">{todayTotalOrders}</p></div>
             <div className="soft-card-inset p-2.5"><p className="text-[11px] font-semibold">Today's packing (kg)</p><p className="text-lg font-black tabular-nums">{todayTotalKg}</p></div>
           </div>
+          {(todayNeeds.unconfirmed > 0 || todayNeeds.unloaded > 0) && <div role="alert" className="owner-today-alert rounded-xl border-2 border-red-700 bg-red-600 text-white p-2.5 space-y-1.5">
+            <p className="text-sm font-black">⚠️ <span>Before the bus leaves, check today's orders</span></p>
+            <p className="text-sm font-bold">
+              {todayNeeds.unconfirmed > 0 && <span className="mr-3"><b className="tabular-nums">{todayNeeds.unconfirmed}</b> <span>not confirmed</span></span>}
+              {todayNeeds.unloaded > 0 && <span><b className="tabular-nums">{todayNeeds.unloaded}</b> <span>not loaded</span></span>}
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {todayNeeds.unconfirmed > 0 && <button type="button" className="rounded-lg bg-white text-red-800 px-3 py-1.5 text-xs font-black" onClick={() => { setActiveSection('orders'); setOrdersViewMode('new'); }}>Open new orders</button>}
+              {todayNeeds.unloaded > 0 && <button type="button" className="rounded-lg bg-white text-red-800 px-3 py-1.5 text-xs font-black" onClick={() => { setActiveSection('orders'); setOrdersViewMode('slot'); window.setTimeout(() => document.getElementById('owner-packing')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60); }}>Open packing</button>}
+            </div>
+          </div>}
           <div className="owner-tool-grid">
+            <button type="button" className="soft-tool-tile owner-new-orders-tile" aria-pressed={activeSection === 'orders' && ordersViewMode === 'new'} onClick={() => { setActiveSection('orders'); setOrdersViewMode('new'); }}>
+              <span>New orders</span> <b className={`inline-flex min-w-[22px] justify-center rounded-full px-1.5 text-xs tabular-nums ${newOrders.length ? 'bg-red-600 text-white' : 'bg-slate-200 text-slate-700'}`} aria-label={`${newOrders.length}`}>{newOrders.length}</b>
+            </button>
             <button type="button" className="soft-tool-tile" aria-pressed={activeSection === 'orders' && ordersViewMode === 'all'} onClick={() => { setActiveSection('orders'); setOrdersViewMode('all'); }}>Orders ({activeOrders.length})</button>
-            <button type="button" className="soft-tool-tile" onClick={() => { setActiveSection('orders'); window.setTimeout(() => document.getElementById('owner-packing')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60); }}>Packing by stop</button>
+            <button type="button" className="soft-tool-tile" onClick={() => { setActiveSection('orders'); if (ordersViewMode === 'new') setOrdersViewMode('slot'); window.setTimeout(() => document.getElementById('owner-packing')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60); }}>Packing by stop</button>
             <button type="button" className="soft-tool-tile" aria-pressed={activeSection === 'orders' && ordersViewMode === 'slot'} onClick={() => { setActiveSection('orders'); setOrdersViewMode('slot'); window.setTimeout(() => document.getElementById('owner-dispatch')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60); }}>Dispatch and bus slip</button>
             <button type="button" className="soft-tool-tile" aria-pressed={activeSection === 'new-entry'} onClick={() => setActiveSection('new-entry')}>New Entry</button>
           </div>
@@ -1523,10 +1554,35 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       {/* ========================================================================= */}
       {activeSection === 'orders' && (
         <div className="space-y-3">
-          <div id="owner-packing"><PackingBoard orders={activeOrders as unknown as PackingBoardOrder[]} settings={deliverySettings} mode="owner"
-            title="Packing by stop" onFilterChange={({ groupKey }) => setStopFilter(groupKey)} /></div>
+          {ordersViewMode === 'new' && <section aria-label="New orders" className="owner-new-orders soft-card space-y-2">
+            <div className="flex items-center justify-between gap-2">
+              <h2 className="text-lg font-black"><span>New orders</span> <span className="tabular-nums">({newOrders.length})</span></h2>
+              <button type="button" className="soft-button secondary-button text-xs" onClick={() => setOrdersViewMode('slot')}>Packing by stop</button>
+            </div>
+            <p className="text-xs t-sub">Only unconfirmed orders. Confirm an order to move it to packing by stop and dispatch.</p>
+            {newOrders.length === 0 ? <p className="soft-card-inset p-4 text-center text-sm font-bold">No new orders. Every order is confirmed.</p> :
+              <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2">{newOrders.map((ord) => {
+                const stop = ord.deliveryMode === 'BUS' ? findStop(deliverySettings, ord.busStopId) : undefined;
+                const overdue = dispatchBucket(ord, todayISTStr) === 'old_overdue';
+                const busy = actionLoadingId === ord.orderId;
+                return <li key={ord.orderId} className={`owner-new-order-card bg-white border-2 rounded-xl p-2.5 space-y-1.5 ${overdue ? 'border-amber-500' : 'border-red-300'}`}>
+                  <div className="flex items-center justify-between gap-2 text-xs">
+                    <span className="font-mono font-bold">#{getShortOrderId(ord.orderId)}</span>
+                    <span className="font-bold">{orderDispatchLabel(ord)}</span>
+                  </div>
+                  {overdue && <p className="text-xs font-black text-amber-800">Old date</p>}
+                  <p className="text-base font-black">{ord.customerName}</p>
+                  <p className="text-sm"><b className="tabular-nums">{Number(ord.quantityKg) || 0} KG</b> · {ord.district || ord.city || '—'}{stop ? ` · ${stop.name}` : ''} · <span className="tabular-nums">₹{(Number(ord.totalAmount) || 0).toLocaleString('en-IN')}</span></p>
+                  <OwnerOrderContactActions order={ord} settings={deliverySettings} />
+                  <button type="button" className="w-full min-h-[40px] rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-black disabled:opacity-60" disabled={busy} onClick={() => void handleUpdateStatus(ord, 'confirmed')}>{busy ? <span>Updating…</span> : <span>✓ Confirm order</span>}</button>
+                </li>;
+              })}</ul>}
+          </section>}
+          {ordersViewMode !== 'new' && <div id="owner-packing"><PackingBoard orders={confirmedWorkOrders as unknown as PackingBoardOrder[]} settings={deliverySettings} mode="owner"
+            title="Packing by stop" onFilterChange={({ groupKey }) => setStopFilter(groupKey)}
+            onToggleLoaded={handleToggleLoaded} updatingId={actionLoadingId} /></div>}
           <span id="owner-dispatch" aria-hidden="true" />
-          {ordersViewMode === 'slot' ? (
+          {ordersViewMode === 'new' ? null : ordersViewMode === 'slot' ? (
             /* ========================================================= */
             /* 1. DISPATCH SLOT DEFAULT SELECTION VIEW                   */
             /* ========================================================= */
@@ -1641,6 +1697,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               <button type="button" onClick={() => setSelectedDispatchSlot('old_overdue')} className={`w-full flex items-center justify-between rounded-xl border px-3 py-2 text-sm font-bold ${selectedDispatchSlot === 'old_overdue' ? 'bg-amber-700 text-white border-amber-800' : 'bg-amber-50 text-amber-950 border-amber-300'}`}>
                 <span>Old / Overdue</span><span>{slotCounts.old_overdue}</span>
               </button>
+              <button type="button" onClick={() => setSelectedDispatchSlot('upcoming')} className={`w-full flex items-center justify-between rounded-xl border px-3 py-2 text-sm font-bold ${selectedDispatchSlot === 'upcoming' ? 'bg-sky-700 text-white border-sky-800' : 'bg-sky-50 text-sky-950 border-sky-300'}`}><span>Upcoming dates</span><span>{slotCounts.upcoming}</span></button>
               <button type="button" onClick={() => setSelectedDispatchSlot('date_not_set')} className={`w-full flex items-center justify-between rounded-xl border px-3 py-2 text-sm font-bold ${selectedDispatchSlot === 'date_not_set' ? 'bg-slate-700 text-white border-slate-800' : 'bg-slate-100 text-slate-900 border-slate-300'}`}><span>Date not set</span><span>{slotCounts.date_not_set}</span></button>
 
               {/* 5th Button: सभी ऑर्डर */}
@@ -1670,6 +1727,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     {selectedDispatchSlot === 'tomorrow_morning' && 'कल सुबह'}
                     {selectedDispatchSlot === 'tomorrow_evening' && 'कल शाम'}
                     {selectedDispatchSlot === 'old_overdue' && 'Old / Overdue'}
+                    {selectedDispatchSlot === 'upcoming' && 'Upcoming dates'}
                     {selectedDispatchSlot === 'date_not_set' && 'Date not set'}
                   </span>
                 </div>

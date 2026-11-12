@@ -31,6 +31,8 @@ files = [
     "src/components/AIChat.tsx", "src/utils/orderChatAnswer.ts", "src/utils/orderChatAnswer.test.ts",
     # v1.0.67 front page: floating winner/offer/poll slide
     "src/components/customer/HomeSlides.tsx",
+    # v1.0.70 owner: new-orders tab, per-stop loading ticks, today alert, overdue fix
+    "src/utils/orderWorkflow.ts", "src/utils/orderWorkflow.test.ts",
 ]
 for relative in files:
     source = overlay / relative

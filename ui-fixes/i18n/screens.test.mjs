@@ -3,7 +3,7 @@ const root=process.env.ANKUR_CLIENT_APP||process.cwd(),appRequire=createRequire(
 const owner={uid:'fixture-owner',email:'ankurdryicewholesalers@gmail.com',emailVerified:true,displayName:'Fixture Owner'},rate={dryIceRate:50,thermocolRate:10,transportRate:0};
 const textOf=n=>n===null?'':typeof n==='string'?n:Array.isArray(n)?n.map(textOf).join(''):(n.children||[]).map(textOf).join('');
 async function screen(path,name,props={},seed=[]){
- let language='en';const storage=new Map(),window=new EventTarget();window.setTimeout=()=>1;window.clearTimeout=()=>{};window.open=()=>{};const document=new EventTarget();document.visibilityState='visible';const context=createContext({console,window,document,Date,Intl,URL,crypto:globalThis.crypto,localStorage:{getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,v)},navigator:{clipboard:{writeText:async()=>{}}},location:{origin:'https://fixture.invalid',pathname:'/'},setTimeout:()=>1});
+ let language='en';const storage=new Map(),window=new EventTarget();window.setTimeout=()=>1;window.clearTimeout=()=>{};window.open=()=>{};const document=new EventTarget();document.visibilityState='visible';document.documentElement={dataset:{}};const context=createContext({console,window,document,Date,Intl,URL,crypto:globalThis.crypto,localStorage:{getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,v)},navigator:{clipboard:{writeText:async()=>{}}},location:{origin:'https://fixture.invalid',pathname:'/'},setTimeout:()=>1,clearTimeout:()=>{}});
  const mods=new Map(),dict=JSON.parse(readFileSync(resolve(root,'src/i18n/messages.json'),'utf8')),ui=await uiModule(context,React,()=>language,root),snap={exists:()=>false,data:()=>({}),docs:[],forEach(){}};
  const fs={doc:(_db,...p)=>({path:p.join('/')}),collection:(_db,...p)=>({path:p.join('/')}),query:r=>r,where:()=>null,orderBy:()=>null,limit:()=>null,serverTimestamp:()=>'<server>',getDoc:async()=>snap,getDocs:async()=>snap,onSnapshot:(_ref,a,b)=>{const cb=typeof a==='function'?a:b;const value=_ref.path==='settings/featureSuite'?{...snap,exists:()=>true,data:()=>({features:Object.fromEntries(['calculator','video','loyalty','catalog','partner','subscriptions','promotions','inventory','reports','faq','rates','support','service-area','referral'].map(id=>[id,true]))})}:snap;Promise.resolve().then(()=>cb(value));return()=>{};},writeBatch:()=>({set(){},update(){},commit:async()=>{}}),setDoc:async()=>{},updateDoc:async()=>{},deleteDoc:async()=>{},deleteField:()=>null,increment:()=>null,addDoc:async()=>({id:'fixture'})};
  const bindings={react:{...React,default:React},'react/jsx-runtime':require('react/jsx-runtime'),'firebase/firestore':fs,'firebase/functions':{getFunctions:()=>({}),httpsCallable:()=>async()=>({data:{}})},'firebase/app':{getApp:()=>({})}};
@@ -30,6 +30,8 @@ async function screen(path,name,props={},seed=[]){
  if(id.endsWith('/utils/delivery'))return synthetic(id,{DEFAULT_DELIVERY_SETTINGS:{busStops:[],districtStopMap:{}},resolveDeliveryDefault:()=>({source:'ask'}),validateDeliveryChoice:()=>null,packingGroupKey:()=>'UNASSIGNED',findStop:(settings,stopId)=>stopId?(settings?.busStops||[]).find(s=>s.id===stopId):undefined});
  if(/\/services\/(deliverySettings|staffSync|staffRegistry)$/.test(id))return synthetic(id,Object.fromEntries(names.map(k=>[k,/^(sync|save|remove)/.test(k)?async()=>{}:()=>()=>{}])));
  if(/\/(PackingBoard|DeliveryModePicker|BusStopSettings|StaffMembersManager|OrderDeliveryEditor)$/.test(id))return synthetic(id,Object.fromEntries(names.map(k=>[k,()=>null])));
+ if(id.endsWith('/utils/orderWorkflow'))return load(resolve(dirname(file),id)+'.ts');// v1.0.70: real owner workflow helpers (new orders, loading ticks, overdue), not a mock
+ if(id==='./dispatchSchedule.ts'&&file.endsWith('/utils/orderWorkflow.ts'))return load(resolve(dirname(file),id));
  if(/\/utils\//.test(id))return synthetic(id,Object.fromEntries(names.map(k=>[k,()=>false])));
  if(id==='./customer/HomeSlides')return load(resolve(dirname(file),id)+'.tsx');// real owner slide editor, rendered in the language check
  if(id==='./FeatureHub')return load(resolve(dirname(file),id)+'.tsx');
@@ -50,3 +52,30 @@ test('booking language switch preserves typed customer data, decimals, phone and
 
 for(const feature of ['calculator','video','faq','rates','support','service-area'])test('Feature '+feature+' renders English copy and responds to saved Hindi choice',async()=>{const h=await screen('components/customer/FeatureHub.tsx','FeatureHub',{currentUser:owner,role:'admin',initial:feature,allowed:[feature]});assert.ok(h.text.length>20);assert.doesNotMatch(h.text,/[\u0900-\u097F]/);await h.switchTo('hi');assert.match(h.text,/[\u0900-\u097F]/);await h.switchTo('en');assert.doesNotMatch(h.text,/[\u0900-\u097F]/);await h.close();});
 test('loyalty without a configured policy shows no fabricated points',async()=>{const h=await screen('components/customer/LoyaltyPanel.tsx','LoyaltyPanel',{user:{uid:'fixture-buyer'},owner:false,Form:()=>null});assert.match(h.text,/not configured|paused/i);assert.doesNotMatch(h.text,/[\u0900-\u097F]/);await h.switchTo('hi');assert.match(h.text,/[\u0900-\u097F]/);await h.close();});
+
+// v1.0.70: real owner "New orders" tab, Confirm, today's red alert and overdue/upcoming counts (orderWorkflow is the real file).
+test('owner New orders tab lists only unconfirmed orders and Confirm moves an order out of it',async()=>{
+ const today=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Kolkata',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date())
+ const base={trackingToken:'ADI-T_123456',trackingPin:'123456',customerPhone:'9000000001',district:'Lucknow',quantityKg:10,dispatchTiming:'',dispatchDate:today,dispatchSlot:'morning',productName:'Dry Ice',dryIcePricePerKg:50,dryIceSubtotal:500,thermocolPricePerKg:0,thermocolSubtotal:0,totalAmount:500,paymentStatus:'pending_verification',paymentMethod:'UPI',userId:'guest',createdAt:{seconds:1},updatedAt:{seconds:1}}
+ const seed=[{...base,orderId:'ADI-NEW-0001',customerName:'Naya Grahak',status:'pending'},{...base,orderId:'ADI-OK-0002',customerName:'Pakka Grahak',status:'confirmed'},{...base,orderId:'ADI-OLD-0003',customerName:'Purana Done',status:'delivered',dispatchDate:'2026-01-02'},{...base,orderId:'ADI-OLD-0004',customerName:'Purana Open',status:'confirmed',dispatchDate:'2026-01-02'}]
+ const h=await screen('components/AdminDashboard.tsx','AdminDashboard',{currentUser:owner,onGoToTrack(){}},seed)
+ await act(async()=>{await Promise.resolve()})
+ const alert=h.view.root.findAll(n=>n.props?.role==='alert'&&String(n.props.className||'').includes('owner-today-alert'))
+ assert.equal(alert.length,1,'today has an unconfirmed and an unloaded order: red alert shows')
+ assert.match(textOf(alert[0].children.map(c=>c.toJSON?c.toJSON():c)),/1 not confirmed/)
+ const tile=h.view.root.find(n=>n.type==='button'&&String(n.props.className||'').includes('owner-new-orders-tile'))
+ assert.match(textOf(tile.children.map(c=>c.toJSON?c.toJSON():c)),/New orders\s*1/)
+ await act(async()=>tile.props.onClick())
+ const list=()=>h.view.root.findAll(n=>n.type==='li'&&String(n.props.className||'').includes('owner-new-order-card'))
+ assert.equal(list().length,1)
+ assert.ok(h.text.includes('Naya Grahak'))
+ assert.ok(!textOf(list().map(l=>l.children.map(c=>c.toJSON?c.toJSON():c))).includes('Pakka Grahak'),'confirmed order is not in the New orders tab')
+ const confirm=list()[0].find(n=>n.type==='button'&&textOf(n.children.map(c=>c.toJSON?c.toJSON():c)).includes('Confirm order'))
+ await act(async()=>{await confirm.props.onClick()})
+ assert.equal(list().length,0,'confirmed order leaves the New orders tab')
+ assert.ok(h.text.includes('No new orders. Every order is confirmed.'))
+ await act(async()=>h.view.root.find(n=>n.type==='button'&&textOf(n.children.map(c=>c.toJSON?c.toJSON():c))==='Packing by stop'&&!String(n.props.className||'').includes('soft-tool-tile')).props.onClick())
+ const old=h.view.root.find(n=>n.type==='button'&&textOf(n.children.map(c=>c.toJSON?c.toJSON():c)).startsWith('Old / Overdue'))
+ assert.equal(textOf(old.children.map(c=>c.toJSON?c.toJSON():c)),'Old / Overdue1','only the undispatched old order is overdue, the delivered one is not')
+ await h.close()
+})

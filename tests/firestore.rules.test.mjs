@@ -2,7 +2,7 @@ import { readFile } from 'node:fs/promises';
 import { after, before, describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import { initializeTestEnvironment, assertFails, assertSucceeds } from '@firebase/rules-unit-testing';
-import { collection, doc, getDoc, getDocs, serverTimestamp, setDoc, updateDoc, writeBatch } from 'firebase/firestore';
+import { collection, deleteDoc, doc, getDoc, getDocs, serverTimestamp, setDoc, updateDoc, writeBatch } from 'firebase/firestore';
 
 const projectId = 'demo-ankur-dryice-rules';
 let testEnv;
@@ -231,5 +231,38 @@ describe('Order create compatibility across installed app versions', () => {
   it('signed-in buyer (v1.0.64 path, no trackingPin) can attach a payment proof to their own order', async () => {
     const buyer=testEnv.authenticatedContext('buyer64').firestore();
     await assertSucceeds(setDoc(doc(buyer,'orders/ADI-20261111-S64A/paymentProof/latest'),{...proof,uploadedBy:'buyer64',createdAt:serverTimestamp()}));
+  });
+});
+
+describe('Home poll votes (homePollVotes): one vote per user per poll, owner-only reads', () => {
+  const ownerDb=()=>testEnv.authenticatedContext('owner',{email:'ankurdryicewholesalers@gmail.com',email_verified:true}).firestore();
+  const voter=()=>testEnv.authenticatedContext('voter1').firestore();
+  const vote=(uid,option='A',pollId='poll1')=>({pollId,uid,option,votedAt:serverTimestamp()});
+  it('allows a signed-in user to create exactly their own vote doc pollId_uid', async () => {
+    await assertSucceeds(setDoc(doc(voter(),'homePollVotes/poll1_voter1'),vote('voter1')));
+  });
+  it('denies a second vote, changing or deleting a vote', async () => {
+    await assertFails(setDoc(doc(voter(),'homePollVotes/poll1_voter1'),vote('voter1','B')));
+    await assertFails(updateDoc(doc(voter(),'homePollVotes/poll1_voter1'),{option:'B'}));
+    await assertFails(deleteDoc(doc(voter(),'homePollVotes/poll1_voter1')));
+    await assertFails(deleteDoc(doc(ownerDb(),'homePollVotes/poll1_voter1')));
+  });
+  it('denies voting as someone else, under a wrong id, as a guest, or with extra fields', async () => {
+    await assertFails(setDoc(doc(voter(),'homePollVotes/poll1_voter2'),vote('voter2')));
+    await assertFails(setDoc(doc(voter(),'homePollVotes/poll2_voter2'),vote('voter1','A','poll2')));
+    await assertFails(setDoc(doc(voter(),'homePollVotes/random-id'),vote('voter1','A','poll3')));
+    await assertFails(setDoc(doc(testEnv.unauthenticatedContext().firestore(),'homePollVotes/poll1_guest'),vote('guest')));
+    await assertFails(setDoc(doc(voter(),'homePollVotes/poll4_voter1'),{...vote('voter1','A','poll4'),role:'admin'}));
+    await assertFails(setDoc(doc(voter(),'homePollVotes/poll5_voter1'),{pollId:'poll5',uid:'voter1',option:'A',votedAt:new Date(2020,0,1)}));
+  });
+  it('a voter cannot change their own or anyone else\'s users/role', async () => {
+    await assertFails(setDoc(doc(voter(),'users/voter1'),{role:'admin'},{merge:true}));
+    await assertFails(setDoc(doc(voter(),'users/staff'),{role:'customer'},{merge:true}));
+  });
+  it('only the owner reads votes', async () => {
+    await assertFails(getDoc(doc(voter(),'homePollVotes/poll1_voter1')));
+    await assertFails(getDocs(collection(voter(),'homePollVotes')));
+    await assertSucceeds(getDoc(doc(ownerDb(),'homePollVotes/poll1_voter1')));
+    await assertSucceeds(getDocs(collection(ownerDb(),'homePollVotes')));
   });
 });

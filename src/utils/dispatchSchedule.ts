@@ -1,5 +1,5 @@
 export type DispatchSlot = 'morning' | 'evening';
-export type DispatchBucket = 'today_morning' | 'today_evening' | 'tomorrow_morning' | 'tomorrow_evening' | 'old_overdue' | 'date_not_set';
+export type DispatchBucket = 'today_morning' | 'today_evening' | 'tomorrow_morning' | 'tomorrow_evening' | 'upcoming' | 'old_overdue' | 'date_not_set';
 
 export function istDateKey(date: Date = new Date()): string {
   const parts = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata', year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(date);
@@ -33,7 +33,8 @@ export function dispatchBucket(order: { dispatchDate?: string; slot?: string; di
   if (date < today) return 'old_overdue';
   if (date === today) return slot === 'morning' ? 'today_morning' : 'today_evening';
   if (date === addIstDays(today, 1)) return slot === 'morning' ? 'tomorrow_morning' : 'tomorrow_evening';
-  return 'old_overdue';
+  // v1.0.70: a dispatch date after tomorrow is upcoming work, never "old / overdue".
+  return 'upcoming';
 }
 
 export function formatDispatchDate(dateKey: string | null | undefined, slot: DispatchSlot, language: 'hi' | 'en' = 'hi', now = new Date()): string {

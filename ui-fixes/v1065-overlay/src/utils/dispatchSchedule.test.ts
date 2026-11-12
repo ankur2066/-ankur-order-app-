@@ -24,3 +24,9 @@ test('IST day boundary: just after midnight IST is already the next day even tho
   assert.match(formatDispatchDate('2026-11-12', 'evening', 'en', now), /^Tomorrow/);
   assert.doesNotMatch(formatDispatchDate('2026-11-10', 'evening', 'en', now), /^(Today|Tomorrow)/);
 });
+test('v1.0.70: a date after tomorrow is upcoming work, not old/overdue', () => {
+  const today = '2026-11-08';
+  assert.equal(dispatchBucket({ dispatchDate: '2026-11-10', dispatchSlot: 'morning' }, today), 'upcoming');
+  assert.equal(dispatchBucket({ dispatchDate: '2026-12-01', dispatchSlot: 'evening' }, today), 'upcoming');
+  assert.equal(dispatchBucket({ dispatchDate: '2026-11-07', dispatchSlot: 'evening' }, today), 'old_overdue');
+});

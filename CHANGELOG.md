@@ -1,5 +1,17 @@
 # Changelog
 
+## v1.0.70 — owner: New orders tab, loading ticks by stop, today alert, overdue fix
+
+Android **versionCode 70 / versionName 1.0.70**, same applicationId `com.ankurdryice.events` and keystore. Firebase Spark: no deploy, no new Firestore field, no rules change for the app itself.
+
+- **New orders tab** (Today's work, first tile, red count badge): only `status == 'pending'` orders, earliest dispatch date first, old dates flagged. One-tap **Confirm order** (existing status handler -> `confirmed`, tracking + staff view updated as before).
+- Owner **Packing by stop** and the dispatch slots count only confirmed-onwards orders, so Alambagh/Kaiserbagh counts never include an unseen order. All Orders still lists everything (Pending filter tab unchanged).
+- **Loading tick list** per stop (owner): checkbox per order = existing `in_packing` status (same as staff "Packing done"); untick goes back to `confirmed`; dispatched/delivered count as loaded and cannot be unticked. Stop pills show `2/3 loaded`, header `Alambagh: 3 orders, 2 loaded` (Hindi: `3 में से 2 लोड`).
+- **Red alert** on Today's work while any order dispatching today is unconfirmed or not loaded, with buttons to open New orders / packing.
+- **Old / Overdue** now = past dispatch date and still not dispatched (confirmed/in_packing). Dates after tomorrow move to a new **Upcoming dates** slot instead of "overdue".
+- "पेंडिंग" shows as "Pending" in English. All new labels in Hindi + English (messagesV1066.json).
+- Tests: `src/utils/orderWorkflow.test.ts` (new), upcoming bucket case in `dispatchSchedule.test.ts`, real-render owner New orders/Confirm/overdue test in `ui-fixes/i18n/screens.test.mjs` (real orderWorkflow loaded), homePollVotes allow/deny emulator cases in `tests/firestore.rules.test.mjs`. No test removed or weakened.
+
 ## v1.0.66 — delivery modes, bus stops, Spark staff packing, soft 3D tokens
 
 Android stays **versionCode 66 / versionName 1.0.66** (owner has 65/66 installed). Firebase **Spark only**: no new Cloud Function, no Blaze, no paid service. Payments are never auto-marked paid.
