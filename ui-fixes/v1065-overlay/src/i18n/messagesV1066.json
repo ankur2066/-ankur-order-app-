@@ -1050,5 +1050,61 @@
  "Setup pending": {
   "en": "Setup pending",
   "hi": "सेटअप बाकी है"
+ },
+ "Today's work": {
+  "en": "Today's work",
+  "hi": "आज का काम"
+ },
+ "Godown": {
+  "en": "Godown",
+  "hi": "गोदाम"
+ },
+ "Money": {
+  "en": "Money",
+  "hi": "पैसा"
+ },
+ "Settings": {
+  "en": "Settings",
+  "hi": "सेटिंग"
+ },
+ "Today's orders": {
+  "en": "Today's orders",
+  "hi": "आज के ऑर्डर"
+ },
+ "Today's packing (kg)": {
+  "en": "Today's packing (kg)",
+  "hi": "आज की पैकिंग (kg)"
+ },
+ "Dispatch and bus slip": {
+  "en": "Dispatch and bus slip",
+  "hi": "डिस्पैच और बस पर्ची"
+ },
+ "All customers and dues": {
+  "en": "All customers and dues",
+  "hi": "सभी ग्राहक और बकाया"
+ },
+ "Regular Supply": {
+  "en": "Regular Supply",
+  "hi": "रेगुलर सप्लाई"
+ },
+ "Offers and rewards": {
+  "en": "Offers and rewards",
+  "hi": "ऑफ़र और इनाम"
+ },
+ "Staff and bus stops": {
+  "en": "Staff and bus stops",
+  "hi": "स्टाफ़ और बस स्टॉप"
+ },
+ "Store look": {
+  "en": "Store look",
+  "hi": "दुकान का रूप"
+ },
+ "Customer app buttons (on/off)": {
+  "en": "Customer app buttons (on/off)",
+  "hi": "ग्राहक ऐप के बटन (चालू/बंद)"
+ },
+ "Store / Theme": {
+  "en": "Store / Theme",
+  "hi": "स्टोर / थीम"
  }
 }

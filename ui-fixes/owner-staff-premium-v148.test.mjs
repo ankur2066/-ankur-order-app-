@@ -12,7 +12,9 @@ const local=readFileSync(new URL('../all-features/reconstruct.py',import.meta.ur
 const review=readFileSync(new URL('../.github/workflows/all-features-review.yml',import.meta.url),'utf8');
 const signed=readFileSync(new URL('../.github/workflows/all-features-signed-test-apk.yml',import.meta.url),'utf8');
 
-test('Owner UI keeps the compact Orders, Customers and Tools destinations and their functions',()=>{
+// v1.0.67 (Ankur, 12 Nov 2026): the owner dashboard moved from 3 destinations (Orders, Customers, Tools sheet)
+// to 5 (Today's work, Customers, Godown, Money, Settings). Same functions, stricter checks below.
+test('Owner UI keeps five destinations (Today, Customers, Godown, Money, Settings) and every function',()=>{
  assert.match(admin,/ankur-owner-dashboard/);
  assert.match(admin,/ankur-owner-masthead/);
  assert.match(admin,/ankur-owner-overview/);
@@ -20,7 +22,28 @@ test('Owner UI keeps the compact Orders, Customers and Tools destinations and th
  assert.match(admin,/setActiveSection\('orders'\)/);
  assert.match(admin,/setActiveSection\('customers'\)/);
  assert.match(admin,/setActiveSection\('tools'\)/);
- assert.match(admin,/owner-tools-backdrop/);
+ for(const [tab,label] of [['today',"Today's work"],['customers','Customers'],['godam','Godown'],['money','Money'],['settings','Settings']]){
+   assert.ok(admin.includes(`['${tab}', `)&&(admin.includes(`'${label}'`)||admin.includes(`"${label}"`)),'owner destination missing: '+label);
+ }
+ assert.match(admin,/owner-five-nav/);
+ assert.match(admin,/aria-pressed=\{ownerTab === id\}/);
+ // Today's work: two counts and the four daily buttons.
+ for(const s of ["Today's orders","Today's packing (kg)",'Packing by stop','Dispatch and bus slip','New Entry','id="owner-packing"','id="owner-dispatch"']) assert.ok(admin.includes(s),'today item missing: '+s);
+ // Customers, Godown, Money, Settings route to the same existing screens.
+ assert.match(admin,/allowed=\{\[customerPanel\]\}/);
+ assert.match(admin,/initial="inventory" allowed=\{\["inventory"\]\}/);
+ assert.match(admin,/allowed=\{\["reports"\]\}/);
+ assert.match(admin,/setActiveSection\('insights'\)/);
+ assert.match(admin,/setActiveSection\('expenses'\)/);
+ assert.match(admin,/setIsRateModalOpen\(true\)/);
+ assert.match(admin,/allowed=\{\["loyalty","promotions","referral","catalog"\]\}/);
+ assert.match(admin,/allowed=\{\["video"\]\}/);
+ for(const id of ['users','staff','bus-stops','storefront','ai-chat']) assert.ok(admin.includes(`['${id}',`),'settings entry missing: '+id);
+ for(const g of ['Offers and rewards','Staff and bus stops','Store look','Customer app buttons (on/off)']) assert.ok(admin.includes(g),'settings group missing: '+g);
+ assert.equal((admin.match(/<details className="owner-settings-group">/g)||[]).length,4);
+ // Every screen the old Tools sheet opened is still reachable.
+ for(const s of ["activeSection === 'new-entry'","activeSection === 'insights'","activeSection === 'expenses'","activeSection === 'users'","activeSection === 'storefront'","activeSection === 'ai-chat'","activeSection === 'bus-stops'","activeSection === 'staff'","activeSection === 'customers'"]) assert.ok(admin.includes(s),'screen missing: '+s);
+ for(const s of ['<BusStopSettings','<StaffMembersManager','<CustomersView','<StaffOrderAccessManager','<DailyWinnerOwnerControls','<HomeSlidesOwnerControls','<PackingBoard','handleOrdersCsv','signOutUser()','onGoToTrack']) assert.ok(admin.includes(s),'owner function removed: '+s);
  for(const feature of ['<OwnerStorefrontManager','<UserManagement','<ExpensesView','<AIChat','<FeatureSuiteSettings','downloadOrdersCsv','generateMonthlyPDF','writeBatch(db)','<SignInScreen']){
    assert.ok(admin.includes(feature)||(feature==='<SignInScreen'&&admin.includes('as={SignInScreen}')),'owner feature removed: '+feature);
  }

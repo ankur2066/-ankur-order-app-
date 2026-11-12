@@ -220,7 +220,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const isAdmin = isUserAdmin(currentUser);
 
   // Main navigation tabs: 'new-entry' | 'orders' | 'insights' | 'expenses' | 'users' | 'ai-chat'
-  const [activeSection, setActiveSection] = useState<'new-entry' | 'orders' | 'insights' | 'expenses' | 'users' | 'ai-chat' | 'storefront' | 'customers' | 'tools' | 'bus-stops' | 'staff'>('orders');
+  const [activeSection, setActiveSection] = useState<'new-entry' | 'orders' | 'insights' | 'expenses' | 'users' | 'ai-chat' | 'storefront' | 'customers' | 'tools' | 'bus-stops' | 'staff' | 'godam' | 'money'>('orders');
+  // v1.0.67 owner layout: five destinations, one visible at a time. Existing section ids are kept;
+  // 'orders'/'new-entry' = Today's work, 'tools' = Settings. Only navigation changes here.
+  const [customerPanel, setCustomerPanel] = useState<'list' | 'subscriptions' | 'partner'>('list');
   // v1.0.66 delivery: bus stop settings + owner stop filter (Packing board pills).
   const [deliverySettings, setDeliverySettings] = useState<DeliverySettings>(DEFAULT_DELIVERY_SETTINGS);
   const [stopFilter, setStopFilter] = useState<string | null>(null);
@@ -1085,11 +1088,39 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
 
       {/* Compact owner sections: orders stay the default home; secondary tools live in one drawer. */}
-      <nav aria-label="Owner sections" className="owner-segmented-nav mb-4">
-        <button type="button" onClick={() => setActiveSection('orders')} aria-pressed={activeSection === 'orders'}>Orders ({activeOrders.length})</button>
-        <button type="button" onClick={() => setActiveSection('customers')} aria-pressed={activeSection === 'customers'}>Customers</button>
-        <button type="button" onClick={() => setActiveSection('tools')} aria-pressed={activeSection === 'tools'}>Tools aur Settings</button>
-      </nav>
+      {(() => {
+        const ownerTab = activeSection === 'orders' || activeSection === 'new-entry' ? 'today'
+          : activeSection === 'customers' ? 'customers'
+          : activeSection === 'godam' ? 'godam'
+          : activeSection === 'money' || activeSection === 'insights' || activeSection === 'expenses' ? 'money'
+          : 'settings';
+        const tabs: Array<[typeof ownerTab, string, string, () => void]> = [
+          ['today', '📋', "Today's work", () => setActiveSection('orders')],
+          ['customers', '👥', 'Customers', () => { setCustomerPanel('list'); setActiveSection('customers'); }],
+          ['godam', '🏬', 'Godown', () => setActiveSection('godam')],
+          ['money', '💰', 'Money', () => setActiveSection('money')],
+          ['settings', '⚙️', 'Settings', () => setActiveSection('tools')],
+        ];
+        return <nav aria-label="Owner sections" className="owner-segmented-nav owner-five-nav mb-4">
+          {tabs.map(([id, icon, label, go]) => <button type="button" key={id} onClick={go} aria-pressed={ownerTab === id}>
+            <span aria-hidden="true" className="owner-five-icon">{icon}</span><span className="owner-five-label">{label}</span>
+          </button>)}
+        </nav>;
+      })()}
+      {(activeSection === 'orders' || activeSection === 'new-entry') && (
+        <section aria-label="Today's work" className="owner-today-strip soft-card mb-3 space-y-2">
+          <div className="grid grid-cols-2 gap-2">
+            <div className="soft-card-inset p-2.5"><p className="text-[11px] font-semibold">Today's orders</p><p className="text-lg font-black tabular-nums">{todayTotalOrders}</p></div>
+            <div className="soft-card-inset p-2.5"><p className="text-[11px] font-semibold">Today's packing (kg)</p><p className="text-lg font-black tabular-nums">{todayTotalKg}</p></div>
+          </div>
+          <div className="owner-tool-grid">
+            <button type="button" className="soft-tool-tile" aria-pressed={activeSection === 'orders' && ordersViewMode === 'all'} onClick={() => { setActiveSection('orders'); setOrdersViewMode('all'); }}>Orders ({activeOrders.length})</button>
+            <button type="button" className="soft-tool-tile" onClick={() => { setActiveSection('orders'); window.setTimeout(() => document.getElementById('owner-packing')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60); }}>Packing by stop</button>
+            <button type="button" className="soft-tool-tile" aria-pressed={activeSection === 'orders' && ordersViewMode === 'slot'} onClick={() => { setActiveSection('orders'); setOrdersViewMode('slot'); window.setTimeout(() => document.getElementById('owner-dispatch')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60); }}>Dispatch and bus slip</button>
+            <button type="button" className="soft-tool-tile" aria-pressed={activeSection === 'new-entry'} onClick={() => setActiveSection('new-entry')}>New Entry</button>
+          </div>
+        </section>
+      )}
 
       {/* Alerts */}
       {errorMsg && (
@@ -1492,8 +1523,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       {/* ========================================================================= */}
       {activeSection === 'orders' && (
         <div className="space-y-3">
-          <PackingBoard orders={activeOrders as unknown as PackingBoardOrder[]} settings={deliverySettings} mode="owner"
-            title="Packing by stop" onFilterChange={({ groupKey }) => setStopFilter(groupKey)} />
+          <div id="owner-packing"><PackingBoard orders={activeOrders as unknown as PackingBoardOrder[]} settings={deliverySettings} mode="owner"
+            title="Packing by stop" onFilterChange={({ groupKey }) => setStopFilter(groupKey)} /></div>
+          <span id="owner-dispatch" aria-hidden="true" />
           {ordersViewMode === 'slot' ? (
             /* ========================================================= */
             /* 1. DISPATCH SLOT DEFAULT SELECTION VIEW                   */
@@ -2340,18 +2372,47 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
       {/* ========================================================================= */}
 
-      {activeSection === 'customers' && <CustomersView user={currentUser} orders={orders} />}
+      {activeSection === 'customers' && <section aria-label="Customers" className="space-y-3">
+        <div className="owner-tool-grid">
+          <button type="button" className="soft-tool-tile" aria-pressed={customerPanel === 'list'} onClick={() => setCustomerPanel('list')}>All customers and dues</button>
+          <button type="button" className="soft-tool-tile" aria-pressed={customerPanel === 'subscriptions'} onClick={() => setCustomerPanel('subscriptions')}>Regular Supply</button>
+          <button type="button" className="soft-tool-tile" aria-pressed={customerPanel === 'partner'} onClick={() => setCustomerPanel('partner')}>Wholesale Partner</button>
+        </div>
+        {customerPanel === 'list' && <CustomersView user={currentUser} orders={orders} />}
+        {customerPanel !== 'list' && <FeatureHub key={customerPanel} currentUser={currentUser} role="admin" initial={customerPanel} allowed={[customerPanel]} />}
+      </section>}
+      {activeSection === 'godam' && isUserAdmin(currentUser) && <section aria-label="Godown" className="space-y-3">
+        <FeatureHub currentUser={currentUser} role="admin" initial="inventory" allowed={["inventory"]} />
+      </section>}
+      {activeSection === 'money' && isUserAdmin(currentUser) && <section aria-label="Money" className="space-y-3">
+        <div className="owner-tool-grid">
+          <button type="button" className="soft-tool-tile" onClick={() => setActiveSection('insights')}>Reports</button>
+          <button type="button" className="soft-tool-tile" onClick={() => setActiveSection('expenses')}>Expenses</button>
+          <button type="button" className="soft-tool-tile" onClick={() => { setEditCapacity(dailyCapacity); setIsRateModalOpen(true); }}>Rate Card</button>
+        </div>
+        <FeatureHub currentUser={currentUser} role="admin" allowed={["reports"]} />
+      </section>}
       {activeSection === 'bus-stops' && isUserAdmin(currentUser) && <BusStopSettings />}
       {activeSection === 'staff' && isUserAdmin(currentUser) && <StaffMembersManager />}
-      {activeSection === 'tools' && isUserAdmin(currentUser) && <div className="owner-tools-backdrop" onClick={() => setActiveSection('orders')}><section className="owner-tools-sheet soft-card space-y-4" onClick={event => event.stopPropagation()}>
-        <div className="flex items-center justify-between"><h2 className="text-xl font-black">Tools aur Settings</h2><button type="button" className="soft-button secondary-button" onClick={() => setActiveSection('orders')}>Close</button></div>
-        <div className="owner-tool-grid">
-          {[['new-entry','New Entry'],['insights','Reports'],['expenses','Expenses'],['users','Users'],['storefront','Store / Theme'],['ai-chat','AI Chat'],['bus-stops','Bus stops'],['staff','Staff']].map(([id,label]) => <button type="button" className="soft-tool-tile" key={id} onClick={() => setActiveSection(id as any)}>{label}</button>)}
-        </div>
-        <h3 className="font-bold">Services and tools</h3>
-        <FeatureSuiteSettings />
-        <FeatureHub currentUser={currentUser} role="admin" allowed={["inventory","reports","catalog","partner","subscriptions","promotions","referral"]}/>
-      </section></div>}
+      {activeSection === 'tools' && isUserAdmin(currentUser) && <section aria-label="Settings" className="owner-settings-page soft-card space-y-3">
+        <details className="owner-settings-group"><summary className="font-bold p-2">Offers and rewards</summary>
+          <FeatureHub currentUser={currentUser} role="admin" allowed={["loyalty","promotions","referral","catalog"]} />
+        </details>
+        <details className="owner-settings-group"><summary className="font-bold p-2">Staff and bus stops</summary>
+          <div className="owner-tool-grid">
+            {[['users','Users'],['staff','Staff'],['bus-stops','Bus stops']].map(([id,label]) => <button type="button" className="soft-tool-tile" key={id} onClick={() => setActiveSection(id as any)}>{label}</button>)}
+          </div>
+        </details>
+        <details className="owner-settings-group"><summary className="font-bold p-2">Store look</summary>
+          <div className="owner-tool-grid">
+            {[['storefront','Store / Theme'],['ai-chat','AI Chat']].map(([id,label]) => <button type="button" className="soft-tool-tile" key={id} onClick={() => setActiveSection(id as any)}>{label}</button>)}
+          </div>
+          <FeatureHub currentUser={currentUser} role="admin" allowed={["video"]} />
+        </details>
+        <details className="owner-settings-group"><summary className="font-bold p-2">Customer app buttons (on/off)</summary>
+          <FeatureSuiteSettings />
+        </details>
+      </section>}
 
             {/* SECTION D: खर्च (EXPENSES) */}
       {/* ========================================================================= */}
