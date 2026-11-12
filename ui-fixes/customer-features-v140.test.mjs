@@ -23,11 +23,15 @@ test('customer bottom navigation has exactly the four requested tabs',()=>{
 });
 
 test('Home keeps the daily winner and opens only owner-enabled business tools',()=>{
- const section=app.slice(app.indexOf("AI Features and Services"),app.indexOf("currentTab === 'ai-video'"));
+ // v1.0.66/67 (Ankur 2026-11-11/12): old "AI Features and Services" box replaced by the
+ // scrolling HomeFeatureRow; winner/offer/poll moved into the top HomeSlides card.
+ const section=app.slice(app.indexOf("{currentTab === 'home' && ("),app.indexOf("currentTab === 'ai-video'"));
+ assert.ok(section.length>0);
  assert.match(section,/DailyWinnerBanner/);
- assert.match(section,/FeatureHub/);
- assert.match(section,/'catalog'/);
- assert.doesNotMatch(section,/'inventory'|'reports'|'video'/);
+ assert.match(section,/HomeSlides/);
+ assert.match(section,/HomeFeatureRow/);
+ assert.match(section,/FeatureInline/);
+ assert.doesNotMatch(section,/'inventory'|'reports'/);
  assert.match(featureHub,/OWNER_SWITCHED_FEATURES/);
  assert.match(featureHub,/featureFlags\[f\.id\]===true/);
  assert.match(featureHub,/grid grid-cols-2 gap-2/);
