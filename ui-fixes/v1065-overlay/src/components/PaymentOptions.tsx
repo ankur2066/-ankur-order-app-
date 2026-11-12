@@ -5,6 +5,7 @@ import { backupUpiUri, makePrimaryUpiQr, primaryUpiUri } from '../utils/upi';
 
 export function PaymentOptions({ amount, orderId, isHindi = true }: { amount: number; orderId?: string; isHindi?: boolean }) {
   const [qrFallback, setQrFallback] = useState('');
+  const [qrImageFailed, setQrImageFailed] = useState(false);
   const [copied, setCopied] = useState<'primary' | 'backup' | ''>('');
   useEffect(() => { let live = true; void makePrimaryUpiQr(amount, orderId).then(value => { if (live) setQrFallback(value); }).catch(() => {}); return () => { live = false; }; }, [amount, orderId]);
   const copy = async (value: string, which: 'primary' | 'backup') => {
@@ -20,11 +21,12 @@ export function PaymentOptions({ amount, orderId, isHindi = true }: { amount: nu
 
   return <section aria-label={isHindi ? 'UPI भुगतान' : 'UPI payment'} className="payment-options space-y-3 rounded-2xl p-4">
     <h3 className="font-bold">{isHindi ? 'UPI से भुगतान' : 'Pay by UPI'}</h3>
+    {/* v1.0.69 (Ankur, 12 Nov 2026): always show the owner's own Paytm QR (same payload as his printed Paytm code); the generated amount QR is only a fallback if the image fails to load. */}
     <img
-      src={qrFallback || primaryUpiQr}
+      src={qrImageFailed && qrFallback ? qrFallback : primaryUpiQr}
       alt={`UPI QR for ${PRIMARY_UPI_ID}`}
       className="mx-auto h-36 w-36 rounded-xl bg-white p-2"
-      onError={() => { if (!qrFallback) void makePrimaryUpiQr(amount, orderId).then(setQrFallback).catch(() => {}); }}
+      onError={() => { setQrImageFailed(true); if (!qrFallback) void makePrimaryUpiQr(amount, orderId).then(setQrFallback).catch(() => {}); }}
     />
     <div className="flex flex-wrap items-center justify-center gap-2">
       <button type="button" className="soft-button primary-button" onClick={() => openPay(primaryUpiUri(amount, orderId))}>
