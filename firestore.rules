@@ -19,10 +19,17 @@ service cloud.firestore {
       return request.auth != null;
     }
 
+    // token.get() instead of token.email: a signed-in customer whose token
+    // has no email claim (e.g. phone sign-in) now reads as "not owner"
+    // (false) instead of an evaluation error. Same allow/deny result (an
+    // error is never "true"), but `false && ...` short-circuits, while an
+    // error made the rest of every owner-only branch (e.g. the full
+    // isValidOrder() of the owner update path) be evaluated as well, which
+    // spent the 1000-expression budget of customer order batches.
     function isOwner() {
       return isSignedIn() &&
-             request.auth.token.email == 'ankurdryicewholesalers@gmail.com' &&
-             request.auth.token.email_verified == true;
+             request.auth.token.get('email', '') == 'ankurdryicewholesalers@gmail.com' &&
+             request.auth.token.get('email_verified', false) == true;
     }
 
     // Kept as an alias so the collection rules below read the same as before.
@@ -80,12 +87,21 @@ service cloud.firestore {
       return userData().get('permissions', {}).get(name, fallback) == true;
     }
 
+    // Same result as `isRegistryStaff() || (isFieldTeam() && hasPerm(...))`:
+    // isFieldTeam() = roleIs('staff') || isRegistryStaff() || roleIs('delivery'),
+    // and isRegistryStaff() is already false in the right-hand branch, so it
+    // is not evaluated twice and users/{uid}.role is looked up once.
+    function isRoleFieldTeam() {
+      let role = hasUserDoc() ? userData().get('role', '') : '';
+      return role == 'staff' || role == 'delivery';
+    }
+
     function canViewOrders() {
-      return isRegistryStaff() || (isFieldTeam() && hasPerm('viewOrders', true));
+      return isRegistryStaff() || (isRoleFieldTeam() && hasPerm('viewOrders', true));
     }
 
     function canUpdateStatus() {
-      return isRegistryStaff() || (isFieldTeam() && hasPerm('updateStatus', true));
+      return isRegistryStaff() || (isRoleFieldTeam() && hasPerm('updateStatus', true));
     }
 
     // Staff buttons: Packing done (in_packing), Dispatched, Handed over (delivered).
@@ -93,8 +109,16 @@ service cloud.firestore {
       return ['in_packing', 'dispatched', 'delivered'];
     }
 
+    // A document with none of the delivery keys passes every clause below
+    // trivially, so one hasAny() short-circuits the full check (including the
+    // v1.0.72 busNumber clause) for orders/tracking without delivery info.
     function isValidDelivery(data) {
-      return (!('deliveryMode' in data) || data.deliveryMode in ['BUS', 'SHOP_PICKUP', 'PORTER', 'LOCAL']) &&
+      return !data.keys().hasAny(['deliveryMode', 'busStopId', 'packCount', 'deliveryNote', 'busNumber']) ||
+             isValidDeliveryFields(data);
+    }
+
+    function isValidDeliveryFields(data) {
+      return data.get('deliveryMode', 'BUS') in ['BUS', 'SHOP_PICKUP', 'PORTER', 'LOCAL'] &&
              (!('busStopId' in data) || (data.busStopId is string && data.busStopId.size() >= 2 && data.busStopId.size() <= 64)) &&
              (data.get('deliveryMode', '') != 'BUS' || 'busStopId' in data) &&
              (!('packCount' in data) || (data.packCount is int && data.packCount >= 0 && data.packCount <= 500)) &&
@@ -126,7 +150,8 @@ service cloud.firestore {
                data.customerTotal == data.totalAmount &&
                withinPaisa(data.calculatedTotal, formulaTotal) &&
                data.amountChangeReason is string && data.amountChangeReason.size() >= 3)) &&
-             (!('customerType' in data) || isAdmin() || (request.auth == null && data.customerType == 'retail') || (request.auth != null && data.customerType == ptype));
+             // isAdmin() last: the usual customer case is decided before it.
+             (!('customerType' in data) || (request.auth == null && data.customerType == 'retail') || (request.auth != null && data.customerType == ptype) || isAdmin());
     }
 
     // Staff view must mirror the order written in the same batch. The order's
@@ -135,7 +160,10 @@ service cloud.firestore {
     function isValidStaffView(v, id) {
       let o = getAfter(/databases/$(database)/documents/orders/$(id)).data;
       return v.keys().hasOnly(['orderId','sourceCollection','customerName','city','district','productName','dispatchTiming','dispatchDate','slot','status','quantityKg','createdAt','updatedAt','isTrash','deliveryMode','busStopId','packCount','deliveryNote']) &&
-        v.keys().hasAll(['orderId','sourceCollection','customerName','city','district','productName','dispatchTiming','status','quantityKg','createdAt','updatedAt','isTrash']) &&
+        // The other required keys (orderId, sourceCollection, customerName,
+        // city, district, productName, status, quantityKg) are dereferenced
+        // below, so a missing one already denies; only these need hasAll().
+        v.keys().hasAll(['dispatchTiming','createdAt','updatedAt','isTrash']) &&
         v.orderId == id && v.sourceCollection == 'orders' &&
         v.customerName == o.customerName && v.city == o.city && v.district == o.district &&
         v.productName == o.productName && v.quantityKg == o.quantityKg && v.status == o.status &&
@@ -189,8 +217,8 @@ service cloud.firestore {
       // Every required field is dereferenced below, so a missing one already
       // denies; no separate hasAll() (saves ~25 expressions per order).
 
-      let isAmountChanged = ('amountChanged' in data && data.amountChanged == true);
-      let formulaTotal = data.dryIceSubtotal + data.thermocolSubtotal + data.quantityKg * (('transportPrice' in data) ? data.transportPrice : 0);
+      let isAmountChanged = data.get('amountChanged', false) == true;
+      let formulaTotal = data.dryIceSubtotal + data.thermocolSubtotal + data.quantityKg * data.get('transportPrice', 0);
       return data.keys().hasOnly(allowedKeys) &&
              data.orderId is string && data.orderId.size() <= 32 &&
              data.trackingToken is string && data.trackingToken.size() <= 48 &&
@@ -200,18 +228,18 @@ service cloud.firestore {
              data.district is string && data.district.size() >= 2 && data.district.size() <= 100 &&
              (!('address' in data) || (data.address is string && data.address.size() <= 500)) &&
              (!('city' in data) || (data.city is string && data.city.size() <= 100)) &&
-             (!('isTrash' in data) || data.isTrash is bool) &&
+             data.get('isTrash', false) is bool &&
              (!('trashedAt' in data) || data.trashedAt == null || isValidTimestamp(data.trashedAt)) &&
              data.quantityKg is number && data.quantityKg > 0 && data.quantityKg <= 5000 &&
              data.dispatchTiming is string && data.dispatchTiming.size() <= 100 &&
              (!('dispatchDate' in data) || (data.dispatchDate is string && data.dispatchDate.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$'))) &&
-             (!('slot' in data) || data.slot in ['morning', 'evening']) &&
-             (!('dispatchSlot' in data) || data.dispatchSlot in ['morning', 'evening']) &&
-             (!('customerType' in data) || data.customerType in ['retail', 'wholesale']) &&
-             (!('amountChanged' in data) || data.amountChanged is bool) &&
+             data.get('slot', 'morning') in ['morning', 'evening'] &&
+             data.get('dispatchSlot', 'morning') in ['morning', 'evening'] &&
+             data.get('customerType', 'retail') in ['retail', 'wholesale'] &&
+             data.get('amountChanged', false) is bool &&
              (!('amountChangeReason' in data) || (data.amountChangeReason is string && data.amountChangeReason.size() <= 180)) &&
-             (!('testOrder' in data) || data.testOrder is bool) &&
-             (!('thermocolIncluded' in data) || data.thermocolIncluded is bool) &&
+             data.get('testOrder', false) is bool &&
+             data.get('thermocolIncluded', false) is bool &&
              (!('calculatedTotal' in data) || (data.calculatedTotal is number && data.calculatedTotal > 0 && data.calculatedTotal <= 99000)) &&
              (!('customerTotal' in data) || (data.customerTotal is number && data.customerTotal > 0 && data.customerTotal <= 99000)) &&
              data.productName is string && data.productName.size() <= 100 &&
@@ -257,8 +285,8 @@ service cloud.firestore {
              data.district is string && data.district.size() >= 2 && data.district.size() <= 100 &&
              data.dispatchTiming is string && data.dispatchTiming.size() <= 100 &&
              (!('dispatchDate' in data) || (data.dispatchDate is string && data.dispatchDate.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$'))) &&
-             (!('slot' in data) || data.slot in ['morning', 'evening']) &&
-             (!('dispatchSlot' in data) || data.dispatchSlot in ['morning', 'evening']) &&
+             data.get('slot', 'morning') in ['morning', 'evening'] &&
+             data.get('dispatchSlot', 'morning') in ['morning', 'evening'] &&
              data.paymentStatus in ['pending_verification', 'payment_verified', 'cash_on_delivery'] &&
              data.lastStatusUpdate is string && data.lastStatusUpdate.size() <= 200 &&
              isValidDelivery(data) &&
@@ -332,14 +360,16 @@ service cloud.firestore {
         (isAdmin() || !('busNumber' in request.resource.data)) &&
         request.resource.data.createdAt == request.time &&
         request.resource.data.updatedAt == request.time &&
-        (isAdmin() || !isSignedIn() || request.resource.data.userId == request.auth.uid || request.resource.data.userId == 'guest' || request.resource.data.userId == 'owner_manual_entry') &&
-        (isAdmin() || existsAfter(/databases/$(database)/documents/order_tracking/$(request.resource.data.trackingToken)));
+        // (owner || A) && (owner || B) written as owner || (A && B): one isAdmin() less.
+        (isAdmin() ||
+         ((!isSignedIn() || request.resource.data.userId == request.auth.uid || request.resource.data.userId == 'guest' || request.resource.data.userId == 'owner_manual_entry') &&
+          existsAfter(/databases/$(database)/documents/order_tracking/$(request.resource.data.trackingToken))));
 
       // Updates:
       //  Owner: full operational updates
       //  Staff/Delivery WITH the `updateStatus` permission: ONLY status + updatedAt,
       //  and only the packing/dispatch statuses (Spark path, no Cloud Function).
-      allow update: if isValidId(orderId) && (
+      allow update: if (
         (isAdmin() &&
          isValidOrder(incoming()) &&
          incoming().orderId == existing().orderId &&
@@ -350,7 +380,7 @@ service cloud.firestore {
          incoming().diff(existing()).affectedKeys().hasOnly(['status', 'updatedAt']) &&
          incoming().status in staffStatuses() &&
          incoming().updatedAt == request.time)
-      );
+      ) && isValidId(orderId);
 
       // Deletion: Owner only
       allow delete: if isValidId(orderId) && isAdmin();
@@ -416,7 +446,7 @@ service cloud.firestore {
         incoming().updatedAt == request.time &&
         (isAdmin() || existsAfter(/databases/$(database)/documents/orders/$(incoming().orderId)));
 
-      allow update: if isValidTrackingToken(trackingToken) && (
+      allow update: if (
         (isAdmin() &&
          isValidOrderTracking(incoming()) &&
          incoming().orderId == existing().orderId &&
@@ -428,7 +458,7 @@ service cloud.firestore {
          incoming().status in ['pending', 'confirmed', 'in_packing', 'dispatched', 'delivered', 'cancelled'] &&
          incoming().lastStatusUpdate is string && incoming().lastStatusUpdate.size() <= 200 &&
          incoming().updatedAt == request.time)
-      );
+      ) && isValidTrackingToken(trackingToken);
 
       allow delete: if isValidTrackingToken(trackingToken) && isAdmin();
     }
