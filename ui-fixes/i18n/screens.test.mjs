@@ -29,7 +29,7 @@ async function screen(path,name,props={},seed=[]){
  if(id.endsWith('/theme/designTokens'))return synthetic(id,{CHART_COLORS:{grid:'',axisText:'',axisLine:'',bar:''},STOP_PALETTE:[],GROUP_COLORS:{},DESIGN_TOKENS:{},stopColor:()=>({bg:'',ink:''}),statusTokenKey:()=>'total'});
  if(id.endsWith('/utils/delivery'))return synthetic(id,{DEFAULT_DELIVERY_SETTINGS:{busStops:[],districtStopMap:{}},resolveDeliveryDefault:()=>({source:'ask'}),validateDeliveryChoice:()=>null,packingGroupKey:()=>'UNASSIGNED',findStop:(settings,stopId)=>stopId?(settings?.busStops||[]).find(s=>s.id===stopId):undefined});
  if(/\/services\/(deliverySettings|staffSync|staffRegistry|busDispatch)$/.test(id))return synthetic(id,Object.fromEntries(names.map(k=>[k,/^(sync|save|remove)/.test(k)?async()=>{}:()=>()=>{}])));
- if(/\/(PackingBoard|DeliveryModePicker|BusStopSettings|StaffMembersManager|OrderDeliveryEditor)$/.test(id))return synthetic(id,Object.fromEntries(names.map(k=>[k,()=>null])));
+ if(/\/(PackingBoard|DeliveryModePicker|BusStopSettings|StaffMembersManager|OrderDeliveryEditor|StockLedgerPanel)$/.test(id))return synthetic(id,Object.fromEntries(names.map(k=>[k,()=>null])));
  if(id.endsWith('/utils/orderWorkflow'))return load(resolve(dirname(file),id)+'.ts');// v1.0.70: real owner workflow helpers (new orders, loading ticks, overdue), not a mock
  if(id==='./dispatchSchedule.ts'&&file.endsWith('/utils/orderWorkflow.ts'))return load(resolve(dirname(file),id));
  if(/\/utils\//.test(id))return synthetic(id,Object.fromEntries(names.map(k=>[k,()=>false])));
@@ -53,11 +53,27 @@ test('booking language switch preserves typed customer data, decimals, phone and
 for(const feature of ['calculator','video','faq','rates','support','service-area'])test('Feature '+feature+' renders English copy and responds to saved Hindi choice',async()=>{const h=await screen('components/customer/FeatureHub.tsx','FeatureHub',{currentUser:owner,role:'admin',initial:feature,allowed:[feature]});assert.ok(h.text.length>20);assert.doesNotMatch(h.text,/[\u0900-\u097F]/);await h.switchTo('hi');assert.match(h.text,/[\u0900-\u097F]/);await h.switchTo('en');assert.doesNotMatch(h.text,/[\u0900-\u097F]/);await h.close();});
 test('loyalty without a configured policy shows no fabricated points',async()=>{const h=await screen('components/customer/LoyaltyPanel.tsx','LoyaltyPanel',{user:{uid:'fixture-buyer'},owner:false,Form:()=>null});assert.match(h.text,/not configured|paused/i);assert.doesNotMatch(h.text,/[\u0900-\u097F]/);await h.switchTo('hi');assert.match(h.text,/[\u0900-\u097F]/);await h.close();});
 
+// v1.0.75 (Ankur, 13 Nov 2026): a new order without a delivery Mode cannot be confirmed (real orderWorkflow gate).
+test('owner Confirm is blocked with a clear message while the order Mode is not set',async()=>{
+ const today=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Kolkata',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date())
+ const seed=[{trackingToken:'ADI-T_654321',trackingPin:'654321',customerPhone:'9000000002',district:'Lucknow',quantityKg:5,dispatchTiming:'',dispatchDate:today,dispatchSlot:'morning',productName:'Dry Ice',totalAmount:250,paymentStatus:'pending_verification',paymentMethod:'UPI',userId:'guest',createdAt:{seconds:1},updatedAt:{seconds:1},orderId:'ADI-NOMODE-0001',customerName:'Bina Mode',status:'pending'}]
+ const h=await screen('components/AdminDashboard.tsx','AdminDashboard',{currentUser:owner,onGoToTrack(){}},seed)
+ await act(async()=>{await Promise.resolve()})
+ await act(async()=>h.view.root.find(n=>n.type==='button'&&String(n.props.className||'').includes('owner-new-orders-tile')).props.onClick())
+ const list=()=>h.view.root.findAll(n=>n.type==='li'&&String(n.props.className||'').includes('owner-new-order-card'))
+ assert.equal(list().length,1)
+ assert.equal(list()[0].findAll(n=>n.props&&'data-mode-required' in n.props).length,1,'Mode not set warning shows on the card')
+ const confirm=list()[0].find(n=>n.type==='button'&&textOf(n.children.map(c=>c.toJSON?c.toJSON():c)).includes('Confirm order'))
+ await act(async()=>{await confirm.props.onClick()})
+ assert.equal(list().length,1,'order without Mode stays unconfirmed')
+ assert.match(h.text,/Select the delivery Mode/)
+ await h.close()
+})
 // v1.0.70: real owner "New orders" tab, Confirm, today's red alert and overdue/upcoming counts (orderWorkflow is the real file).
 test('owner New orders tab lists only unconfirmed orders and Confirm moves an order out of it',async()=>{
  const today=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Kolkata',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date())
  const base={trackingToken:'ADI-T_123456',trackingPin:'123456',customerPhone:'9000000001',district:'Lucknow',quantityKg:10,dispatchTiming:'',dispatchDate:today,dispatchSlot:'morning',productName:'Dry Ice',dryIcePricePerKg:50,dryIceSubtotal:500,thermocolPricePerKg:0,thermocolSubtotal:0,totalAmount:500,paymentStatus:'pending_verification',paymentMethod:'UPI',userId:'guest',createdAt:{seconds:1},updatedAt:{seconds:1}}
- const seed=[{...base,orderId:'ADI-NEW-0001',customerName:'Naya Grahak',status:'pending'},{...base,orderId:'ADI-OK-0002',customerName:'Pakka Grahak',status:'confirmed'},{...base,orderId:'ADI-OLD-0003',customerName:'Purana Done',status:'delivered',dispatchDate:'2026-01-02'},{...base,orderId:'ADI-OLD-0004',customerName:'Purana Open',status:'confirmed',dispatchDate:'2026-01-02'}]
+ const seed=[{...base,orderId:'ADI-NEW-0001',customerName:'Naya Grahak',status:'pending',deliveryMode:'LOCAL'},{...base,orderId:'ADI-OK-0002',customerName:'Pakka Grahak',status:'confirmed'},{...base,orderId:'ADI-OLD-0003',customerName:'Purana Done',status:'delivered',dispatchDate:'2026-01-02'},{...base,orderId:'ADI-OLD-0004',customerName:'Purana Open',status:'confirmed',dispatchDate:'2026-01-02'}]
  const h=await screen('components/AdminDashboard.tsx','AdminDashboard',{currentUser:owner,onGoToTrack(){}},seed)
  await act(async()=>{await Promise.resolve()})
  const alert=h.view.root.findAll(n=>n.props?.role==='alert'&&String(n.props.className||'').includes('owner-today-alert'))
