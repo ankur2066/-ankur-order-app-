@@ -35,7 +35,7 @@ test('existing booking and private product records remain untouched', () => {
 });
 
 test('v1.0.72: Products tile only shows a coming-soon note (Hindi/English), no navigation or Firestore', () => {
-  assert.match(nav, /hi: 'बहुत जल्द यह सुविधा शुरू होगी।', en: 'Coming very soon\.'/);
+  assert.match(nav, /hi: 'बहुत जल्द यह सुविधा शुरू होगी।', en: 'Very soon, this will work\.'/);
   assert.match(nav, /hi \? 'प्रोडक्ट्स' : 'Products'/);
   assert.match(nav, /onClick=\{\(\) => \(id === 'products' \? setSoon\(true\) : onChange\(id\)\)\}/);
   assert.match(nav, /role="status" aria-live="polite"/);

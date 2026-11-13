@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.0.73 — Products tile English text
+
+Android **versionCode 73 / versionName 1.0.73**, same applicationId and keystore. No rules or data change.
+
+- Products tile tap, English mode now shows "Very soon, this will work." (Hindi unchanged: "बहुत जल्द यह सुविधा शुरू होगी।").
+
 ## v1.0.72 — bus number on customer tracking + staff WhatsApp, Products (coming soon) tile
 
 Android **versionCode 72 / versionName 1.0.72**, same applicationId `com.ankurdryice.events` and keystore. Firebase Spark: no deploy by Hark. **New Firestore field `busNumber`; `firestore.rules` changed and must be published by the owner** (orders + order_tracking only; staff paths unchanged, no role change, no data deleted).

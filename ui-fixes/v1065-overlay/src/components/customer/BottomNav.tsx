@@ -11,7 +11,7 @@ interface BottomNavProps {
 }
 
 /** v1.0.72 (Ankur, 13 Nov 2026): Products tile is a placeholder; it only shows this note. */
-export const PRODUCTS_COMING_SOON = { hi: 'बहुत जल्द यह सुविधा शुरू होगी।', en: 'Coming very soon.' } as const;
+export const PRODUCTS_COMING_SOON = { hi: 'बहुत जल्द यह सुविधा शुरू होगी।', en: 'Very soon, this will work.' } as const;
 
 export const BottomNav: React.FC<BottomNavProps> = ({ active, onChange, isOwner = false }) => {
   const { language } = useLanguage();
