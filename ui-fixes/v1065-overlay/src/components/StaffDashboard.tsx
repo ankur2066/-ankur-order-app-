@@ -30,6 +30,7 @@ import { PackingBoard, type PackingBoardOrder } from './PackingBoard';
 import { subscribeDeliverySettings } from '../services/deliverySettings';
 import { DEFAULT_DELIVERY_SETTINGS, type DeliverySettings } from '../utils/delivery';
 import type { StaffAction } from '../utils/staffProjection';
+import { sortNewOrders } from '../utils/orderWorkflow';
 
 interface StaffDashboardProps {
   notificationTarget?: {orderId:string} | null;
@@ -227,7 +228,7 @@ export const StaffDashboard: React.FC<StaffDashboardProps> = ({
 
   // Filtered orders list
   const filteredOrders = useMemo(() => {
-    return orders.filter((ord) => {
+    const list = orders.filter((ord) => {
       // Status filter
       if (statusFilter !== 'all' && ord.status !== statusFilter) {
         return false;
@@ -253,6 +254,8 @@ export const StaffDashboard: React.FC<StaffDashboardProps> = ({
       }
       return true;
     });
+    // v1.0.74 (Ankur, 13 Nov 2026): staff "New orders" list matches the owner's (earliest dispatch first).
+    return statusFilter === 'pending' ? sortNewOrders(list) : list;
   }, [orders, statusFilter, slotFilter, districtFilter, searchQuery]);
 
   // Operational metrics
@@ -470,6 +473,19 @@ export const StaffDashboard: React.FC<StaffDashboardProps> = ({
               </button>
             ))}
           </div>
+        </div>
+
+        {/* v1.0.74 (Ankur, 13 Nov 2026): owner-style "New orders" (not yet confirmed), red count. */}
+        <div className="pt-2 border-t border-slate-100">
+          <button
+            type="button"
+            data-staff-new-orders
+            onClick={() => setStatusFilter(statusFilter === 'pending' ? 'all' : 'pending')}
+            className={`w-full flex items-center justify-between rounded-xl px-3 py-2 text-sm font-black border cursor-pointer ${statusFilter === 'pending' ? 'bg-slate-900 text-white border-slate-900' : 'bg-red-50 text-red-800 border-red-200'}`}
+          >
+            <span>New orders</span>
+            <b className={`inline-flex min-w-[22px] justify-center rounded-full px-1.5 text-xs tabular-nums ${metrics.pending ? 'bg-red-600 text-white' : 'bg-slate-200 text-slate-600'}`}>{metrics.pending}</b>
+          </button>
         </div>
 
         {/* Status Filters */}

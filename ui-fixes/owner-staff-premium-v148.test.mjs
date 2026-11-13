@@ -101,3 +101,20 @@ test('Both overlays applied in review and reproducible local source; signed APK 
  assert.ok(local.indexOf('owner_premium_v148.py')<local.indexOf('staff_contact_privacy_v148.py'));
  assert.match(signed,/paths: \['release-batches\/\*\.txt'\]/);
 });
+
+// v1.0.74 (Ankur, 13 Nov 2026): staff get the owner's "New orders" list (unconfirmed, red count, earliest dispatch first).
+test('Staff dashboard shows an owner-style New orders list',()=>{
+ assert.match(staff,/data-staff-new-orders/);
+ assert.match(staff,/<span>New orders<\/span>/);
+ assert.match(staff,/import \{ sortNewOrders \} from '\.\.\/utils\/orderWorkflow';/);
+ assert.match(staff,/statusFilter === 'pending' \? sortNewOrders\(list\) : list/);
+});
+
+// v1.0.74 (Ankur, 13 Nov 2026): owner Customers has a separate "Customer login" list, latest app login first.
+test('Owner Customers has a Customer login list sorted by latest login',()=>{
+ const cv=readFileSync(resolve(root,'src/components/owner/CustomersView.tsx'),'utf8');
+ assert.match(cv,/data-customer-login-tab/);
+ assert.match(cv,/export function appLoginRows/);
+ assert.match(cv,/c\.uid !== 'owner_manual_entry'/);
+ assert.match(cv,/Last login: \{loginTime\(c\.lastLoginAt\)\}/);
+});

@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.0.74 — staff "New orders" list, owner "Customer login" list
+
+Android **versionCode 74 / versionName 1.0.74**, same applicationId and keystore. No rules or data change.
+
+- **Staff**: owner-style "New orders" button with red count (not yet confirmed orders); tap shows them, earliest dispatch first. Same staff-safe fields as before.
+- **Owner → Customers**: new "Customer login" tab — customers who logged in to the app (owner-entered customers excluded), latest login first, with login time (IST) and an "आज" chip for today's logins.
+
 ## v1.0.73 — Products tile English text
 
 Android **versionCode 73 / versionName 1.0.73**, same applicationId and keystore. No rules or data change.
