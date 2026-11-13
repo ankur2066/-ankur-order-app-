@@ -1,5 +1,16 @@
 # Changelog
 
+## v1.0.71 — AI chat microphone in the APK, status-aware staff WhatsApp text
+
+Android **versionCode 71 / versionName 1.0.71**, same applicationId `com.ankurdryice.events` and keystore. Firebase Spark: no deploy, no new Firestore field, no rules or role change.
+
+- **AI chat mic works inside the Android app**: in the APK (Capacitor native) the mic uses `@capacitor-community/speech-recognition` 7.0.1 — asks microphone permission, listens in `hi-IN` (falls back to `en-IN`), live partial text fills the chat box, second tap stops. Clear Hindi message when permission is denied or speech recognition is not available on the phone. Browser (web) keeps the Web Speech path. Helper: `src/utils/voiceInput.ts` (+ tests).
+- Android manifest: `RECORD_AUDIO` permission and the `android.speech.RecognitionService` query (added by `ui-fixes/release-audit-v1065.py`; the plugin also merges them).
+- **Staff "Customer ko WhatsApp"** prefill now follows the order's current status (pending, confirmed, packing, packed, dispatched with bus stop / mode, delivered, cancelled); unknown status keeps the old greeting. Uses only staff-view fields. Helper: `src/utils/staffWhatsApp.ts` (+ tests).
+- **Packing boxes = Alambagh, Kaiserbagh, Porter, Local** (+ "Mode not set" only when such orders exist). Porter is its own box with its own count; Local = local delivery + godown/shop pickup (sub-tags Local delivery / Dukan pickup). "Bus Stop 3" removed from defaults; if it is stored in `settings/delivery` it is kept (never deleted) but always read as inactive, hidden from pickers and from the owner bus-stop list; old orders on it show as "Bus Stop 3 (Inactive)".
+- **Customer Home sliding banner at the very top** (CustomerHome `topSlot`, patched by `release-audit-v1065.py`). With an empty `settings/homeSlides` it shows 3 built-in rotating slides; any owner winner/offer/poll replaces them. No Firestore writes.
+- **"संपर्क करें" footer** at the bottom of customer Home (above bottom nav): packing (Vikas Gautam) 9151416323, delivery 9532844538, complaints 8896332066 — tel + WhatsApp links, Hindi/English labels. Numbers live only in `src/data/customerContacts.ts`.
+
 ## v1.0.70 — owner: New orders tab, loading ticks by stop, today alert, overdue fix
 
 Android **versionCode 70 / versionName 1.0.70**, same applicationId `com.ankurdryice.events` and keystore. Firebase Spark: no deploy, no new Firestore field, no rules change for the app itself.

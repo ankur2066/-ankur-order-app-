@@ -1,21 +1,30 @@
 import {UI} from '../i18n/UiText';
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Loader2, Mic, Send, Volume2 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { answerOrderQuestion, type ChatOrder } from '../utils/orderChatAnswer';
 import { authHeaders, getApiBase } from '../utils/apiBase';
+import { Capacitor } from '@capacitor/core';
+import { SpeechRecognition as NativeSpeech } from '@capacitor-community/speech-recognition';
+import { startNativeVoice, webVoiceLanguage, VOICE_MESSAGES, type NativeSpeechPlugin, type VoiceSession } from '../utils/voiceInput';
 
-type SpeechCtor = new () => {lang:string;interimResults:boolean;maxAlternatives:number;onresult:((e:any)=>void)|null;onerror:(()=>void)|null;onend:(()=>void)|null;start:()=>void};
+type SpeechCtor = new () => {lang:string;interimResults:boolean;maxAlternatives:number;onresult:((e:any)=>void)|null;onerror:(()=>void)|null;onend:(()=>void)|null;start:()=>void;stop?:()=>void};
 const speechRecognition = (): SpeechCtor | null => {
   if (typeof window === 'undefined') return null;
   const w = window as any;
   return (w.SpeechRecognition || w.webkitSpeechRecognition || null) as SpeechCtor | null;
 };
+// v1.0.71: inside the Android APK the WebView has no Web Speech API, so the native plugin is used.
+const isNativeApp = () => { try { return Capacitor.isNativePlatform(); } catch { return false; } };
 const canSpeak = () => typeof window !== 'undefined' && 'speechSynthesis' in window && typeof (window as any).SpeechSynthesisUtterance === 'function';
 
 export const AIChat: React.FC<{ context: string; orders?: ChatOrder[]; today?: string }> = ({ context, orders = [], today }) => {
   const { language } = useLanguage();
   const [listening, setListening] = useState(false);
+  const [voiceNote, setVoiceNote] = useState('');
+  const nativeSession = useRef<VoiceSession | null>(null);
+  const webRecognizer = useRef<{ stop?: () => void } | null>(null);
+  useEffect(() => () => { nativeSession.current?.stop(); webRecognizer.current?.stop?.(); }, []);
   const speak = (text: string) => {
     if (!canSpeak()) return;
     try {
@@ -25,16 +34,34 @@ export const AIChat: React.FC<{ context: string; orders?: ChatOrder[]; today?: s
       window.speechSynthesis.speak(u);
     } catch { /* speech is optional */ }
   };
-  const listen = () => {
+  const listen = async () => {
+    // Second tap stops listening (native and browser).
+    if (listening) {
+      if (nativeSession.current) nativeSession.current.stop();
+      else { try { webRecognizer.current?.stop?.(); } catch { /* ignore */ } setListening(false); }
+      return;
+    }
+    setVoiceNote('');
+    if (isNativeApp()) {
+      setListening(true);
+      const session = await startNativeVoice(NativeSpeech as unknown as NativeSpeechPlugin, {
+        onText: (text) => setInput(text),
+        onEnd: () => { nativeSession.current = null; setListening(false); },
+        onProblem: (_problem, message) => setVoiceNote(message),
+      });
+      nativeSession.current = session;
+      return;
+    }
     const Ctor = speechRecognition();
-    if (!Ctor || listening) return;
+    if (!Ctor) { setVoiceNote(VOICE_MESSAGES.unavailable); return; }
     try {
       const r = new Ctor();
-      r.lang = language === 'hi' ? 'hi-IN' : 'en-IN';
+      webRecognizer.current = r;
+      r.lang = webVoiceLanguage(language);
       r.interimResults = false; r.maxAlternatives = 1;
       r.onresult = (e: any) => { const text = e?.results?.[0]?.[0]?.transcript; if (typeof text === 'string') setInput(text); };
       r.onerror = () => setListening(false);
-      r.onend = () => setListening(false);
+      r.onend = () => { webRecognizer.current = null; setListening(false); };
       setListening(true); r.start();
     } catch { setListening(false); }
   };
@@ -116,8 +143,8 @@ export const AIChat: React.FC<{ context: string; orders?: ChatOrder[]; today?: s
           className="flex-1 px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl text-xs sm:text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-sky-500"
           placeholder="ऑर्डर्स के बारे में कुछ भी पूछें (उदा. आज कुल कितनी बुकिंग हुई?)..."
         />
-        {speechRecognition() && (
-          <button type="button" onClick={listen} disabled={listening} aria-label={language === 'hi' ? 'बोलकर पूछें' : 'Ask by voice'}
+        {(isNativeApp() || speechRecognition()) && (
+          <button type="button" onClick={listen} aria-pressed={listening} aria-label={listening ? (language === 'hi' ? 'बोलना बंद करें' : 'Stop voice input') : (language === 'hi' ? 'बोलकर पूछें' : 'Ask by voice')}
             className="p-2.5 border border-slate-300 rounded-xl cursor-pointer shrink-0 disabled:opacity-50">
             <Mic className={`w-4 h-4 ${listening ? 'text-sky-600 animate-pulse' : 'text-slate-700'}`} />
           </button>
@@ -130,6 +157,8 @@ export const AIChat: React.FC<{ context: string; orders?: ChatOrder[]; today?: s
           <Send className="w-4 h-4" />
         </button>
       </div>
+      {voiceNote && <p role="status" className="mt-2 text-xs sm:text-sm text-rose-700">{voiceNote}</p>}
+      {listening && !voiceNote && <p role="status" className="mt-2 text-xs sm:text-sm text-sky-700">बोलिए… रोकने के लिए माइक फिर दबाएँ।</p>}
     </div>
   );
 };

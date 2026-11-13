@@ -18,6 +18,16 @@ type Slides = {
   pollId: string; pollQuestion: string; pollOptions: string[];
 };
 const EMPTY: Slides = {winnerName: '', winnerCity: '', offerText: '', pollId: '', pollQuestion: '', pollOptions: []};
+/**
+ * v1.0.71 (Ankur 2026-11-13): built-in slides shown when settings/homeSlides is
+ * empty (no owner winner/offer/poll), so the banner never disappears. Any owner
+ * slide replaces all of these. Read-only: nothing is written to Firestore.
+ */
+export const DEFAULT_HOME_SLIDES: readonly {key: string; icon: string; text: string}[] = [
+  {key: 'd-brand', icon: '❄️', text: 'Ankur Dry Ice — लखनऊ में ड्राई आइस, होलसेल और रिटेल'},
+  {key: 'd-delivery', icon: '🚚', text: 'Alambagh, Kaiserbagh, Porter या गोदाम से पिकअप'},
+  {key: 'd-help', icon: '📞', text: 'ऑर्डर/मदद: 95808 82066'},
+];
 const istDay = () => new Date(Date.now() + 330 * 60000).toISOString().slice(0, 10);
 const clean = (v: unknown, max: number) => (typeof v === 'string' ? v.trim().slice(0, max) : '');
 
@@ -31,6 +41,7 @@ export const readSlides = (v: Record<string, unknown> | undefined): Slides => {
   };
 };
 
+/** v1.0.71: rendered at the very top of customer Home (CustomerHome topSlot). */
 export const HomeSlides: React.FC<{currentUser: User | null}> = ({currentUser}) => {
   const {language} = useLanguage();
   const hi = language === 'hi';
@@ -70,6 +81,7 @@ export const HomeSlides: React.FC<{currentUser: User | null}> = ({currentUser}) 
         )}
       </span>
     )});
+    if (!list.length) for (const d of DEFAULT_HOME_SLIDES) list.push({key: d.key, icon: d.icon, node: <span className="min-w-0 line-clamp-2">{d.text}</span>});
     return list;
   }, [winner, slides, voted, hi, currentUser]);
 

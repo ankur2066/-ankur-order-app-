@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { STOP_PALETTE } from '../../theme/designTokens';
 import { subscribeDeliverySettings, saveDeliverySettings } from '../../services/deliverySettings';
-import { DEFAULT_DELIVERY_SETTINGS, districtKey, slugStopId, type BusStop, type DeliverySettings } from '../../utils/delivery';
+import { DEFAULT_DELIVERY_SETTINGS, districtKey, slugStopId, isRetiredStop, type BusStop, type DeliverySettings } from '../../utils/delivery';
 
 /** Owner-only: bus stops (add, rename, colour, Active/Inactive) and district -> stop mapping. */
 export function BusStopSettings() {
@@ -46,7 +46,8 @@ export function BusStopSettings() {
   return <section className="soft-card space-y-3" aria-labelledby="bus-stop-settings-title">
     <h2 id="bus-stop-settings-title" className="text-lg font-black">Bus stops</h2>
     <p className="text-sm t-sub">Inactive stop naye orders me nahi dikhega. Purane orders apne stop par hi rahenge.</p>
-    <ul className="space-y-2">{view.busStops.map((stop) => <li key={stop.id} className="feature-toggle-row flex flex-wrap items-center gap-2 rounded-2xl p-3">
+    {/* v1.0.71: retired stops (Bus Stop 3) stay saved as inactive but are not listed. */}
+    <ul className="space-y-2">{view.busStops.filter((stop) => !isRetiredStop(stop.id)).map((stop) => <li key={stop.id} className="feature-toggle-row flex flex-wrap items-center gap-2 rounded-2xl p-3">
       <span className={`stop-chip stop-tag-${stop.color}`} aria-hidden="true">{stop.name.slice(0, 2).toUpperCase()}</span>
       <input aria-label={`Rename ${stop.name}`} className="delivery-select flex-1 rounded-xl p-2" value={stop.name} maxLength={60} onChange={(event) => updateStop(stop.id, { name: event.target.value })} />
       <select aria-label={`Colour for ${stop.name}`} className="delivery-select rounded-xl p-2" value={stop.color} onChange={(event) => updateStop(stop.id, { color: event.target.value })}>

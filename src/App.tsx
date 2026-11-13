@@ -15,6 +15,7 @@ import { NotificationToast } from './components/customer/NotificationToast';
 import { BrandMark } from './components/customer/BrandMark';
 import { DailyWinnerBanner } from './components/customer/DailyWinner';
 import { HomeSlides } from './components/customer/HomeSlides';
+import { CustomerContactFooter } from './components/customer/CustomerContactFooter';
 import { FeatureHub, FeatureInline } from './components/customer/FeatureHub';
 import { HomeFeatureRow, type HomeFeature } from './components/customer/HomeFeatureRow';
 import { AutoTranslate } from './i18n/AutoTranslate';
@@ -262,9 +263,9 @@ function AppShell() {
           onBook={handleBook}
           onReorder={handleReorder}
           onPromoAction={handlePromoAction}
+          topSlot={<HomeSlides currentUser={currentUser} />}
           bookingForm={(inlineProduct) => (
             <>
-              <HomeSlides currentUser={currentUser} />
               <HomeFeatureRow active={homeFeature} onSelect={setHomeFeature} role={role} />
               {homeFeature === 'booking' ? (
                 <>
@@ -286,9 +287,11 @@ function AppShell() {
 
       {/* v1.0.66: features moved to the scrolling row at the top of Home; only the optional
           Daily Winner consent stays below the form (hidden when there is nothing to show). */}
-      {currentTab === 'home' && homeFeature === 'booking' && currentUser && (
+      {/* v1.0.71: "संपर्क करें" contact block at the very bottom of Home, above the bottom nav. */}
+      {currentTab === 'home' && (
         <section className="c-app ankur-readable-customer-page max-w-lg mx-auto px-3 pb-24">
-          <DailyWinnerBanner currentUser={currentUser} />
+          {homeFeature === 'booking' && currentUser && <DailyWinnerBanner currentUser={currentUser} />}
+          <CustomerContactFooter />
         </section>
       )}
 

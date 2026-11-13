@@ -3,7 +3,7 @@ const root=process.env.ANKUR_CLIENT_APP||process.cwd(),appRequire=createRequire(
 const owner={uid:'fixture-owner',email:'ankurdryicewholesalers@gmail.com',emailVerified:true,displayName:'Fixture Owner'},rate={dryIceRate:50,thermocolRate:10,transportRate:0};
 const textOf=n=>n===null?'':typeof n==='string'?n:Array.isArray(n)?n.map(textOf).join(''):(n.children||[]).map(textOf).join('');
 async function screen(path,name,props={},seed=[]){
- let language='en';const storage=new Map(),window=new EventTarget();window.setTimeout=()=>1;window.clearTimeout=()=>{};window.open=()=>{};const document=new EventTarget();document.visibilityState='visible';document.documentElement={dataset:{}};const context=createContext({console,window,document,Date,Intl,URL,crypto:globalThis.crypto,localStorage:{getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,v)},navigator:{clipboard:{writeText:async()=>{}}},location:{origin:'https://fixture.invalid',pathname:'/'},setTimeout:()=>1,clearTimeout:()=>{}});
+ let language='en';const storage=new Map(),window=new EventTarget();window.setTimeout=()=>1;window.clearTimeout=()=>{};window.setInterval=()=>1;window.clearInterval=()=>{};window.open=()=>{};const document=new EventTarget();document.visibilityState='visible';document.documentElement={dataset:{}};const context=createContext({console,window,document,Date,Intl,URL,crypto:globalThis.crypto,localStorage:{getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,v)},navigator:{clipboard:{writeText:async()=>{}}},location:{origin:'https://fixture.invalid',pathname:'/'},setTimeout:()=>1,clearTimeout:()=>{}});
  const mods=new Map(),dict=JSON.parse(readFileSync(resolve(root,'src/i18n/messages.json'),'utf8')),ui=await uiModule(context,React,()=>language,root),snap={exists:()=>false,data:()=>({}),docs:[],forEach(){}};
  const fs={doc:(_db,...p)=>({path:p.join('/')}),collection:(_db,...p)=>({path:p.join('/')}),query:r=>r,where:()=>null,orderBy:()=>null,limit:()=>null,serverTimestamp:()=>'<server>',getDoc:async()=>snap,getDocs:async()=>snap,onSnapshot:(_ref,a,b)=>{const cb=typeof a==='function'?a:b;const value=_ref.path==='settings/featureSuite'?{...snap,exists:()=>true,data:()=>({features:Object.fromEntries(['calculator','video','loyalty','catalog','partner','subscriptions','promotions','inventory','reports','faq','rates','support','service-area','referral'].map(id=>[id,true]))})}:snap;Promise.resolve().then(()=>cb(value));return()=>{};},writeBatch:()=>({set(){},update(){},commit:async()=>{}}),setDoc:async()=>{},updateDoc:async()=>{},deleteDoc:async()=>{},deleteField:()=>null,increment:()=>null,addDoc:async()=>({id:'fixture'})};
  const bindings={react:{...React,default:React},'react/jsx-runtime':require('react/jsx-runtime'),'firebase/firestore':fs,'firebase/functions':{getFunctions:()=>({}),httpsCallable:()=>async()=>({data:{}})},'firebase/app':{getApp:()=>({})}};
@@ -78,4 +78,43 @@ test('owner New orders tab lists only unconfirmed orders and Confirm moves an or
  const old=h.view.root.find(n=>n.type==='button'&&textOf(n.children.map(c=>c.toJSON?c.toJSON():c)).startsWith('Old / Overdue'))
  assert.equal(textOf(old.children.map(c=>c.toJSON?c.toJSON():c)),'Old / Overdue1','only the undispatched old order is overdue, the delivered one is not')
  await h.close()
+})
+
+// v1.0.71: settings/homeSlides is empty (data wipe) -> the real HomeSlides shows the built-in slides, rotating, and writes nothing.
+test('customer Home sliding banner shows built-in default slides when settings/homeSlides is empty',async()=>{
+ const h=await screen('components/customer/HomeSlides.tsx','HomeSlides',{currentUser:null})
+ await act(async()=>{await Promise.resolve()})
+ const banner=h.view.root.findAll(n=>String(n.props?.className||'').includes('ankur-home-slides')&&n.type==='div')
+ assert.equal(banner.length,1,'banner is rendered (not null) with an empty settings doc')
+ assert.match(h.text,/Ankur Dry Ice — लखनऊ में ड्राई आइस, होलसेल और रिटेल/)
+ const dots=h.view.root.findAll(n=>n.type==='button'&&n.props.tabIndex===-1)
+ assert.equal(dots.length,3,'three default slides rotate')
+ await act(async()=>dots[1].props.onClick())
+ assert.match(h.text,/Alambagh, Kaiserbagh, Porter या गोदाम से पिकअप/)
+ await act(async()=>dots[2].props.onClick())
+ assert.match(h.text,/ऑर्डर\/मदद: 95808 82066/)
+ await h.close()
+})
+test('customer Home renders the sliding banner at the very top, above the booking form',()=>{
+ const home=readFileSync(resolve(root,'src/components/customer/CustomerHome.tsx'),'utf8'),app=readFileSync(resolve(root,'src/App.tsx'),'utf8')
+ assert.match(app,/topSlot=\{<HomeSlides currentUser=\{currentUser\} \/>\}/)
+ const slot=home.indexOf('{topSlot &&'),booking=home.indexOf('id="ankur-customer-booking"'),main=home.indexOf('<main')
+ assert.ok(main>=0&&slot>main&&slot<booking,'topSlot is the first thing inside <main>, before the booking section')
+})
+// v1.0.71: customer Home footer "संपर्क करें" with three tappable numbers (tel + WhatsApp each).
+test('customer contact footer renders all three numbers with tel and WhatsApp links, Hindi and English',async()=>{
+ const h=await screen('components/customer/CustomerContactFooter.tsx','CustomerContactFooter',{})
+ const hrefs=()=>h.view.root.findAll(n=>n.type==='a').map(a=>a.props.href)
+ assert.deepEqual(hrefs(),['tel:+919151416323','https://wa.me/919151416323','tel:+919532844538','https://wa.me/919532844538','tel:+918896332066','https://wa.me/918896332066'])
+ assert.match(h.text,/Contact us/);assert.match(h.text,/Packing questions — Vikas Gautam/);assert.match(h.text,/Delivery questions/);assert.match(h.text,/Complaints/)
+ for(const n of ['91514 16323','95328 44538','88963 32066'])assert.ok(h.text.includes(n),n)
+ await h.switchTo('hi')
+ assert.match(h.text,/संपर्क करें/);assert.match(h.text,/पैकिंग से जुड़ी बात — विकास गौतम/);assert.match(h.text,/डिलीवरी से जुड़ी बात/);assert.match(h.text,/शिकायत/)
+ assert.equal(hrefs().length,6)
+ await h.close()
+})
+test('customer Home places the contact footer at the very bottom of Home',()=>{
+ const app=readFileSync(resolve(root,'src/App.tsx'),'utf8')
+ const home=app.indexOf("{currentTab === 'home' && ("),footer=app.indexOf('<CustomerContactFooter />'),next=app.indexOf("{currentTab === 'categories' &&")
+ assert.ok(home>=0&&footer>home&&footer<next,'footer renders on the Home tab after the Home content')
 })

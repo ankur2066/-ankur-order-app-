@@ -70,6 +70,7 @@ jobs:
           # Apply the reviewed v1.0.65+ overlay first, then check the source that is actually signed (same order as the review job).
           python3 ui-fixes/release-audit-v1065.py
           grep -Fq 'android:allowBackup="false"' android/app/src/main/AndroidManifest.xml
+          grep -Fq 'android.permission.RECORD_AUDIO' android/app/src/main/AndroidManifest.xml
           grep -Fq 'tel:+919580882066' src/components/OrderTrackingView.tsx
           ! grep -Fq 'tel:+918896332066' src/components/OrderTrackingView.tsx
           # Since v1.0.66 staff status changes use the rules-enforced Spark batch (no Blaze callable).
@@ -107,22 +108,22 @@ jobs:
           KEY_ALIAS: ${{ secrets.ANKUR_RELEASE_KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.ANKUR_RELEASE_KEY_PASSWORD }}
         run: |
-          npm install --save-exact --package-lock-only --ignore-scripts --no-audit --no-fund @capacitor-firebase/app-check@7.5.0 @capacitor/app@7 @capacitor/filesystem@7 @capacitor/share@7 @capacitor/push-notifications@7
+          npm install --save-exact --package-lock-only --ignore-scripts --no-audit --no-fund @capacitor-firebase/app-check@7.5.0 @capacitor/app@7 @capacitor/filesystem@7 @capacitor/share@7 @capacitor/push-notifications@7 @capacitor-community/speech-recognition@7.0.1
           npm ci --ignore-scripts --no-audit --no-fund
           npm run lint
-          VITE_ANDROID_VERSION_CODE=70 VITE_ANDROID_VERSION_NAME=1.0.70 npm run android:sync
+          VITE_ANDROID_VERSION_CODE=71 VITE_ANDROID_VERSION_NAME=1.0.71 npm run android:sync
           cp ci-fixes/MainActivity.java android/app/src/main/java/com/ankurdryice/events/MainActivity.java
           python3 - <<'PY'
           from pathlib import Path
           p=Path('android/app/build.gradle'); lines=p.read_text().splitlines()
           for i,x in enumerate(lines):
-            if x.strip().startswith('versionCode '): lines[i]='        versionCode 70'
-            if x.strip().startswith('versionName '): lines[i]='        versionName "1.0.70"'
+            if x.strip().startswith('versionCode '): lines[i]='        versionCode 71'
+            if x.strip().startswith('versionName '): lines[i]='        versionName "1.0.71"'
           p.write_text('\n'.join(lines)+'\n')
           PY
           cd android
           chmod +x gradlew
-          ./gradlew assembleRelease bundleRelease --no-daemon -PankurVersionCode=70 -PankurVersionName=1.0.70 -PankurKeystorePath="$RUNNER_TEMP/ankur-release.jks" -PankurStorePassword="$STORE_PASSWORD" -PankurKeyAlias="$KEY_ALIAS" -PankurKeyPassword="$KEY_PASSWORD"
+          ./gradlew assembleRelease bundleRelease --no-daemon -PankurVersionCode=71 -PankurVersionName=1.0.71 -PankurKeystorePath="$RUNNER_TEMP/ankur-release.jks" -PankurStorePassword="$STORE_PASSWORD" -PankurKeyAlias="$KEY_ALIAS" -PankurKeyPassword="$KEY_PASSWORD"
       - name: Verify package and signature
         run: |
           APK=android/app/build/outputs/apk/release/app-release.apk
@@ -131,7 +132,7 @@ jobs:
           # update in place; a mismatched package would install as a second app.
           BUILD_TOOLS="$ANDROID_HOME/build-tools/$(ls "$ANDROID_HOME/build-tools" | sort -V | tail -1)"
           BADGING=$("$BUILD_TOOLS/aapt" dump badging "$APK")
-          printf '%s\n' "$BADGING" | grep -F "package: name='com.ankurdryice.events' versionCode='70' versionName='1.0.70'"
+          printf '%s\n' "$BADGING" | grep -F "package: name='com.ankurdryice.events' versionCode='71' versionName='1.0.71'"
           # Update flow opens a consent-based external link; never request installer
           # or broad file-management privileges in the packaged manifest.
           PERMISSIONS=$("$BUILD_TOOLS/aapt" dump permissions "$APK")
@@ -162,7 +163,7 @@ jobs:
           sha256sum "$AAB" > aab-sha256.txt
       - uses: actions/upload-artifact@v4
         with:
-          name: Ankur-Dryice-v1.0.70-PRIVATE-PLAY-AAB
+          name: Ankur-Dryice-v1.0.71-PRIVATE-PLAY-AAB
           path: |
             android/app/build/outputs/bundle/release/app-release.aab
             aab-sha256.txt
@@ -170,7 +171,7 @@ jobs:
           retention-days: 14
       - uses: actions/upload-artifact@v4
         with:
-          name: Ankur-Dryice-v1.0.70-SEASON-PRIVATE-TEST
+          name: Ankur-Dryice-v1.0.71-SEASON-PRIVATE-TEST
           path: |
             android/app/build/outputs/apk/release/app-release.apk
             apk-sha256.txt

@@ -16,7 +16,7 @@ export const DELIVERY_MODE_LABELS: Record<DeliveryMode, { hi: string; en: string
   LOCAL: { hi: 'लोकल डिलीवरी', en: 'Local delivery' },
 };
 
-/** Local sub-tags shown under the "Local" packing group. */
+/** Per-order delivery tags (Local box shows its Local delivery / Dukan pickup split). */
 export const LOCAL_SUBTAG: Record<Exclude<DeliveryMode, 'BUS'>, string> = {
   PORTER: 'Porter',
   SHOP_PICKUP: 'Dukan pickup',
@@ -34,8 +34,18 @@ export interface DeliverySettings {
 export const DEFAULT_BUS_STOPS: BusStop[] = [
   { id: 'alambagh', name: 'Alambagh', color: STOP_PALETTE[0].id, active: true },
   { id: 'kaiserbagh', name: 'Kaiserbagh', color: STOP_PALETTE[1].id, active: true },
-  { id: 'bus-stop-3', name: 'Bus Stop 3', color: STOP_PALETTE[2].id, active: true },
 ];
+
+/**
+ * v1.0.71 (owner): packing boxes are Alambagh, Kaiserbagh, Porter and Local.
+ * "Bus Stop 3" is retired. It may still be stored in Firestore settings/delivery
+ * and on old orders, so it is never deleted: it is always read as inactive
+ * (old orders show under "Bus Stop 3 (Inactive)", new orders cannot pick it).
+ */
+export const RETIRED_STOP_IDS: readonly string[] = ['bus-stop-3'];
+export function isRetiredStop(stopId: string | undefined | null): boolean {
+  return typeof stopId === 'string' && RETIRED_STOP_IDS.includes(stopId);
+}
 
 export const DEFAULT_DELIVERY_SETTINGS: DeliverySettings = { busStops: DEFAULT_BUS_STOPS, districtStopMap: {} };
 
@@ -63,7 +73,7 @@ export function normalizeDeliverySettings(raw: any): DeliverySettings {
       id: stop.id.slice(0, 64),
       name: stop.name.trim().slice(0, 60),
       color: paletteIds.includes(stop.color) ? stop.color : paletteIds[index % paletteIds.length],
-      active: stop.active !== false,
+      active: stop.active !== false && !isRetiredStop(stop.id),
     }));
   const map: Record<string, string> = {};
   const source = raw?.districtStopMap && typeof raw.districtStopMap === 'object' ? raw.districtStopMap : {};
@@ -136,6 +146,8 @@ export interface PackingOrder {
 }
 
 export const LOCAL_GROUP = 'LOCAL';
+/** v1.0.71: Porter orders get their own packing box. */
+export const PORTER_GROUP = 'PORTER';
 export const UNASSIGNED_GROUP = 'UNASSIGNED';
 
 export interface PackingGroup<T extends PackingOrder = PackingOrder> {
@@ -149,9 +161,13 @@ export interface PackingGroup<T extends PackingOrder = PackingOrder> {
   subTags: Record<string, number>;
 }
 
-/** Group key for one order: bus stop id, LOCAL, or UNASSIGNED (legacy orders without a mode). */
+/**
+ * Group key for one order: bus stop id, PORTER, LOCAL (local delivery and
+ * godown/shop pickup), or UNASSIGNED (legacy orders without a mode).
+ */
 export function packingGroupKey(order: PackingOrder): string {
   if (order.deliveryMode === 'BUS') return order.busStopId || UNASSIGNED_GROUP;
+  if (order.deliveryMode === 'PORTER') return PORTER_GROUP;
   if (isDeliveryMode(order.deliveryMode)) return LOCAL_GROUP;
   return UNASSIGNED_GROUP;
 }
@@ -164,8 +180,8 @@ const roundKg = (value: number) => Math.round(value * 100) / 100;
 
 /**
  * Packing list for one IST date: one group per bus stop (active stops first,
- * inactive stops only when they still have orders), then Local, then
- * "Mode not set" for legacy orders. Cancelled/trashed orders are excluded.
+ * inactive stops only when they still have orders), then Porter, then Local
+ * (local delivery + godown pickup), then "Mode not set" for legacy orders. Cancelled/trashed orders are excluded.
  */
 export function groupForPacking<T extends PackingOrder>(orders: T[], settings: DeliverySettings, dateKey: string = istDateKey()): PackingGroup<T>[] {
   const relevant = orders.filter((order) => !order.isTrash && order.status !== 'cancelled' && orderDispatchDate(order) === dateKey);
@@ -176,6 +192,7 @@ export function groupForPacking<T extends PackingOrder>(orders: T[], settings: D
     return group;
   };
   for (const stop of settings.busStops) if (stop.active) make(stop.id, stop.name, stop.color, true);
+  make(PORTER_GROUP, 'Porter', 'local', true);
   make(LOCAL_GROUP, 'Local', 'local', true);
   for (const order of relevant) {
     const key = packingGroupKey(order);
@@ -193,9 +210,9 @@ export function groupForPacking<T extends PackingOrder>(orders: T[], settings: D
     }
   }
   const ordered = [...groups.values()];
-  const rank = (group: PackingGroup<T>) => (group.key === LOCAL_GROUP ? 2 : group.key === UNASSIGNED_GROUP ? 3 : group.active ? 0 : 1);
+  const rank = (group: PackingGroup<T>) => (group.key === PORTER_GROUP ? 2 : group.key === LOCAL_GROUP ? 3 : group.key === UNASSIGNED_GROUP ? 4 : group.active ? 0 : 1);
   return ordered
-    .filter((group) => group.count > 0 || group.key === LOCAL_GROUP || group.active)
+    .filter((group) => group.count > 0 || group.key === LOCAL_GROUP || group.key === PORTER_GROUP || group.active)
     .sort((a, b) => rank(a) - rank(b));
 }
 

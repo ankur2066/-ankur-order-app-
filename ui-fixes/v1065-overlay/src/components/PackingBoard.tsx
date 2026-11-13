@@ -2,10 +2,11 @@ import React, { useMemo, useState } from 'react';
 import { istDateKey, addIstDays } from '../utils/dispatchSchedule';
 import {
   groupForPacking, packingShareText, whatsappShareUrl, findStop, isDeliveryMode,
-  LOCAL_GROUP, LOCAL_SUBTAG, DELIVERY_MODE_LABELS, type DeliverySettings, type PackingOrder,
+  LOCAL_GROUP, PORTER_GROUP, LOCAL_SUBTAG, DELIVERY_MODE_LABELS, type DeliverySettings, type PackingOrder,
 } from '../utils/delivery';
 import type { StaffAction } from '../utils/staffProjection';
 import { isLoaded, loadCounts, loadToggleStatus } from '../utils/orderWorkflow';
+import { staffWhatsAppText } from '../utils/staffWhatsApp';
 
 export type PackingBoardOrder = PackingOrder & { status?: string; packingStatus?: string };
 
@@ -67,7 +68,7 @@ export function PackingBoard({ orders, settings, mode, canUpdate = false, updati
       </div>
     </div>
     <p className="text-sm t-sub" aria-live="polite">{dateKey} · {dayCount} order · {dayTotalKg} KG</p>
-    <div className="packing-stop-pills" role="tablist" aria-label="Bus stops and Local">
+    <div className="packing-stop-pills" role="tablist" aria-label="Bus stops, Porter and Local">
       {mode === 'owner' && <button type="button" role="tab" className="stop-pill stop-tag-unassigned" aria-pressed={groupKey === null} aria-selected={groupKey === null} onClick={() => choose(null)}>
         <span>Sab stops</span><b>{dayCount}</b>
       </button>}
@@ -107,7 +108,8 @@ export function PackingBoard({ orders, settings, mode, canUpdate = false, updati
           const stop = order.deliveryMode === 'BUS' ? findStop(settings, order.busStopId) : undefined;
           const tag = isDeliveryMode(order.deliveryMode) && order.deliveryMode !== 'BUS' ? LOCAL_SUBTAG[order.deliveryMode] : stop?.name || 'Mode not set';
           const busy = updatingId === order.orderId;
-          const isLocal = selected.key === LOCAL_GROUP;
+          // Porter (own box since v1.0.71) keeps the same "Handed over" step it had inside Local.
+          const isLocal = selected.key === LOCAL_GROUP || selected.key === PORTER_GROUP;
           return <li key={order.orderId} className="packing-card soft-card-inset p-3 space-y-2">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <b className="text-base">{order.customerName || 'Customer'}</b>
@@ -121,7 +123,7 @@ export function PackingBoard({ orders, settings, mode, canUpdate = false, updati
               {busy && <span className="text-sm" role="status">Update ho raha hai…</span>}
             </div>
             {(order as any).waPhone && /^[0-9]{10}$/.test((order as any).waPhone) && <a className="soft-button secondary-button block text-center" target="_blank" rel="noopener noreferrer" aria-label={`${order.customerName || 'Customer'} ko WhatsApp`}
-              href={`https://wa.me/91${(order as any).waPhone}?text=${encodeURIComponent(`नमस्ते ${order.customerName || ''} जी, Ankur Dryice से बात कर रहे हैं। आपके ${Number(order.quantityKg) || 0} KG ड्राई आइस ऑर्डर के बारे में।`)}`}>Customer ko WhatsApp</a>}
+              href={`https://wa.me/91${(order as any).waPhone}?text=${encodeURIComponent(staffWhatsAppText(order, stop?.name))}`}>Customer ko WhatsApp</a>}
             {canUpdate && onAction && <div className="grid grid-cols-2 gap-2">
               <button type="button" className="soft-button status-action status-packing" disabled={busy || order.packingStatus === 'packed' || order.status === 'dispatched' || order.status === 'delivered'} onClick={() => onAction(order, 'packing_done')}>Packing done</button>
               {isLocal

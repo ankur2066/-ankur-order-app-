@@ -33,6 +33,10 @@ files = [
     "src/components/customer/HomeSlides.tsx",
     # v1.0.70 owner: new-orders tab, per-stop loading ticks, today alert, overdue fix
     "src/utils/orderWorkflow.ts", "src/utils/orderWorkflow.test.ts",
+    # v1.0.71: native AI chat microphone in the APK, status-aware staff WhatsApp text
+    "src/utils/voiceInput.ts", "src/utils/voiceInput.test.ts",
+    "src/utils/staffWhatsApp.ts", "src/utils/staffWhatsApp.test.ts",
+    "src/data/customerContacts.ts", "src/utils/customerContacts.test.ts", "src/components/customer/CustomerContactFooter.tsx",
 ]
 for relative in files:
     source = overlay / relative
@@ -45,6 +49,8 @@ manifest = root / "package.json"
 if manifest.exists():
     package = json.loads(manifest.read_text())
     package.setdefault("dependencies", {})["qrcode"] = "^1.5.4"
+    # v1.0.71: native speech recognition for the AI chat microphone inside the APK.
+    package.setdefault("dependencies", {})["@capacitor-community/speech-recognition"] = "7.0.1"
     package.setdefault("devDependencies", {})["@types/qrcode"] = "^1.5.6"
     package.setdefault("devDependencies", {})["@firebase/rules-unit-testing"] = "^4.0.1"
     package.setdefault("devDependencies", {})["firebase-tools"] = "^15.35.0"
@@ -54,4 +60,34 @@ if manifest.exists():
     package.setdefault("scripts", {})["test:rules:emulator"] = "firebase emulators:exec --only firestore --project demo-ankur-dryice-rules 'node --test tests/firestore.rules.test.mjs'"
     package.setdefault("scripts", {})["check:theme-colors"] = "node scripts/check-theme-colors.mjs"
     manifest.write_text(json.dumps(package, indent=2) + "\n")
+# v1.0.71: sliding banner (HomeSlides) at the very top of customer Home, above the
+# booking form. CustomerHome is the reconstructed file; App passes the banner as topSlot.
+customer_home = root / "src/components/customer/CustomerHome.tsx"
+if customer_home.exists():
+    text = customer_home.read_text()
+    if "topSlot" not in text:
+        steps = [
+            ("  bookingForm: (product: ProductItem | null) => React.ReactNode;\n",
+             "  bookingForm: (product: ProductItem | null) => React.ReactNode;\n  /** v1.0.71: sliding banner shown at the very top of Home. */\n  topSlot?: React.ReactNode;\n"),
+            ("  bookingForm,\n}) => {", "  bookingForm,\n  topSlot,\n}) => {"),
+            ('      <main className="aqp-main aqp-form-only-main">\n',
+             '      <main className="aqp-main aqp-form-only-main">\n        {topSlot && <div className="aqp-home-top-slot mx-3 sm:mx-4">{topSlot}</div>}\n'),
+        ]
+        for old, new in steps:
+            assert text.count(old) == 1, f"CustomerHome topSlot anchor missing: {old[:60]!r}"
+            text = text.replace(old, new, 1)
+        customer_home.write_text(text)
+    assert "{topSlot &&" in customer_home.read_text()
+
+# v1.0.71: the AI chat microphone needs RECORD_AUDIO and the speech service query
+# (the plugin manifest also merges both; declared here so the app manifest is explicit).
+android_manifest = root / "android/app/src/main/AndroidManifest.xml"
+if android_manifest.exists():
+    text = android_manifest.read_text()
+    if "android.permission.RECORD_AUDIO" not in text:
+        text = text.replace("</manifest>", '    <uses-permission android:name="android.permission.RECORD_AUDIO" />\n</manifest>', 1)
+    if "android.speech.RecognitionService" not in text:
+        text = text.replace("</manifest>", '    <queries>\n        <intent>\n            <action android:name="android.speech.RecognitionService" />\n        </intent>\n    </queries>\n</manifest>', 1)
+    assert "android.permission.RECORD_AUDIO" in text and "android.speech.RecognitionService" in text
+    android_manifest.write_text(text)
 print(f"Applied v1.0.65 feedback overlay ({len(files)} files)")
