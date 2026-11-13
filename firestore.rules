@@ -218,7 +218,7 @@ service cloud.firestore {
       // denies; no separate hasAll() (saves ~25 expressions per order).
 
       let isAmountChanged = data.get('amountChanged', false) == true;
-      let formulaTotal = data.dryIceSubtotal + data.thermocolSubtotal + data.quantityKg * data.get('transportPrice', 0);
+      let formulaTotal = data.dryIceSubtotal + data.thermocolSubtotal + data.quantityKg * (('transportPrice' in data) ? data.transportPrice : 0);
       return data.keys().hasOnly(allowedKeys) &&
              data.orderId is string && data.orderId.size() <= 32 &&
              data.trackingToken is string && data.trackingToken.size() <= 48 &&
