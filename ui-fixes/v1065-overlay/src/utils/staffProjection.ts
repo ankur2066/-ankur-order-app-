@@ -5,6 +5,7 @@
  * the 10-digit mobile used only for the staff WhatsApp button. Firestore rules enforce the key list.
  */
 import { isDeliveryMode } from './delivery.ts';
+import { normalizeBusNumber } from './busDispatch.ts';
 
 export const STAFF_VIEW_FIELDS = [
   'orderId', 'sourceCollection', 'customerName', 'city', 'district', 'productName',
@@ -13,6 +14,8 @@ export const STAFF_VIEW_FIELDS = [
   // v1.0.68 (Ankur, 12 Nov 2026): 10-digit number used ONLY for the staff
   // "Customer ko WhatsApp" button; never rendered as text. Written by the owner client.
   'waPhone',
+  // v1.0.72: bus number (not sensitive) for the staff WhatsApp text. Owner-written.
+  'busNumber',
   // staff-writable status fields
   'packingStatus', 'statusSyncPending', 'statusUpdatedBy',
 ] as const;
@@ -32,7 +35,7 @@ export interface StaffSourceOrder {
   orderId: string; customerName?: string; city?: string; district?: string; productName?: string;
   dispatchTiming?: string; dispatchDate?: string; slot?: string; status?: string; quantityKg?: number;
   isTrash?: boolean; createdAt?: any; updatedAt?: any; deliveryMode?: string; busStopId?: string;
-  packCount?: number; deliveryNote?: string; [key: string]: unknown;
+  packCount?: number; deliveryNote?: string; busNumber?: string; [key: string]: unknown;
 }
 
 /** Last 10 digits of an Indian mobile, or '' when it is not a valid mobile. */
@@ -62,6 +65,8 @@ export function toStaffOrderView(order: StaffSourceOrder): Record<string, unknow
   if (isDeliveryMode(order.deliveryMode)) {
     view.deliveryMode = order.deliveryMode;
     if (order.deliveryMode === 'BUS' && order.busStopId) view.busStopId = order.busStopId;
+    const busNumber = order.deliveryMode === 'BUS' ? normalizeBusNumber(order.busNumber) : '';
+    if (busNumber) view.busNumber = busNumber;
   }
   if (typeof order.packCount === 'number' && order.packCount > 0) view.packCount = Math.round(order.packCount);
   if (typeof order.deliveryNote === 'string' && order.deliveryNote.trim()) view.deliveryNote = order.deliveryNote.trim().slice(0, 200);
@@ -71,13 +76,15 @@ export function toStaffOrderView(order: StaffSourceOrder): Record<string, unknow
 }
 
 /** Fields the owner client re-syncs when an order's delivery details change. */
-export const DELIVERY_SYNC_FIELDS = ['deliveryMode', 'busStopId', 'packCount', 'deliveryNote', 'dispatchDate', 'slot', 'quantityKg', 'customerName', 'district', 'city', 'waPhone'] as const;
+export const DELIVERY_SYNC_FIELDS = ['deliveryMode', 'busStopId', 'packCount', 'deliveryNote', 'dispatchDate', 'slot', 'quantityKg', 'customerName', 'district', 'city', 'waPhone', 'busNumber'] as const;
 
 export function projectionDrift(view: Record<string, unknown> | undefined, order: StaffSourceOrder): Record<string, unknown> | null {
   const next = toStaffOrderView(order);
   if (!view) return next;
   const patch: Record<string, unknown> = {};
   for (const key of DELIVERY_SYNC_FIELDS) if ((next[key] ?? null) !== (view[key] ?? null) && next[key] !== undefined) patch[key] = next[key];
+  // v1.0.72: a cleared bus number is cleared for staff too (null = no bus number).
+  if (next.busNumber === undefined && typeof view.busNumber === 'string' && view.busNumber) patch.busNumber = null;
   return Object.keys(patch).length ? patch : null;
 }
 

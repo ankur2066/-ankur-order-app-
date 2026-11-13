@@ -157,7 +157,7 @@ jobs:
           python3 all-features/protected_audit.py check /tmp/protected.json
           npm install --save-exact --package-lock-only --ignore-scripts --no-audit --no-fund @capacitor-firebase/app-check@7.5.0 @capacitor/app@7 @capacitor/filesystem@7 @capacitor/share@7 @capacitor/push-notifications@7 @capacitor-community/speech-recognition@7.0.1
           npm ci --ignore-scripts --no-audit --no-fund
-      - run: npm run lint && VITE_ANDROID_VERSION_CODE=71 VITE_ANDROID_VERSION_NAME=1.0.71 npm run build && npx cap sync android
+      - run: npm run lint && VITE_ANDROID_VERSION_CODE=72 VITE_ANDROID_VERSION_NAME=1.0.72 npm run build && npx cap sync android
       - name: Configure existing Android Firebase app
         env:
           GOOGLE_SERVICES_B64: ${{ secrets.ANKUR_GOOGLE_SERVICES_JSON_BASE64 }}
@@ -185,24 +185,24 @@ jobs:
             -PankurStorePassword="$STORE_PASSWORD" \
             -PankurKeyAlias="$KEY_ALIAS" \
             -PankurKeyPassword="$KEY_PASSWORD" \
-            -PankurVersionCode=71 -PankurVersionName=1.0.71
+            -PankurVersionCode=72 -PankurVersionName=1.0.72
           APK=app/build/outputs/apk/release/app-release.apk
           test -s "$APK"
           TOOLS="$ANDROID_HOME/build-tools/$(ls "$ANDROID_HOME/build-tools" | sort -V | tail -1)"
           "$TOOLS/apksigner" verify --verbose "$APK"
-          "$TOOLS/aapt" dump badging "$APK" | grep -F "package: name='com.ankurdryice.events' versionCode='71' versionName='1.0.71'"
+          "$TOOLS/aapt" dump badging "$APK" | grep -F "package: name='com.ankurdryice.events' versionCode='72' versionName='1.0.72'"
           CERT=$("$TOOLS/apksigner" verify --verbose --print-certs "$APK" | sed -nE 's/.*certificate SHA-256 digest: ([0-9a-fA-F]{64}).*/\1/p' | head -n 1 | tr 'A-F' 'a-f')
           test "$CERT" = 'ebb60e0b13f7b5bfa814a619d5e4acc0ee65f0e12835ad5a282c072bc9976a6e' || { echo 'Unexpected release signing certificate'; exit 1; }
           test -s app/build/outputs/bundle/release/app-release.aab
       - uses: actions/upload-artifact@v4
         with:
-          name: Ankur-Dryice-v1.0.71-Signed-APK
+          name: Ankur-Dryice-v1.0.72-Signed-APK
           path: android/app/build/outputs/apk/release/app-release.apk
           if-no-files-found: error
           retention-days: 14
       - uses: actions/upload-artifact@v4
         with:
-          name: Ankur-Dryice-v1.0.71-PLAY-AAB
+          name: Ankur-Dryice-v1.0.72-PLAY-AAB
           path: android/app/build/outputs/bundle/release/app-release.aab
           if-no-files-found: error
           retention-days: 14

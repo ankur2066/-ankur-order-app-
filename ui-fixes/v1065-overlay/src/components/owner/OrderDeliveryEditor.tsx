@@ -6,6 +6,8 @@ import { DeliveryModePicker } from '../DeliveryModePicker';
 import { findStop, isDeliveryMode, validateDeliveryChoice, DELIVERY_MODE_LABELS, type DeliveryMode, type DeliverySettings } from '../../utils/delivery';
 import { syncStaffProjection } from '../../services/staffSync';
 import { customerDocId } from '../../services/customers';
+import { saveBusNumber, syncTrackingDispatch } from '../../services/busDispatch';
+import { BUS_NUMBER_MAX } from '../../utils/busDispatch';
 
 /**
  * Owner changes an order's delivery mode / stop and must choose:
@@ -19,6 +21,7 @@ export function OrderDeliveryEditor({ order, settings }: { order: Order; setting
   const [askScope, setAskScope] = useState(false);
   const [message, setMessage] = useState('');
   const [busy, setBusy] = useState(false);
+  const [busNumber, setBusNumber] = useState(order.busNumber || '');
   const currentStop = findStop(settings, order.busStopId);
   const inactiveCurrent = order.deliveryMode === 'BUS' && (!currentStop || !currentStop.active);
   const label = isDeliveryMode(order.deliveryMode)
@@ -33,6 +36,7 @@ export function OrderDeliveryEditor({ order, settings }: { order: Order; setting
       const patch = { deliveryMode: mode!, ...(mode === 'BUS' ? { busStopId: busStopId! } : {}) };
       await updateDoc(doc(db, 'orders', order.orderId), { ...patch, ...(mode !== 'BUS' ? { busStopId: deleteField() } : {}), updatedAt: serverTimestamp() });
       await syncStaffProjection({ ...order, ...patch, ...(mode !== 'BUS' ? { busStopId: undefined } : {}) } as Order);
+      void syncTrackingDispatch({ ...order, ...patch, ...(mode !== 'BUS' ? { busStopId: undefined } : {}) } as Order);
       if (scope === 'always' && order.customerPhone) {
         const id = customerDocId(order.customerPhone);
         await setDoc(doc(db, 'customers', id), { phone: id, defaultDeliveryMode: mode, defaultBusStopId: mode === 'BUS' ? busStopId : deleteField() }, { merge: true });
@@ -44,12 +48,27 @@ export function OrderDeliveryEditor({ order, settings }: { order: Order; setting
     } finally { setBusy(false); }
   };
 
+  // v1.0.72: bus number for BUS orders -> order, customer tracking and staff view.
+  const saveBus = async () => {
+    setBusy(true); setMessage('');
+    const result = await saveBusNumber(order, busNumber);
+    setBusNumber(result.busNumber);
+    setMessage(result.saved ? (result.busNumber ? `बस नंबर ${result.busNumber} सेव हुआ।` : 'बस नंबर हटाया गया।') : 'बस नंबर सेव नहीं हुआ (Firebase rules publish करें)।');
+    setBusy(false);
+  };
+
   return <div className="order-delivery-editor space-y-2">
     <div className="flex flex-wrap items-center gap-2 text-sm">
       <span className={`stop-chip stop-tag-${order.deliveryMode === 'BUS' ? currentStop?.color || 'unassigned' : isDeliveryMode(order.deliveryMode) ? 'local' : 'unassigned'}`}>{label}</span>
       {inactiveCurrent && <span role="alert" className="delivery-warning rounded-xl px-2 py-1">Stop inactive — naya stop chunein</span>}
       <button type="button" className="soft-button secondary-button" onClick={() => setOpen(!open)} aria-expanded={open}>Delivery badlein</button>
     </div>
+    {order.deliveryMode === 'BUS' && <div className="order-bus-number flex flex-wrap items-center gap-2 text-sm">
+      <label className="font-semibold" htmlFor={`bus-number-${order.orderId}`}>बस नंबर</label>
+      <input id={`bus-number-${order.orderId}`} className="soft-input w-32 font-mono" value={busNumber} maxLength={BUS_NUMBER_MAX} inputMode="text" autoCapitalize="characters"
+        placeholder="6965" disabled={busy} onChange={(e) => setBusNumber(e.target.value)} />
+      <button type="button" className="soft-button secondary-button" disabled={busy || busNumber.trim() === (order.busNumber || '')} onClick={() => void saveBus()}>बस नंबर सेव</button>
+    </div>}
     {open && <div className="soft-card-inset space-y-2 p-3">
       <DeliveryModePicker mode={mode} busStopId={busStopId} settings={settings} language="en" staleStopId={inactiveCurrent ? order.busStopId : undefined}
         onChange={(next) => { setMode(next.mode); setBusStopId(next.busStopId); setAskScope(false); }} disabled={busy} />

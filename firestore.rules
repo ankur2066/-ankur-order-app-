@@ -98,7 +98,9 @@ service cloud.firestore {
              (!('busStopId' in data) || (data.busStopId is string && data.busStopId.size() >= 2 && data.busStopId.size() <= 64)) &&
              (data.get('deliveryMode', '') != 'BUS' || 'busStopId' in data) &&
              (!('packCount' in data) || (data.packCount is int && data.packCount >= 0 && data.packCount <= 500)) &&
-             (!('deliveryNote' in data) || (data.deliveryNote is string && data.deliveryNote.size() <= 200));
+             (!('deliveryNote' in data) || (data.deliveryNote is string && data.deliveryNote.size() <= 200)) &&
+             // v1.0.72: owner-typed bus number (not sensitive), bus orders only.
+             (!('busNumber' in data) || (data.busNumber is string && data.busNumber.size() >= 1 && data.busNumber.size() <= 20 && data.get('deliveryMode', '') == 'BUS'));
     }
 
     // Customer type from the signed-in user's own profile. A first-time
@@ -182,7 +184,7 @@ service cloud.firestore {
         'thermocolSubtotal', 'transportPrice', 'totalAmount',
         'status', 'paymentStatus', 'paymentMethod', 'paymentNotes', 
         'userId', 'isTrash', 'trashedAt', 'createdAt', 'updatedAt',
-        'deliveryMode', 'busStopId', 'packCount', 'deliveryNote'
+        'deliveryMode', 'busStopId', 'packCount', 'deliveryNote', 'busNumber'
       ];
       // Every required field is dereferenced below, so a missing one already
       // denies; no separate hasAll() (saves ~25 expressions per order).
@@ -240,7 +242,9 @@ service cloud.firestore {
       let allowedKeys = [
         'orderId', 'trackingToken', 'status', 'productName', 'quantityKg', 
         'district', 'dispatchTiming', 'dispatchDate', 'slot', 'dispatchSlot', 'totalAmount', 'paymentStatus', 'lastStatusUpdate', 
-        'createdAt', 'updatedAt'
+        'createdAt', 'updatedAt',
+        // v1.0.72: owner-copied dispatch info shown to the customer (no PII).
+        'deliveryMode', 'busStopId', 'busNumber'
       ];
       // All required fields are dereferenced below; no separate hasAll().
 
@@ -257,6 +261,7 @@ service cloud.firestore {
              (!('dispatchSlot' in data) || data.dispatchSlot in ['morning', 'evening']) &&
              data.paymentStatus in ['pending_verification', 'payment_verified', 'cash_on_delivery'] &&
              data.lastStatusUpdate is string && data.lastStatusUpdate.size() <= 200 &&
+             isValidDelivery(data) &&
              isValidTimestamp(data.createdAt) &&
              isValidTimestamp(data.updatedAt);
     }
@@ -323,6 +328,8 @@ service cloud.firestore {
         request.resource.data.orderId == orderId &&
         request.resource.data.status == 'pending' &&
         (isAdmin() || request.resource.data.paymentStatus == 'pending_verification') &&
+        // v1.0.72: the bus number is owner-typed at dispatch, never on a customer create.
+        (isAdmin() || !('busNumber' in request.resource.data)) &&
         request.resource.data.createdAt == request.time &&
         request.resource.data.updatedAt == request.time &&
         (isAdmin() || !isSignedIn() || request.resource.data.userId == request.auth.uid || request.resource.data.userId == 'guest' || request.resource.data.userId == 'owner_manual_entry') &&
@@ -404,6 +411,7 @@ service cloud.firestore {
         incoming().trackingToken == trackingToken &&
         incoming().status == 'pending' &&
         (isAdmin() || incoming().paymentStatus == 'pending_verification') &&
+        (isAdmin() || !('busNumber' in incoming())) &&
         incoming().createdAt == request.time &&
         incoming().updatedAt == request.time &&
         (isAdmin() || existsAfter(/databases/$(database)/documents/orders/$(incoming().orderId)));

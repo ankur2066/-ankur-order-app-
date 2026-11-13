@@ -72,7 +72,7 @@ jobs:
       - name: Release audit contracts
         run: |
           python3 ui-fixes/release-audit-v1.test.py
-          node --experimental-strip-types --test ui-fixes/v1065-feedback.test.mjs ui-fixes/customer-rules-contract.test.mjs src/utils/dispatchSchedule.test.ts src/utils/orderWorkflow.test.ts src/utils/voiceInput.test.ts src/utils/staffWhatsApp.test.ts src/utils/customerContacts.test.ts src/utils/delivery.test.ts
+          node --experimental-strip-types --test ui-fixes/v1065-feedback.test.mjs ui-fixes/customer-rules-contract.test.mjs src/utils/dispatchSchedule.test.ts src/utils/orderWorkflow.test.ts src/utils/voiceInput.test.ts src/utils/staffWhatsApp.test.ts src/utils/customerContacts.test.ts src/utils/delivery.test.ts src/utils/busDispatch.test.ts src/utils/staffProjection.test.ts
       - name: Install and build
         run: |
           npm install --save-exact --package-lock-only --ignore-scripts --no-audit --no-fund @capacitor-firebase/app-check@7.5.0 @capacitor/app@7 @capacitor/filesystem@7 @capacitor/share@7 @capacitor/push-notifications@7 @capacitor-community/speech-recognition@7.0.1

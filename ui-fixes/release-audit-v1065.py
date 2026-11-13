@@ -37,6 +37,8 @@ files = [
     "src/utils/voiceInput.ts", "src/utils/voiceInput.test.ts",
     "src/utils/staffWhatsApp.ts", "src/utils/staffWhatsApp.test.ts",
     "src/data/customerContacts.ts", "src/utils/customerContacts.test.ts", "src/components/customer/CustomerContactFooter.tsx",
+    # v1.0.72: bus number on customer tracking + staff WhatsApp text; Products (coming soon) bottom tile
+    "src/utils/busDispatch.ts", "src/utils/busDispatch.test.ts", "src/services/busDispatch.ts",
 ]
 for relative in files:
     source = overlay / relative

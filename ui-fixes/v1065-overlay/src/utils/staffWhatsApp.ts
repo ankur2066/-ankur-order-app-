@@ -2,10 +2,11 @@
  * v1.0.71 staff "Customer ko WhatsApp" prefill text (pure, no Firebase).
  * The message follows the order's CURRENT status. It reads only fields that are
  * already in the staff projection (staffOrderViews): customerName, quantityKg,
- * status, packingStatus, deliveryMode. The bus stop name comes from the owner's
+ * status, packingStatus, deliveryMode, busNumber (v1.0.72). The bus stop name comes from the owner's
  * delivery settings the staff screen already loads. No phone, price or PIN is used.
  */
 import { isDeliveryMode } from './delivery.ts';
+import { normalizeBusNumber } from './busDispatch.ts';
 
 export interface StaffWhatsAppOrder {
   customerName?: string;
@@ -13,6 +14,8 @@ export interface StaffWhatsAppOrder {
   status?: string;
   packingStatus?: string;
   deliveryMode?: string;
+  /** v1.0.72: staffOrderViews.busNumber (bus orders only). */
+  busNumber?: string | null;
 }
 
 const greeting = (order: StaffWhatsAppOrder) => {
@@ -22,11 +25,14 @@ const greeting = (order: StaffWhatsAppOrder) => {
 const kgOf = (order: StaffWhatsAppOrder) => Number(order.quantityKg) || 0;
 
 /** ", बस से (Alambagh बस स्टॉप)" style detail for a dispatched order; '' when mode is unknown. */
-export function dispatchDetail(deliveryMode?: string, stopName?: string): string {
+export function dispatchDetail(deliveryMode?: string, stopName?: string, busNumber?: string | null): string {
   if (!isDeliveryMode(deliveryMode)) return '';
   const stop = typeof stopName === 'string' ? stopName.trim() : '';
   switch (deliveryMode) {
-    case 'BUS': return stop ? `, बस से (${stop} बस स्टॉप)` : ', बस से';
+    case 'BUS': {
+      const bus = normalizeBusNumber(busNumber);
+      return `${stop ? `, बस से (${stop} बस स्टॉप)` : ', बस से'}${bus ? ` — बस नंबर ${bus}` : ''}`;
+    }
     case 'PORTER': return ', Porter से';
     case 'LOCAL': return ', लोकल डिलीवरी से';
     case 'SHOP_PICKUP': return ', दुकान पिकअप के लिए';
@@ -53,7 +59,7 @@ export function staffWhatsAppText(order: StaffWhatsAppOrder, stopName?: string):
     case 'packed':
       return `${lead} पैक हो गया है, जल्द रवाना होगा।`;
     case 'dispatched':
-      return `${lead} रवाना हो गया है${dispatchDetail(order.deliveryMode, stopName)}।`;
+      return `${lead} रवाना हो गया है${dispatchDetail(order.deliveryMode, stopName, order.busNumber)}।`;
     case 'delivered':
       return `${lead} डिलीवर हो गया है। धन्यवाद!`;
     case 'cancelled':

@@ -213,6 +213,33 @@ describe('Order create compatibility across installed app versions', () => {
     const owner=ownerDb();
     await assertSucceeds(updateDoc(doc(owner,`orders/${w.orderId}`),{status:'confirmed',updatedAt:serverTimestamp()}));
   });
+  it('v1.0.72: owner saves a bus number on a BUS order and copies mode/stop/bus number to tracking; staff and customers cannot', async () => {
+    const owner=ownerDb();
+    const o=v65Order('BUS72','owner_manual_entry',{deliveryMode:'BUS',busStopId:'alambagh'});
+    await assertSucceeds(commit(owner,o,v66Tracking(o)));
+    await assertSucceeds(updateDoc(doc(owner,'orders',o.orderId),{busNumber:'6965',updatedAt:serverTimestamp()}));
+    await assertSucceeds(updateDoc(doc(owner,'order_tracking',o.trackingToken),{deliveryMode:'BUS',busStopId:'alambagh',busNumber:'6965',updatedAt:serverTimestamp()}));
+    // later owner operational updates still validate with busNumber on the doc
+    await assertSucceeds(updateDoc(doc(owner,'orders',o.orderId),{status:'dispatched',updatedAt:serverTimestamp()}));
+    await assertSucceeds(updateDoc(doc(owner,'order_tracking',o.trackingToken),{status:'dispatched',lastStatusUpdate:'रवाना',updatedAt:serverTimestamp()}));
+    // bus number only on bus orders, and bounded
+    await assertFails(updateDoc(doc(owner,'orders',o.orderId),{busNumber:'1'.repeat(21),updatedAt:serverTimestamp()}));
+    const p=v65Order('POR72','owner_manual_entry',{deliveryMode:'PORTER'});
+    await assertSucceeds(commit(owner,p,v66Tracking(p)));
+    await assertFails(updateDoc(doc(owner,'orders',p.orderId),{busNumber:'6965',updatedAt:serverTimestamp()}));
+    await assertFails(updateDoc(doc(owner,'order_tracking',p.trackingToken),{busNumber:'6965',updatedAt:serverTimestamp()}));
+    await assertFails(updateDoc(doc(owner,'order_tracking',o.trackingToken),{deliveryMode:'TRAIN',updatedAt:serverTimestamp()}));
+    // staff (status-only) and customers cannot write the bus number anywhere
+    const staff=testEnv.authenticatedContext('staff').firestore();
+    await assertFails(updateDoc(doc(staff,'orders',o.orderId),{busNumber:'1111',updatedAt:serverTimestamp()}));
+    await assertFails(updateDoc(doc(staff,'order_tracking',o.trackingToken),{busNumber:'1111',updatedAt:serverTimestamp()}));
+    const guest=testEnv.unauthenticatedContext().firestore();
+    const g=v65Order('GBUS72','guest',{deliveryMode:'BUS',busStopId:'alambagh',busNumber:'6965'});
+    await assertFails(commit(guest,g,v66Tracking(g)), 'a customer order cannot arrive with a bus number already dispatched');
+    // public tracking read by token shows it
+    const snap=await getDoc(doc(guest,'order_tracking',o.trackingToken));
+    assert.equal(snap.data().busNumber,'6965');
+  });
   it('signed-in pre-check read of a not-yet-created order id is denied (client must treat it as absent)', async () => {
     const buyer=testEnv.authenticatedContext('buyer-precheck').firestore();
     await assertFails(getDoc(doc(buyer,'orders/ADI-20261111-NEW1')));

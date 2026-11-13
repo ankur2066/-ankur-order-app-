@@ -13,6 +13,8 @@ import { subscribeDeliverySettings } from '../services/deliverySettings';
 import { syncStaffProjection, watchStaffStatusSync } from '../services/staffSync';
 import { DEFAULT_DELIVERY_SETTINGS, packingGroupKey, findStop, type DeliverySettings } from '../utils/delivery';
 import { customerStatusMessage, type BusInfo } from '../utils/customerWhatsapp';
+import { saveBusNumber, syncTrackingDispatch } from '../services/busDispatch';
+import { normalizeBusNumber } from '../utils/busDispatch';
 import { FeatureHub } from './customer/FeatureHub';
 import { subscribeOrderDocuments, orderRef as resolvedOrderRef, trackingRef as resolvedTrackingRef } from '../services/productOrders';
 import { quantityText } from '../billing/unitBilling';
@@ -185,7 +187,10 @@ const OwnerOrderContactActions: React.FC<{ order: Order; settings?: DeliverySett
     e.preventDefault();
     let bus: BusInfo | undefined;
     if (order.status === 'dispatched' && order.deliveryMode === 'BUS') {
-      const busNumber = window.prompt('बस नंबर (खाली छोड़ सकते हैं)', '') || '';
+      // v1.0.72: pre-filled with the saved bus number; a new/changed number is saved on the
+      // order and copied to customer tracking + staff view (separate best-effort writes).
+      const busNumber = window.prompt('बस नंबर (खाली छोड़ सकते हैं)', order.busNumber || '') || '';
+      if (normalizeBusNumber(busNumber) !== normalizeBusNumber(order.busNumber)) void saveBusNumber(order, busNumber);
       const conductorPhone = window.prompt('कंडक्टर/ड्राइवर मोबाइल (खाली छोड़ सकते हैं)', '') || '';
       const slipNo = window.prompt('पर्ची नंबर (खाली छोड़ सकते हैं)', '') || '';
       bus = { busNumber: busNumber.trim(), conductorPhone: conductorPhone.trim(), slipNo: slipNo.trim() };
@@ -620,6 +625,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
       await withAckTimeout(batch.commit());
       }
+      // v1.0.72: dispatch mode / stop / bus number for the customer tracking page (best-effort, separate write).
+      if (newStatus === 'dispatched') void syncTrackingDispatch({ ...ord, status: newStatus });
       // Staff projection is separate so staff see the new status in both paths.
       try {
         void setDoc(doc(db, 'staffOrderViews', ord.orderId), { status: newStatus, updatedAt: serverTimestamp() }, { merge: true }).catch((e) => console.error('Staff view update error:', e));

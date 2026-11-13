@@ -28,7 +28,7 @@ async function screen(path,name,props={},seed=[]){
  if(id.endsWith('/config/businessConfig'))return synthetic(id,{PRIMARY_UPI_ID:'paytm.s26ykus@pty',BACKUP_UPI_ID:'ankur.singh332066@okhdfcbank',RETAIL_RATE_PER_KG:50,WHOLESALE_RATE_PER_KG:0,THERMOCOL_RATE_PER_KG:10});
  if(id.endsWith('/theme/designTokens'))return synthetic(id,{CHART_COLORS:{grid:'',axisText:'',axisLine:'',bar:''},STOP_PALETTE:[],GROUP_COLORS:{},DESIGN_TOKENS:{},stopColor:()=>({bg:'',ink:''}),statusTokenKey:()=>'total'});
  if(id.endsWith('/utils/delivery'))return synthetic(id,{DEFAULT_DELIVERY_SETTINGS:{busStops:[],districtStopMap:{}},resolveDeliveryDefault:()=>({source:'ask'}),validateDeliveryChoice:()=>null,packingGroupKey:()=>'UNASSIGNED',findStop:(settings,stopId)=>stopId?(settings?.busStops||[]).find(s=>s.id===stopId):undefined});
- if(/\/services\/(deliverySettings|staffSync|staffRegistry)$/.test(id))return synthetic(id,Object.fromEntries(names.map(k=>[k,/^(sync|save|remove)/.test(k)?async()=>{}:()=>()=>{}])));
+ if(/\/services\/(deliverySettings|staffSync|staffRegistry|busDispatch)$/.test(id))return synthetic(id,Object.fromEntries(names.map(k=>[k,/^(sync|save|remove)/.test(k)?async()=>{}:()=>()=>{}])));
  if(/\/(PackingBoard|DeliveryModePicker|BusStopSettings|StaffMembersManager|OrderDeliveryEditor)$/.test(id))return synthetic(id,Object.fromEntries(names.map(k=>[k,()=>null])));
  if(id.endsWith('/utils/orderWorkflow'))return load(resolve(dirname(file),id)+'.ts');// v1.0.70: real owner workflow helpers (new orders, loading ticks, overdue), not a mock
  if(id==='./dispatchSchedule.ts'&&file.endsWith('/utils/orderWorkflow.ts'))return load(resolve(dirname(file),id));

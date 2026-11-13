@@ -92,6 +92,8 @@ export interface Order {
   /** v1.0.66 delivery: BUS needs busStopId (settings/delivery). */
   deliveryMode?: 'BUS' | 'SHOP_PICKUP' | 'PORTER' | 'LOCAL';
   busStopId?: string;
+  /** v1.0.72: bus number typed by the owner for BUS orders (not sensitive). */
+  busNumber?: string;
   packCount?: number;
   deliveryNote?: string;
   customerType?: 'retail' | 'wholesale';
@@ -145,6 +147,10 @@ export interface OrderTracking {
   dispatchSlot?: 'morning' | 'evening';
   paymentStatus: PaymentStatus;
   lastStatusUpdate: string;
+  /** v1.0.72: copied by the owner client; shown to the customer once dispatched. */
+  deliveryMode?: 'BUS' | 'SHOP_PICKUP' | 'PORTER' | 'LOCAL';
+  busStopId?: string;
+  busNumber?: string;
   createdAt: any;
   updatedAt: any;
 }

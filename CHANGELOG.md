@@ -1,5 +1,16 @@
 # Changelog
 
+## v1.0.72 — bus number on customer tracking + staff WhatsApp, Products (coming soon) tile
+
+Android **versionCode 72 / versionName 1.0.72**, same applicationId `com.ankurdryice.events` and keystore. Firebase Spark: no deploy by Hark. **New Firestore field `busNumber`; `firestore.rules` changed and must be published by the owner** (orders + order_tracking only; staff paths unchanged, no role change, no data deleted).
+
+- **Bus number is now saved**: the owner's WhatsApp prompt (pre-filled with the saved number) and a new "बस नंबर" box in the delivery editor (BUS orders) save `busNumber` on the order, then copy it to the customer tracking doc and the staff view. Each copy is a separate best-effort write, so with the old published rules nothing else breaks — only the bus number is not saved. Helpers: `src/utils/busDispatch.ts`, `src/services/busDispatch.ts` (+ tests).
+- **Customer tracking page** shows, once dispatched/delivered: mode, bus stop name and "बस नंबर: XXXX" (large mono, select-all, Copy button). Nothing before dispatch; no bus line when no number is saved. Mode/stop are copied to tracking when the owner marks dispatched (or the owner app syncs a staff "Dispatched").
+- **Staff "Customer ko WhatsApp"** dispatched text adds the bus number: "…रवाना हो गया है, बस से (Alambagh बस स्टॉप) — बस नंबर 6965।". `busNumber` added to the staff projection and `DELIVERY_SYNC_FIELDS`; still no phone/price/PIN for staff.
+- **Rules**: `busNumber` allowed on orders (string 1–20, BUS only) and `deliveryMode`/`busStopId`/`busNumber` on order_tracking (same delivery validation); customers cannot create an order/tracking doc with `busNumber`. Staff status-only rules untouched.
+- **Customer bottom bar**: the lower "AI Video" tab is replaced by **Products / प्रोडक्ट्स** (shopping-bag icon). Tap shows "बहुत जल्द यह सुविधा शुरू होगी।" (English: "Coming very soon."); no navigation, no Firestore. AI Video in the upper Home feature row is unchanged.
+- Owner's own customer WhatsApp message keeps its behaviour (bus number line as before).
+
 ## v1.0.71 — AI chat microphone in the APK, status-aware staff WhatsApp text
 
 Android **versionCode 71 / versionName 1.0.71**, same applicationId `com.ankurdryice.events` and keystore. Firebase Spark: no deploy, no new Firestore field, no rules or role change.

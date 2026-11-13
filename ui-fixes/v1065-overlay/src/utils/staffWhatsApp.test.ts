@@ -62,3 +62,18 @@ test('helper reads only staff-view fields (no phone, price or PIN)', () => {
   const text = staffWhatsAppText({ ...base, status: 'dispatched', deliveryMode: 'BUS', customerPhone: '9876543210', totalAmount: 600, trackingPin: '123456' } as any, 'Alambagh');
   assert.ok(!text.includes('9876543210') && !text.includes('600') && !text.includes('123456'));
 });
+
+test('v1.0.72: dispatched bus order includes the bus number from the staff view', () => {
+  assert.equal(
+    staffWhatsAppText({ ...base, status: 'dispatched', deliveryMode: 'BUS', busNumber: '6965' }, 'Alambagh'),
+    `${lead} रवाना हो गया है, बस से (Alambagh बस स्टॉप) — बस नंबर 6965।`,
+  );
+  assert.equal(staffWhatsAppText({ ...base, status: 'dispatched', deliveryMode: 'BUS', busNumber: ' up32 ab 1234 ' }), `${lead} रवाना हो गया है, बस से — बस नंबर UP32 AB 1234।`);
+  // no / blank / null bus number: unchanged v1.0.71 text
+  assert.equal(staffWhatsAppText({ ...base, status: 'dispatched', deliveryMode: 'BUS', busNumber: '' }, 'Alambagh'), `${lead} रवाना हो गया है, बस से (Alambagh बस स्टॉप)।`);
+  assert.equal(staffWhatsAppText({ ...base, status: 'dispatched', deliveryMode: 'BUS', busNumber: null }, 'Alambagh'), `${lead} रवाना हो गया है, बस से (Alambagh बस स्टॉप)।`);
+  // bus number belongs only to bus orders, and only to the dispatched text
+  assert.equal(staffWhatsAppText({ ...base, status: 'dispatched', deliveryMode: 'PORTER', busNumber: '6965' }), `${lead} रवाना हो गया है, Porter से।`);
+  assert.ok(!staffWhatsAppText({ ...base, status: 'in_packing', deliveryMode: 'BUS', busNumber: '6965' }).includes('6965'));
+  assert.ok((STAFF_VIEW_FIELDS as readonly string[]).includes('busNumber'));
+});

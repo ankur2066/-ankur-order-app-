@@ -23,6 +23,9 @@ import { db } from '../firebase';
 import type { OrderTracking, OrderStatus } from '../types';
 import { dispatchParts, formatDispatchDate } from '../utils/dispatchSchedule';
 import { PaymentOptions } from './PaymentOptions';
+import { trackingDispatchView } from '../utils/busDispatch';
+import { subscribeDeliverySettings } from '../services/deliverySettings';
+import { DEFAULT_DELIVERY_SETTINGS, findStop, type DeliverySettings } from '../utils/delivery';
 
 interface OrderTrackingViewProps {
   initialOrderId?: string;
@@ -44,6 +47,10 @@ export const OrderTrackingView: React.FC<OrderTrackingViewProps> = ({
   const [loading, setLoading] = useState(false);
   const [trackingData, setTrackingData] = useState<OrderTracking | null>(null);
   const [errorMsg, setErrorMsg] = useState<'id'|'pin'|'missing'|'failed'|null>(null);
+  // v1.0.72: bus stop names come from the public settings/delivery doc (no prices).
+  const [deliverySettings, setDeliverySettings] = useState<DeliverySettings>(DEFAULT_DELIVERY_SETTINGS);
+  const [busCopied, setBusCopied] = useState(false);
+  useEffect(() => subscribeDeliverySettings(setDeliverySettings), []);
 
   const fetchTracking = async (orderIdToSearch: string, pinToSearch: string) => {
     const cleanId = orderIdToSearch.trim().toUpperCase();
@@ -260,6 +267,35 @@ export const OrderTrackingView: React.FC<OrderTrackingViewProps> = ({
               <span className="font-semibold text-slate-800">{formatDispatchDate(dispatchParts(trackingData).date, dispatchParts(trackingData).slot, hi ? 'hi' : 'en')}</span>
             </div>
           </div>
+
+          {/* v1.0.72: dispatch mode, bus stop and bus number once dispatched */}
+          {(() => {
+            const dispatch = trackingDispatchView(trackingData, findStop(deliverySettings, trackingData.busStopId)?.name || trackingData.busStopId);
+            if (!dispatch) return null;
+            const copyBus = () => {
+              if (!dispatch.busNumber) return;
+              void navigator.clipboard?.writeText(dispatch.busNumber).then(() => { setBusCopied(true); window.setTimeout(() => setBusCopied(false), 2000); }).catch(() => {});
+            };
+            return (
+              <div className="ankur-tracking-dispatch p-3 rounded-xl bg-indigo-50 border border-indigo-200 text-xs space-y-1.5" data-no-translate>
+                <div className="flex items-center gap-1.5 text-indigo-900 font-semibold">
+                  <Truck className="w-3.5 h-3.5 text-indigo-700" />
+                  <span>{hi ? dispatch.modeHi : dispatch.modeEn}{dispatch.stopName ? ` · ${hi ? 'बस स्टॉप' : 'Bus stop'}: ${dispatch.stopName}` : ''}</span>
+                </div>
+                {dispatch.busNumber && (
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="text-sm text-slate-900">
+                      <span className="font-semibold">{hi ? 'बस नंबर:' : 'Bus number:'}</span>{' '}
+                      <span className="ankur-bus-number font-mono font-black text-base tracking-wider select-all px-1.5 py-0.5 rounded bg-white border border-indigo-200">{dispatch.busNumber}</span>
+                    </p>
+                    <button type="button" onClick={copyBus} className="px-2.5 py-1 rounded-lg bg-white hover:bg-indigo-100 text-indigo-800 font-semibold border border-indigo-200 cursor-pointer" aria-label={hi ? 'बस नंबर कॉपी करें' : 'Copy bus number'}>
+                      {busCopied ? (hi ? 'कॉपी हुआ' : 'Copied') : (hi ? 'कॉपी' : 'Copy')}
+                    </button>
+                  </div>
+                )}
+              </div>
+            );
+          })()}
 
           {/* Status Update Note */}
           <div className="p-3 rounded-xl bg-sky-50 border border-sky-100 text-xs">

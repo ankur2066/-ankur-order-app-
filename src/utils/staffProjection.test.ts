@@ -52,3 +52,18 @@ test('v1.0.68: staff WhatsApp button gets only a 10-digit waPhone, never the raw
   assert.equal(toStaffOrderView({ ...order, customerPhone: 'abc' }).waPhone, undefined);
   assert.deepEqual(projectionDrift({ ...toStaffOrderView(order), waPhone: undefined }, order), { waPhone: '9876543210' });
 });
+
+test('v1.0.72: projection carries busNumber for bus orders only, and drift re-syncs it', async () => {
+  const { DELIVERY_SYNC_FIELDS } = await import('./staffProjection.ts');
+  assert.ok((STAFF_VIEW_FIELDS as readonly string[]).includes('busNumber'));
+  assert.ok((DELIVERY_SYNC_FIELDS as readonly string[]).includes('busNumber'));
+  const withBus = { ...order, busNumber: ' 6965 ' };
+  const view = toStaffOrderView(withBus);
+  assert.equal(view.busNumber, '6965');
+  assert.deepEqual(hasForbiddenStaffField(view), []);
+  assert.equal(toStaffOrderView(order).busNumber, undefined, 'no bus number saved = no key');
+  assert.equal(toStaffOrderView({ ...withBus, deliveryMode: 'PORTER' }).busNumber, undefined);
+  assert.deepEqual(projectionDrift(toStaffOrderView(order), withBus), { busNumber: '6965' });
+  assert.deepEqual(projectionDrift(view, order), { busNumber: null }, 'cleared bus number is cleared for staff');
+  assert.equal(projectionDrift(view, withBus), null);
+});

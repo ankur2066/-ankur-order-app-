@@ -3,6 +3,7 @@ import { db } from '../firebase';
 import type { Order } from '../types';
 import { projectionDrift, toStaffOrderView } from '../utils/staffProjection';
 import { customerDocId } from './customers';
+import { syncTrackingDispatch } from './busDispatch';
 
 const STATUS_MESSAGE: Record<string, string> = {
   in_packing: 'ड्राई आइस और थर्मोकोल पैकिंग जारी है।',
@@ -35,6 +36,8 @@ export function watchStaffStatusSync(getOrder: (orderId: string) => Order | unde
         }
         batch.update(viewDoc.ref, { statusSyncPending: false, updatedAt: serverTimestamp() });
         await batch.commit();
+        // v1.0.72: separate best-effort copy of mode / stop / bus number for the customer.
+        if (view.status === 'dispatched' && order) void syncTrackingDispatch(order);
         if (view.status === 'delivered' && order?.customerPhone) {
           try { await setDoc(doc(db, 'customers', customerDocId(order.customerPhone)), { completedOrders: increment(1), tag: 'Old' }, { merge: true }); } catch { /* legacy orders without a customer doc */ }
         }

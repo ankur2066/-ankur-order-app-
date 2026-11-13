@@ -35,3 +35,17 @@ test('v1.0.66 hotfix: missing users/{uid} reads as retail, customers cannot self
   const create = rules.slice(rules.indexOf('allow create', orders), rules.indexOf('allow update', orders));
   assert.doesNotMatch(create, /staffOrderViews/);
 });
+
+test('v1.0.72: busNumber is an owner-written, bus-only order/tracking field; staff view rules unchanged', () => {
+  assert.match(rules, /'deliveryMode', 'busStopId', 'packCount', 'deliveryNote', 'busNumber'\n\s*\];/);
+  assert.match(rules, /\(!\('busNumber' in data\) \|\| \(data\.busNumber is string && data\.busNumber\.size\(\) >= 1 && data\.busNumber\.size\(\) <= 20 && data\.get\('deliveryMode', ''\) == 'BUS'\)\)/);
+  assert.match(rules, /'createdAt', 'updatedAt',\n\s*\/\/ v1\.0\.72[^\n]*\n\s*'deliveryMode', 'busStopId', 'busNumber'\n\s*\];/);
+  assert.match(rules, /lastStatusUpdate\.size\(\) <= 200 &&\n\s*isValidDelivery\(data\) &&/);
+  assert.match(rules, /\(isAdmin\(\) \|\| !\('busNumber' in request\.resource\.data\)\) &&/);
+  assert.match(rules, /\(isAdmin\(\) \|\| !\('busNumber' in incoming\(\)\)\) &&/);
+  // staff status-only paths are not widened
+  assert.match(rules, /affectedKeys\(\)\.hasOnly\(\['status', 'updatedAt'\]\)/);
+  assert.match(rules, /affectedKeys\(\)\.hasOnly\(\['status', 'lastStatusUpdate', 'updatedAt'\]\)/);
+  assert.match(rules, /affectedKeys\(\)\.hasOnly\(\['status','packingStatus','statusSyncPending','statusUpdatedBy','updatedAt'\]\)/);
+  assert.equal(fs.readFileSync(new URL('../firestore.rules', import.meta.url), 'utf8'), rules, 'root rules = overlay rules');
+});
