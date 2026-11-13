@@ -39,6 +39,8 @@ files = [
     "src/data/customerContacts.ts", "src/utils/customerContacts.test.ts", "src/components/customer/CustomerContactFooter.tsx",
     # v1.0.72: bus number on customer tracking + staff WhatsApp text; Products (coming soon) bottom tile
     "src/utils/busDispatch.ts", "src/utils/busDispatch.test.ts", "src/services/busDispatch.ts",
+    # v1.0.75: UPI fallback, Mode required on confirm, 5-account stock ledger (Spark, no delete)
+    "src/utils/stockLedger.ts", "src/utils/stockLedger.test.ts", "src/services/stockLedger.ts", "src/components/StockLedgerPanel.tsx",
 ]
 for relative in files:
     source = overlay / relative

@@ -1,5 +1,14 @@
 # Changelog
 
+## v1.0.75 — UPI fallback button, Mode required on confirm, stock ledger
+
+Android **versionCode 75 / versionName 1.0.75**, same applicationId and keystore. **Firestore rules changed — owner must publish `firestore.rules` (named database) for the stock ledger to work.** Nothing deployed from CI.
+
+- **UPI**: primary stays `paytm.s26ykus@pty` (QR, "Pay with UPI app", copy). New second button "दूसरी UPI से भरें / Pay with other UPI" opens the same amount + order memo on `8896332066@paytm` (`OTHER_UPI_ID` in businessConfig), for when payment on the first UPI fails. Existing HDFC backup row kept.
+- **Mode required**: owner cannot confirm a new (pending) order until delivery Mode is set (BUS also needs its stop); clear Hindi + English message. New-orders card now shows the Mode editor and a "Mode not set" warning.
+- **Stock ledger (Spark, client writes only)**: Godown shows a KG ledger (IN/OUT, note, who, when, running balance). Nobody can edit or delete; a mistake is fixed with a reverse entry. Owner login always has access; owner switches "Stock" on for up to 4 more staff IDs (5 accounts total) in Settings → Staff. Old Cloud Function inventory left below it unchanged.
+- Rules: new `stockLedger` (create/read only, update/delete false), `stockAccess/members` (owner-only, ≤4 emails), `staffMembers.stockAccess` bool.
+
 ## v1.0.74 — staff "New orders" list, owner "Customer login" list
 
 Android **versionCode 74 / versionName 1.0.74**, same applicationId and keystore. No rules or data change.

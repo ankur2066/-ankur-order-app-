@@ -293,3 +293,59 @@ describe('Home poll votes (homePollVotes): one vote per user per poll, owner-onl
     await assertSucceeds(getDocs(collection(ownerDb(),'homePollVotes')));
   });
 });
+
+// v1.0.75 (Ankur, 13 Nov 2026): stock ledger. Owner login + up to 4 switched-on
+// registry staff (5 accounts max). Create + read only; nobody edits or deletes.
+describe('Stock ledger (Spark, no delete)', () => {
+  const ownerDb = () => testEnv.authenticatedContext('owner',{email:'ankurdryicewholesalers@gmail.com',email_verified:true}).firestore();
+  const stockStaff = () => testEnv.authenticatedContext('stock-staff',{email:'stocker@example.com',email_verified:true}).firestore();
+  const plainStaff = () => testEnv.authenticatedContext('packer-uid',{email:'packer@example.com',email_verified:true}).firestore();
+  const inactiveStock = () => testEnv.authenticatedContext('former-uid',{email:'former@example.com',email_verified:true}).firestore();
+  const entry = (uid, extra={}) => ({type:'in',kg:25.5,note:'truck',createdBy:uid,createdByName:'Name',createdAt:serverTimestamp(),...extra});
+  before(async () => {
+    await testEnv.withSecurityRulesDisabled(async ctx => {
+      const db=ctx.firestore();
+      await db.doc('staffMembers/+919800000003').set({phone:'+919800000003',name:'Stocker',email:'stocker@example.com',active:true,role:'STAFF',stockAccess:true,updatedAt:new Date()});
+      await db.doc('staffEmails/stocker@example.com').set({phone:'+919800000003',name:'Stocker',active:true,role:'STAFF',updatedAt:new Date()});
+      await db.doc('stockAccess/members').set({emails:['stocker@example.com','former@example.com'],updatedAt:new Date()});
+      await db.doc('stockLedger/seed').set({type:'in',kg:100,createdBy:'owner',createdByName:'Owner',createdAt:new Date()});
+    });
+  });
+  it('owner and switched-on active staff add and read entries; others cannot', async () => {
+    await assertSucceeds(setDoc(doc(ownerDb(),'stockLedger/o1'),entry('owner')));
+    await assertSucceeds(setDoc(doc(stockStaff(),'stockLedger/s1'),entry('stock-staff',{type:'out',kg:10})));
+    await assertSucceeds(getDocs(collection(stockStaff(),'stockLedger')));
+    await assertSucceeds(getDocs(collection(ownerDb(),'stockLedger')));
+    await assertFails(getDocs(collection(plainStaff(),'stockLedger')));
+    await assertFails(setDoc(doc(plainStaff(),'stockLedger/p1'),entry('packer-uid')));
+    await assertFails(setDoc(doc(inactiveStock(),'stockLedger/f1'),entry('former-uid')));
+    await assertFails(getDocs(collection(testEnv.authenticatedContext('customer').firestore(),'stockLedger')));
+    await assertFails(getDocs(collection(testEnv.unauthenticatedContext().firestore(),'stockLedger')));
+  });
+  it('rejects bad entries: wrong type, zero/huge kg, someone else as creator, client time, extra fields', async () => {
+    const db=stockStaff();
+    await assertFails(setDoc(doc(db,'stockLedger/b1'),entry('stock-staff',{type:'adjust'})));
+    await assertFails(setDoc(doc(db,'stockLedger/b2'),entry('stock-staff',{kg:0})));
+    await assertFails(setDoc(doc(db,'stockLedger/b3'),entry('stock-staff',{kg:100001})));
+    await assertFails(setDoc(doc(db,'stockLedger/b4'),entry('owner')));
+    await assertFails(setDoc(doc(db,'stockLedger/b5'),entry('stock-staff',{createdAt:new Date(0)})));
+    await assertFails(setDoc(doc(db,'stockLedger/b6'),entry('stock-staff',{balance:999})));
+    await assertFails(setDoc(doc(db,'stockLedger/b7'),entry('stock-staff',{note:'x'.repeat(201)})));
+  });
+  it('nobody, owner included, can edit or delete an entry', async () => {
+    for (const db of [ownerDb(), stockStaff()]) {
+      await assertFails(updateDoc(doc(db,'stockLedger/seed'),{kg:1}));
+      await assertFails(deleteDoc(doc(db,'stockLedger/seed')));
+    }
+  });
+  it('only the owner manages the access list, max 4 switched emails (5 accounts with owner)', async () => {
+    await assertFails(getDoc(doc(stockStaff(),'stockAccess/members')));
+    await assertFails(setDoc(doc(stockStaff(),'stockAccess/members'),{emails:['stocker@example.com'],updatedAt:serverTimestamp()}));
+    await assertSucceeds(setDoc(doc(ownerDb(),'stockAccess/members'),{emails:['a@x.com','b@x.com','c@x.com','stocker@example.com'],updatedAt:serverTimestamp()}));
+    await assertFails(setDoc(doc(ownerDb(),'stockAccess/members'),{emails:['a@x.com','b@x.com','c@x.com','d@x.com','e@x.com'],updatedAt:serverTimestamp()}));
+    await assertFails(setDoc(doc(ownerDb(),'stockAccess/other'),{emails:[],updatedAt:serverTimestamp()}));
+    await assertFails(deleteDoc(doc(ownerDb(),'stockAccess/members')));
+    await assertSucceeds(setDoc(doc(ownerDb(),'staffMembers/+919800000003'),{stockAccess:false,updatedAt:serverTimestamp()},{merge:true}));
+    await assertFails(setDoc(doc(ownerDb(),'staffMembers/+919800000003'),{stockAccess:'yes',updatedAt:serverTimestamp()},{merge:true}));
+  });
+});

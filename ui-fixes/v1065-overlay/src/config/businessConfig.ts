@@ -1,6 +1,8 @@
 /** Business-owned app configuration; edit rates here only after owner approval. */
 export const PRIMARY_UPI_ID = 'paytm.s26ykus@pty';
 export const BACKUP_UPI_ID = 'ankur.singh332066@okhdfcbank';
+// v1.0.75 (Ankur, 13 Nov 2026): "Pay with other UPI" button, used when payment on the primary UPI fails.
+export const OTHER_UPI_ID = '8896332066@paytm';
 export const UPI_MERCHANT_NAME = 'Ankur Dryice';
 
 // TODO: owner must confirm retail rate. The website currently lists ₹35 and the campaign lists ₹50.

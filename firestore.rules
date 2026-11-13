@@ -550,10 +550,11 @@ service cloud.firestore {
     match /staffMembers/{phoneId} {
       allow read: if isAdmin();
       allow create, update: if isAdmin() && phoneId.matches('^\\+91[6-9][0-9]{9}$') &&
-        incoming().keys().hasOnly(['phone','name','email','active','role','updatedAt']) &&
+        incoming().keys().hasOnly(['phone','name','email','active','role','updatedAt','stockAccess']) &&
         incoming().phone == phoneId && incoming().role == 'STAFF' && incoming().active is bool &&
         incoming().name is string && incoming().name.size() <= 100 &&
-        incoming().email is string && incoming().email.size() <= 200;
+        incoming().email is string && incoming().email.size() <= 200 &&
+        (!('stockAccess' in incoming()) || incoming().stockAccess is bool);
       allow delete: if isAdmin();
     }
 
@@ -576,6 +577,47 @@ service cloud.firestore {
       allow create: if isSignedIn() && request.auth.uid == requestUid &&
         isValidStaffRequest(incoming(), requestUid);
       allow update, delete: if isAdmin();
+    }
+
+    // 5f. v1.0.75 stock ledger (Spark: client writes only, no Cloud Functions).
+    //     Max 5 accounts: the owner login (always) + up to 4 Google emails the
+    //     owner switches on in stockAccess/members (registry staff, still active).
+    //     Entries can be created and read; NOBODY (owner included) can edit or
+    //     delete one. A correction is a reverse entry.
+    function stockAccessPath() {
+      return /databases/$(database)/documents/stockAccess/members;
+    }
+
+    function canUseStock() {
+      return isOwner() ||
+             (isRegistryStaff() && exists(stockAccessPath()) &&
+              request.auth.token.get('email', '') in get(stockAccessPath()).data.get('emails', []));
+    }
+
+    function isValidStockEntry(data) {
+      return data.keys().hasOnly(['type', 'kg', 'note', 'createdBy', 'createdByName', 'createdAt']) &&
+             data.keys().hasAll(['type', 'kg', 'createdBy', 'createdByName', 'createdAt']) &&
+             data.type in ['in', 'out'] &&
+             data.kg is number && data.kg > 0 && data.kg <= 100000 &&
+             (!('note' in data) || (data.note is string && data.note.size() <= 200)) &&
+             data.createdBy == request.auth.uid &&
+             data.createdByName is string && data.createdByName.size() >= 1 && data.createdByName.size() <= 100 &&
+             data.createdAt == request.time;
+    }
+
+    match /stockAccess/{docId} {
+      allow get, list: if isAdmin();
+      allow create, update: if isAdmin() && docId == 'members' &&
+        incoming().keys().hasOnly(['emails', 'updatedAt']) &&
+        incoming().emails is list && incoming().emails.size() <= 4 &&
+        incoming().updatedAt == request.time;
+      allow delete: if false;
+    }
+
+    match /stockLedger/{entryId} {
+      allow get, list: if canUseStock();
+      allow create: if canUseStock() && isValidStockEntry(incoming());
+      allow update, delete: if false;
     }
 
     // 6. Expenses (Owner only)

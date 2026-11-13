@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { isNewOrder, isConfirmedWork, isLoaded, loadToggleStatus, workSlotMatches, loadCounts, todayAttention, sortNewOrders } from './orderWorkflow.ts';
+import { isNewOrder, isConfirmedWork, isLoaded, loadToggleStatus, workSlotMatches, loadCounts, todayAttention, sortNewOrders, confirmModeError } from './orderWorkflow.ts';
 
 const today = '2026-11-12';
 const o = (status: string, dispatchDate = today, extra: Record<string, unknown> = {}) => ({ status, dispatchDate, dispatchSlot: 'morning', ...extra });
@@ -59,4 +59,16 @@ test('today alert counts unconfirmed and unticked orders for today only', () => 
 test('new orders are listed earliest dispatch date first, undated last', () => {
   const list = [o('pending', '2026-11-14', { id: 'c' }), o('confirmed', '2026-11-12', { id: 'x' }), o('pending', '2026-11-12', { id: 'a' }), { status: 'pending', id: 'z' }, o('pending', '2026-11-13', { id: 'b' })];
   assert.deepEqual(sortNewOrders(list as any).map((x: any) => x.id), ['a', 'b', 'c', 'z']);
+});
+
+// v1.0.75 (Ankur, 13 Nov 2026): Mode is mandatory before Confirm.
+test('confirm is blocked until a delivery Mode (and BUS stop) is set', () => {
+  for (const missing of [{}, { deliveryMode: '' }, { deliveryMode: null }, { deliveryMode: 'TRUCK' }]) {
+    const err = confirmModeError(missing as any);
+    assert.ok(err && /Mode/.test(err.en) && /Mode/.test(err.hi), JSON.stringify(missing));
+  }
+  assert.ok(confirmModeError({ deliveryMode: 'BUS' }));
+  assert.ok(confirmModeError({ deliveryMode: 'BUS', busStopId: '  ' }));
+  assert.equal(confirmModeError({ deliveryMode: 'BUS', busStopId: 'alambagh' }), null);
+  for (const mode of ['SHOP_PICKUP', 'PORTER', 'LOCAL']) assert.equal(confirmModeError({ deliveryMode: mode }), null, mode);
 });

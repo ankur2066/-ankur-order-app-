@@ -31,6 +31,7 @@ import { subscribeDeliverySettings } from '../services/deliverySettings';
 import { DEFAULT_DELIVERY_SETTINGS, type DeliverySettings } from '../utils/delivery';
 import type { StaffAction } from '../utils/staffProjection';
 import { sortNewOrders } from '../utils/orderWorkflow';
+import { StockLedgerPanel } from './StockLedgerPanel';
 
 interface StaffDashboardProps {
   notificationTarget?: {orderId:string} | null;
@@ -701,6 +702,8 @@ export const StaffDashboard: React.FC<StaffDashboardProps> = ({
       </div>
       </>}
 
+      {/* v1.0.75: stock ledger, only for staff the owner switched on (hidden when rules deny). */}
+      <div className="mt-4"><StockLedgerPanel user={user} hideWhenDenied /></div>
     </div>
   );
 };

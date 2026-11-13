@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import primaryUpiQr from '../assets/primary-upi.svg';
-import { BACKUP_UPI_ID, PRIMARY_UPI_ID } from '../config/businessConfig';
-import { backupUpiUri, makePrimaryUpiQr, primaryUpiUri } from '../utils/upi';
+import { BACKUP_UPI_ID, OTHER_UPI_ID, PRIMARY_UPI_ID } from '../config/businessConfig';
+import { backupUpiUri, makePrimaryUpiQr, otherUpiUri, primaryUpiUri } from '../utils/upi';
 
 export function PaymentOptions({ amount, orderId, isHindi = true }: { amount: number; orderId?: string; isHindi?: boolean }) {
   const [qrFallback, setQrFallback] = useState('');
   const [qrImageFailed, setQrImageFailed] = useState(false);
-  const [copied, setCopied] = useState<'primary' | 'backup' | ''>('');
+  const [copied, setCopied] = useState<'primary' | 'backup' | 'other' | ''>('');
   useEffect(() => { let live = true; void makePrimaryUpiQr(amount, orderId).then(value => { if (live) setQrFallback(value); }).catch(() => {}); return () => { live = false; }; }, [amount, orderId]);
-  const copy = async (value: string, which: 'primary' | 'backup') => {
+  const copy = async (value: string, which: 'primary' | 'backup' | 'other') => {
     try {
       await navigator.clipboard.writeText(value);
       setCopied(which);
@@ -36,6 +36,19 @@ export function PaymentOptions({ amount, orderId, isHindi = true }: { amount: nu
       <button type="button" className="soft-button secondary-button" aria-label="Copy UPI ID" onClick={() => void copy(PRIMARY_UPI_ID, 'primary')}>
         {copied === 'primary' ? (isHindi ? 'कॉपी हुआ' : 'Copied') : 'Copy UPI ID'}
       </button>
+    </div>
+    {/* v1.0.75 (Ankur, 13 Nov 2026): if payment on the primary UPI fails, pay the same amount on the second UPI. */}
+    <div className="other-upi rounded-xl p-3" data-other-upi>
+      <p className="text-sm">{isHindi ? 'ऊपर वाली UPI पर भुगतान न हो तो:' : 'If payment on the UPI above fails:'}</p>
+      <div className="mt-2 flex flex-wrap items-center justify-center gap-2">
+        <button type="button" className="soft-button primary-button" onClick={() => openPay(otherUpiUri(amount, orderId))}>
+          {isHindi ? 'दूसरी UPI से भरें' : 'Pay with other UPI'}
+        </button>
+        <span className="font-mono text-sm">{OTHER_UPI_ID}</span>
+        <button type="button" className="soft-button secondary-button" aria-label={isHindi ? 'दूसरी UPI ID कॉपी करें' : 'Copy other UPI ID'} onClick={() => void copy(OTHER_UPI_ID, 'other')}>
+          {copied === 'other' ? (isHindi ? 'कॉपी हुआ' : 'Copied') : (isHindi ? 'कॉपी' : 'Copy')}
+        </button>
+      </div>
     </div>
     <div className="backup-upi rounded-xl p-3">
       <div className="flex flex-wrap items-center justify-between gap-2">

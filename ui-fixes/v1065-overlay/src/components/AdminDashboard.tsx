@@ -6,6 +6,7 @@ import { FeatureSuiteSettings } from './owner/FeatureSuiteSettings';
 import { PaymentProofPreview } from './owner/PaymentProofPreview';
 import { BusStopSettings } from './owner/BusStopSettings';
 import { StaffMembersManager } from './owner/StaffMembersManager';
+import { StockLedgerPanel } from './StockLedgerPanel';
 import { OrderDeliveryEditor } from './owner/OrderDeliveryEditor';
 import { PackingBoard, type PackingBoardOrder } from './PackingBoard';
 import { CHART_COLORS } from '../theme/designTokens';
@@ -85,7 +86,7 @@ import { calculateOwnerOverview, downloadOrdersCsv } from '../utils/ownerReports
 import { UserManagement } from './UserManagement';
 import { AIChat } from './AIChat';
 import { addIstDays, istDateKey, dispatchBucket, dispatchParts, formatDispatchDate, type DispatchBucket } from '../utils/dispatchSchedule';
-import { isConfirmedWork, loadToggleStatus, workSlotMatches, todayAttention, sortNewOrders } from '../utils/orderWorkflow';
+import { isConfirmedWork, loadToggleStatus, workSlotMatches, todayAttention, sortNewOrders, confirmModeError } from '../utils/orderWorkflow';
 
 import { generateMonthlyPDF } from '../utils/monthlyReport';
 import type { Order, OrderStatus, PaymentStatus, RateSettings } from '../types';
@@ -593,6 +594,16 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
   // Operational status update (Confirm, Packing, Dispatched, Delivered)
   const handleUpdateStatus = async (ord: Order, newStatus: OrderStatus) => {
+    // v1.0.75 (Ankur, 13 Nov 2026): Mode is mandatory before Confirm.
+    // (Unticking a loaded order back to 'confirmed' is not a new confirmation.)
+    if (newStatus === 'confirmed' && (!ord.status || ord.status === 'pending')) {
+      const modeError = confirmModeError(ord);
+      if (modeError) {
+        setErrorMsg(`#${getShortOrderId(ord.orderId)}: ${modeError.hi} / ${modeError.en}`);
+        setTimeout(() => setErrorMsg(null), 6000);
+        return;
+      }
+    }
     try {
       setActionLoadingId(ord.orderId);
       setErrorMsg(null);
@@ -1581,6 +1592,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   <p className="text-base font-black">{ord.customerName}</p>
                   <p className="text-sm"><b className="tabular-nums">{Number(ord.quantityKg) || 0} KG</b> · {ord.district || ord.city || '—'}{stop ? ` · ${stop.name}` : ''} · <span className="tabular-nums">₹{(Number(ord.totalAmount) || 0).toLocaleString('en-IN')}</span></p>
                   <OwnerOrderContactActions order={ord} settings={deliverySettings} />
+                  {/* v1.0.75: set the Mode here; Confirm is blocked until it is set. */}
+                  {confirmModeError(ord) && <p className="text-xs font-black text-rose-700" data-mode-required>Mode not set — select Mode to confirm</p>}
+                  <OrderDeliveryEditor order={ord} settings={deliverySettings} />
                   <button type="button" className="w-full min-h-[40px] rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-black disabled:opacity-60" disabled={busy} onClick={() => void handleUpdateStatus(ord, 'confirmed')}>{busy ? <span>Updating…</span> : <span>✓ Confirm order</span>}</button>
                 </li>;
               })}</ul>}
@@ -2447,6 +2461,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         {customerPanel !== 'list' && <FeatureHub key={customerPanel} currentUser={currentUser} role="admin" initial={customerPanel} allowed={[customerPanel]} />}
       </section>}
       {activeSection === 'godam' && isUserAdmin(currentUser) && <section aria-label="Godown" className="space-y-3">
+        {/* v1.0.75: the working stock ledger (Spark, client writes, no delete). Old Cloud Function inventory kept below. */}
+        <StockLedgerPanel user={currentUser} />
         <FeatureHub currentUser={currentUser} role="admin" initial="inventory" allowed={["inventory"]} />
       </section>}
       {activeSection === 'money' && isUserAdmin(currentUser) && <section aria-label="Money" className="space-y-3">
