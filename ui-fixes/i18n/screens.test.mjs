@@ -2,10 +2,10 @@ import test from'node:test';import assert from'node:assert/strict';import{readFi
 const root=process.env.ANKUR_CLIENT_APP||process.cwd(),appRequire=createRequire(resolve(root,'package.json')),require=createRequire(resolve(process.env.ANKUR_CLIENT_QA||root,'package.json')),React=require('react'),{create,act}=require('react-test-renderer'),{transformSync}=appRequire('esbuild'),ts=appRequire('typescript');globalThis.IS_REACT_ACT_ENVIRONMENT=true;
 const owner={uid:'fixture-owner',email:'ankurdryicewholesalers@gmail.com',emailVerified:true,displayName:'Fixture Owner'},rate={dryIceRate:50,thermocolRate:10,transportRate:0};
 const textOf=n=>n===null?'':typeof n==='string'?n:Array.isArray(n)?n.map(textOf).join(''):(n.children||[]).map(textOf).join('');
-async function screen(path,name,props={},seed=[]){
- let language='en';const storage=new Map(),window=new EventTarget();window.setTimeout=()=>1;window.clearTimeout=()=>{};window.setInterval=()=>1;window.clearInterval=()=>{};window.open=()=>{};const document=new EventTarget();document.visibilityState='visible';document.documentElement={dataset:{}};const context=createContext({console,window,document,Date,Intl,URL,crypto:globalThis.crypto,localStorage:{getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,v)},navigator:{clipboard:{writeText:async()=>{}}},location:{origin:'https://fixture.invalid',pathname:'/'},setTimeout:()=>1,clearTimeout:()=>{}});
+async function screen(path,name,props={},seed=[],staffViews=[]){
+ let language='en';const storage=new Map(),window=new EventTarget();window.setTimeout=()=>1;window.clearTimeout=()=>{};window.setInterval=()=>1;window.clearInterval=()=>{};window.open=()=>{};const loc={origin:'https://fixture.invalid',pathname:'/',href:'https://fixture.invalid/'};window.location=loc;const document=new EventTarget();document.visibilityState='visible';document.documentElement={dataset:{}};const context=createContext({console,window,document,Date,Intl,URL,crypto:globalThis.crypto,localStorage:{getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,v)},navigator:{clipboard:{writeText:async()=>{}}},location:loc,setTimeout:()=>1,clearTimeout:()=>{}});
  const mods=new Map(),dict=JSON.parse(readFileSync(resolve(root,'src/i18n/messages.json'),'utf8')),ui=await uiModule(context,React,()=>language,root),snap={exists:()=>false,data:()=>({}),docs:[],forEach(){}};
- const fs={doc:(_db,...p)=>({path:p.join('/')}),collection:(_db,...p)=>({path:p.join('/')}),query:r=>r,where:()=>null,orderBy:()=>null,limit:()=>null,serverTimestamp:()=>'<server>',getDoc:async()=>snap,getDocs:async()=>snap,onSnapshot:(_ref,a,b)=>{const cb=typeof a==='function'?a:b;const value=_ref.path==='settings/featureSuite'?{...snap,exists:()=>true,data:()=>({features:Object.fromEntries(['calculator','video','loyalty','catalog','partner','subscriptions','promotions','inventory','reports','faq','rates','support','service-area','referral'].map(id=>[id,true]))})}:snap;Promise.resolve().then(()=>cb(value));return()=>{};},writeBatch:()=>({set(){},update(){},commit:async()=>{}}),setDoc:async()=>{},updateDoc:async()=>{},deleteDoc:async()=>{},deleteField:()=>null,increment:()=>null,addDoc:async()=>({id:'fixture'})};
+ const fs={doc:(_db,...p)=>({path:p.join('/')}),collection:(_db,...p)=>({path:p.join('/')}),query:r=>r,where:()=>null,orderBy:()=>null,limit:()=>null,serverTimestamp:()=>'<server>',getDoc:async()=>snap,getDocs:async()=>snap,onSnapshot:(_ref,a,b)=>{const cb=typeof a==='function'?a:b;const value=_ref.path==='staffOrderViews'&&staffViews.length?{...snap,docs:staffViews.map(o=>({id:o.orderId,data:()=>o}))}:_ref.path==='settings/featureSuite'?{...snap,exists:()=>true,data:()=>({features:Object.fromEntries(['calculator','video','loyalty','catalog','partner','subscriptions','promotions','inventory','reports','faq','rates','support','service-area','referral'].map(id=>[id,true]))})}:snap;Promise.resolve().then(()=>cb(value));return()=>{};},writeBatch:()=>({set(){},update(){},commit:async()=>{}}),setDoc:async()=>{},updateDoc:async()=>{},deleteDoc:async()=>{},deleteField:()=>null,increment:()=>null,addDoc:async()=>({id:'fixture'})};
  const bindings={react:{...React,default:React},'react/jsx-runtime':require('react/jsx-runtime'),'firebase/firestore':fs,'firebase/functions':{getFunctions:()=>({}),httpsCallable:()=>async()=>({data:{}})},'firebase/app':{getApp:()=>({})}};
  function synthetic(id,exports){return new SyntheticModule(Object.keys(exports),function(){for(const[k,v]of Object.entries(exports))this.setExport(k,v);},{context,identifier:id});}
  async function load(file){if(mods.has(file))return mods.get(file);const source=readFileSync(file,'utf8'),sf=ts.createSourceFile(file,source,ts.ScriptTarget.Latest,true,ts.ScriptKind.TSX),imports=new Map();for(const d of sf.statements.filter(ts.isImportDeclaration)){const entries=d.importClause?.namedBindings&&ts.isNamedImports(d.importClause.namedBindings)?d.importClause.namedBindings.elements.map(e=>(e.propertyName||e.name).text):[];imports.set(d.moduleSpecifier.text,entries);}
@@ -15,7 +15,7 @@ async function screen(path,name,props={},seed=[]){
  if(id.endsWith('/firebase'))return synthetic(id,{app:{},db:{},auth:{currentUser:owner},ADMIN_EMAIL:owner.email,isUserAdmin:u=>u?.email===owner.email,signInWithGoogle:async()=>{},signOutUser:async()=>{},handleFirestoreError:e=>{throw e;},OperationType:{LIST:'list',WRITE:'write'}});
  if(id.endsWith('/context/LanguageContext'))return synthetic(id,{useLanguage:()=>({language,t:k=>({en:{profile:'Profile',customer:'Customer',owner:'Owner',staff:'Staff',delivery:'Delivery',ownerDashboard:'Open Owner Dashboard',contact:'Contact us',call:'Call',logout:'Log out',settings:'Settings',language:'Language',english:'English',hindi:'हिंदी (Hindi)',features:'Services and tools',back:'Back'},hi:{profile:'प्रोफ़ाइल',customer:'ग्राहक',owner:'मालिक',staff:'स्टाफ',delivery:'डिलीवरी',ownerDashboard:'ओनर डैशबोर्ड खोलें',contact:'संपर्क करें',call:'कॉल',logout:'लॉगआउट',settings:'सेटिंग्स',language:'भाषा',english:'English',hindi:'हिंदी (Hindi)',features:'सेवाएँ और टूल',back:'वापस'}}[language][k]||k),setLanguage:v=>{language=v;}})});
  if(id.endsWith('/data/rates'))return synthetic(id,{DEFAULT_RATES:rate,getLocalRates:()=>rate,subscribeToRates:()=>()=>{},saveCurrentRates:async()=>{}});
- if(id.endsWith('/services/productOrders'))return synthetic(id,{subscribeOrderDocuments:(_f,cb)=>{Promise.resolve().then(()=>cb({...snap,docs:seed.map(o=>({id:o.orderId,data:()=>o}))}));return()=>{};},ownOrderDocuments:async()=>({...snap,docs:seed.map(o=>({data:()=>o}))}),orderRef:v=>v,trackingRef:v=>v});
+ if(id.endsWith('/services/productOrders'))return synthetic(id,{subscribeOrderDocuments:(_f,cb)=>{Promise.resolve().then(()=>cb({...snap,docs:seed.map(o=>({id:o.orderId,data:()=>o}))}));return()=>{};},ownOrderDocuments:async()=>{const docs=seed.map(o=>({data:()=>o}));return{...snap,docs,forEach:cb=>docs.forEach(cb)};},orderRef:v=>v,trackingRef:v=>v});
  if(id.endsWith('/services/inventoryDispatch'))return synthetic(id,{tryInventoryDispatch:async()=>false});
  if(id.endsWith('/hooks/useInlinePromo'))return synthetic(id,{useInlinePromo:()=>({code:'',quote:null,busy:false,locked:false,setCode(){},apply:async()=>{},book:async()=>{throw Error('No fixture promo');}})});
  if(id.endsWith('/hooks/useProducts'))return synthetic(id,{useStorefrontProducts:()=>({products:[],loading:false,error:''})});
@@ -32,6 +32,9 @@ async function screen(path,name,props={},seed=[]){
  if(/\/(PackingBoard|DeliveryModePicker|BusStopSettings|StaffMembersManager|OrderDeliveryEditor|StockLedgerPanel)$/.test(id))return synthetic(id,Object.fromEntries(names.map(k=>[k,()=>null])));
  if(id.endsWith('/utils/orderWorkflow'))return load(resolve(dirname(file),id)+'.ts');// v1.0.70: real owner workflow helpers (new orders, loading ticks, overdue), not a mock
  if(id==='./dispatchSchedule.ts'&&file.endsWith('/utils/orderWorkflow.ts'))return load(resolve(dirname(file),id));
+ if(/\/utils\/staffDial$/.test(id))return load(resolve(dirname(file),id)+'.ts');// v1.0.76: real staff dial helper
+ if(/\/utils\/orderProgress$/.test(id))return load(resolve(dirname(file),id)+'.ts');// v1.0.76: real step-tracker helpers
+ if(id.endsWith('/customer/OrderStatusTracker'))return load(resolve(dirname(file),id)+'.tsx');
  if(/\/utils\//.test(id))return synthetic(id,Object.fromEntries(names.map(k=>[k,()=>false])));
  if(id==='./customer/HomeSlides')return load(resolve(dirname(file),id)+'.tsx');// real owner slide editor, rendered in the language check
  if(id==='./FeatureHub')return load(resolve(dirname(file),id)+'.tsx');
@@ -43,7 +46,7 @@ async function screen(path,name,props={},seed=[]){
  throw Error('Unmocked UI boundary '+id+' in '+file);
  });await m.evaluate();return m;}
  const m=await load(resolve(root,'src',path)),Component=m.namespace[name];let view;await act(async()=>{view=create(React.createElement(Component,props));});
- return{get view(){return view;},get text(){return textOf(view.toJSON());},async switchTo(lang){language=lang;await act(async()=>view.update(React.createElement(Component,props)));},async close(){await act(async()=>view.unmount());}};
+ return{loc,get view(){return view;},get text(){return textOf(view.toJSON());},async switchTo(lang){language=lang;await act(async()=>view.update(React.createElement(Component,props)));},async close(){await act(async()=>view.unmount());}};
 }
 for(const[path,name,props]of [['components/OrderForm.tsx','OrderForm',{currentUser:owner,onOrderSuccess(){}}],['components/AdminDashboard.tsx','AdminDashboard',{currentUser:owner,onGoToTrack(){}}],['components/StaffDashboard.tsx','StaffDashboard',{currentUser:owner,userRole:'staff',permissions:{viewOrders:true,updateStatus:true}}],['components/CustomerOrders.tsx','CustomerOrders',{currentUser:owner,onGoToTrack(){},onReorder(){},onNewOrder(){}}],['components/UserManagement.tsx','UserManagement',{}],['components/ExpensesView.tsx','ExpensesView',{}],['components/SignInScreen.tsx','SignInScreen',{}],['components/customer/ProfileTab.tsx','ProfileTab',{currentUser:null,role:null,onOpenOwnerDashboard(){}}]]){
  test(name+' renders without a language popup and selection can be changed and restored',async()=>{const h=await screen(path,name,props);assert.equal(h.view.root.findAllByProps({role:'dialog'}).length,0);assert.ok(h.text.length>10,'screen must render real content');const english=h.text;await h.switchTo('hi');assert.match(h.text,/[\u0900-\u097F]/);await h.switchTo('en');assert.equal(h.text,english);await h.close();});
@@ -134,3 +137,28 @@ test('customer Home places the contact footer at the very bottom of Home',()=>{
  const home=app.indexOf("{currentTab === 'home' && ("),footer=app.indexOf('<CustomerContactFooter />'),next=app.indexOf("{currentTab === 'categories' &&")
  assert.ok(home>=0&&footer>home&&footer<next,'footer renders on the Home tab after the Home content')
 })
+
+// v1.0.76 (Ankur, 14 Nov 2026): the customer's current order shows a big step tracker (real component + helpers).
+test('My Orders shows the current order as a big step tracker with the current step highlighted (EN + HI)',async()=>{
+ const now=Math.floor(Date.now()/1000);
+ const seed=[{orderId:'ADI-20261114-AAAA',status:'delivered',trackingPin:'111111',quantityKg:5,totalAmount:300,createdAt:{seconds:now-90000},updatedAt:{seconds:now-86000*3},dispatchTiming:'x',district:'Lucknow'},
+  {orderId:'ADI-20261114-BBBB',status:'dispatched',trackingPin:'222222',quantityKg:10,totalAmount:600,createdAt:{seconds:now-3600},updatedAt:{seconds:now-600},dispatchTiming:'x',district:'Lucknow'}];
+ const h=await screen('components/CustomerOrders.tsx','CustomerOrders',{currentUser:owner,onGoToTrack(){},onReorder(){},onGoToOrder(){}},seed);
+ assert.match(h.text,/Current order #BBBB/);for(const t of ['Order received','Confirmed','Packed','Dispatched','Delivered'])assert.ok(h.text.includes(t),t);
+ const trackers=h.view.root.findAll(n=>n.props?.['aria-current']==='step');assert.equal(trackers.length,1);
+ const steps=h.view.root.findAll(n=>typeof n.props?.className==='string'&&n.props.className.includes('ankur-order-step '));assert.deepEqual(steps.map(n=>n.props['aria-current']||''),['','','','step','']);
+ assert.ok(h.view.root.findAll(n=>n.props?.style&&parseInt(n.props.style.fontSize)>=20).length>=5,'status shown at 20px+');
+ await h.switchTo('hi');assert.match(h.text,/चालू ऑर्डर #BBBB/);assert.ok(h.text.includes('रवाना'));await h.close();});
+
+// v1.0.76 (Ankur, 14 Nov 2026): staff "कॉल करें" on the order-update screen opens the dialer with the customer number.
+test('staff Call button opens the phone dialer (tel:+91…) without the Cloud Function',async()=>{
+ const now=Math.floor(Date.now()/1000);
+ const views=[{orderId:'ADI-20261114-CALL',sourceCollection:'orders',customerName:'Call Fixture',city:'Lucknow',district:'Lucknow',productName:'Dry Ice',dispatchTiming:'x',status:'confirmed',quantityKg:10,createdAt:{seconds:now},updatedAt:{seconds:now},waPhone:'9876543210'}];
+ const h=await screen('components/StaffDashboard.tsx','StaffDashboard',{currentUser:owner,userRole:'staff',permissions:{viewOrders:true,updateStatus:true}},[],views);
+ const listToggle=h.view.root.findAll(n=>n.type==='button'&&n.props['aria-expanded']===false&&/Sabhi orders/.test(JSON.stringify(n.props.children)));assert.equal(listToggle.length,1);await act(async()=>listToggle[0].props.onClick());
+ const btn=h.view.root.findAll(n=>n.type==='button'&&typeof n.props.className==='string'&&n.props.className.includes('ankur-staff-call-trigger'));
+ assert.ok(btn.length>=1,'Call button rendered');
+ await act(async()=>{btn[0].props.onClick();await Promise.resolve();});
+ assert.equal(h.loc.href,'tel:+919876543210','dialer opened with the customer number');
+ assert.ok(h.view.root.findAll(n=>n.type==='a'&&n.props.href==='tel:+919876543210').length>=1,'Dial link shown as fallback');
+ assert.doesNotMatch(h.text,/अनुमति नहीं है/);await h.close();});

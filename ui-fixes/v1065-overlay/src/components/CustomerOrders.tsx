@@ -34,6 +34,10 @@ import type { User } from 'firebase/auth';
 import { canViewPickupReceipt } from '../utils/selfPickupAccess';
 import { downloadSelfPickupReceipt } from '../utils/selfPickupReceipt';
 import { getLocalRates } from '../data/rates';
+import { useLanguage } from '../context/LanguageContext';
+import { OrderStatusTracker } from './customer/OrderStatusTracker';
+import { pickCurrentOrder } from '../utils/orderProgress';
+import { subscribeAppResume } from '../utils/appResume';
 
 interface CustomerOrdersProps {
   currentUser: User | null;
@@ -48,6 +52,8 @@ export const CustomerOrders: React.FC<CustomerOrdersProps> = ({
   onGoToOrder,
   onReorder
 }) => {
+  const { language } = useLanguage();
+  const hi = language === 'hi';
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [loggingIn, setLoggingIn] = useState(false);
@@ -71,14 +77,15 @@ export const CustomerOrders: React.FC<CustomerOrdersProps> = ({
     }
   };
 
-  const fetchOrders = async () => {
+  // v1.0.76: `silent` re-reads on app open/resume without the full-screen spinner.
+  const fetchOrders = async (silent = false) => {
     if (!currentUser) {
       setLoading(false);
       return;
     }
 
     try {
-      setLoading(true);
+      if (!silent) setLoading(true);
       setErrorMsg(null);
 
       // Customer orders list query enforced by rules: resource.data.userId == request.auth.uid
@@ -107,6 +114,14 @@ export const CustomerOrders: React.FC<CustomerOrdersProps> = ({
 
   useEffect(() => {
     fetchOrders();
+  }, [currentUser]);
+
+  // v1.0.76 (Ankur, 14 Nov 2026): the list was read once and stayed stale when the
+  // app was opened again from the background. Re-read on every app open/resume.
+  useEffect(() => {
+    if (!currentUser) return;
+    const off = subscribeAppResume(() => { void fetchOrders(true); });
+    return () => { if (typeof off === 'function') off(); };
   }, [currentUser]);
 
   const handleGoogleSignIn = async () => {
@@ -236,7 +251,7 @@ export const CustomerOrders: React.FC<CustomerOrdersProps> = ({
     <div className="max-w-xl mx-auto py-4 px-3 sm:px-4">
       <header className="flex items-center justify-between gap-3 mb-3 c-card border b-line p-3 rounded-2xl">
         <h1 className="text-lg font-black t-main">मेरे ऑर्डर</h1>
-        <button type="button" onClick={fetchOrders} disabled={loading}
+        <button type="button" onClick={() => { void fetchOrders(); }} disabled={loading}
           aria-label="ऑर्डर रीफ्रेश करें" title="रीफ्रेश"
           className="focus-ring p-2 rounded-xl border b-line t-sub cursor-pointer disabled:opacity-60">
           <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
@@ -283,6 +298,16 @@ export const CustomerOrders: React.FC<CustomerOrdersProps> = ({
         </div>
       ) : (
         <div className="space-y-3">
+          {(() => {
+            const current = pickCurrentOrder(orders);
+            if (!current) return null;
+            return (
+              <div className="ankur-current-order space-y-2">
+                <OrderStatusTracker order={current} hi={hi}
+                  title={(hi ? 'चालू ऑर्डर' : 'Current order') + ' #' + (current.orderId.split('-').pop() || current.orderId)} />
+              </div>
+            );
+          })()}
           {receiptError && <p role="alert" className="rounded-lg bg-red-50 p-3 text-xs text-red-700">{receiptError}</p>}
           {orders.map((ord) => {
             const badge = getStatusBadge(ord.status);

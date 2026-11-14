@@ -41,6 +41,9 @@ files = [
     "src/utils/busDispatch.ts", "src/utils/busDispatch.test.ts", "src/services/busDispatch.ts",
     # v1.0.75: UPI fallback, Mode required on confirm, 5-account stock ledger (Spark, no delete)
     "src/utils/stockLedger.ts", "src/utils/stockLedger.test.ts", "src/services/stockLedger.ts", "src/components/StockLedgerPanel.tsx",
+    # v1.0.76: customer status step tracker, refresh on app open/resume, staff Call opens the dialer
+    "src/utils/orderProgress.ts", "src/utils/orderProgress.test.ts", "src/components/customer/OrderStatusTracker.tsx",
+    "src/utils/appResume.ts", "src/utils/appResume.test.ts", "src/utils/staffDial.ts", "src/utils/staffDial.test.ts",
 ]
 for relative in files:
     source = overlay / relative
@@ -92,6 +95,13 @@ if android_manifest.exists():
         text = text.replace("</manifest>", '    <uses-permission android:name="android.permission.RECORD_AUDIO" />\n</manifest>', 1)
     if "android.speech.RecognitionService" not in text:
         text = text.replace("</manifest>", '    <queries>\n        <intent>\n            <action android:name="android.speech.RecognitionService" />\n        </intent>\n    </queries>\n</manifest>', 1)
-    assert "android.permission.RECORD_AUDIO" in text and "android.speech.RecognitionService" in text
+    # v1.0.76: staff Call opens the dialer via a tel: intent; declare it for Android 11+ package visibility.
+    if '<data android:scheme="tel"' not in text:
+        tel = '        <intent>\n            <action android:name="android.intent.action.DIAL" />\n            <data android:scheme="tel" />\n        </intent>\n        <intent>\n            <action android:name="android.intent.action.VIEW" />\n            <data android:scheme="tel" />\n        </intent>\n'
+        if "</queries>" in text:
+            text = text.replace("</queries>", tel + "    </queries>", 1)
+        else:
+            text = text.replace("</manifest>", "    <queries>\n" + tel + "    </queries>\n</manifest>", 1)
+    assert "android.permission.RECORD_AUDIO" in text and "android.speech.RecognitionService" in text and '<data android:scheme="tel"' in text
     android_manifest.write_text(text)
 print(f"Applied v1.0.65 feedback overlay ({len(files)} files)")

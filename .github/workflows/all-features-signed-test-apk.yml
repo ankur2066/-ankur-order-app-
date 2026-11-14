@@ -111,19 +111,19 @@ jobs:
           npm install --save-exact --package-lock-only --ignore-scripts --no-audit --no-fund @capacitor-firebase/app-check@7.5.0 @capacitor/app@7 @capacitor/filesystem@7 @capacitor/share@7 @capacitor/push-notifications@7 @capacitor-community/speech-recognition@7.0.1
           npm ci --ignore-scripts --no-audit --no-fund
           npm run lint
-          VITE_ANDROID_VERSION_CODE=75 VITE_ANDROID_VERSION_NAME=1.0.75 npm run android:sync
+          VITE_ANDROID_VERSION_CODE=76 VITE_ANDROID_VERSION_NAME=1.0.76 npm run android:sync
           cp ci-fixes/MainActivity.java android/app/src/main/java/com/ankurdryice/events/MainActivity.java
           python3 - <<'PY'
           from pathlib import Path
           p=Path('android/app/build.gradle'); lines=p.read_text().splitlines()
           for i,x in enumerate(lines):
-            if x.strip().startswith('versionCode '): lines[i]='        versionCode 75'
-            if x.strip().startswith('versionName '): lines[i]='        versionName "1.0.75"'
+            if x.strip().startswith('versionCode '): lines[i]='        versionCode 76'
+            if x.strip().startswith('versionName '): lines[i]='        versionName "1.0.76"'
           p.write_text('\n'.join(lines)+'\n')
           PY
           cd android
           chmod +x gradlew
-          ./gradlew assembleRelease bundleRelease --no-daemon -PankurVersionCode=75 -PankurVersionName=1.0.75 -PankurKeystorePath="$RUNNER_TEMP/ankur-release.jks" -PankurStorePassword="$STORE_PASSWORD" -PankurKeyAlias="$KEY_ALIAS" -PankurKeyPassword="$KEY_PASSWORD"
+          ./gradlew assembleRelease bundleRelease --no-daemon -PankurVersionCode=76 -PankurVersionName=1.0.76 -PankurKeystorePath="$RUNNER_TEMP/ankur-release.jks" -PankurStorePassword="$STORE_PASSWORD" -PankurKeyAlias="$KEY_ALIAS" -PankurKeyPassword="$KEY_PASSWORD"
       - name: Verify package and signature
         run: |
           APK=android/app/build/outputs/apk/release/app-release.apk
@@ -132,7 +132,7 @@ jobs:
           # update in place; a mismatched package would install as a second app.
           BUILD_TOOLS="$ANDROID_HOME/build-tools/$(ls "$ANDROID_HOME/build-tools" | sort -V | tail -1)"
           BADGING=$("$BUILD_TOOLS/aapt" dump badging "$APK")
-          printf '%s\n' "$BADGING" | grep -F "package: name='com.ankurdryice.events' versionCode='75' versionName='1.0.75'"
+          printf '%s\n' "$BADGING" | grep -F "package: name='com.ankurdryice.events' versionCode='76' versionName='1.0.76'"
           # Update flow opens a consent-based external link; never request installer
           # or broad file-management privileges in the packaged manifest.
           PERMISSIONS=$("$BUILD_TOOLS/aapt" dump permissions "$APK")
@@ -163,7 +163,7 @@ jobs:
           sha256sum "$AAB" > aab-sha256.txt
       - uses: actions/upload-artifact@v4
         with:
-          name: Ankur-Dryice-v1.0.75-PRIVATE-PLAY-AAB
+          name: Ankur-Dryice-v1.0.76-PRIVATE-PLAY-AAB
           path: |
             android/app/build/outputs/bundle/release/app-release.aab
             aab-sha256.txt
@@ -171,7 +171,7 @@ jobs:
           retention-days: 14
       - uses: actions/upload-artifact@v4
         with:
-          name: Ankur-Dryice-v1.0.75-SEASON-PRIVATE-TEST
+          name: Ankur-Dryice-v1.0.76-SEASON-PRIVATE-TEST
           path: |
             android/app/build/outputs/apk/release/app-release.apk
             apk-sha256.txt

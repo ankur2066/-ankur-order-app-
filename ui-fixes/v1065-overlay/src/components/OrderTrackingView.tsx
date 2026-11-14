@@ -26,6 +26,8 @@ import { PaymentOptions } from './PaymentOptions';
 import { trackingDispatchView } from '../utils/busDispatch';
 import { subscribeDeliverySettings } from '../services/deliverySettings';
 import { DEFAULT_DELIVERY_SETTINGS, findStop, type DeliverySettings } from '../utils/delivery';
+import { OrderStatusTracker } from './customer/OrderStatusTracker';
+import { subscribeAppResume } from '../utils/appResume';
 
 interface OrderTrackingViewProps {
   initialOrderId?: string;
@@ -52,7 +54,8 @@ export const OrderTrackingView: React.FC<OrderTrackingViewProps> = ({
   const [busCopied, setBusCopied] = useState(false);
   useEffect(() => subscribeDeliverySettings(setDeliverySettings), []);
 
-  const fetchTracking = async (orderIdToSearch: string, pinToSearch: string) => {
+  // v1.0.76: `silent` re-reads on app open/resume, keeping the current card on screen.
+  const fetchTracking = async (orderIdToSearch: string, pinToSearch: string, silent = false) => {
     const cleanId = orderIdToSearch.trim().toUpperCase();
     const cleanPin = pinToSearch.trim();
 
@@ -67,9 +70,11 @@ export const OrderTrackingView: React.FC<OrderTrackingViewProps> = ({
     }
 
     try {
-      setLoading(true);
-      setErrorMsg(null);
-      setTrackingData(null);
+      if (!silent) {
+        setLoading(true);
+        setErrorMsg(null);
+        setTrackingData(null);
+      }
 
       // Server-side compound token authorization
       const compoundToken = `${cleanId}_${cleanPin}`;
@@ -77,6 +82,7 @@ export const OrderTrackingView: React.FC<OrderTrackingViewProps> = ({
       const trackingDocSnap = await getDoc(trackingDocRef);
 
       if (!trackingDocSnap.exists()) {
+        if (silent) return;
         setErrorMsg('missing');
         return;
       }
@@ -85,7 +91,7 @@ export const OrderTrackingView: React.FC<OrderTrackingViewProps> = ({
       setTrackingData(data);
     } catch (err: unknown) {
       console.error('Error fetching order tracking:', err);
-      setErrorMsg('failed');
+      if (!silent) setErrorMsg('failed');
     } finally {
       setLoading(false);
     }
@@ -98,6 +104,18 @@ export const OrderTrackingView: React.FC<OrderTrackingViewProps> = ({
       fetchTracking(initialOrderId, initialPin);
     }
   }, [initialOrderId, initialPin]);
+
+  // v1.0.76 (Ankur, 14 Nov 2026): status was read once and went stale when the app
+  // was reopened from the background. Re-read the shown order on app open/resume.
+  const shownToken = trackingData ? trackingData.trackingToken || '' : '';
+  useEffect(() => {
+    if (!shownToken) return;
+    const sep = shownToken.lastIndexOf('_');
+    if (sep <= 0) return;
+    const id = shownToken.slice(0, sep), pin = shownToken.slice(sep + 1);
+    const off = subscribeAppResume(() => { void fetchTracking(id, pin, true); });
+    return () => { if (typeof off === 'function') off(); };
+  }, [shownToken]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -215,6 +233,9 @@ export const OrderTrackingView: React.FC<OrderTrackingViewProps> = ({
               );
             })()}
           </div>
+
+          {/* v1.0.76: big step tracker (received -> confirmed -> packed -> dispatched -> delivered) */}
+          <OrderStatusTracker order={trackingData} hi={hi} />
 
           {/* Quick-Reorder Visual Prompt if Previously Delivered */}
           {trackingData.status === 'delivered' && (

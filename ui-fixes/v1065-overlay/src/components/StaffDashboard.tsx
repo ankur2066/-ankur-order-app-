@@ -32,6 +32,7 @@ import { DEFAULT_DELIVERY_SETTINGS, type DeliverySettings } from '../utils/deliv
 import type { StaffAction } from '../utils/staffProjection';
 import { sortNewOrders } from '../utils/orderWorkflow';
 import { StockLedgerPanel } from './StockLedgerPanel';
+import { openDialer, staffDialHref } from '../utils/staffDial';
 
 interface StaffDashboardProps {
   notificationTarget?: {orderId:string} | null;
@@ -78,6 +79,16 @@ export const StaffDashboard: React.FC<StaffDashboardProps> = ({
     return raw === 'orders' || raw === 'product_orders' ? raw : null;
   };
   const openOneContact = async (ord: Order) => {
+    // v1.0.76: dial the owner-approved staff number (waPhone) directly. The old
+    // Cloud Function path below never worked on Spark (no Functions deployed).
+    const directHref = staffDialHref((ord as unknown as { waPhone?: unknown }).waPhone);
+    if (directHref) {
+      contactVersion.current += 1;
+      setErrorMsg(null);
+      setContact({ key: (staffSource(ord) || 'unknown') + '_' + ord.orderId, phone: directHref.slice(4) });
+      openDialer(directHref);
+      return;
+    }
     const sourceCollection = staffSource(ord);
     if (!sourceCollection) {
       setErrorMsg('ऑर्डर का स्रोत सत्यापित नहीं हो सका।');return;
@@ -105,7 +116,7 @@ export const StaffDashboard: React.FC<StaffDashboardProps> = ({
       }
       setContact({ key, phone: data.phone });
     } catch {
-      if (epoch === contactVersion.current) setErrorMsg('इस ऑर्डर का नंबर देखने की अनुमति नहीं है।');
+      if (epoch === contactVersion.current) setErrorMsg('इस ऑर्डर में ग्राहक का नंबर नहीं है। मालिक से ऑर्डर में मोबाइल नंबर जुड़वाएँ।');
     }
   };
   useEffect(() => {

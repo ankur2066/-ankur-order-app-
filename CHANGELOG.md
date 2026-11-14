@@ -1,5 +1,15 @@
 # Changelog
 
+## v1.0.76 — status step tracker, refresh on app open, staff Call opens the dialer
+
+Android **versionCode 76 / versionName 1.0.76**, same applicationId `com.ankurdryice.events` and keystore. No Firestore rules or data change; nothing deployed from CI.
+
+- **Refresh on app open/resume** ("app kholne pe update nahi ho raha"): My Orders and the tracking page read Firestore once (`getDocs`/`getDoc`) and kept the old status when the app was brought back from the background. They now re-read on every app open/resume (WebView visibility/focus + native Capacitor `appStateChange`, one read per resume) without a full-screen spinner. Helper: `src/utils/appResume.ts` (+ tests).
+- **Update notice**: the existing `AppUpdateNotice` already checks on launch and resume; it never showed because no newer version is published at either source it reads (GitHub repo has no Releases; `ankurdryice.store/app-updates/android-stable.json` is 404). Code unchanged; a published GitHub Release `v1.0.76` with the APK attached makes it appear on installed 1.0.66+ apps.
+- **Customer status step tracker**: current order (My Orders, top card) and the tracking page show Order received → Confirmed → Packed → Dispatched → Delivered at 20–24px, current step highlighted, done steps ticked, cancelled shown clearly. Times: Order received = booking time, current step = last update time (no per-step history is stored, nothing invented). Hindi + English. Helpers: `src/utils/orderProgress.ts`, `src/components/customer/OrderStatusTracker.tsx` (+ tests).
+- **Staff "कॉल करें" fixed**: it called the Cloud Function `ankurGetOneOrderContact`, which is not deployed on Spark (and also needed App Check), so it always failed with "अनुमति नहीं है". It now dials the order's `waPhone` (owner-approved staff number, already in the staff view) via `tel:+91…`; the number + Dial/WhatsApp links still show for 15 s. Android manifest declares the `tel:` DIAL/VIEW intent query. Helper: `src/utils/staffDial.ts` (+ tests).
+- Tests: new unit tests above; real-render tests for the tracker and resume re-read (`ui-fixes/tracking-language.test.mjs`), My Orders current-order tracker and staff Call → dialer (`ui-fixes/i18n/screens.test.mjs`). No test removed or weakened.
+
 ## v1.0.75 — UPI fallback button, Mode required on confirm, stock ledger
 
 Android **versionCode 75 / versionName 1.0.75**, same applicationId and keystore. **Firestore rules changed — owner must publish `firestore.rules` (named database) for the stock ledger to work.** Nothing deployed from CI.
