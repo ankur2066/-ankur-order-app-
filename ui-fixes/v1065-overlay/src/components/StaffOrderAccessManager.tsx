@@ -1,0 +1,105 @@
+import React, { useEffect, useState } from 'react';
+import { collection, doc, onSnapshot, updateDoc } from 'firebase/firestore';
+import { getApp } from 'firebase/app';
+import { getFunctions, httpsCallable } from 'firebase/functions';
+import { db } from '../firebase';
+import { isAndroidAppCheckReady } from '../appCheck';
+
+type TeamMember = {uid: string; role: string; active: boolean; permissions: Record<string,boolean>};
+type Source = 'orders' | 'product_orders';
+
+/** Owner-only assignment UI. Direct phone lists are NEVER loaded here. */
+export const StaffOrderAccessManager: React.FC = () => {
+  const [staff, setStaff] = useState<TeamMember[]>([]);
+  const [uid, setUid] = useState('');
+  const [sourceCollection, setSourceCollection] = useState<Source>('orders');
+  const [orderId, setOrderId] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [notice, setNotice] = useState('');
+  useEffect(() => onSnapshot(collection(db, 'users'), snap => {
+    const people = snap.docs.map(d => ({
+      uid:d.id,
+      role:String(d.data().role || ''),
+      active:d.data().active === true,
+      permissions:d.data().permissions || {}
+    })).filter(d => d.role === 'staff' || d.role === 'delivery');
+    setStaff(people);
+    setUid(old => old && people.some(person => person.uid === old) ? old : (people[0]?.uid || ''));
+  }, () => setNotice('स्टाफ की सुरक्षित सूची अभी लोड नहीं हो सकी।')), []);
+  const selected = staff.find(person => person.uid === uid);
+  const ready = isAndroidAppCheckReady();
+  // Phone-contact permission is independent of login and status permissions.
+  // Never activate an inactive staff account or grant viewOrders as a side effect.
+  const setAccess = async (allowContact: boolean) => {
+    if (!selected || busy) return;
+    if (allowContact && (!selected.active || selected.permissions.viewOrders !== true)) {
+      setNotice('पहले स्टाफ की सक्रिय स्थिति और ऑर्डर देखने की अनुमति अलग से जाँचें।');
+      return;
+    }
+    setBusy(true);
+    setNotice('');
+    try {
+      await updateDoc(doc(db, 'users', selected.uid), {
+        'permissions.callCustomer': allowContact
+      });
+      setNotice(allowContact ? 'केवल ग्राहक नंबर-संपर्क की अनुमति चालू हुई।' : 'ग्राहक नंबर-संपर्क की अनुमति बंद हुई; स्टाफ लॉगिन चालू रहेगा।');
+    } catch {
+      setNotice('नंबर-संपर्क की अनुमति नहीं बदली। मालिक का सत्यापित लॉगिन जाँचें।');
+    } finally { setBusy(false); }
+  };
+  const assign = async (approved:boolean) => {
+    if (!selected || !/^[A-Za-z0-9_-]{4,64}$/.test(orderId.trim()) || !ready) {
+      setNotice('स्टाफ, सही ऑर्डर ID और सत्यापित Android ऐप जरूरी है।');return;
+    }
+    setBusy(true);
+    setNotice('');
+    try {
+      const fn = httpsCallable(getFunctions(getApp(), 'asia-southeast1'),'ankurOwnerAssignStaffOrder');
+      await fn({sourceCollection,orderId:orderId.trim(),staffUid:selected.uid,approved,expiresHours:24});
+      setNotice(approved ? 'सिर्फ इस ऑर्डर के लिए 24 घंटे की अनुमति दी गई।' : 'इस ऑर्डर की अनुमति वापस ली गई।');
+    } catch {
+      setNotice('ऑर्डर अनुमति नहीं बदली। रोल, सक्रिय स्थिति, App Check और ऑर्डर ID जाँचें।');
+    } finally { setBusy(false); }
+  };
+  return (
+    <section className="mb-4 rounded-2xl border border-indigo-300 bg-slate-950 text-slate-100 p-4 space-y-3" aria-label="स्टाफ ग्राहक-संपर्क अनुमति">
+      <h3 className="font-bold text-base">स्टाफ के ग्राहक-संपर्क की सुरक्षा</h3>
+      <p className="text-xs text-slate-300">एक बार में एक ऑर्डर की अनुमति दें। स्टाफ को सभी ग्राहकों के नंबर कभी नहीं भेजे जाते।</p>
+      <label className="block text-xs font-semibold">कर्मचारी
+        <select className="block mt-1 w-full rounded-xl border border-slate-600 bg-slate-800 p-3 text-white"
+          value={uid} onChange={e=>setUid(e.target.value)}>
+          {staff.length===0 && <option value="">कोई स्टाफ उपलब्ध नहीं</option>}
+          {staff.map(person=><option key={person.uid} value={person.uid}>{person.uid} ({person.role})</option>)}
+        </select>
+      </label>
+      {selected && <p className="text-xs text-slate-300">स्थिति: {selected.active ? 'सक्रिय' : 'निष्क्रिय'} · ऑर्डर देखने का अधिकार: {selected.permissions.viewOrders===true?'हाँ':'नहीं'} · नंबर-संपर्क अधिकार: {selected.permissions.callCustomer===true?'हाँ':'नहीं'}</p>}
+      <div className="flex gap-2 flex-wrap">
+        <button type="button" disabled={busy||!selected||!selected.active||selected.permissions.viewOrders!==true||selected.permissions.callCustomer===true} onClick={()=>void setAccess(true)}
+          className="rounded-xl bg-indigo-500 text-white px-3 py-2 text-xs font-bold disabled:opacity-50">संपर्क अधिकार चालू</button>
+        <button type="button" disabled={busy||!selected||selected.permissions.callCustomer!==true} onClick={()=>void setAccess(false)}
+          className="rounded-xl border border-rose-400 text-rose-100 px-3 py-2 text-xs font-bold disabled:opacity-50">केवल नंबर अधिकार बंद</button>
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+        <label className="text-xs font-semibold">ऑर्डर प्रकार
+          <select className="block mt-1 w-full rounded-xl border border-slate-600 bg-slate-800 p-3 text-white" value={sourceCollection}
+            onChange={e=>setSourceCollection(e.target.value as Source)}>
+            <option value="orders">Dry Ice Order</option>
+            <option value="product_orders">Product Order</option>
+          </select>
+        </label>
+        <label className="text-xs font-semibold">ऑर्डर ID
+          <input className="block mt-1 w-full rounded-xl border border-slate-600 bg-slate-800 p-3 text-white"
+            value={orderId} onChange={e=>setOrderId(e.target.value)} placeholder="ADI-..." autoComplete="off"/>
+        </label>
+      </div>
+      <div className="flex gap-2 flex-wrap">
+        <button type="button" disabled={busy||!selected||!ready} onClick={()=>void assign(true)}
+          className="rounded-xl bg-emerald-600 px-3 py-2 text-xs font-bold text-white disabled:opacity-50">केवल इस ऑर्डर की अनुमति दें</button>
+        <button type="button" disabled={busy||!selected||!ready} onClick={()=>void assign(false)}
+          className="rounded-xl border border-amber-400 px-3 py-2 text-xs font-bold text-amber-100 disabled:opacity-50">इस ऑर्डर की अनुमति वापस लें</button>
+      </div>
+      {!ready && <p className="text-xs text-amber-200">ऑर्डर अनुमति बदलने के लिए App Check सक्रिय Android ऐप चाहिए।</p>}
+      {notice && <p role="status" className="text-sm text-slate-200">{notice}</p>}
+    </section>
+  );
+};

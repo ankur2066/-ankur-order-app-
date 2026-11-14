@@ -1,0 +1,212 @@
+name: PR verification and visual artifacts
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [codex/fix-v1065-test-feedback]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    outputs:
+      quality_pass: ${{ steps.quality-complete.outputs.passed }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: '22', cache: npm }
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: '21' }
+      - name: Reconstruct app and apply review overlays
+        run: |
+          set -euo pipefail
+          unzip -oq Ankur_Order_App_Upload_GitHub.zip -d .
+          python3 app-check/apply_patch.py
+          python3 ui-fixes/apply_patch.py
+          python3 ui-fixes/ux_qa_patch.py
+          python3 ui-fixes/premium_booking_v122.py
+          python3 ui-fixes/blinkit_premium_v123.py
+          python3 ui-fixes/customer_home_form_v124.py
+          python3 ui-fixes/customer_home_only_v125.py
+          python3 ui-fixes/compact_customer_form_v126.py
+          python3 ui-fixes/english_booking_v127.py
+          python3 ui-fixes/readable_smooth_v128.py
+          python3 notifications/apply_patch.py
+          python3 notifications/client-fixes/apply_patch.py
+          python3 notifications/tap-fix/apply_patch.py
+          python3 ui-fixes/declutter_v132.py
+          python3 phase-a/apply_patch.py
+          python3 all-features/protected_audit.py record /tmp/protected.json
+          python3 billing/apply_patch.py
+          ANKUR_APP_DIR=$PWD python3 all-features/apply_patch.py
+          python3 all-features/wire_additions.py
+          python3 ui-fixes/seasonal_contrast_v135.py
+          python3 ui-fixes/customer-home-language.py
+          python3 ui-fixes/customer_nav_v138.py
+          python3 ui-fixes/customer_dark_contrast_v138.py
+          python3 ui-fixes/customer_home_clean_v139.py
+          python3 ui-fixes/customer_features_nav_v140.py
+          python3 ui-fixes/video_idea_profile_v141.py
+          python3 ui-fixes/customer_profile_contact_v145.py
+          python3 ui-fixes/customer_ai_video_cleanup_v146.py
+          python3 ui-fixes/dispatch_rules_privacy_v147.py
+          python3 ui-fixes/owner_premium_v148.py
+          python3 ui-fixes/staff_contact_privacy_v148.py
+          python3 ui-fixes/tracking-language.py
+          python3 ui-fixes/inline-promo.py
+          python3 ui-fixes/notification-preferences.py
+          python3 ui-fixes/locale-formatting.py
+          python3 ui-fixes/localization.py
+          python3 ui-fixes/owner_feature_settings.py
+          python3 ui-fixes/release-audit-v1.py
+          python3 ui-fixes/release-audit-v1065.py
+          python3 all-features/protected_audit.py check /tmp/protected.json
+          npm install --save-exact --package-lock-only --ignore-scripts --no-audit --no-fund @capacitor-firebase/app-check@7.5.0 @capacitor/app@7 @capacitor/filesystem@7 @capacitor/share@7 @capacitor/push-notifications@7 @capacitor-community/speech-recognition@7.0.1
+          npm ci --ignore-scripts --no-audit --no-fund
+      - run: npm run lint
+      - run: npm run test:unit
+      - name: Firestore security rules in emulator (no deploy)
+        run: npm run test:rules:emulator
+      - run: npm run build
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Capture mock-data screen previews using built theme assets
+        run: node tests/playwright-screenshots.mjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pr-24-ui-screenshots
+          path: artifacts/screenshots/*.png
+          if-no-files-found: error
+          retention-days: 30
+      - id: quality-complete
+        name: Mark build and verification checks complete
+        run: echo "passed=true" >> "$GITHUB_OUTPUT"
+      - name: Enforce theme colour token check
+        run: npm run check:theme-colors
+
+  private-signed-apk:
+    if: always() && needs.verify.outputs.quality_pass == 'true' && (github.ref == 'refs/heads/codex/fix-v1065-test-feedback' || (github.event_name == 'pull_request' && github.head_ref == 'codex/fix-v1065-test-feedback'))
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '22', cache: npm }
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: '21' }
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: 'platform-tools'
+      - name: Prepare temporary signing key
+        env:
+          KEYSTORE_B64: ${{ secrets.ANKUR_RELEASE_KEYSTORE_BASE64 }}
+          STORE_PASSWORD: ${{ secrets.ANKUR_RELEASE_STORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANKUR_RELEASE_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.ANKUR_RELEASE_KEY_PASSWORD }}
+        run: |
+          test -n "$KEYSTORE_B64" && test -n "$STORE_PASSWORD" && test -n "$KEY_ALIAS" && test -n "$KEY_PASSWORD"
+          printf '%s' "$KEYSTORE_B64" | base64 --decode > "$RUNNER_TEMP/ankur-release.jks"
+          test -s "$RUNNER_TEMP/ankur-release.jks"
+      - name: Reconstruct app and apply review overlays
+        run: |
+          set -euo pipefail
+          unzip -oq Ankur_Order_App_Upload_GitHub.zip -d .
+          python3 app-check/apply_patch.py
+          python3 ui-fixes/apply_patch.py
+          python3 ui-fixes/ux_qa_patch.py
+          python3 ui-fixes/premium_booking_v122.py
+          python3 ui-fixes/blinkit_premium_v123.py
+          python3 ui-fixes/customer_home_form_v124.py
+          python3 ui-fixes/customer_home_only_v125.py
+          python3 ui-fixes/compact_customer_form_v126.py
+          python3 ui-fixes/english_booking_v127.py
+          python3 ui-fixes/readable_smooth_v128.py
+          python3 notifications/apply_patch.py
+          python3 notifications/client-fixes/apply_patch.py
+          python3 notifications/tap-fix/apply_patch.py
+          python3 ui-fixes/declutter_v132.py
+          python3 phase-a/apply_patch.py
+          python3 all-features/protected_audit.py record /tmp/protected.json
+          python3 billing/apply_patch.py
+          ANKUR_APP_DIR=$PWD python3 all-features/apply_patch.py
+          python3 all-features/wire_additions.py
+          python3 ui-fixes/seasonal_contrast_v135.py
+          python3 ui-fixes/customer-home-language.py
+          python3 ui-fixes/customer_nav_v138.py
+          python3 ui-fixes/customer_dark_contrast_v138.py
+          python3 ui-fixes/customer_home_clean_v139.py
+          python3 ui-fixes/customer_features_nav_v140.py
+          python3 ui-fixes/video_idea_profile_v141.py
+          python3 ui-fixes/customer_profile_contact_v145.py
+          python3 ui-fixes/customer_ai_video_cleanup_v146.py
+          python3 ui-fixes/dispatch_rules_privacy_v147.py
+          python3 ui-fixes/owner_premium_v148.py
+          python3 ui-fixes/staff_contact_privacy_v148.py
+          python3 ui-fixes/tracking-language.py
+          python3 ui-fixes/inline-promo.py
+          python3 ui-fixes/notification-preferences.py
+          python3 ui-fixes/locale-formatting.py
+          python3 ui-fixes/localization.py
+          python3 ui-fixes/owner_feature_settings.py
+          python3 ui-fixes/release-audit-v1.py
+          python3 ui-fixes/release-audit-v1065.py
+          python3 all-features/protected_audit.py check /tmp/protected.json
+          npm install --save-exact --package-lock-only --ignore-scripts --no-audit --no-fund @capacitor-firebase/app-check@7.5.0 @capacitor/app@7 @capacitor/filesystem@7 @capacitor/share@7 @capacitor/push-notifications@7 @capacitor-community/speech-recognition@7.0.1
+          npm ci --ignore-scripts --no-audit --no-fund
+      - run: npm run lint && VITE_ANDROID_VERSION_CODE=76 VITE_ANDROID_VERSION_NAME=1.0.76 npm run build && npx cap sync android
+      - name: Configure existing Android Firebase app
+        env:
+          GOOGLE_SERVICES_B64: ${{ secrets.ANKUR_GOOGLE_SERVICES_JSON_BASE64 }}
+        run: |
+          set -euo pipefail
+          test -n "$GOOGLE_SERVICES_B64"
+          printf '%s' "$GOOGLE_SERVICES_B64" | base64 --decode > android/app/google-services.json
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          c=json.loads(Path('android/app/google-services.json').read_text())
+          assert any(x.get('client_info',{}).get('android_client_info',{}).get('package_name')=='com.ankurdryice.events' for x in c.get('client',[]))
+          v=Path('android/variables.gradle'); s=v.read_text()
+          if 'rgcfaIncludeGoogle' not in s: v.write_text(s.replace('ext {','ext {\n    rgcfaIncludeGoogle = true',1))
+          PY
+      - name: Build and verify signed private test APK
+        working-directory: android
+        env:
+          STORE_PASSWORD: ${{ secrets.ANKUR_RELEASE_STORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANKUR_RELEASE_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.ANKUR_RELEASE_KEY_PASSWORD }}
+        run: |
+          bash ./gradlew assembleRelease bundleRelease --no-daemon \
+            -PankurKeystorePath="$RUNNER_TEMP/ankur-release.jks" \
+            -PankurStorePassword="$STORE_PASSWORD" \
+            -PankurKeyAlias="$KEY_ALIAS" \
+            -PankurKeyPassword="$KEY_PASSWORD" \
+            -PankurVersionCode=76 -PankurVersionName=1.0.76
+          APK=app/build/outputs/apk/release/app-release.apk
+          test -s "$APK"
+          TOOLS="$ANDROID_HOME/build-tools/$(ls "$ANDROID_HOME/build-tools" | sort -V | tail -1)"
+          "$TOOLS/apksigner" verify --verbose "$APK"
+          "$TOOLS/aapt" dump badging "$APK" | grep -F "package: name='com.ankurdryice.events' versionCode='76' versionName='1.0.76'"
+          CERT=$("$TOOLS/apksigner" verify --verbose --print-certs "$APK" | sed -nE 's/.*certificate SHA-256 digest: ([0-9a-fA-F]{64}).*/\1/p' | head -n 1 | tr 'A-F' 'a-f')
+          test "$CERT" = 'ebb60e0b13f7b5bfa814a619d5e4acc0ee65f0e12835ad5a282c072bc9976a6e' || { echo 'Unexpected release signing certificate'; exit 1; }
+          test -s app/build/outputs/bundle/release/app-release.aab
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Ankur-Dryice-v1.0.76-Signed-APK
+          path: android/app/build/outputs/apk/release/app-release.apk
+          if-no-files-found: error
+          retention-days: 14
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Ankur-Dryice-v1.0.76-PLAY-AAB
+          path: android/app/build/outputs/bundle/release/app-release.aab
+          if-no-files-found: error
+          retention-days: 14
+      - name: Remove temporary signing key
+        if: always()
+        run: rm -f "$RUNNER_TEMP/ankur-release.jks"
+

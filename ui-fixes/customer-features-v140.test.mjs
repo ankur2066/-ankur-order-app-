@@ -14,26 +14,33 @@ const review=readFileSync(new URL('../.github/workflows/all-features-review.yml'
 const signed=readFileSync(new URL('../.github/workflows/all-features-signed-test-apk.yml',import.meta.url),'utf8');
 
 test('customer bottom navigation has exactly the four requested tabs',()=>{
- const tabs=[...nav.matchAll(/\{ id: '([^']+)', label:/g)].map(m=>m[1]);
- assert.deepEqual(tabs,['home','my-orders','ai-video','profile']);
+ // v1.0.72: Home / Products (coming soon) / My Orders / Profile; AI Video lives in the Home feature row.
+ assert.match(nav,/id: 'products', label: 'Products'/);
+ assert.doesNotMatch(nav,/id: 'ai-video', label: 'AI Video'/);
+ 
  assert.match(nav,/grid-cols-4/);
- assert.doesNotMatch(nav,/label: 'AI Features'|Sparkles|id: 'categories'/);
+ assert.match(nav,/isOwner = false/);
  assert.doesNotMatch(app,/currentTab === 'ai-features'/);
  assert.match(css,/ANKUR AI FEATURES NAV v1\.0\.40/);
 });
 
 test('Home keeps the daily winner and opens only owner-enabled business tools',()=>{
- const section=app.slice(app.indexOf("AI Features and Services"),app.indexOf("currentTab === 'ai-video'"));
+ // v1.0.66/67 (Ankur 2026-11-11/12): old "AI Features and Services" box replaced by the
+ // scrolling HomeFeatureRow; winner/offer/poll moved into the top HomeSlides card.
+ const section=app.slice(app.indexOf("{currentTab === 'home' && ("),app.indexOf("currentTab === 'ai-video'"));
+ assert.ok(section.length>0);
  assert.match(section,/DailyWinnerBanner/);
- assert.match(section,/FeatureHub/);
- assert.match(section,/'catalog'/);
- assert.doesNotMatch(section,/'inventory'|'reports'|'video'/);
+ assert.match(section,/HomeSlides/);
+ assert.match(section,/HomeFeatureRow/);
+ assert.match(section,/FeatureInline/);
+ assert.doesNotMatch(section,/'inventory'|'reports'/);
  assert.match(featureHub,/OWNER_SWITCHED_FEATURES/);
  assert.match(featureHub,/featureFlags\[f\.id\]===true/);
  assert.match(featureHub,/grid grid-cols-2 gap-2/);
  assert.match(featureHub,/id:'calculator'/);
  assert.match(app,/currentTab === 'ai-video'/);
- assert.match(app,/false && currentTab === 'categories'/);
+ assert.match(app,/currentTab === 'categories' &&/);
+ assert.match(app,/isOwner=\{role === 'admin'\}/);
 });
 
 test('existing Home booking and owner/staff workflows remain routed unchanged',()=>{
@@ -53,6 +60,6 @@ test('local reconstruction, private review and signed APK apply the same UI patc
  assert.equal(signed.split('python3 '+name).length-1,1);
  assert.ok(local.indexOf('customer_home_clean_v139.py')<local.indexOf(name));
  assert.match(signed,/paths: \['release-batches\/\*\.txt'\]/,'only explicit release batch triggers signed APK');
- assert.match(signed,/versionCode 64/);
- assert.match(signed,/versionName "10\.0\.64-combined-test"/);
+ assert.match(signed,/versionCode 76/);
+ assert.match(signed,/versionName "1\.0\.76"/);
 });
