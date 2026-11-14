@@ -163,20 +163,30 @@ test('staff Call button opens the phone dialer (tel:+91…) without the Cloud Fu
  assert.ok(h.view.root.findAll(n=>n.type==='a'&&n.props.href==='tel:+919876543210').length>=1,'Dial link shown as fallback');
  assert.doesNotMatch(h.text,/अनुमति नहीं है/);await h.close();});
 
-// v1.0.76 (Ankur, 14 Nov 2026): Home category row = Blinkit-style raised pastel tiles, equal widths, label under the picture.
-test('Home category row renders raised pastel tiles (picture on its own tile, label below) in EN and HI',async()=>{
- let picked=null;const h=await screen('components/customer/HomeFeatureRow.tsx','HomeFeatureRow',{active:'booking',onSelect:id=>{picked=id;},role:'admin'});
+// v1.0.76 (Ankur, 14 Nov 2026): Home banner = big, colourful, 3D (Blinkit-style), auto-slide kept; category tiles unchanged.
+test('Home banner is big and colourful: one vibrant gradient per slide, bold headline, 3D picture, dots below',async()=>{
+ const h=await screen('components/customer/HomeSlides.tsx','HomeSlides',{currentUser:null});
  await act(async()=>{await Promise.resolve();});
- const tiles=h.view.root.findAll(n=>n.type==='button'&&n.props.role==='tab');
- assert.ok(tiles.length>=4,'booking + owner-enabled tools');
- for(const t of tiles){assert.match(t.props.className,/ankur-cat-tile/);const card=t.findAll(n=>typeof n.props?.className==='string'&&/ankur-cat-tile-card ankur-cat-tone-[0-5]/.test(n.props.className));assert.equal(card.length,1,'own pastel tile');assert.equal(t.findAll(n=>n.props?.className==='ankur-cat-tile-pic').length,1);assert.equal(t.findAll(n=>typeof n.props?.className==='string'&&n.props.className.startsWith('ankur-cat-tile-label')).length,1,'label below');}
- assert.equal(tiles[0].props['aria-selected'],true);assert.match(tiles[0].props.className,/is-active/);
- const tones=tiles.slice(0,4).map(t=>t.findAll(n=>/ankur-cat-tone-/.test(n.props?.className||''))[0].props.className.match(/tone-(\d)/)[1]);assert.equal(new Set(tones).size,4,'neighbouring tiles get different pastel colours');
- assert.match(h.text,/Dry Ice Booking/);assert.match(h.text,/Calculator/);await h.switchTo('hi');assert.match(h.text,/ड्राई आइस बुकिंग/);
- await act(async()=>tiles[1].props.onClick());assert.equal(picked,'calculator');await h.close();
- const css=readFileSync(resolve(root,'src/index.css'),'utf8');
- assert.match(css,/\.aqp-form-only-main \.aqp-booking-heading \{ display: none !important; \}/,'empty band above the tiles removed');
- assert.match(css,/\.ankur-cat-tile \{[^}]*flex: 0 0 calc\(\(100% - 24px\) \/ 4\)/,'four equal-width tiles');
- assert.match(css,/\.ankur-cat-tile-card \{[^}]*box-shadow:[^}]*inset/,'raised 3D tile');
- assert.doesNotMatch(css.slice(css.indexOf('v1.0.76 (Ankur, 14 Nov 2026): Home category tiles')),/#[0-9a-fA-F]{3,8}\b/,'no new hex colours');
+ const banner=()=>h.view.root.findAll(n=>n.type==='div'&&String(n.props?.className||'').includes('ankur-home-slides'))[0];
+ assert.match(banner().props.className,/ankur-hb ankur-hb-tone-0/);
+ const headline=h.view.root.findAll(n=>n.props?.className==='ankur-hb-headline');assert.equal(headline.length,1);assert.equal(headline[0].children.join(''),'Ankur Dry Ice');
+ assert.equal(h.view.root.findAll(n=>n.props?.className==='ankur-hb-sub')[0].children.join(''),'लखनऊ में ड्राई आइस, होलसेल और रिटेल');
+ assert.equal(h.view.root.findAll(n=>n.type==='svg').length,1,'3D dry-ice cube picture on the first slide');
+ assert.equal(h.view.root.findAll(n=>n.props?.className==='ankur-hb-dots').length,1,'dots below');
+ const dots=h.view.root.findAll(n=>n.type==='button'&&n.props.tabIndex===-1);
+ await act(async()=>dots[1].props.onClick());assert.match(banner().props.className,/ankur-hb-tone-1/,'second slide gets a different gradient');
+ assert.equal(h.view.root.findAll(n=>n.props?.className==='ankur-hb-emoji').length,1);
+ await act(async()=>dots[2].props.onClick());assert.match(banner().props.className,/ankur-hb-tone-2/);
+ await h.close();
+ const css=readFileSync(resolve(root,'src/index.css'),'utf8'),block=css.slice(css.indexOf('big, colourful, 3D Home banner'));
+ assert.match(block,/\.ankur-home-slides\.ankur-hb \{[^}]*min-height: 1[5-8]\dpx/,'banner ~150-180px tall');
+ assert.match(block,/\.ankur-home-slides\.ankur-hb \{[^}]*box-shadow:/,'soft depth shadow');
+ assert.match(block,/\.ankur-hb-headline \{[^}]*font-size: 2\dpx;[^}]*font-weight: 900/,'bold large headline');
+ assert.doesNotMatch(block,/#[0-9a-fA-F]{3,8}\b/,'no new hex colours');
+ // white text must stay readable (WCAG AA 4.5:1) on every gradient stop
+ const lum=(h,s,l)=>{s/=100;l/=100;const k=n=>(n+h/30)%12,a=s*Math.min(l,1-l),f=n=>l-a*Math.max(-1,Math.min(k(n)-3,Math.min(9-k(n),1)));return[f(0),f(8),f(4)].map(c=>c<=0.03928?c/12.92:((c+0.055)/1.055)**2.4).reduce((t,c,i)=>t+c*[0.2126,0.7152,0.0722][i],0);};
+ const tones=[...block.matchAll(/\.ankur-hb-tone-\d \{ background: ([^;]+);/g)];assert.ok(tones.length>=3,'different gradient per slide');
+ for(const[,bg]of tones)for(const[,hh,ss,ll]of bg.matchAll(/hsl\((\d+) (\d+)% (\d+)%\)/g))assert.ok(1.05/(lum(+hh,+ss,+ll)+0.05)>=4.5,'white text contrast on '+bg);
+ assert.match(css,/\.aqp-form-only-main \.aqp-booking-heading \{ display: none !important; \}/,'empty band under the banner removed');
+ assert.doesNotMatch(css,/ankur-cat-tile/,'category tiles not restyled');
 });

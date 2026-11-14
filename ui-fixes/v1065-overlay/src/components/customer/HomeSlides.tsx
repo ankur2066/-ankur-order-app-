@@ -64,12 +64,12 @@ export const HomeSlides: React.FC<{currentUser: User | null}> = ({currentUser}) 
   const winner = daily || (slides.winnerName && slides.winnerCity ? {name: slides.winnerName, city: slides.winnerCity} : null);
   const items = useMemo(() => {
     const list: {key: string; icon: string; node: React.ReactNode}[] = [];
-    if (winner) list.push({key: 'w', icon: '🏆', node: <span className="min-w-0 truncate">{hi ? 'आज के विजेता' : "Today's winner"}: {winner.name}, {winner.city}</span>});
-    if (slides.offerText) list.push({key: 'o', icon: '🎁', node: <span className="min-w-0 line-clamp-2">{slides.offerText}</span>});
+    if (winner) list.push({key: 'w', icon: '🏆', node: <><span className="ankur-hb-headline">{hi ? 'आज के विजेता' : "Today's winner"}:</span><span className="ankur-hb-sub"> {winner.name}, {winner.city}</span></>});
+    if (slides.offerText) list.push({key: 'o', icon: '🎁', node: <span className="ankur-hb-headline line-clamp-3">{slides.offerText}</span>});
     if (slides.pollId && slides.pollQuestion && slides.pollOptions.length >= 2) list.push({key: 'p', icon: '🗳️', node: (
       <span className="min-w-0 flex-1">
-        <span className="block truncate">{slides.pollQuestion}</span>
-        {voted ? <span className="block text-xs font-bold">{hi ? 'धन्यवाद! आपका जवाब मिल गया।' : 'Thank you! Your answer is saved.'}</span> : (
+        <span className="ankur-hb-headline line-clamp-2" style={{fontSize: 19}}>{slides.pollQuestion}</span>
+        {voted ? <span className="ankur-hb-sub">{hi ? 'धन्यवाद! आपका जवाब मिल गया।' : 'Thank you! Your answer is saved.'}</span> : (
           <span className="mt-1 flex flex-wrap gap-1">
             {slides.pollOptions.map(opt => <button key={opt} type="button" className="ankur-poll-option rounded-full px-2.5 py-0.5 text-xs font-bold c-card b-line border"
               onClick={async () => {
@@ -81,7 +81,7 @@ export const HomeSlides: React.FC<{currentUser: User | null}> = ({currentUser}) 
         )}
       </span>
     )});
-    if (!list.length) for (const d of DEFAULT_HOME_SLIDES) list.push({key: d.key, icon: d.icon, node: <span className="min-w-0 line-clamp-2">{d.text}</span>});
+    if (!list.length) for (const d of DEFAULT_HOME_SLIDES) list.push({key: d.key, icon: d.icon, node: <BannerText text={d.text} />});
     return list;
   }, [winner, slides, voted, hi, currentUser]);
 
@@ -92,20 +92,52 @@ export const HomeSlides: React.FC<{currentUser: User | null}> = ({currentUser}) 
   }, [items.length]);
 
   if (!items.length) return null;
-  const item = items[index % items.length];
+  const at = index % items.length;
+  const item = items[at];
+  // v1.0.76 (Ankur, 14 Nov 2026): big, colourful, 3D banner like Blinkit's home banners:
+  // ~164px tall, one vibrant gradient per slide, white bold headline, 3D picture on the
+  // right, soft depth shadow, dots below. Auto-slide (4.5 s) unchanged.
   return <div role="status" aria-live="polite" data-no-translate
-    className="ankur-home-slides sticky top-0 z-20 mb-3 rounded-2xl px-3 py-2.5 text-sm font-extrabold"
-    style={{background: 'var(--status-pending-bg)', color: 'var(--status-pending-ink)', boxShadow: 'var(--shadow-raised)'}}>
-    <div className="flex items-center gap-2">
-      <span aria-hidden="true" className="text-lg">{item.icon}</span>
-      {item.node}
+    className={`ankur-home-slides ankur-hb ankur-hb-tone-${at % 5} mb-3`}>
+    <div className="ankur-hb-row">
+      <div className="ankur-hb-copy">{item.node}</div>
+      <span aria-hidden="true" className="ankur-hb-art">
+        {item.icon === '❄️' ? <IceCube3D /> : <span className="ankur-hb-emoji">{item.icon}</span>}
+      </span>
     </div>
-    {items.length > 1 && <div className="mt-1.5 flex justify-center gap-1" aria-hidden="true">
+    {items.length > 1 && <div className="ankur-hb-dots" aria-hidden="true">
       {items.map((it, i) => <button key={it.key} type="button" tabIndex={-1} onClick={() => setIndex(i)}
-        className="h-1.5 rounded-full" style={{width: i === index % items.length ? 16 : 6, background: 'currentColor', opacity: i === index % items.length ? 0.9 : 0.35}} />)}
+        className="ankur-hb-dot" style={{width: i === at ? 22 : 7, opacity: i === at ? 1 : 0.5}} />)}
     </div>}
   </div>;
 };
+
+/** "Headline — sub line" -> big headline + smaller line (the dash stays for screen readers). */
+const BannerText: React.FC<{text: string}> = ({text}) => {
+  const cut = text.indexOf(' — ');
+  if (cut < 0) return <span className="ankur-hb-headline">{text}</span>;
+  return <>
+    <span className="ankur-hb-headline">{text.slice(0, cut)}</span>
+    <span className="sr-only"> — </span>
+    <span className="ankur-hb-sub">{text.slice(cut + 3)}</span>
+  </>;
+};
+
+/** v1.0.76: 3D-looking dry-ice cube (three shaded faces, gloss, cold vapour). */
+const IceCube3D: React.FC = () => <svg viewBox="0 0 120 120" aria-hidden="true" focusable="false">
+  <defs>
+    <linearGradient id="ankurIceTop" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="hsl(195 100% 98%)" /><stop offset="1" stopColor="hsl(197 90% 84%)" /></linearGradient>
+    <linearGradient id="ankurIceLeft" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="hsl(199 85% 80%)" /><stop offset="1" stopColor="hsl(205 75% 60%)" /></linearGradient>
+    <linearGradient id="ankurIceRight" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="hsl(200 80% 70%)" /><stop offset="1" stopColor="hsl(210 70% 48%)" /></linearGradient>
+  </defs>
+  <path d="M22 30 Q40 18 58 28 M66 22 Q84 10 100 22" fill="none" stroke="rgba(255,255,255,.75)" strokeWidth="5" strokeLinecap="round" />
+  <polygon points="60,38 100,58 60,78 20,58" fill="url(#ankurIceTop)" />
+  <polygon points="20,58 60,78 60,112 20,92" fill="url(#ankurIceLeft)" />
+  <polygon points="60,78 100,58 100,92 60,112" fill="url(#ankurIceRight)" />
+  <polygon points="60,38 100,58 60,78 20,58" fill="none" stroke="rgba(255,255,255,.9)" strokeWidth="2" strokeLinejoin="round" />
+  <path d="M32 62 L44 68 M30 72 L30 84 M70 86 L86 78" stroke="rgba(255,255,255,.85)" strokeWidth="3" strokeLinecap="round" />
+  <circle cx="48" cy="52" r="5" fill="rgba(255,255,255,.95)" />
+</svg>;
 
 /** Owner Tools: edit the winner, offer and poll shown in the customer slide. */
 export const HomeSlidesOwnerControls: React.FC = () => {
