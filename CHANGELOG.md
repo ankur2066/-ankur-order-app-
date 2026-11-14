@@ -1,6 +1,6 @@
 # Changelog
 
-## v1.0.76 — status step tracker, refresh on app open, staff Call opens the dialer
+## v1.0.76 — status step tracker, refresh on app open, staff Call opens the dialer, Blinkit-style Home tiles
 
 Android **versionCode 76 / versionName 1.0.76**, same applicationId `com.ankurdryice.events` and keystore. No Firestore rules or data change; nothing deployed from CI.
 
@@ -8,7 +8,8 @@ Android **versionCode 76 / versionName 1.0.76**, same applicationId `com.ankurdr
 - **Update notice**: the existing `AppUpdateNotice` already checks on launch and resume; it never showed because no newer version is published at either source it reads (GitHub repo has no Releases; `ankurdryice.store/app-updates/android-stable.json` is 404). Code unchanged; a published GitHub Release `v1.0.76` with the APK attached makes it appear on installed 1.0.66+ apps.
 - **Customer status step tracker**: current order (My Orders, top card) and the tracking page show Order received → Confirmed → Packed → Dispatched → Delivered at 20–24px, current step highlighted, done steps ticked, cancelled shown clearly. Times: Order received = booking time, current step = last update time (no per-step history is stored, nothing invented). Hindi + English. Helpers: `src/utils/orderProgress.ts`, `src/components/customer/OrderStatusTracker.tsx` (+ tests).
 - **Staff "कॉल करें" fixed**: it called the Cloud Function `ankurGetOneOrderContact`, which is not deployed on Spark (and also needed App Check), so it always failed with "अनुमति नहीं है". It now dials the order's `waPhone` (owner-approved staff number, already in the staff view) via `tel:+91…`; the number + Dial/WhatsApp links still show for 15 s. Android manifest declares the `tel:` DIAL/VIEW intent query. Helper: `src/utils/staffDial.ts` (+ tests).
-- Tests: new unit tests above; real-render tests for the tracker and resume re-read (`ui-fixes/tracking-language.test.mjs`), My Orders current-order tracker and staff Call → dialer (`ui-fixes/i18n/screens.test.mjs`). No test removed or weakened.
+- **Home category tiles "3D like Blinkit"**: the empty light-blue band between the banner and the category icons (booking-form heading whose title has been hidden since v1.0.67) is removed, so the tiles sit right under the banner. Each picture now sits on its own rounded pastel tile (gradient + soft shadow + inner highlight = raised look, press-down on tap), picture large and lifted, label below; four equal-width tiles fill the row, aligned with the banner (more scroll sideways). Neighbouring tiles get different pastel colours; dark theme dimmed. CSS only uses rgb/hsl (no new hex). Files: `HomeFeatureRow.tsx`, `index.css`.
+- Tests: new unit tests above; real-render Home tile test (`ui-fixes/i18n/screens.test.mjs`); real-render tests for the tracker and resume re-read (`ui-fixes/tracking-language.test.mjs`), My Orders current-order tracker and staff Call → dialer (`ui-fixes/i18n/screens.test.mjs`). No test removed or weakened.
 
 ## v1.0.75 — UPI fallback button, Mode required on confirm, stock ledger
 

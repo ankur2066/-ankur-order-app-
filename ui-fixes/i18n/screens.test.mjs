@@ -162,3 +162,21 @@ test('staff Call button opens the phone dialer (tel:+91…) without the Cloud Fu
  assert.equal(h.loc.href,'tel:+919876543210','dialer opened with the customer number');
  assert.ok(h.view.root.findAll(n=>n.type==='a'&&n.props.href==='tel:+919876543210').length>=1,'Dial link shown as fallback');
  assert.doesNotMatch(h.text,/अनुमति नहीं है/);await h.close();});
+
+// v1.0.76 (Ankur, 14 Nov 2026): Home category row = Blinkit-style raised pastel tiles, equal widths, label under the picture.
+test('Home category row renders raised pastel tiles (picture on its own tile, label below) in EN and HI',async()=>{
+ let picked=null;const h=await screen('components/customer/HomeFeatureRow.tsx','HomeFeatureRow',{active:'booking',onSelect:id=>{picked=id;},role:'admin'});
+ await act(async()=>{await Promise.resolve();});
+ const tiles=h.view.root.findAll(n=>n.type==='button'&&n.props.role==='tab');
+ assert.ok(tiles.length>=4,'booking + owner-enabled tools');
+ for(const t of tiles){assert.match(t.props.className,/ankur-cat-tile/);const card=t.findAll(n=>typeof n.props?.className==='string'&&/ankur-cat-tile-card ankur-cat-tone-[0-5]/.test(n.props.className));assert.equal(card.length,1,'own pastel tile');assert.equal(t.findAll(n=>n.props?.className==='ankur-cat-tile-pic').length,1);assert.equal(t.findAll(n=>typeof n.props?.className==='string'&&n.props.className.startsWith('ankur-cat-tile-label')).length,1,'label below');}
+ assert.equal(tiles[0].props['aria-selected'],true);assert.match(tiles[0].props.className,/is-active/);
+ const tones=tiles.slice(0,4).map(t=>t.findAll(n=>/ankur-cat-tone-/.test(n.props?.className||''))[0].props.className.match(/tone-(\d)/)[1]);assert.equal(new Set(tones).size,4,'neighbouring tiles get different pastel colours');
+ assert.match(h.text,/Dry Ice Booking/);assert.match(h.text,/Calculator/);await h.switchTo('hi');assert.match(h.text,/ड्राई आइस बुकिंग/);
+ await act(async()=>tiles[1].props.onClick());assert.equal(picked,'calculator');await h.close();
+ const css=readFileSync(resolve(root,'src/index.css'),'utf8');
+ assert.match(css,/\.aqp-form-only-main \.aqp-booking-heading \{ display: none !important; \}/,'empty band above the tiles removed');
+ assert.match(css,/\.ankur-cat-tile \{[^}]*flex: 0 0 calc\(\(100% - 24px\) \/ 4\)/,'four equal-width tiles');
+ assert.match(css,/\.ankur-cat-tile-card \{[^}]*box-shadow:[^}]*inset/,'raised 3D tile');
+ assert.doesNotMatch(css.slice(css.indexOf('v1.0.76 (Ankur, 14 Nov 2026): Home category tiles')),/#[0-9a-fA-F]{3,8}\b/,'no new hex colours');
+});

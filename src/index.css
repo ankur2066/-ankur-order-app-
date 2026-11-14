@@ -1899,3 +1899,36 @@ html { font-size: 13.5px; }
 .owner-settings-group { border: 1px solid var(--tool-track); border-radius: 14px; padding: 4px 8px; }
 .owner-settings-group[open] { padding-bottom: 10px; }
 .owner-settings-group > summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; }
+
+/* v1.0.76 (Ankur, 14 Nov 2026): Home category tiles "3D like Blinkit".
+   The empty light-blue heading band (its title is hidden since v1.0.67) is removed, so the
+   category tiles sit right under the banner. Colours are rgb/hsl (no new hex). */
+.aqp-form-only-main .aqp-booking-heading { display: none !important; }
+.aqp-form-only-main .aqp-booking-form { border-radius: 22px !important; padding-top: 10px !important; }
+.ankur-cat-row { margin-left: 0 !important; margin-right: 0 !important; border-bottom: 0 !important; padding: 10px 6px 4px; }
+.ankur-cat-track { display: flex; gap: 8px; }
+.ankur-cat-tile {
+  flex: 0 0 calc((100% - 24px) / 4); min-width: 0; display: flex; flex-direction: column;
+  align-items: center; gap: 6px; padding: 0 0 4px; background: transparent; border: 0; border-radius: 18px;
+  -webkit-tap-highlight-color: transparent;
+}
+.ankur-cat-tile-card {
+  position: relative; display: flex; align-items: flex-end; justify-content: center;
+  width: 100%; aspect-ratio: 1 / 0.92; border-radius: 18px; overflow: visible;
+  box-shadow: 0 6px 14px rgba(15, 60, 90, .14), 0 2px 3px rgba(15, 60, 90, .10), inset 0 1px 0 rgba(255, 255, 255, .9), inset 0 -3px 0 rgba(15, 60, 90, .06);
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+.ankur-cat-tile-pic {
+  font-size: 42px; line-height: 1; margin-bottom: 6px; transform: translateY(-14%) scale(1.08);
+  filter: drop-shadow(0 4px 4px rgba(15, 40, 60, .22));
+}
+.ankur-cat-tile-label { font-size: 11.5px; line-height: 1.2; text-align: center; overflow-wrap: anywhere; }
+.ankur-cat-tile:active .ankur-cat-tile-card { transform: translateY(2px) scale(.98); box-shadow: 0 2px 6px rgba(15, 60, 90, .14), inset 0 1px 0 rgba(255, 255, 255, .9); }
+.ankur-cat-tile.is-active .ankur-cat-tile-card { outline: 2px solid hsl(198 85% 42%); outline-offset: 2px; }
+.ankur-cat-tone-0 { background: linear-gradient(160deg, hsl(196 100% 95%) 0%, hsl(199 90% 85%) 100%); }
+.ankur-cat-tone-1 { background: linear-gradient(160deg, hsl(48 100% 94%) 0%, hsl(42 95% 82%) 100%); }
+.ankur-cat-tone-2 { background: linear-gradient(160deg, hsl(270 100% 96%) 0%, hsl(266 80% 87%) 100%); }
+.ankur-cat-tone-3 { background: linear-gradient(160deg, hsl(28 100% 95%) 0%, hsl(25 95% 84%) 100%); }
+.ankur-cat-tone-4 { background: linear-gradient(160deg, hsl(145 70% 94%) 0%, hsl(148 55% 82%) 100%); }
+.ankur-cat-tone-5 { background: linear-gradient(160deg, hsl(340 100% 96%) 0%, hsl(340 80% 87%) 100%); }
+html[data-theme="dark"] .ankur-cat-tile-card { filter: brightness(.82) saturate(.9); box-shadow: 0 6px 14px rgba(0, 0, 0, .45), inset 0 1px 0 rgba(255, 255, 255, .25); }

@@ -26,20 +26,24 @@ export const HomeFeatureRow: React.FC<{active: HomeFeature; onSelect: (id: HomeF
     .map(id => FEATURES.find(f => f.id === id))
     .filter((f): f is (typeof FEATURES)[number] => !!f && flags[f.id] === true && (!f.owner || role === 'admin')), [flags, role]);
   useEffect(() => { if (active !== 'booking' && !items.some(f => f.id === active)) onSelect('booking'); }, [active, items, onSelect]);
-  const tab = (id: HomeFeature, label: string, pic: string) => {
+  // v1.0.76 (Ankur, 14 Nov 2026): "3D like Blinkit" — each picture sits on its own soft,
+  // raised pastel tile (gradient + shadow), picture large and slightly overflowing the tile,
+  // label below; four equal-width tiles fill the row, aligned with the banner above.
+  const tab = (id: HomeFeature, label: string, pic: string, index: number) => {
     const on = active === id;
     return <button key={id} type="button" role="tab" aria-selected={on} onClick={() => onSelect(id)}
-      className={`ankur-home-feature-tab focus-ring relative shrink-0 snap-start flex flex-col items-center justify-start gap-1 px-2 pt-2 pb-2.5 w-[84px] rounded-t-xl ${on ? 'c-soft' : ''}`}>
-      <span aria-hidden="true" className="flex h-12 w-12 items-center justify-center text-[34px] leading-none">{pic}</span>
-      <span className={`text-[11.5px] leading-tight text-center ${on ? 'font-extrabold t-main' : 'font-semibold t-sub'}`}>{label}</span>
-      {on && <span aria-hidden="true" className="c-brand absolute bottom-0 left-2 right-2 h-[3px] rounded-full" />}
+      className={`ankur-home-feature-tab ankur-cat-tile focus-ring snap-start ${on ? 'is-active' : ''}`}>
+      <span aria-hidden="true" className={`ankur-cat-tile-card ankur-cat-tone-${index % 6}`}>
+        <span className="ankur-cat-tile-pic">{pic}</span>
+      </span>
+      <span className={`ankur-cat-tile-label ${on ? 'font-extrabold t-main' : 'font-semibold t-sub'}`}>{label}</span>
     </button>;
   };
   return <nav aria-label={hi ? 'सेवाएँ और टूल' : 'Services and tools'} data-no-translate
-    className="ankur-home-feature-row -mx-1 mb-3 overflow-x-auto overscroll-x-contain [scrollbar-width:none] border-b b-line">
-    <div role="tablist" className="flex gap-1 px-1 snap-x">
-      {tab('booking', hi ? 'ड्राई आइस बुकिंग' : 'Dry Ice Booking', '🧊')}
-      {items.map(f => tab(f.id, (hi ? SHORT_HI[f.id] : SHORT_EN[f.id]) || (hi ? f.hi : f.en), PIC[f.id] || '⭐'))}
+    className="ankur-home-feature-row ankur-cat-row mb-3 overflow-x-auto overscroll-x-contain [scrollbar-width:none]">
+    <div role="tablist" className="ankur-cat-track snap-x">
+      {tab('booking', hi ? 'ड्राई आइस बुकिंग' : 'Dry Ice Booking', '🧊', 0)}
+      {items.map((f, i) => tab(f.id, (hi ? SHORT_HI[f.id] : SHORT_EN[f.id]) || (hi ? f.hi : f.en), PIC[f.id] || '⭐', i + 1))}
     </div>
   </nav>;
 };
