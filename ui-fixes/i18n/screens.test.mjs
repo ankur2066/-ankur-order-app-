@@ -190,3 +190,36 @@ test('Home banner is big and colourful: one vibrant gradient per slide, bold hea
  assert.match(css,/\.aqp-form-only-main \.aqp-booking-heading \{ display: none !important; \}/,'empty band under the banner removed');
  assert.doesNotMatch(css,/ankur-cat-tile/,'category tiles not restyled');
 });
+// v1.0.77 (Ankur, 16 Nov 2026: "सारा access de do staff ko bas kuch delete na ho"): staff get the
+// real owner dashboard with every tool, but no delete button anywhere and no owner-only admin
+// (Users/roles, Staff, customer-app feature controls). The owner keeps all of them.
+test('staff open the owner dashboard with every tool but no delete, users, staff or feature controls',async()=>{
+ const staffUser={uid:'fixture-staff',email:'packer@example.com',emailVerified:true,displayName:'Fixture Staff'}
+ const today=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Kolkata',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date())
+ const base={trackingToken:'ADI-T_777777',trackingPin:'777777',customerPhone:'9000000077',district:'Lucknow',quantityKg:10,dispatchTiming:'',dispatchDate:today,dispatchSlot:'morning',productName:'Dry Ice',dryIcePricePerKg:50,dryIceSubtotal:500,thermocolPricePerKg:0,thermocolSubtotal:0,totalAmount:500,paymentStatus:'pending_verification',paymentMethod:'UPI',userId:'guest',createdAt:{seconds:1},updatedAt:{seconds:1}}
+ const seed=[{...base,orderId:'ADI-STF-0001',customerName:'Staff Grahak',status:'confirmed',deliveryMode:'LOCAL'},{...base,orderId:'ADI-STF-0002',customerName:'Naya Staff Grahak',status:'pending',deliveryMode:'LOCAL'}]
+ const btn=(h,label)=>h.view.root.findAll(n=>n.type==='button'&&textOf(n.children.map(c=>c.toJSON?c.toJSON():c)).includes(label))
+ const deletes=h=>h.view.root.findAll(n=>n.props&&'data-owner-delete' in n.props&&typeof n.type==='string')
+ for(const [user,extra,isOwner] of [[staffUser,{staffAccess:true},false],[owner,{},true]]){
+  const who=isOwner?'owner':'staff'
+  const h=await screen('components/AdminDashboard.tsx','AdminDashboard',{currentUser:user,onGoToTrack(){},...extra},seed)
+  await act(async()=>{await Promise.resolve()})
+  assert.ok(h.text.includes('Staff Grahak'),who+' sees the real orders')
+  for(const label of ["Today's work",'Customers','Godown','Money','Settings','New Entry'])assert.ok(btn(h,label).length>0,who+' has the '+label+' screen')
+  assert.equal(h.view.root.findAll(n=>n.type==='button'&&String(n.props.className||'').includes('owner-new-orders-tile')).length,1,who+' has New orders')
+  const menus=()=>h.view.root.findAll(n=>n.type==='button'&&n.props.title==='अधिक विकल्प')
+  assert.ok(menus().length>0,who+' has the order menus')
+  for(let i=0;i<menus().length;i++){await act(async()=>menus()[i].props.onClick());if(isOwner)break}
+  if(isOwner)assert.ok(deletes(h).length>0&&h.text.includes('Delete Order'),'owner keeps Delete Order')
+  else{assert.equal(deletes(h).length,0,'staff see no delete button');assert.ok(!h.text.includes('Delete Order'),'staff see no Delete Order')}
+  await act(async()=>btn(h,'Settings')[0].props.onClick())
+  assert.ok(h.text.includes('Bus stops'),who+' manages bus stops')
+  assert.ok(h.text.includes('Store / Theme'),who+' manages the store')
+  assert.equal(h.text.includes('Customer app buttons (on/off)'),isOwner,who+': feature controls are owner-only')
+  assert.equal(btn(h,'Staff').some(n=>String(n.props.className||'').includes('soft-tool-tile')),isOwner,who+': Staff management is owner-only')
+  assert.equal(h.view.root.findAll(n=>n.type==='button'&&String(n.props.className||'').includes('soft-tool-tile')&&textOf(n.children.map(c=>c.toJSON?c.toJSON():c))==='Users').length,isOwner?1:0,who+': Users/roles is owner-only')
+  await act(async()=>btn(h,'Money')[0].props.onClick())
+  assert.ok(btn(h,'Expenses').length>0,who+' opens Expenses')
+  await h.close()
+ }
+})

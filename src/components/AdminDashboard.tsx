@@ -97,6 +97,8 @@ interface AdminDashboardProps {
   currentUser: FirebaseUser | null;
   onGoToTrack: (orderId: string, pin: string) => void;
   onGoToOrder?: () => void;
+  /** v1.0.77: staff open this dashboard with the owner's tools, but no delete and no owner-only admin. */
+  staffAccess?: boolean;
 }
 
 // Format date into Asia/Kolkata (IST = UTC + 5:30)
@@ -222,9 +224,16 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   currentUser, 
   onGoToTrack,
   onGoToOrder,
-  notificationTarget
+  notificationTarget,
+  staffAccess = false
 }) => {
-  const isAdmin = isUserAdmin(currentUser);
+  // v1.0.77 (Ankur, 16 Nov 2026: "सारा access de do staff ko bas kuch delete na ho"):
+  // isOwner = the verified owner account; staff (role or registry, decided by
+  // useAccess and re-checked by firestore.rules) get every screen and tool but
+  // canDelete stays owner-only, as do Users/roles, Staff and feature controls.
+  const isOwner = isUserAdmin(currentUser);
+  const isAdmin = isOwner || staffAccess;
+  const canDelete = isOwner;
 
   // Main navigation tabs: 'new-entry' | 'orders' | 'insights' | 'expenses' | 'users' | 'ai-chat'
   const [activeSection, setActiveSection] = useState<'new-entry' | 'orders' | 'insights' | 'expenses' | 'users' | 'ai-chat' | 'storefront' | 'customers' | 'tools' | 'bus-stops' | 'staff' | 'godam' | 'money'>('orders');
@@ -714,6 +723,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
   // Move Order to Trash (Soft Delete)
   const handleMoveToTrash = async (ord: Order) => {
+    if (!canDelete) return;
     try {
       setActionLoadingId(ord.orderId);
       const orderRef = resolvedOrderRef(ord.orderId);
@@ -1807,8 +1817,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                         <RotateCcw className="w-3.5 h-3.5 text-emerald-600" />
                                         <span>Restore Order</span>
                                       </button>
-                                    ) : (
+                                    ) : canDelete && (
                                       <button
+                                        data-owner-delete
                                         onClick={() => {
                                           setOrderToTrash(ord);
                                           setOpenMenuOrderId(null);
@@ -2250,8 +2261,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                       <RotateCcw className="w-3.5 h-3.5 text-emerald-600" />
                                       <span>Restore Order</span>
                                     </button>
-                                  ) : (
+                                  ) : canDelete && (
                                     <button
+                                      data-owner-delete
                                       onClick={() => {
                                         setOrderToTrash(ord);
                                         setOpenMenuOrderId(null);
@@ -2457,15 +2469,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           <button type="button" className="soft-tool-tile" aria-pressed={customerPanel === 'subscriptions'} onClick={() => setCustomerPanel('subscriptions')}>Regular Supply</button>
           <button type="button" className="soft-tool-tile" aria-pressed={customerPanel === 'partner'} onClick={() => setCustomerPanel('partner')}>Wholesale Partner</button>
         </div>
-        {customerPanel === 'list' && <CustomersView user={currentUser} orders={orders} />}
+        {customerPanel === 'list' && <CustomersView user={currentUser} orders={orders} staffAccess={staffAccess} />}
         {customerPanel !== 'list' && <FeatureHub key={customerPanel} currentUser={currentUser} role="admin" initial={customerPanel} allowed={[customerPanel]} />}
       </section>}
-      {activeSection === 'godam' && isUserAdmin(currentUser) && <section aria-label="Godown" className="space-y-3">
+      {activeSection === 'godam' && isAdmin && <section aria-label="Godown" className="space-y-3">
         {/* v1.0.75: the working stock ledger (Spark, client writes, no delete). Old Cloud Function inventory kept below. */}
         <StockLedgerPanel user={currentUser} />
         <FeatureHub currentUser={currentUser} role="admin" initial="inventory" allowed={["inventory"]} />
       </section>}
-      {activeSection === 'money' && isUserAdmin(currentUser) && <section aria-label="Money" className="space-y-3">
+      {activeSection === 'money' && isAdmin && <section aria-label="Money" className="space-y-3">
         <div className="owner-tool-grid">
           <button type="button" className="soft-tool-tile" onClick={() => setActiveSection('insights')}>Reports</button>
           <button type="button" className="soft-tool-tile" onClick={() => setActiveSection('expenses')}>Expenses</button>
@@ -2473,15 +2485,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         </div>
         <FeatureHub currentUser={currentUser} role="admin" allowed={["reports"]} />
       </section>}
-      {activeSection === 'bus-stops' && isUserAdmin(currentUser) && <BusStopSettings />}
-      {activeSection === 'staff' && isUserAdmin(currentUser) && <StaffMembersManager />}
-      {activeSection === 'tools' && isUserAdmin(currentUser) && <section aria-label="Settings" className="owner-settings-page soft-card space-y-3">
+      {activeSection === 'bus-stops' && isAdmin && <BusStopSettings canDelete={canDelete} />}
+      {activeSection === 'staff' && isOwner && <StaffMembersManager />}
+      {activeSection === 'tools' && isAdmin && <section aria-label="Settings" className="owner-settings-page soft-card space-y-3">
         <details className="owner-settings-group"><summary className="font-bold p-2">Offers and rewards</summary>
           <FeatureHub currentUser={currentUser} role="admin" allowed={["loyalty","promotions","referral","catalog"]} />
         </details>
         <details className="owner-settings-group"><summary className="font-bold p-2">Staff and bus stops</summary>
           <div className="owner-tool-grid">
-            {[['users','Users'],['staff','Staff'],['bus-stops','Bus stops']].map(([id,label]) => <button type="button" className="soft-tool-tile" key={id} onClick={() => setActiveSection(id as any)}>{label}</button>)}
+            {(isOwner ? [['users','Users'],['staff','Staff'],['bus-stops','Bus stops']] : [['users','Home slides / Winner'],['bus-stops','Bus stops']]).map(([id,label]) => <button type="button" className="soft-tool-tile" key={id} onClick={() => setActiveSection(id as any)}>{label}</button>)}
           </div>
         </details>
         <details className="owner-settings-group"><summary className="font-bold p-2">Store look</summary>
@@ -2490,27 +2502,27 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           </div>
           <FeatureHub currentUser={currentUser} role="admin" allowed={["video"]} />
         </details>
-        <details className="owner-settings-group"><summary className="font-bold p-2">Customer app buttons (on/off)</summary>
+        {isOwner && <details className="owner-settings-group"><summary className="font-bold p-2">Customer app buttons (on/off)</summary>
           <FeatureSuiteSettings />
-        </details>
+        </details>}
       </section>}
 
             {/* SECTION D: खर्च (EXPENSES) */}
       {/* ========================================================================= */}
-      {activeSection === 'expenses' && <ExpensesView />}
+      {activeSection === 'expenses' && <ExpensesView canDelete={canDelete} />}
 
       {/* ========================================================================= */}
       {/* SECTION E: यूज़र्स (USER MANAGEMENT) */}
       {/* ========================================================================= */}
       {activeSection === 'users' && <>
-            <StaffOrderAccessManager />
+            {isOwner && <StaffOrderAccessManager />}
             <DailyWinnerOwnerControls />
             <HomeSlidesOwnerControls />
-            <UserManagement />
+            {isOwner && <UserManagement />}
           </>}
 
       {/* SECTION F: स्टोर / थीम / होम (STOREFRONT MANAGEMENT) */}
-      {activeSection === 'storefront' && <OwnerStorefrontManager />}
+      {activeSection === 'storefront' && <OwnerStorefrontManager canDelete={canDelete} />}
 
       {/* ========================================================================= */}
       {/* SECTION C: इनसाइट्स (INSIGHTS & BUSINESS ANALYTICS) */}
@@ -2930,7 +2942,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       {/* ========================================================================= */}
       {/* DELETE / TRASH CONFIRMATION MODAL */}
       {/* ========================================================================= */}
-      {orderToTrash && (
+      {canDelete && orderToTrash && (
         <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-3">
           <div className="bg-white border border-slate-200 rounded-2xl p-5 max-w-sm w-full shadow-xl">
             <div className="w-10 h-10 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mx-auto mb-3">

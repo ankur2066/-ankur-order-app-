@@ -44,6 +44,8 @@ files = [
     # v1.0.76: customer status step tracker, refresh on app open/resume, staff Call opens the dialer
     "src/utils/orderProgress.ts", "src/utils/orderProgress.test.ts", "src/components/customer/OrderStatusTracker.tsx",
     "src/utils/appResume.ts", "src/utils/appResume.test.ts", "src/utils/staffDial.ts", "src/utils/staffDial.test.ts",
+    # v1.0.77: staff get the owner dashboard without delete (Expenses delete is owner-only)
+    "src/components/ExpensesView.tsx",
 ]
 for relative in files:
     source = overlay / relative

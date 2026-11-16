@@ -79,7 +79,8 @@ const ACTION_LABELS: Record<PromoAction, string> = {
 
 const inputCls = 'w-full border border-slate-300 rounded-lg px-3 py-2 text-sm bg-white text-slate-900';
 
-export const OwnerStorefrontManager: React.FC = () => {
+// v1.0.77: staff use the storefront tools too; canDelete (owner only) gates every delete/remove.
+export const OwnerStorefrontManager: React.FC<{ canDelete?: boolean }> = ({ canDelete = true }) => {
   const [tab, setTab] = useState<SubTab>('products');
   const [msg, setMsg] = useState<{ kind: 'ok' | 'err'; text: string } | null>(null);
 
@@ -127,9 +128,9 @@ export const OwnerStorefrontManager: React.FC = () => {
         </div>
       )}
 
-      {tab === 'products' && <div className="space-y-6"><UnitProductManager /><ProductsPanel flash={flash} /></div>}
+      {tab === 'products' && <div className="space-y-6"><UnitProductManager /><ProductsPanel flash={flash} canDelete={canDelete} /></div>}
       {tab === 'theme' && <ThemePanel flash={flash} />}
-      {tab === 'home' && <HomePanel flash={flash} />}
+      {tab === 'home' && <HomePanel flash={flash} canDelete={canDelete} />}
     </div>
   );
 };
@@ -138,7 +139,7 @@ export const OwnerStorefrontManager: React.FC = () => {
 /* Products                                                            */
 /* ------------------------------------------------------------------ */
 
-const ProductsPanel: React.FC<{ flash: (k: 'ok' | 'err', t: string) => void }> = ({ flash }) => {
+const ProductsPanel: React.FC<{ flash: (k: 'ok' | 'err', t: string) => void; canDelete?: boolean }> = ({ flash, canDelete = true }) => {
   const { products, loading, seeded, error } = useAllProducts(true);
   const [form, setForm] = useState<FormState | null>(null);
   const [uploading, setUploading] = useState(false);
@@ -402,9 +403,9 @@ const ProductsPanel: React.FC<{ flash: (k: 'ok' | 'err', t: string) => void }> =
                 <button type="button" onClick={() => startEdit(p)} className="w-9 h-9 rounded-lg border border-slate-200 flex items-center justify-center cursor-pointer" aria-label="एडिट करें">
                   <Pencil className="w-4 h-4 text-sky-600" />
                 </button>
-                <button type="button" onClick={() => handleDelete(p)} className="w-9 h-9 rounded-lg border border-slate-200 flex items-center justify-center cursor-pointer" aria-label="हटाएँ">
+                {canDelete && <button type="button" data-owner-delete onClick={() => handleDelete(p)} className="w-9 h-9 rounded-lg border border-slate-200 flex items-center justify-center cursor-pointer" aria-label="हटाएँ">
                   <Trash2 className="w-4 h-4 text-rose-500" />
-                </button>
+                </button>}
               </div>
             </li>
           ))}
@@ -477,7 +478,7 @@ const ThemePanel: React.FC<{ flash: (k: 'ok' | 'err', t: string) => void }> = ({
 /* Home: lucky winner + promo banners                                  */
 /* ------------------------------------------------------------------ */
 
-const HomePanel: React.FC<{ flash: (k: 'ok' | 'err', t: string) => void }> = ({ flash }) => {
+const HomePanel: React.FC<{ flash: (k: 'ok' | 'err', t: string) => void; canDelete?: boolean }> = ({ flash, canDelete = true }) => {
   const [winner, setWinner] = useState<LuckyWinner>({ active: false, name: '', city: '', dateLabel: 'आज' });
   const [banners, setBanners] = useState<PromoBanner[]>(DEFAULT_BANNERS);
   const [loaded, setLoaded] = useState(false);
@@ -533,6 +534,7 @@ const HomePanel: React.FC<{ flash: (k: 'ok' | 'err', t: string) => void }> = ({ 
   };
 
   const resetBanners = async () => {
+    if (!canDelete) return;
     try {
       await deleteDoc(doc(db, 'settings', 'home'));
       setBanners(DEFAULT_BANNERS);
@@ -593,9 +595,9 @@ const HomePanel: React.FC<{ flash: (k: 'ok' | 'err', t: string) => void }> = ({ 
                     <option key={a} value={a}>टैप पर: {ACTION_LABELS[a]}</option>
                   ))}
                 </select>
-                <button type="button" onClick={() => setBanners((list) => list.filter((_, idx) => idx !== i))} className="w-10 h-10 shrink-0 rounded-lg border border-slate-200 flex items-center justify-center cursor-pointer" aria-label="बैनर हटाएँ">
+                {canDelete && <button type="button" data-owner-delete onClick={() => setBanners((list) => list.filter((_, idx) => idx !== i))} className="w-10 h-10 shrink-0 rounded-lg border border-slate-200 flex items-center justify-center cursor-pointer" aria-label="बैनर हटाएँ">
                   <Trash2 className="w-4 h-4 text-rose-500" />
-                </button>
+                </button>}
               </div>
             </li>
           ))}
@@ -611,7 +613,7 @@ const HomePanel: React.FC<{ flash: (k: 'ok' | 'err', t: string) => void }> = ({ 
             </button>
           )}
           <button type="button" onClick={saveBanners} className="px-4 py-2 rounded-lg bg-sky-600 text-white text-xs font-extrabold cursor-pointer">सेव करें</button>
-          <button type="button" onClick={resetBanners} className="px-3.5 py-2 rounded-lg border border-slate-300 text-xs font-bold text-slate-600 cursor-pointer">डिफ़ॉल्ट पर लौटें</button>
+          {canDelete && <button type="button" data-owner-delete onClick={resetBanners} className="px-3.5 py-2 rounded-lg border border-slate-300 text-xs font-bold text-slate-600 cursor-pointer">डिफ़ॉल्ट पर लौटें</button>}
         </div>
       </section>
     </div>

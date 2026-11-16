@@ -73,6 +73,30 @@ service cloud.firestore {
       return roleIs('staff') || isRegistryStaff();
     }
 
+    // v1.0.77 (Ankur, 16 Nov 2026: "सारा access de do staff ko bas kuch delete na ho"):
+    // staff (users/{uid}.role 'staff' or an active staffEmails entry) get the
+    // owner's read/create/update access. Every `allow delete` stays owner-only
+    // (isAdmin()/isOwner() = the verified owner account) or false, and the
+    // owner-only admin areas (users/roles, staff registry, staff requests,
+    // stockAccess, settings/featureSuite) stay isAdmin(). In customer paths
+    // isStaff() is written LAST, after the customer's own condition, so a
+    // customer request short-circuits before any staff lookup (expression
+    // budget of order batches).
+    function isOps() {
+      return isOwner() || isStaff();
+    }
+
+    // Staff may not empty a record by overwriting it: a staff update keeps
+    // every existing top-level field (except listed optional ones).
+    function staffKeepsFields(allowedRemovals) {
+      return incoming().diff(existing()).removedKeys().hasOnly(allowedRemovals);
+    }
+
+    // Staff may update an order/view but never move it to Trash (soft delete).
+    function staffNotTrashing() {
+      return incoming().get('isTrash', false) == false || existing().get('isTrash', false) == true;
+    }
+
     function isDelivery() {
       return roleIs('delivery');
     }
@@ -146,12 +170,12 @@ service cloud.firestore {
     // profile lookup costs expressions; a batch has a 1000-expression budget).
     function customerTypeOk(data, isAmountChanged, formulaTotal) {
       let ptype = profileCustomerType();
-      return (!isAmountChanged || (data.customerType == 'wholesale' && (isAdmin() || ptype == 'wholesale') &&
+      return (!isAmountChanged || (data.customerType == 'wholesale' && (isAdmin() || ptype == 'wholesale' || isStaff()) &&
                data.customerTotal == data.totalAmount &&
                withinPaisa(data.calculatedTotal, formulaTotal) &&
                data.amountChangeReason is string && data.amountChangeReason.size() >= 3)) &&
              // isAdmin() last: the usual customer case is decided before it.
-             (!('customerType' in data) || (request.auth == null && data.customerType == 'retail') || (request.auth != null && data.customerType == ptype) || isAdmin());
+             (!('customerType' in data) || (request.auth == null && data.customerType == 'retail') || (request.auth != null && data.customerType == ptype) || isOps());
     }
 
     // Staff view must mirror the order written in the same batch. The order's
@@ -343,39 +367,45 @@ service cloud.firestore {
     match /orders/{orderId} {
       // Private order reads are owner or buyer only. Field-level read filtering is
       // not supported by Firestore rules; staff use staffOrderViews below.
+      // v1.0.77: staff read full orders too (owner dashboard for staff).
       allow get: if isValidId(orderId) && (
         isAdmin() ||
-        (isSignedIn() && resource.data.userId == request.auth.uid)
+        (isSignedIn() && resource.data.userId == request.auth.uid) ||
+        isStaff()
       );
 
-      allow list: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
+      allow list: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid) || isStaff();
 
-      // Customer order creation (guests allowed). Staff/Delivery cannot create orders.
+      // Customer order creation (guests allowed). v1.0.77: staff create phone
+      // orders like the owner (New Entry); delivery cannot create orders.
       allow create: if isValidId(orderId) &&
         isValidOrder(request.resource.data) &&
         request.resource.data.orderId == orderId &&
         request.resource.data.status == 'pending' &&
-        (isAdmin() || request.resource.data.paymentStatus == 'pending_verification') &&
+        (isAdmin() || request.resource.data.paymentStatus == 'pending_verification' || isStaff()) &&
         // v1.0.72: the bus number is owner-typed at dispatch, never on a customer create.
-        (isAdmin() || !('busNumber' in request.resource.data)) &&
+        (isAdmin() || !('busNumber' in request.resource.data) || isStaff()) &&
         request.resource.data.createdAt == request.time &&
         request.resource.data.updatedAt == request.time &&
         // (owner || A) && (owner || B) written as owner || (A && B): one isAdmin() less.
         (isAdmin() ||
          ((!isSignedIn() || request.resource.data.userId == request.auth.uid || request.resource.data.userId == 'guest' || request.resource.data.userId == 'owner_manual_entry') &&
-          existsAfter(/databases/$(database)/documents/order_tracking/$(request.resource.data.trackingToken))));
+          existsAfter(/databases/$(database)/documents/order_tracking/$(request.resource.data.trackingToken))) ||
+         isStaff());
 
       // Updates:
-      //  Owner: full operational updates
+      //  Owner and (v1.0.77) staff: full operational updates; staff can not
+      //  move an order to Trash (soft delete).
       //  Staff/Delivery WITH the `updateStatus` permission: ONLY status + updatedAt,
       //  and only the packing/dispatch statuses (Spark path, no Cloud Function).
       allow update: if (
-        (isAdmin() &&
+        (isOps() &&
          isValidOrder(incoming()) &&
          incoming().orderId == existing().orderId &&
          incoming().createdAt == existing().createdAt &&
          incoming().userId == existing().userId &&
-         incoming().updatedAt == request.time) ||
+         incoming().updatedAt == request.time &&
+         (isAdmin() || staffNotTrashing())) ||
         (canUpdateStatus() &&
          incoming().diff(existing()).affectedKeys().hasOnly(['status', 'updatedAt']) &&
          incoming().status in staffStatuses() &&
@@ -389,14 +419,15 @@ service cloud.firestore {
     // Narrow order projection for staff. It contains no prices, totals, phone,
     // payment status, payment notes, tracking PIN, or proof image.
     match /staffOrderViews/{orderId} {
-      allow get, list: if isAdmin() || canViewOrders();
+      allow get, list: if isAdmin() || canViewOrders() || isStaff();
       allow create: if isAdmin() || (
         isValidId(orderId) && existsAfter(/databases/$(database)/documents/orders/$(orderId)) &&
         isValidStaffView(incoming(), orderId)
-      );
+      ) || isStaff();
       // Staff (Spark path): status buttons only. statusSyncPending asks the
       // owner client to copy the status to the public tracking document.
-      allow update: if isAdmin() || (canUpdateStatus() &&
+      // v1.0.77: staff keep the owner's projection sync (never moving to Trash).
+      allow update: if isAdmin() || (isStaff() && staffNotTrashing()) || (canUpdateStatus() &&
         incoming().diff(existing()).affectedKeys().hasOnly(['status','packingStatus','statusSyncPending','statusUpdatedBy','updatedAt']) &&
         incoming().status in staffStatuses() &&
         (!('packingStatus' in incoming()) || incoming().packingStatus in ['packed']) &&
@@ -417,9 +448,9 @@ service cloud.firestore {
           get(/databases/$(database)/documents/orders/$(orderId)).data.userId == 'guest' &&
           incoming().trackingPin == get(/databases/$(database)/documents/orders/$(orderId)).data.trackingPin;
       }
-      allow get: if isAdmin() || orderOwner();
+      allow get: if isAdmin() || orderOwner() || isStaff();
       allow list: if false;
-      allow create, update: if proofId == 'latest' && (isAdmin() || orderOwner() || guestProofCredential()) &&
+      allow create, update: if proofId == 'latest' && (isAdmin() || orderOwner() || guestProofCredential() || isStaff()) &&
         incoming().keys().hasOnly(['dataUrl','sizeBytes','contentType','uploadedBy','createdAt','trackingPin']) &&
         incoming().dataUrl is string && incoming().dataUrl.size() <= 320000 &&
         incoming().dataUrl.matches('^data:image/jpeg;base64,[A-Za-z0-9+/=]+$') &&
@@ -440,14 +471,14 @@ service cloud.firestore {
         isValidOrderTracking(incoming()) &&
         incoming().trackingToken == trackingToken &&
         incoming().status == 'pending' &&
-        (isAdmin() || incoming().paymentStatus == 'pending_verification') &&
-        (isAdmin() || !('busNumber' in incoming())) &&
+        (isAdmin() || incoming().paymentStatus == 'pending_verification' || isStaff()) &&
+        (isAdmin() || !('busNumber' in incoming()) || isStaff()) &&
         incoming().createdAt == request.time &&
         incoming().updatedAt == request.time &&
-        (isAdmin() || existsAfter(/databases/$(database)/documents/orders/$(incoming().orderId)));
+        (isAdmin() || existsAfter(/databases/$(database)/documents/orders/$(incoming().orderId)) || isStaff());
 
       allow update: if (
-        (isAdmin() &&
+        (isOps() &&
          isValidOrderTracking(incoming()) &&
          incoming().orderId == existing().orderId &&
          incoming().trackingToken == existing().trackingToken &&
@@ -470,7 +501,7 @@ service cloud.firestore {
     match /products/{productId} {
       allow get, list: if isAdmin() || isFieldTeam() || resource.data.active == true;
 
-      allow create, update: if isValidId(productId) && isAdmin() &&
+      allow create, update: if isValidId(productId) && isOps() &&
         isValidProduct(incoming()) && incoming().id == productId && incoming().updatedAt == request.time;
 
       // Staff/Delivery with the owner-granted `toggleProducts` permission may only
@@ -484,15 +515,30 @@ service cloud.firestore {
     }
 
     // 5. System Settings (rates, theme, home banners, lucky winner, catalog flag).
-    //    Public read (storefront needs it), OWNER-only write.
+    //    Public read (storefront needs it). Owner and (v1.0.77) staff write;
+    //    settings/featureSuite (customer app feature on/off controls) and any
+    //    delete stay OWNER-only.
+    // A staff update keeps every field, bus stop, district mapping and home
+    // banner (no removal by overwrite); edits and additions are allowed.
+    function staffKeepsSettings(settingId) {
+      return request.method == 'create' || (
+        staffKeepsFields([]) &&
+        (settingId != 'delivery' || (
+          incoming().busStops.size() >= existing().get('busStops', []).size() &&
+          incoming().get('districtStopMap', {}).keys().hasAll(existing().get('districtStopMap', {}).keys()))) &&
+        (settingId != 'home' || incoming().get('banners', []).size() >= existing().get('banners', []).size()));
+    }
+
     match /settings/{settingId} {
       allow read: if true;
-      allow write: if isValidId(settingId) && isAdmin() &&
+      allow create, update: if isValidId(settingId) &&
+        (isAdmin() || (isStaff() && settingId != 'featureSuite' && staffKeepsSettings(settingId))) &&
         // settings/delivery: bus stops + district->stop mapping (no prices).
         (settingId != 'delivery' || (
           incoming().keys().hasOnly(['busStops', 'districtStopMap', 'updatedAt']) &&
           incoming().busStops is list && incoming().busStops.size() <= 30 &&
           (!('districtStopMap' in incoming()) || incoming().districtStopMap is map)));
+      allow delete: if isValidId(settingId) && isAdmin();
     }
 
     // 5b. User profiles / role documents
@@ -502,8 +548,10 @@ service cloud.firestore {
     //      privileged field  =>  no self-promotion to staff/admin.
     //    - Only the OWNER can create/update/delete role documents or list users.
     match /users/{userId} {
-      allow get: if isSignedIn() && (request.auth.uid == userId || isAdmin());
-      allow list: if isAdmin();
+      // v1.0.77: staff may READ user profiles (phone order customer lookup);
+      // every role/permission write below stays owner-only.
+      allow get: if isSignedIn() && (request.auth.uid == userId || isAdmin() || isStaff());
+      allow list: if isAdmin() || isStaff();
 
       allow create: if isSignedIn() && request.auth.uid == userId &&
         incoming().keys().hasOnly(['customerName', 'customerPhone', 'city', 'updatedAt', 'customerType']) &&
@@ -525,11 +573,12 @@ service cloud.firestore {
     // 5c. Customer directory. Customers can access only their own +91 mobile
     // document. Only the verified owner can query/list the collection.
     match /customers/{phoneId} {
-      allow get: if isAdmin() || (isSignedIn() && resource.data.uid == request.auth.uid && resource.data.phone == phoneId);
-      allow list: if isAdmin();
+      allow get: if isAdmin() || (isSignedIn() && resource.data.uid == request.auth.uid && resource.data.phone == phoneId) || isStaff();
+      allow list: if isAdmin() || isStaff();
       // Owner may create a directory entry for a phone/manual order and save
       // "Hamesha ke liye" delivery defaults (defaultDeliveryMode/defaultBusStopId).
-      allow create: if isAdmin() && phoneId.matches('^\\+91[6-9][0-9]{9}$') && incoming().phone == phoneId &&
+      // v1.0.77: staff too (phone orders, delivery defaults).
+      allow create: if isOps() && phoneId.matches('^\\+91[6-9][0-9]{9}$') && incoming().phone == phoneId &&
         (!('defaultDeliveryMode' in incoming()) || incoming().defaultDeliveryMode in ['BUS', 'SHOP_PICKUP', 'PORTER', 'LOCAL']);
       allow create: if isSignedIn() && incoming().uid == request.auth.uid && incoming().phone == phoneId &&
         phoneId.matches('^\\+91[6-9][0-9]{9}$') &&
@@ -540,7 +589,11 @@ service cloud.firestore {
       allow update: if isAdmin() || (isSignedIn() && existing().uid == request.auth.uid && existing().phone == phoneId &&
         incoming().diff(existing()).affectedKeys().hasOnly(['name','lastLoginAt','orderCount']) &&
         incoming().lastLoginAt == request.time && (incoming().orderCount == existing().orderCount || incoming().orderCount == existing().orderCount + 1) &&
-        incoming().name is string && incoming().name.size() <= 100);
+        incoming().name is string && incoming().name.size() <= 100) ||
+        // v1.0.77 staff: same edits as the owner, but the phone key stays and
+        // no field is removed (only the BUS stop default when Mode changes).
+        (isStaff() && incoming().phone == phoneId && staffKeepsFields(['defaultBusStopId']) &&
+         (!('defaultDeliveryMode' in incoming()) || incoming().defaultDeliveryMode in ['BUS', 'SHOP_PICKUP', 'PORTER', 'LOCAL']));
       allow delete: if isAdmin();
     }
 
@@ -620,9 +673,12 @@ service cloud.firestore {
       allow update, delete: if false;
     }
 
-    // 6. Expenses (Owner only)
+    // 6. Expenses. v1.0.77: staff read, add and edit (no field removed);
+    //    delete is OWNER only.
     match /expenses/{expenseId} {
-      allow read, write: if isAdmin();
+      allow read, create: if isOps();
+      allow update: if isAdmin() || (isStaff() && staffKeepsFields([]));
+      allow delete: if isAdmin();
     }
 
     // 7. Anti-Escalation Gate: no client may touch this collection
@@ -670,7 +726,7 @@ service cloud.firestore {
     // v1.0.67 home poll: a signed-in customer may cast ONE vote per poll
     // (doc id = pollId_uid), never read others' votes. Owner reads all.
     match /homePollVotes/{voteId} {
-      allow get, list: if isOwner();
+      allow get, list: if isOps();
       allow create: if isSignedIn() && isValidId(voteId) &&
         voteId == incoming().pollId + '_' + request.auth.uid &&
         incoming().keys().hasOnly(['pollId', 'uid', 'option', 'votedAt']) &&

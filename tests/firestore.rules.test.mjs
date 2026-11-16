@@ -2,7 +2,7 @@ import { readFile } from 'node:fs/promises';
 import { after, before, describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import { initializeTestEnvironment, assertFails, assertSucceeds } from '@firebase/rules-unit-testing';
-import { collection, deleteDoc, doc, getDoc, getDocs, serverTimestamp, setDoc, updateDoc, writeBatch } from 'firebase/firestore';
+import { collection, deleteDoc, deleteField, doc, getDoc, getDocs, serverTimestamp, setDoc, updateDoc, writeBatch } from 'firebase/firestore';
 
 const projectId = 'demo-ankur-dryice-rules';
 let testEnv;
@@ -14,6 +14,8 @@ before(async () => {
   await testEnv.withSecurityRulesDisabled(async ctx => {
     const db=ctx.firestore();
     await db.doc('users/staff').set({role:'staff',permissions:{viewOrders:true,updateStatus:true}});
+    // v1.0.77: the delivery role keeps the old status-only, privacy-safe path.
+    await db.doc('users/delivery').set({role:'delivery',permissions:{viewOrders:true,updateStatus:true}});
     await db.doc('orders/order-1').set({orderId:'order-1',userId:'customer',customerName:'Customer',city:'Lucknow',district:'Lucknow',productName:'Dry Ice',quantityKg:10,status:'pending',totalAmount:600,calculatedTotal:600,customerTotal:600,paymentStatus:'pending_verification',paymentNotes:'private',createdAt:new Date(),updatedAt:new Date()});
     await db.doc('staffOrderViews/order-1').set({orderId:'order-1',sourceCollection:'orders',customerName:'Customer',city:'Lucknow',district:'Lucknow',productName:'Dry Ice',quantityKg:10,status:'pending',dispatchTiming:'8 Nov, morning',isTrash:false,createdAt:new Date(),updatedAt:new Date()});
     await db.doc(`customers/${phone}`).set({uid:'customer',name:'Customer',phone,firstLoginAt:new Date(),lastLoginAt:new Date(),orderCount:1,completedOrders:0,tag:'New'});
@@ -32,18 +34,23 @@ before(async () => {
 after(async () => testEnv?.cleanup());
 
 describe('Firestore privacy and role rules', () => {
-  it('lets a customer read only their own customer record; only the owner lists', async () => {
+  // v1.0.77 (Ankur, 16 Nov 2026): staff get the owner's access (no delete), so
+  // staff now list customers; customers and delivery still cannot.
+  it('lets a customer read only their own customer record; only the owner and staff list', async () => {
     const customer=testEnv.authenticatedContext('customer').firestore();
     const other=testEnv.authenticatedContext('other').firestore();
     const staff=testEnv.authenticatedContext('staff').firestore();
+    const delivery=testEnv.authenticatedContext('delivery').firestore();
     const owner=testEnv.authenticatedContext('owner',{email:'ankurdryicewholesalers@gmail.com',email_verified:true}).firestore();
     await assertSucceeds(getDoc(doc(customer,`customers/${phone}`)));
     await assertFails(getDoc(doc(other,`customers/${phone}`)));
-    await assertFails(getDocs(collection(staff,'customers')));
+    await assertFails(getDocs(collection(customer,'customers')));
+    await assertFails(getDocs(collection(delivery,'customers')));
+    await assertSucceeds(getDocs(collection(staff,'customers')));
     await assertSucceeds(getDocs(collection(owner,'customers')));
   });
-  it('keeps raw order price, total and payment fields unreadable to staff', async () => {
-    const staff=testEnv.authenticatedContext('staff').firestore();
+  it('keeps raw order price, total and payment fields unreadable to the delivery role', async () => {
+    const staff=testEnv.authenticatedContext('delivery').firestore();
     await assertFails(getDoc(doc(staff,'orders/order-1')));
     await assertFails(getDocs(collection(staff,'orders')));
     const safe=await assertSucceeds(getDoc(doc(staff,'staffOrderViews/order-1')));
@@ -51,17 +58,18 @@ describe('Firestore privacy and role rules', () => {
     await assertSucceeds(updateDoc(doc(staff,'orders/order-1'),{status:'in_packing',updatedAt:serverTimestamp()}));
     await assertFails(updateDoc(doc(staff,'orders/order-1'),{paymentStatus:'payment_verified',updatedAt:serverTimestamp()}));
   });
-  it('allows customer and owner to read a proof but blocks staff', async () => {
+  it('allows customer, owner and (v1.0.77) staff to read a proof but blocks delivery', async () => {
     const customer=testEnv.authenticatedContext('customer').firestore();
-    const staff=testEnv.authenticatedContext('staff').firestore();
+    const staff=testEnv.authenticatedContext('delivery').firestore();
     const owner=testEnv.authenticatedContext('owner',{email:'ankurdryicewholesalers@gmail.com',email_verified:true}).firestore();
     await assertSucceeds(getDoc(doc(customer,'orders/order-1/paymentProof/latest')));
     await assertSucceeds(getDoc(doc(owner,'orders/order-1/paymentProof/latest')));
+    await assertSucceeds(getDoc(doc(testEnv.authenticatedContext('staff').firestore(),'orders/order-1/paymentProof/latest')));
     await assertFails(getDoc(doc(staff,'orders/order-1/paymentProof/latest')));
   });
   it('lets a guest attach a proof only with the order tracking PIN; the guest cannot read it back', async () => {
     const guest=testEnv.unauthenticatedContext().firestore();
-    const staff=testEnv.authenticatedContext('staff').firestore();
+    const staff=testEnv.authenticatedContext('delivery').firestore();
     const value={...proof,uploadedBy:'guest',trackingPin:'123456',createdAt:serverTimestamp()};
     await assertSucceeds(setDoc(doc(guest,'orders/guest-order/paymentProof/latest'),value));
     await assertFails(getDoc(doc(guest,'orders/guest-order/paymentProof/latest')));
@@ -74,22 +82,30 @@ describe('Firestore privacy and role rules', () => {
   const packerDb=()=>testEnv.authenticatedContext('packer',{email:'packer@example.com',email_verified:true}).firestore();
   const formerDb=()=>testEnv.authenticatedContext('former',{email:'former@example.com',email_verified:true}).firestore();
 
-  it('registry staff (added by mobile) read only the staff-safe projection', async () => {
+  // v1.0.77: registry staff (added by mobile) read like the owner (orders,
+  // customers, proofs, expenses) but never the staff registry; a removed
+  // (inactive) staff member reads nothing.
+  it('registry staff (added by mobile) read owner data but not the staff registry', async () => {
     const packer=packerDb();
+    // The staffOrderViews projection itself still carries no price, payment, phone or PIN.
     const view=await assertSucceeds(getDoc(doc(packer,'staffOrderViews/order-2')));
     for (const field of ['totalAmount','paymentStatus','paymentMethod','paymentNotes','customerPhone','trackingPin','dryIcePricePerKg']) assert.equal(field in view.data(),false);
     await assertSucceeds(getDocs(collection(packer,'staffOrderViews')));
-    await assertFails(getDoc(doc(packer,'orders/order-2')));
-    await assertFails(getDocs(collection(packer,'orders')));
-    await assertFails(getDocs(collection(packer,'customers')));
-    await assertFails(getDoc(doc(packer,'orders/order-1/paymentProof/latest')));
+    await assertSucceeds(getDoc(doc(packer,'orders/order-2')));
+    await assertSucceeds(getDocs(collection(packer,'orders')));
+    await assertSucceeds(getDocs(collection(packer,'customers')));
+    await assertSucceeds(getDoc(doc(packer,'orders/order-1/paymentProof/latest')));
+    await assertSucceeds(getDocs(collection(packer,'expenses')));
     await assertFails(getDocs(collection(packer,'staffMembers')));
-    await assertFails(getDocs(collection(packer,'expenses')));
+    await assertFails(getDocs(collection(packer,'staffRequests')));
+    await assertFails(getDoc(doc(packer,'stockAccess/members')));
     await assertFails(getDoc(doc(formerDb(),'staffOrderViews/order-2')));
+    await assertFails(getDocs(collection(formerDb(),'orders')));
+    await assertFails(getDocs(collection(formerDb(),'customers')));
   });
-  it('staff update only packing/dispatch status fields (Spark path, no Cloud Function)', async () => {
-    const packer=packerDb();
-    const ok={status:'in_packing',packingStatus:'packed',statusSyncPending:true,statusUpdatedBy:'packer',updatedAt:serverTimestamp()};
+  it('delivery role updates only packing/dispatch status fields (Spark path, no Cloud Function)', async () => {
+    const packer=testEnv.authenticatedContext('delivery').firestore();
+    const ok={status:'in_packing',packingStatus:'packed',statusSyncPending:true,statusUpdatedBy:'delivery',updatedAt:serverTimestamp()};
     await assertSucceeds(updateDoc(doc(packer,'staffOrderViews/order-2'),ok));
     await assertFails(updateDoc(doc(packer,'staffOrderViews/order-2'),{...ok,quantityKg:1}));
     await assertFails(updateDoc(doc(packer,'staffOrderViews/order-2'),{...ok,busStopId:'kaiserbagh'}));
@@ -114,12 +130,17 @@ describe('Firestore privacy and role rules', () => {
     await assertFails(getDoc(doc(packerDb(),'staffEmails/former@example.com')));
     await assertFails(getDocs(collection(packerDb(),'staffEmails')));
   });
-  it('bus stop settings are public-read and owner-write, with no extra keys', async () => {
+  it('bus stop settings are public-read and owner/staff-write, with no extra keys; staff cannot remove a stop or mapping', async () => {
     const guest=testEnv.unauthenticatedContext().firestore();
     await assertSucceeds(getDoc(doc(guest,'settings/delivery')));
     const value={busStops:[{id:'alambagh',name:'Alambagh',color:'teal',active:true},{id:'kaiserbagh',name:'Kaiserbagh',color:'orange',active:false}],districtStopMap:{sitapur:'alambagh'},updatedAt:serverTimestamp()};
     await assertSucceeds(setDoc(doc(ownerDb(),'settings/delivery'),value));
-    await assertFails(setDoc(doc(packerDb(),'settings/delivery'),value));
+    // v1.0.77: staff add/edit stops (same keys), but never remove one.
+    await assertSucceeds(setDoc(doc(packerDb(),'settings/delivery'),{...value,busStops:[value.busStops[0],{...value.busStops[1],active:true}]}));
+    await assertFails(setDoc(doc(packerDb(),'settings/delivery'),{...value,busStops:[value.busStops[0]]}));
+    await assertFails(setDoc(doc(packerDb(),'settings/delivery'),{...value,districtStopMap:{}}));
+    await assertFails(setDoc(doc(testEnv.authenticatedContext('delivery').firestore(),'settings/delivery'),value));
+    await assertFails(deleteDoc(doc(packerDb(),'settings/delivery')));
     await assertFails(setDoc(doc(testEnv.authenticatedContext('customer').firestore(),'settings/delivery'),value));
     await assertFails(setDoc(doc(ownerDb(),'settings/delivery'),{...value,ratePerKg:50}));
   });
@@ -213,7 +234,7 @@ describe('Order create compatibility across installed app versions', () => {
     const owner=ownerDb();
     await assertSucceeds(updateDoc(doc(owner,`orders/${w.orderId}`),{status:'confirmed',updatedAt:serverTimestamp()}));
   });
-  it('v1.0.72: owner saves a bus number on a BUS order and copies mode/stop/bus number to tracking; staff and customers cannot', async () => {
+  it('v1.0.72: owner saves a bus number on a BUS order and copies mode/stop/bus number to tracking; delivery and customers cannot', async () => {
     const owner=ownerDb();
     const o=v65Order('BUS72','owner_manual_entry',{deliveryMode:'BUS',busStopId:'alambagh'});
     await assertSucceeds(commit(owner,o,v66Tracking(o)));
@@ -229,10 +250,15 @@ describe('Order create compatibility across installed app versions', () => {
     await assertFails(updateDoc(doc(owner,'orders',p.orderId),{busNumber:'6965',updatedAt:serverTimestamp()}));
     await assertFails(updateDoc(doc(owner,'order_tracking',p.trackingToken),{busNumber:'6965',updatedAt:serverTimestamp()}));
     await assertFails(updateDoc(doc(owner,'order_tracking',o.trackingToken),{deliveryMode:'TRAIN',updatedAt:serverTimestamp()}));
-    // staff (status-only) and customers cannot write the bus number anywhere
-    const staff=testEnv.authenticatedContext('staff').firestore();
+    // delivery (status-only) and customers cannot write the bus number anywhere
+    const staff=testEnv.authenticatedContext('delivery').firestore();
     await assertFails(updateDoc(doc(staff,'orders',o.orderId),{busNumber:'1111',updatedAt:serverTimestamp()}));
     await assertFails(updateDoc(doc(staff,'order_tracking',o.trackingToken),{busNumber:'1111',updatedAt:serverTimestamp()}));
+    // v1.0.77: staff have the owner's bus number access
+    const fullStaff=testEnv.authenticatedContext('staff').firestore();
+    await assertSucceeds(updateDoc(doc(fullStaff,'orders',o.orderId),{busNumber:'7070',updatedAt:serverTimestamp()}));
+    await assertSucceeds(updateDoc(doc(fullStaff,'order_tracking',o.trackingToken),{busNumber:'7070',updatedAt:serverTimestamp()}));
+    await assertSucceeds(updateDoc(doc(fullStaff,'order_tracking',o.trackingToken),{busNumber:'6965',updatedAt:serverTimestamp()}));
     const guest=testEnv.unauthenticatedContext().firestore();
     const g=v65Order('GBUS72','guest',{deliveryMode:'BUS',busStopId:'alambagh',busNumber:'6965'});
     await assertFails(commit(guest,g,v66Tracking(g)), 'a customer order cannot arrive with a bus number already dispatched');
@@ -286,9 +312,11 @@ describe('Home poll votes (homePollVotes): one vote per user per poll, owner-onl
     await assertFails(setDoc(doc(voter(),'users/voter1'),{role:'admin'},{merge:true}));
     await assertFails(setDoc(doc(voter(),'users/staff'),{role:'customer'},{merge:true}));
   });
-  it('only the owner reads votes', async () => {
+  it('only the owner and (v1.0.77) staff read votes', async () => {
     await assertFails(getDoc(doc(voter(),'homePollVotes/poll1_voter1')));
     await assertFails(getDocs(collection(voter(),'homePollVotes')));
+    await assertSucceeds(getDocs(collection(testEnv.authenticatedContext('staff').firestore(),'homePollVotes')));
+    await assertFails(deleteDoc(doc(testEnv.authenticatedContext('staff').firestore(),'homePollVotes/poll1_voter1')));
     await assertSucceeds(getDoc(doc(ownerDb(),'homePollVotes/poll1_voter1')));
     await assertSucceeds(getDocs(collection(ownerDb(),'homePollVotes')));
   });
@@ -347,5 +375,111 @@ describe('Stock ledger (Spark, no delete)', () => {
     await assertFails(deleteDoc(doc(ownerDb(),'stockAccess/members')));
     await assertSucceeds(setDoc(doc(ownerDb(),'staffMembers/+919800000003'),{stockAccess:false,updatedAt:serverTimestamp()},{merge:true}));
     await assertFails(setDoc(doc(ownerDb(),'staffMembers/+919800000003'),{stockAccess:'yes',updatedAt:serverTimestamp()},{merge:true}));
+  });
+});
+
+// v1.0.77 (Ankur, 16 Nov 2026: "सारा access de do staff ko bas kuch delete na ho"):
+// staff get the owner's create/update access, but can never delete anything,
+// never move an order to Trash, never blank a record by overwriting it, and
+// never touch roles, the staff registry, stock access or feature controls.
+describe('v1.0.77 staff: owner access without delete', () => {
+  const ownerDb = () => testEnv.authenticatedContext('owner',{email:'ankurdryicewholesalers@gmail.com',email_verified:true}).firestore();
+  const roleStaff = () => testEnv.authenticatedContext('staff').firestore();
+  const registryStaff = () => testEnv.authenticatedContext('packer',{email:'packer@example.com',email_verified:true}).firestore();
+  const delivery = () => testEnv.authenticatedContext('delivery').firestore();
+  const order = (id, extra={}) => ({orderId:id,trackingToken:`${id}_654321`,trackingPin:'654321',customerName:'Phone Customer',customerPhone:'9876500001',district:'Lucknow',address:'Lucknow',city:'Lucknow',quantityKg:10,dispatchTiming:'कल सुबह',dispatchDate:'2026-11-17',slot:'morning',dispatchSlot:'morning',customerType:'retail',calculatedTotal:600,customerTotal:600,amountChanged:false,thermocolIncluded:true,testOrder:false,productName:'ड्राई आइस (Dry Ice)',dryIcePricePerKg:50,dryIceSubtotal:500,thermocolPricePerKg:10,thermocolSubtotal:100,transportPrice:0,totalAmount:600,status:'pending',paymentStatus:'pending_verification',paymentMethod:'manual_verification',paymentNotes:'मालिक द्वारा नई एंट्री',userId:'owner_manual_entry',createdAt:serverTimestamp(),updatedAt:serverTimestamp(),...extra});
+  const tracking = (o) => ({orderId:o.orderId,trackingToken:o.trackingToken,status:'pending',productName:o.productName,quantityKg:o.quantityKg,totalAmount:o.totalAmount,district:o.district,dispatchTiming:o.dispatchTiming,dispatchDate:o.dispatchDate,slot:o.slot,dispatchSlot:o.slot,paymentStatus:o.paymentStatus,lastStatusUpdate:'मालिक द्वारा ऑर्डर दर्ज किया गया।',createdAt:serverTimestamp(),updatedAt:serverTimestamp()});
+  // Same batch as AdminDashboard handleCreateOwnerOrder (orders + tracking + customers).
+  const newEntry = (db, o, phoneId) => { const b=writeBatch(db); b.set(doc(db,'orders',o.orderId),o); b.set(doc(db,'order_tracking',o.trackingToken),tracking(o)); b.set(doc(db,'customers',phoneId),{uid:'owner_manual_entry',name:o.customerName,phone:phoneId,lastLoginAt:serverTimestamp(),orderCount:1,firstLoginAt:serverTimestamp(),completedOrders:0,tag:'New'},{merge:true}); return b.commit(); };
+  const product = (extra={}) => ({id:'prod-77',name:'Dry Ice Block',hindiName:'ड्राई आइस ब्लॉक',ratePerKg:50,thermocolPerKg:10,active:true,category:'dry-ice',updatedAt:serverTimestamp(),...extra});
+  before(async () => {
+    await testEnv.withSecurityRulesDisabled(async ctx => {
+      const db=ctx.firestore();
+      await db.doc('orders/ADI-77-SEED').set({...order('ADI-77-SEED'),createdAt:new Date(),updatedAt:new Date()});
+      await db.doc('order_tracking/ADI-77-SEED_654321').set({...tracking(order('ADI-77-SEED')),createdAt:new Date(),updatedAt:new Date()});
+      await db.doc('staffOrderViews/ADI-77-SEED').set({orderId:'ADI-77-SEED',sourceCollection:'orders',customerName:'Phone Customer',city:'Lucknow',district:'Lucknow',productName:'Dry Ice',quantityKg:10,status:'pending',dispatchTiming:'कल सुबह',isTrash:false,createdAt:new Date(),updatedAt:new Date()});
+      await db.doc('orders/ADI-77-SEED/paymentProof/latest').set(proof);
+      await db.doc('products/prod-seed').set({id:'prod-seed',name:'Seed Product',hindiName:'सीड प्रोडक्ट',ratePerKg:50,thermocolPerKg:10,active:true,category:'dry-ice',updatedAt:new Date()});
+      await db.doc('expenses/exp-1').set({amount:500,category:'diesel',note:'truck',date:'2026-11-16'});
+      await db.doc('settings/rates').set({dryIceRate:50,thermocolRate:10,transportRate:0,wholesaleRate:30});
+      await db.doc('settings/home').set({banners:[{title:'A'},{title:'B'}],updatedAt:new Date()});
+      await db.doc('settings/featureSuite').set({features:{loyalty:true},enabled:true});
+      await db.doc('staffRequests/req-uid').set({uid:'req-uid',email:'req@example.com',status:'pending',requestedAt:new Date()});
+      await db.doc('customers/+919876500009').set({uid:'owner_manual_entry',name:'Old Customer',phone:'+919876500009',firstLoginAt:new Date(),lastLoginAt:new Date(),orderCount:3,completedOrders:2,tag:'Old',defaultDeliveryMode:'BUS',defaultBusStopId:'alambagh'});
+      await db.doc('push_owner_devices/owner-phone-77').set({token:'x'.repeat(40),platform:'android',updatedAt:new Date()});
+    });
+  });
+
+  it('role staff and registry staff create a phone order (New Entry) like the owner; delivery cannot', async () => {
+    await assertSucceeds(newEntry(roleStaff(), order('ADI-77-STF1'), '+919876500001'));
+    await assertSucceeds(newEntry(registryStaff(), order('ADI-77-REG1',{paymentStatus:'cash_on_delivery',paymentMethod:'cash_on_delivery'}), '+919876500002'));
+    await assertFails(newEntry(delivery(), order('ADI-77-DEL1',{paymentStatus:'cash_on_delivery',paymentMethod:'cash_on_delivery'}), '+919876500003'));
+  });
+
+  it('staff read and update orders, tracking, views, products, settings, customers and expenses', async () => {
+    const s=roleStaff();
+    await assertSucceeds(getDocs(collection(s,'orders')));
+    await assertSucceeds(updateDoc(doc(s,'orders/ADI-77-SEED'),{status:'confirmed',deliveryMode:'BUS',busStopId:'alambagh',paymentStatus:'payment_verified',updatedAt:serverTimestamp()}));
+    await assertSucceeds(updateDoc(doc(s,'order_tracking/ADI-77-SEED_654321'),{status:'confirmed',lastStatusUpdate:'कन्फर्म',updatedAt:serverTimestamp()}));
+    await assertSucceeds(updateDoc(doc(s,'orders/ADI-77-SEED'),{status:'cancelled',updatedAt:serverTimestamp()}));
+    await assertSucceeds(setDoc(doc(s,'staffOrderViews/ADI-77-SEED'),{status:'cancelled',updatedAt:serverTimestamp()},{merge:true}));
+    await assertSucceeds(setDoc(doc(s,'products/prod-77'),product()));
+    await assertSucceeds(setDoc(doc(s,'products/prod-77'),product({ratePerKg:55})));
+    await assertSucceeds(setDoc(doc(s,'settings/rates'),{dryIceRate:52,thermocolRate:10,transportRate:0,wholesaleRate:30}));
+    await assertSucceeds(setDoc(doc(s,'settings/home'),{banners:[{title:'A'},{title:'B2'},{title:'C'}],updatedAt:serverTimestamp()}));
+    await assertSucceeds(setDoc(doc(s,'customers/+919876500009'),{defaultDeliveryMode:'PORTER',defaultBusStopId:deleteField()},{merge:true}));
+    await assertSucceeds(updateDoc(doc(s,'customers/+919876500009'),{name:'Old Customer Ji'}));
+    await assertSucceeds(setDoc(doc(s,'expenses/exp-2'),{amount:200,category:'ice',note:'x',date:'2026-11-16'}));
+    await assertSucceeds(updateDoc(doc(s,'expenses/exp-1'),{amount:550}));
+    await assertSucceeds(getDocs(collection(s,'expenses')));
+    await assertSucceeds(getDoc(doc(s,'orders/ADI-77-SEED/paymentProof/latest')));
+    await assertSucceeds(getDocs(collection(s,'users')));
+  });
+
+  it('staff can never delete anything (owner still can)', async () => {
+    for (const s of [roleStaff(), registryStaff()]) {
+      for (const path of ['orders/ADI-77-SEED','order_tracking/ADI-77-SEED_654321','staffOrderViews/ADI-77-SEED','orders/ADI-77-SEED/paymentProof/latest','products/prod-seed','settings/rates','settings/home','customers/+919876500009','expenses/exp-1','users/wholesale-buyer','users/staff','staffMembers/+919800000001','staffEmails/packer@example.com','staffRequests/req-uid','stockLedger/seed','stockAccess/members','homePollVotes/poll1_voter1','push_owner_devices/owner-phone-77']) {
+        await assertFails(deleteDoc(doc(s,path)), 'staff delete must fail: '+path);
+      }
+    }
+    await assertSucceeds(deleteDoc(doc(ownerDb(),'expenses/exp-2')));
+    await assertSucceeds(deleteDoc(doc(ownerDb(),'products/prod-77')));
+  });
+
+  it('staff cannot delete by Trash or by overwriting a record with less data', async () => {
+    const s=roleStaff();
+    await assertFails(updateDoc(doc(s,'orders/ADI-77-SEED'),{isTrash:true,trashedAt:serverTimestamp(),updatedAt:serverTimestamp()}));
+    await assertFails(setDoc(doc(s,'staffOrderViews/ADI-77-SEED'),{isTrash:true,updatedAt:serverTimestamp()},{merge:true}));
+    await assertFails(setDoc(doc(s,'orders/ADI-77-SEED'),{orderId:'ADI-77-SEED',updatedAt:serverTimestamp()}));
+    await assertFails(setDoc(doc(s,'customers/+919876500009'),{phone:'+919876500009'}));
+    await assertFails(setDoc(doc(s,'customers/+919876500009'),{phone:'+919876500010',name:'X'},{merge:true}));
+    await assertFails(setDoc(doc(s,'expenses/exp-1'),{amount:1}));
+    await assertFails(setDoc(doc(s,'settings/rates'),{dryIceRate:52}));
+    await assertFails(setDoc(doc(s,'settings/home'),{banners:[],updatedAt:serverTimestamp()}));
+    await assertFails(setDoc(doc(s,'products/prod-seed'),{id:'prod-seed',active:false,updatedAt:serverTimestamp()}));
+    // The owner keeps Trash.
+    await assertSucceeds(updateDoc(doc(ownerDb(),'orders/ADI-77-SEED'),{isTrash:true,trashedAt:serverTimestamp(),updatedAt:serverTimestamp()}));
+  });
+
+  it('staff cannot change roles, the staff registry, staff requests, stock access or feature controls', async () => {
+    for (const s of [roleStaff(), registryStaff()]) {
+      await assertFails(setDoc(doc(s,'users/staff'),{role:'admin'},{merge:true}));
+      await assertFails(setDoc(doc(s,'users/delivery'),{role:'staff',permissions:{viewOrders:true}},{merge:true}));
+      await assertFails(setDoc(doc(s,'users/new-person'),{role:'staff'}));
+      await assertFails(setDoc(doc(s,'users/staff'),{permissions:{viewOrders:false}},{merge:true}));
+      await assertFails(setDoc(doc(s,'staffMembers/+919800000009'),{phone:'+919800000009',name:'Mine',email:'mine@example.com',active:true,role:'STAFF',updatedAt:serverTimestamp()}));
+      await assertFails(setDoc(doc(s,'staffMembers/+919800000001'),{active:false,updatedAt:serverTimestamp()},{merge:true}));
+      await assertFails(setDoc(doc(s,'staffEmails/mine@example.com'),{phone:'+919800000009',name:'Mine',active:true,role:'STAFF',updatedAt:serverTimestamp()}));
+      await assertFails(setDoc(doc(s,'staffEmails/packer@example.com'),{active:false},{merge:true}));
+      await assertFails(updateDoc(doc(s,'staffRequests/req-uid'),{status:'approved'}));
+      await assertFails(getDocs(collection(s,'staffRequests')));
+      await assertFails(setDoc(doc(s,'stockAccess/members'),{emails:['packer@example.com'],updatedAt:serverTimestamp()}));
+      await assertFails(setDoc(doc(s,'settings/featureSuite'),{features:{loyalty:false},updatedAt:serverTimestamp()},{merge:true}));
+      await assertFails(setDoc(doc(s,'push_owner_devices/staff-phone'),{token:'x'.repeat(40),platform:'android',updatedAt:serverTimestamp()}));
+    }
+    // A removed (inactive) staff member gets nothing.
+    const former=testEnv.authenticatedContext('former',{email:'former@example.com',email_verified:true}).firestore();
+    await assertFails(newEntry(former, order('ADI-77-FMR1',{paymentStatus:'cash_on_delivery',paymentMethod:'cash_on_delivery'}), '+919876500004'));
+    await assertFails(setDoc(doc(former,'settings/rates'),{dryIceRate:1,thermocolRate:10,transportRate:0,wholesaleRate:30}));
   });
 });

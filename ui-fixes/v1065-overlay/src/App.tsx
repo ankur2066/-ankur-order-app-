@@ -220,7 +220,49 @@ function AppShell() {
     );
   }
 
-  // ---- Staff / delivery: locked to their dashboard (rules enforce this server-side) ----
+  // ---- v1.0.77 (Ankur, 16 Nov 2026: "सारा access de do staff ko bas kuch delete na ho"):
+  // staff get the owner dashboard (create/update everywhere, no delete; owner-only
+  // users/roles, staff management and feature controls stay hidden). Rules enforce
+  // the same server-side. The delivery role keeps its own dashboard below.
+  if (role === 'staff') {
+    return (
+      <div className="min-h-screen min-w-0 overflow-x-hidden bg-white text-slate-900 flex flex-col font-sans" data-staff-owner-panel>
+        {notifications.toast && <NotificationToast team notice={notifications.toast} onOpenNotice={openNotification} onDismiss={notifications.clearToast} />}
+        {currentTab === 'track' ? (
+          <div className="bg-white min-h-screen">
+            <SubPageBar title={language === 'hi' ? 'ऑर्डर ट्रैकिंग' : 'Order Tracking'} onBack={() => setCurrentTab('home')} />
+            <OrderTrackingView
+              key={activeTrackingId + '_' + activeTrackingPin}
+              initialOrderId={activeTrackingId}
+              initialPin={activeTrackingPin}
+              onQuickReorder={() => setCurrentTab('home')}
+            />
+          </div>
+        ) : (
+          <div className="owner-app min-h-screen">
+            <div className="sticky top-0 z-40 bg-white border-b border-slate-200 px-3 flex items-center justify-between" style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}>
+              <span className="text-xs font-black text-slate-700 flex items-center gap-1.5 py-2.5">
+                <ShieldCheck className="w-4 h-4 text-sky-600" /> स्टाफ पैनल
+              </span>
+              <button type="button" onClick={() => { setNoticesOpen(true); void enableOrderPush(); }} className="text-xs font-extrabold text-sky-700 py-2.5 px-2 cursor-pointer">
+                {language === 'hi' ? 'सूचनाएँ' : 'Notifications'}{notifications.unreadCount > 0 ? ` (${notifications.unreadCount})` : ''}
+              </button>
+            </div>
+            <AdminDashboard
+              notificationTarget={notificationTarget}
+              currentUser={currentUser}
+              staffAccess
+              onGoToTrack={handleGoToTrack}
+            />
+          </div>
+        )}
+        <NotificationSheet open={noticesOpen} notices={notifications.notices}
+          onClose={() => setNoticesOpen(false)} onMarkAllRead={notifications.markAllRead} onOpenNotice={openNotification} message={notificationMessage} />
+      </div>
+    );
+  }
+
+  // ---- Delivery: locked to their dashboard (rules enforce this server-side) ----
   if (isFieldTeam) {
     return (
       <div className="min-h-screen min-w-0 overflow-x-hidden bg-white text-slate-900 flex flex-col font-sans">

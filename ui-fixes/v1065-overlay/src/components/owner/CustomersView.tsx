@@ -56,15 +56,17 @@ function CustomerLedger({ l, onBack }: { l: Ledger; onBack: () => void }) {
   </section>;
 }
 
-export function CustomersView({ user, orders = [] }: { user: User | null; orders?: Order[] }) {
+// v1.0.77: staffAccess = staff opened the owner dashboard (rules allow staff to read customers).
+export function CustomersView({ user, orders = [], staffAccess = false }: { user: User | null; orders?: Order[]; staffAccess?: boolean }) {
+  const allowed = staffAccess || isUserAdmin(user);
   const [rows, setRows] = useState<CustomerRow[]>([]); const [search, setSearch] = useState('');
   const [range, setRange] = useState('all'); const [from, setFrom] = useState(''); const [to, setTo] = useState('');
   const [openKey, setOpenKey] = useState<string | null>(null);
   const [view, setView] = useState<'all' | 'login'>('all');
   useEffect(() => {
-    if (!isUserAdmin(user)) return;
+    if (!allowed) return;
     return onSnapshot(query(collection(db, 'customers'), orderBy('lastLoginAt', 'desc')), snap => setRows(snap.docs.map(d => ({ id: d.id, ...d.data() } as CustomerRow))));
-  }, [user]);
+  }, [user, allowed]);
   const ledgers = useMemo(() => buildLedgers(orders), [orders]);
   const loginRows = useMemo(() => {
     const term = search.trim().toLowerCase();
@@ -87,7 +89,7 @@ export function CustomersView({ user, orders = [] }: { user: User | null; orders
       return inDate && (!term || `${c.name || ''} ${c.phone || c.id} ${c.tag || ''}`.toLowerCase().includes(term));
     });
   }, [allRows, ledgers, search, range, from, to]);
-  if (!isUserAdmin(user)) return null;
+  if (!allowed) return null;
   const open = openKey ? ledgers.get(openKey) : undefined;
   if (open) return <CustomerLedger l={open} onBack={() => setOpenKey(null)} />;
   const counts = allRows.reduce((a, c) => ({ total: a.total + 1, new: a.new + (c.tag !== 'Old' ? 1 : 0), old: a.old + (c.tag === 'Old' ? 1 : 0) }), { total: 0, new: 0, old: 0 });

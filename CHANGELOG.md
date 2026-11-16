@@ -1,5 +1,18 @@
 # Changelog
 
+## v1.0.77 — staff get the full owner dashboard, but nothing can be deleted
+
+Android **versionCode 77 / versionName 1.0.77**, same applicationId `com.ankurdryice.events` and keystore. **Firestore rules changed — the owner must publish `firestore.rules` (named database) before staff can use the new access.** Nothing deployed from CI; no app data changed or deleted.
+
+Ankur (16 Nov 2026): "सारा access de do staff ko bas kuch delete na ho".
+
+- **Staff (users/{uid}.role `staff` and active registry staff) now open the owner dashboard** (स्टाफ पैनल) with every screen and tool: आज का काम / New orders / Confirm, New Entry (phone orders), Dispatch and bus slip, delivery Mode/stop editor, bus number, all status changes (cancel included), payment status, Customers (directory create/update, Customer login list), Godown, Money / Reports / Expenses (add and edit), Store / Theme / products / home banners / slides / winner, Bus stops, AI chat, Offers. Order tracking opens inside the staff panel.
+- **No delete for staff, anywhere.** UI: `canDelete` (owner only) hides Delete Order / Move to Trash, expense delete, product delete, banner remove and "डिफ़ॉल्ट पर लौटें" reset, and bus-stop mapping Remove. Rules: every `allow delete` stays owner-only or `false`; staff can not move an order or staff view to Trash, and a staff update can not drop fields from customers, expenses or settings, remove a bus stop / district mapping or shrink home banners (no "delete by overwriting"). Orders and tracking keep full schema validation.
+- **Owner-only (unchanged):** Users / roles (users/{uid} writes, staff requests), Staff management (staffMembers, staffEmails), staff order-access permissions, customer-app feature controls (settings/featureSuite), stockAccess members, owner push devices. The stock ledger keeps the owner's 5-account Stock switch (no change).
+- **Delivery role unchanged** (own dashboard, status-only rules path).
+- Rules: new `isOps()`, `staffKeepsFields()`, `staffNotTrashing()`, `staffKeepsSettings()`; staff grants are written after the customer's own condition so customer order batches stay inside the 1000-expression budget (emulator batch tests pass).
+- Tests: emulator suite updated to the new spec (staff read/list orders, customers, proofs, expenses; delivery keeps the old privacy/status-only checks) plus a new v1.0.77 block (staff New Entry batch, owner-level updates, **no delete on 18 paths**, no Trash, no blank-by-overwrite, no role/staff/stock-access/feature-control changes, inactive staff get nothing). Real-render test: staff dashboard shows every tool but no delete button and no Users/Staff/feature controls; owner keeps them (`ui-fixes/i18n/screens.test.mjs`). Source/rules contract `ui-fixes/v1077-staff-access.test.mjs`. No test removed or weakened.
+
 ## v1.0.76 — status step tracker, refresh on app open, staff Call opens the dialer, big colourful Home banner
 
 Android **versionCode 76 / versionName 1.0.76**, same applicationId `com.ankurdryice.events` and keystore. No Firestore rules or data change; nothing deployed from CI.

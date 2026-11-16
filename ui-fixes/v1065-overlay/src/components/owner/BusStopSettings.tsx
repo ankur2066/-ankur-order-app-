@@ -4,7 +4,8 @@ import { subscribeDeliverySettings, saveDeliverySettings } from '../../services/
 import { DEFAULT_DELIVERY_SETTINGS, districtKey, slugStopId, isRetiredStop, type BusStop, type DeliverySettings } from '../../utils/delivery';
 
 /** Owner-only: bus stops (add, rename, colour, Active/Inactive) and district -> stop mapping. */
-export function BusStopSettings() {
+// v1.0.77: staff edit/add stops and mappings; only the owner (canDelete) removes a mapping.
+export function BusStopSettings({ canDelete = true }: { canDelete?: boolean } = {}) {
   const [settings, setSettings] = useState<DeliverySettings>(DEFAULT_DELIVERY_SETTINGS);
   const [draft, setDraft] = useState<DeliverySettings | null>(null);
   const [newStop, setNewStop] = useState('');
@@ -65,7 +66,7 @@ export function BusStopSettings() {
     <h3 className="font-bold">District → Bus stop</h3>
     <ul className="space-y-1">{Object.entries(view.districtStopMap).map(([key, stopId]) => <li key={key} className="flex items-center justify-between gap-2 soft-card-inset p-2 text-sm">
       <span><b>{key}</b> → {view.busStops.find((stop) => stop.id === stopId)?.name || stopId}</span>
-      <button type="button" className="soft-button secondary-button" onClick={() => removeMapping(key)} aria-label={`Remove ${key} mapping`}>Remove</button>
+      {canDelete && <button type="button" data-owner-delete className="soft-button secondary-button" onClick={() => removeMapping(key)} aria-label={`Remove ${key} mapping`}>Remove</button>}
     </li>)}</ul>
     <div className="flex flex-wrap gap-2">
       <input aria-label="District" className="delivery-select flex-1 rounded-xl p-2" placeholder="District / city" value={district} onChange={(event) => setDistrict(event.target.value)} />
