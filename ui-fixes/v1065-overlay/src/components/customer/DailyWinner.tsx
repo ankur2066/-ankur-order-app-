@@ -15,6 +15,11 @@ export const DailyWinnerBanner:React.FC<{currentUser:User|null}> = ({currentUser
  const {language}=useLanguage(); const hi=language==='hi';
  const [day,setDay]=useState(istDay);
  const [winner,setWinner]=useState<DailyWinner|null>(null);
+ // v1.0.78 (Ankur, 17 Nov 2026): the card looked empty. The owner names the winner in
+ // Owner Tools (settings/homeSlides, or the older settings/luckyWinner); both are public
+ // reads under the existing settings rule. dailyWinners/{day} still wins when readable.
+ const [slideWinner,setSlideWinner]=useState<{name:string;city:string}|null>(null);
+ const [storeWinner,setStoreWinner]=useState<{name:string;city:string;dateLabel:string}|null>(null);
  const [consent,setConsent]=useState<boolean|null>(null);
  const [consentBusy,setConsentBusy]=useState(false);
  const [consentMessage,setConsentMessage]=useState('');
@@ -35,6 +40,19 @@ export const DailyWinnerBanner:React.FC<{currentUser:User|null}> = ({currentUser
        giftLabel:hi?'खास गिफ्ट':'Special gift'}:null);
   },()=>setWinner(null));
  },[day,hi]);
+ useEffect(()=>onSnapshot(doc(db,'settings','homeSlides'),snap=>{
+  const v=snap.data();
+  const name=typeof v?.winnerName==='string'?v.winnerName.trim().slice(0,70):'';
+  const city=typeof v?.winnerCity==='string'?v.winnerCity.trim().slice(0,45):'';
+  setSlideWinner(name&&city?{name,city}:null);
+ },()=>setSlideWinner(null)),[]);
+ useEffect(()=>onSnapshot(doc(db,'settings','luckyWinner'),snap=>{
+  const v=snap.data();
+  const name=typeof v?.name==='string'?v.name.trim().slice(0,70):'';
+  const city=typeof v?.city==='string'?v.city.trim().slice(0,45):'';
+  const dateLabel=typeof v?.dateLabel==='string'?v.dateLabel.trim().slice(0,20):'';
+  setStoreWinner(v?.active===true&&name&&city?{name,city,dateLabel}:null);
+ },()=>setStoreWinner(null)),[]);
  useEffect(()=>{
   setConsent(null);
   setConsentMessage('');
@@ -54,13 +72,20 @@ export const DailyWinnerBanner:React.FC<{currentUser:User|null}> = ({currentUser
   }catch{setConsentMessage(hi?'सहमति नहीं बदली। कनेक्शन या सर्वर सेटअप जाँचें।':'Consent was not changed. Check the connection or server setup.');}
   finally{setConsentBusy(false);}
  };
- if(!winner&&!currentUser)return null; // nothing to show: no empty/broken card on Home
+ const shown=winner?{name:winner.name,city:winner.city,when:day}:
+  slideWinner?{name:slideWinner.name,city:slideWinner.city,when:''}:
+  storeWinner?{name:storeWinner.name,city:storeWinner.city,when:storeWinner.dateLabel}:null;
+ const prize=winner?winner.giftLabel:(hi?'खास गिफ्ट':'Special gift');
+ if(!shown&&!currentUser)return null; // nothing to show: no empty/broken card on Home
  return <section className="ankur-daily-winner" aria-labelledby="ankur-daily-winner-title">
   <h1 id="ankur-daily-winner-title" className="text-base font-black">{hi?'आज का Lucky Winner':"Today's Lucky Winner"}</h1>
-  {winner && <div className="mt-2">
-   <p className="text-sm font-bold">{winner.name} · {winner.city}</p>
-   <p className="text-xs mt-1">{winner.giftLabel} · {day}</p>
-  </div>}
+  {shown ? <div className="ankur-winner-now mt-2" data-no-translate>
+   <p className="text-lg font-black leading-tight"><span aria-hidden="true">🏆 </span>{shown.name}</p>
+   <p className="text-sm font-bold mt-0.5">📍 {shown.city}</p>
+   <p className="text-xs font-bold mt-1">🎁 {hi?'इनाम':'Prize'}: {prize}{shown.when?` · ${shown.when}`:''}</p>
+  </div> : <p className="ankur-winner-soon mt-2 text-sm font-bold" data-no-translate>
+   {hi?'🎉 आज का विजेता जल्द घोषित होगा — ऑर्डर करें और जीतें!':"🎉 Today's winner will be announced soon — order now and you could win!"}
+  </p>}
   {currentUser && <div className="mt-3 border-t border-current/15 pt-3 space-y-2">
    <p className="text-xs">{hi?'अपनी इच्छा से भाग लें: चुने जाने पर केवल आपका नाम और शहर सार्वजनिक दिखेगा, मोबाइल नंबर नहीं। आप सहमति वापस ले सकते हैं.':'Participation is optional. If selected, only your name and city are public; your phone number is not. You can withdraw consent.'}</p>
    <label className="flex items-center gap-2 text-xs font-bold">

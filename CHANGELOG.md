@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.0.78 — Home: Lucky Winner card shows the winner, no blank gap
+
+Android **versionCode 78 / versionName 1.0.78**, same applicationId `com.ankurdryice.events` and keystore (installs over v1.0.77). **No Firestore rules change.** Nothing deployed from CI; no app data changed or deleted.
+
+- Customer Home "Today's Lucky Winner" card now shows the winner's name, city and prize (🎁 "खास गिफ्ट" / "Special gift", the gift itself stays private) when the owner has named one: `dailyWinners/{IST day}` first, then the owner's Home slide winner (`settings/homeSlides`), then the older Lucky Winner card (`settings/luckyWinner`, only when switched on). With no winner yet it shows "आज का विजेता जल्द घोषित होगा — ऑर्डर करें और जीतें!". The consent checkbox is unchanged. Reads only; `settings/*` was already public read.
+- Removed the big blank band between the booking form's "hi, name / Log out" card and the winner card (form page no longer adds full-screen height + bottom-menu padding; the section after it already clears the bottom menu).
+- Test: `ui-fixes/v1078-home-winner.test.mjs` (added to the review job). No test removed or weakened.
+
 ## v1.0.77 — staff get the full owner dashboard, but nothing can be deleted
 
 Android **versionCode 77 / versionName 1.0.77**, same applicationId `com.ankurdryice.events` and keystore. **Firestore rules changed — the owner must publish `firestore.rules` (named database) before staff can use the new access.** Nothing deployed from CI; no app data changed or deleted.

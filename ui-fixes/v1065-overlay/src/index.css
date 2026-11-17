@@ -1942,3 +1942,14 @@ html { font-size: 13.5px; }
 .ankur-hb-dot { height: 7px; border-radius: 9999px; background: rgb(255, 255, 255); border: 0; padding: 0; transition: width .25s ease, opacity .25s ease; }
 .ankur-hb .ankur-poll-option { background: rgba(255, 255, 255, .95) !important; color: hsl(232 60% 25%) !important; border-color: transparent !important; }
 @media (max-width: 360px) { .ankur-hb-headline { font-size: 20px; } .ankur-hb-sub { font-size: 14px; } .ankur-hb-art { flex-basis: 92px; height: 92px; } .ankur-hb-art svg { width: 90px; height: 90px; } .ankur-hb-emoji { font-size: 60px; } }
+
+/* v1.0.78 (Ankur, 17 Nov 2026): no big blank band between the booking form's "hi, name / Log out"
+   card and the Lucky Winner card. The Home section right after the form (winner + contact,
+   pb-24) already keeps everything clear of the bottom menu, so the form page itself needs no
+   full-screen height or bottom-nav padding. */
+.aqp-form-only-home.page-with-bottom-nav,
+.aqp-form-only-home.min-h-screen { min-height: 0 !important; padding-bottom: 0 !important; }
+.aqp-form-only-home .aqp-form-only-main { padding-bottom: 12px !important; }
+.aqp-form-only-home .aqp-booking-form { padding-bottom: 6px !important; }
+.ankur-daily-winner .ankur-winner-now p,
+.ankur-daily-winner .ankur-winner-soon { color: #ffffff !important; }
