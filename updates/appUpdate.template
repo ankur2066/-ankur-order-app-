@@ -6,8 +6,8 @@
  * For installed Play Store builds, show the official Play listing. A future native
  * Play Core integration can use Google's flexible update flow.
  */
-export const ANDROID_VERSION_CODE = 47;
-export const ANDROID_VERSION_NAME = '1.0.47';
+export const ANDROID_VERSION_CODE = 65;
+export const ANDROID_VERSION_NAME = '1.0.65';
 export const UPDATE_MANIFEST_URL = 'https://ankurdryice.store/app-updates/android-stable.json';
 const PLAY_STORE_URL = 'https://play.google.com/store/apps/details?id=com.ankurdryice.events';
 

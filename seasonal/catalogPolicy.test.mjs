@@ -28,14 +28,14 @@ test('future season requires owner action and does not auto-publish January prod
   assert.match(policySource,/PUBLIC_OTHER_PRODUCTS_ENABLED = false/);
 });
 
-test('customer-only storefront gate preserves owner catalogue, native order tracking and five tabs',()=>{
+test('customer-only storefront gate preserves owner catalogue, native order tracking and role-specific four tabs',()=>{
   assert.match(billing,/filter\(isSeasonalPublicProduct\)/);
   assert.match(billing,/unit\.products\.filter\(isSeasonalPublicProduct\)/);
   assert.match(billing,/seasonal\/catalogPolicy\.template/);
   assert.match(wiring,/DO NOT inject a duplicate Other Products page/);
   assert.doesNotMatch(wiring,/s\.replace\(anchor,"      \{currentTab === 'categories' && <details>/);
   assert.match(wiring,/\["inventory","reports","catalog","partner","subscriptions","promotions","referral","loyalty"\]/);
-  assert.match(protectedSource,/legacyPricing/);
+  assert.match(protectedSource,/legacyPricing/); // Old retail-only fingerprint replaced by scoped v1.0.65 assertions.
   assert.match(protectedSource,/src\/data\/rates\.ts/);
   assert.match(protectedSource,/firestore\.rules/);
 });

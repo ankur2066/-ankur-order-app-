@@ -316,3 +316,65 @@ The owner requested continued implementation, holding device-dependent questions
 
 
 - CI follow-up: run 42463311578 reached release-audit contract tests; an exact-string check for FeatureHub spacing failed despite the owner-switch expression being present. Replaced it with a whitespace-tolerant expression check. Re-running CI on the corrected test; no app-build error was reported in that run.
+
+
+## 8 November 2026 — v1.0.65 customer feedback branch
+
+- Branch `codex/fix-v1065-test-feedback` is based on `codex/release-audit-14features-20261108` (v1.0.64 private test). Owner-requested scope is implemented in the v1.0.65 overlay and mapped item-by-item in its PR description.
+- Booking/rules: owner-controlled retail/wholesale customer type; retail total is fixed; wholesale total edits require a reason; calculated/customer totals are stored; totals are checked in Firestore rules. Wholesale rate remains unset until the owner enters it. Thermocol is itemized and optional.
+- Orders: local Paytm QR; UPI copy button; IST dispatch date and slot with legacy-date migration; overdue bucket; IST slot cutoffs; resilient pending-order retry; test-order reporting exclusion; city suggestions and validation.
+- UI: high-contrast feature settings/order cards/status tiles, system inset handling, owner labels and paid/unpaid confirmation, status-consistent order tracking, customer Categories navigation, promo controls hidden until the Promotions switch is on.
+- Version defaults: Android versionCode 65 and versionName 1.0.65. `allowBackup=false` retained.
+- Local verification: `npm run lint`, `npm run build`, and v1.0.65 feedback contracts PASS. GitHub Actions/PR CI is pending after push. No Firebase deploy, Play upload, merge, signing-key change, or paid service was performed.
+
+- Follow-up in the same v1.0.65 phase: both owner order-list modes now share one call/WhatsApp action component with matching tap targets. CSV, monthly, insight and AI summary sources omit flagged test orders while those orders remain visible for operations. Local lint/build remain green.
+
+- CI run 42466358708 failed at overlay installation because the first commit staged source snapshots at app-root paths instead of the runner's `ui-fixes/v1065-overlay/` source path. The overlay copy error is corrected in the next commit; no build/test failure was reached in that run. This is being rerun before review completion.
+
+
+- CI follow-up: hosted review applied all 22 app overlays, then the legacy financial guard rejected the intended wholesale-rate / customer-type Firestore changes. Updated `all-features/protected_audit.py` to assert the v1.0.65 safeguards directly (owner-set wholesale rate, retail lock, reason-required amount override, persisted totals) rather than freezing the old retail-only hashes. No backend deployment was run.
+
+- CI follow-up: the updated guard reached the post-overlay assertions but scoped persisted fields to the extracted function range; the payload sits in a nested object. Broadened the guard to verify those persisted fields in the OrderForm source while retaining assertions for owner-set wholesale rate and retail restrictions.
+
+- CI follow-up: the v1.0.65 financial guard initially expected `customerTotal:` although the TypeScript payload uses valid shorthand `customerTotal`. Adjusted the source assertion to check the property name without requiring a colon; re-running hosted CI.
+
+- CI feedback uncovered stale assertions requiring the old customer AI Video tab and disabled Categories page. Updated nav contracts to the requested role-specific behavior (AI Video for owner, Categories for customers), synchronized the local/review/signed reconstruction chains, and set the existing manual signed workflow defaults to versionCode 65 / 1.0.65. This does not trigger a signed build.
+
+- Updated existing release contracts to versionCode 65 / versionName 1.0.65 and changed stale customer-nav expectations to AI Video for owner, Categories for customers. CI tests previously stopped on those v1.0.64 / old-tab assumptions before build.
+
+- The next CI pass reached release contracts; legacy checks still pinned versionName 10.0.64 and the update fixture still defaulted to versionCode 47. Updated those regression fixtures to v1.0.65 while preserving the existing signature/package checks.
+
+- The version-65 update fixture was being upgraded before the existing v1.0.64 reconstruction patch, causing its base-pattern check to fail. Kept the baseline fixture intact until the existing patch runs, then apply the v1.0.65 template from the release overlay. This preserves ordered reconstruction and tests the final version.
+
+- Update-checker regression cases now treat 65 as installed and 66 as the newer candidate; earlier fixture used an older APK code and code 65 (equal to installed), so correct rejection was reported as a failure. No live manifest or APK was published.
+
+- Release audit contract now imports the `re` module required for its whitespace-tolerant Owner FeatureHub assertion; all 71 preceding unit/regression contracts passed in hosted CI.
+
+- Updated the release audit contract to require the bundled Paytm QR SVG and Copy UPI ID action, replacing prior temporary fallback-text assertions. The four Phase A contracts and all 71 unit/regression contracts passed; this release-audit expectation was stale.
+
+- Hosted TypeScript lint found two imports missing from the reconstructed CI base (`StaffOrderAccessManager` and `ReferralSharePanel`). Added the reviewed source snapshots to the v1.0.65 overlay so the reconstructed tree contains every referenced component. No staff data, Firebase state, or permissions were changed.
+
+- TypeScript build now resolved the two missing components and exposed their shared `referralShare` helper as the remaining missing source. Added that utility to the same review overlay; no external service or Firebase change is introduced.
+
+- Order status/payment notes now use the selected app language for generated text (including initial booking, owner-created orders, and status transitions); freeform reason/owner notes remain verbatim. The legacy copy audit reports 303 untranslated legacy UI strings as `PARTIAL_LEGACY_COPY` for follow-up while still failing invalid English dictionary entries. This is explicitly reported as a remaining limitation, not a localization pass.
+
+- Corrected two snapshots that had been copied through a truncated shell output: the hosted overlay now receives the complete AdminDashboard and OrderForm source, including wholesale total persistence and language-aware order status notes. This preserves the actual local build-tested files.
+
+- Reconnected the owner's dispatch handler to the existing trusted inventory path so enabled inventory dispatch cannot double-write; disabled mode keeps the paired legacy update. Updated the React harness for the new dispatch-date helper/referral panel, and scoped old-screen language assertions to avoid claiming all legacy copy is translated. Added direct assertions for bilingual generated order notes.
+
+- The screen-language harness now asserts the saved switch and no-popup behavior without claiming full English coverage across older static screens; untranslated legacy copy remains visible in the partial copy audit.
+
+
+- v1.0.65 feedback follow-up: fixed the React UI harness mocks, kept video and service-area labels in the selected language, and made tracking validation errors re-render in the current language. GitHub Actions run 42470535759 passed lint/type-check, build, regression tests, React UI/tap tests, and the safety-boundary check. PR #24 remains open and unmerged; 303 legacy UI strings remain untranslated per the audit. No Firebase deploy or Play upload was run.
+
+
+## 8 November 2026 — v1.0.65 follow-up: UPI, customers, dates and soft 3D
+
+- Added the single app business configuration for primary/backup UPI and retail/wholesale rates, local bundled QR plus in-app QR fallback, UPI copy/deep-link controls, and manual payment verification only. Cashfree remains a later item; no payment gateway was added.
+- Added owner-only Customers screen and customers documents keyed by +91 mobile. Rules limit customers to their own document and reserve collection listing for the owner. Completion changes a recorded customer's tag from New to Old.
+- Persisted dispatchSlot alongside the IST dispatch date; added a separate Date not set group and unit coverage for today, tomorrow, past and missing dates.
+- Added the five policy pages under docs/website-policies/; website source was not present, so no website was changed.
+- Applied the soft 3D theme, shared status tokens, readable order cards, compact Orders / Customers / Tools aur Settings owner navigation, and direct owner-guarded Firestore feature settings (no new Cloud Function).
+- Local TypeScript check, 2 date unit tests, 3 static Rules contract tests, release audit contracts, and Vite build passed. Vite emitted existing mixed-import and large-chunk warnings.
+- Firestore emulator Rules tests were not run; the new Rules tests are source contract checks only. Visual before/after screenshots are not attached: the available test screenshots contain identifying order/customer details, and the isolated browser could not reach the local preview. No customer screenshots or data were published.
+- Branch codex/fix-v1065-test-feedback / PR #24 remains open and unmerged. No Firebase deployment, Play upload, paid service, billing change or signing job was run.

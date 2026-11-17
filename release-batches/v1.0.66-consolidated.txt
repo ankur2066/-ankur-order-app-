@@ -1,0 +1,7 @@
+v1.0.66 (2026-11-11): installs over 1.0.64/1.0.65 (versionCode 66, same release certificate).
+- Owner status change: trusted inventory dispatch restored before the old batch; staff view updated after success.
+- Payment proof preview no longer shown twice on owner order cards.
+- AI Video tab (Video Idea Builder) for customers too; banner with company name and mobile in the Gemini prompt.
+- Tracking page Hindi/English labels; payment options instead of fixed Paytm image.
+- Theme colours moved to theme tokens (src/theme/themes.css).
+- Tests updated for the staff trusted-callable path and the customer AI Video tab.

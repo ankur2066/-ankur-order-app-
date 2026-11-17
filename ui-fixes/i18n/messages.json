@@ -1816,8 +1816,8 @@
     "hi": "WhatsApp पर चैट करें (+91 8896332066)"
   },
   "कॉल करें (+91 8896332066)": {
-    "en": "Call (+91 8896332066)",
-    "hi": "कॉल करें (+91 8896332066)"
+    "en": "Call (+91 95808 82066)",
+    "hi": "कॉल करें (+91 95808 82066)"
   },
   "अंकुर ड्राई आइस": {
     "en": "Ankur Dry Ice",
@@ -3309,7 +3309,7 @@
   },
   "Save preferences": {
     "en": "Save preferences",
-    "hi": "प्राथमिकताएँ सहेजें"
+    "hi": "सेव करें"
   },
   "Commercial receipts are generated after delivery. No GST registration or tax is assumed. Order CSV and expense reports remain in Owner Dashboard → Insights.": {
     "en": "Commercial receipts are generated after delivery. No GST registration or tax is assumed. Order CSV and expense reports remain in Owner Dashboard → Insights.",
@@ -3873,31 +3873,31 @@
   },
   "Saved on this device and your account.": {
     "en": "Saved on this device and your account.",
-    "hi": "इस डिवाइस और आपके खाते पर सहेजा गया।"
+    "hi": "इस फ़ोन और आपके खाते में सेव हो गया।"
   },
   "Saved on this device. Account-wide sync requires the approved backend.": {
     "en": "Saved on this device. Account-wide sync requires the approved backend.",
-    "hi": "इस डिवाइस पर सहेजा गया. खाता-व्यापी सिंक के लिए अनुमोदित बैकएंड की आवश्यकता होती है।"
+    "hi": "इस फ़ोन में सेव हो गया। खाते में सेव करने की सुविधा अभी चालू नहीं है।"
   },
   "Saved on this device; account sync failed. Try again when connected.": {
     "en": "Saved on this device; account sync failed. Try again when connected.",
-    "hi": "इस डिवाइस पर सहेजा गया; खाता समन्वयन विफल. कनेक्ट होने पर पुनः प्रयास करें."
+    "hi": "इस फ़ोन में सेव हो गया, पर खाते में सेव नहीं हुआ। इंटरनेट आने पर दोबारा सेव करें।"
   },
   "Order updates on this device": {
     "en": "Order updates on this device",
-    "hi": "इस डिवाइस पर अपडेट ऑर्डर करें"
+    "hi": "इस फ़ोन पर ऑर्डर की जानकारी पाएँ"
   },
   "Marketing opt-in": {
     "en": "Marketing opt-in",
-    "hi": "मार्केटिंग ऑप्ट-इन"
+    "hi": "ऑफ़र और छूट के मैसेज"
   },
   "Order updates start on; marketing starts off. Turning order updates off stops new customer alerts and unregisters this device from native push. Existing order history stays available.": {
     "en": "Order updates start on; marketing starts off. Turning order updates off stops new customer alerts and unregisters this device from native push. Existing order history stays available.",
-    "hi": "ऑर्डर अपडेट शुरू होते हैं; मार्केटिंग शुरू हो जाती है. ऑर्डर अपडेट बंद करने से नए ग्राहक अलर्ट बंद हो जाते हैं और यह डिवाइस नेटिव पुश से अपंजीकृत हो जाता है। मौजूदा ऑर्डर इतिहास उपलब्ध रहता है।"
+    "hi": "ऑर्डर की जानकारी पहले से चालू रहती है, ऑफ़र के मैसेज पहले से बंद रहते हैं। ऑर्डर की जानकारी बंद करने पर इस फ़ोन पर ऑर्डर की नई सूचना नहीं आएगी। आपके पुराने ऑर्डर ऐप में दिखते रहेंगे।"
   },
   "Owner and authorized staff operational alerts remain on.": {
     "en": "Owner and authorized staff operational alerts remain on.",
-    "hi": "मालिक और अधिकृत कर्मचारी परिचालन अलर्ट जारी रहते हैं।"
+    "hi": "मालिक और स्टाफ़ के काम वाले अलर्ट चालू रहते हैं।"
   },
   "{0} बुक करें": {
     "en": "Book {0}",
@@ -3953,7 +3953,7 @@
   },
   "Notification preferences": {
     "en": "Notification preferences",
-    "hi": "अधिसूचना प्राथमिकताएँ"
+    "hi": "सूचना सेटिंग"
   },
   "Ankur Dry Ice and Events, Lucknow · Call: 95808 82066 · WhatsApp: 88963 32066": {
     "en": "Ankur Dry Ice and Events, Lucknow · Call: 95808 82066 · WhatsApp: 88963 32066",
@@ -5022,10 +5022,6 @@
   "प्रति {0}": {
     "en": "to {0}",
     "hi": "प्रति {0}"
-  },
-  "UPI भुगतान QR — 8896332066@paytm; भुगतान से पहले नाम जांचें": {
-    "en": "UPI payment QR — 8896332066@paytm; check the recipient before paying",
-    "hi": "UPI भुगतान QR — 8896332066@paytm; भुगतान से पहले नाम जांचें"
   },
   "pending_owner_review": {
     "en": "Pending owner review",
