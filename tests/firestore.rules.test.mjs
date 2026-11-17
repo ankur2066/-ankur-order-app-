@@ -234,6 +234,29 @@ describe('Order create compatibility across installed app versions', () => {
     const owner=ownerDb();
     await assertSucceeds(updateDoc(doc(owner,`orders/${w.orderId}`),{status:'confirmed',updatedAt:serverTimestamp()}));
   });
+  // v1.0.79 (Ankur, 17 Nov 2026): per-customer wholesale rate on users/{uid}.customRatePerKg (no rules change).
+  it('v1.0.79: only the owner sets a customer rate; the customer reads it, cannot change it, and orders at it', async () => {
+    const owner=ownerDb();
+    await assertSucceeds(setDoc(doc(owner,'users/rate-buyer'),{customRatePerKg:30,customRateUpdatedAt:serverTimestamp()},{merge:true}));
+    const buyer=testEnv.authenticatedContext('rate-buyer').firestore();
+    const snap=await assertSucceeds(getDoc(doc(buyer,'users/rate-buyer')));
+    assert.equal(snap.data().customRatePerKg,30);
+    await assertFails(setDoc(doc(buyer,'users/rate-buyer'),{customRatePerKg:1},{merge:true}));
+    await assertFails(updateDoc(doc(buyer,'users/rate-buyer'),{customRatePerKg:deleteField()}));
+    await assertFails(setDoc(doc(testEnv.authenticatedContext('rate-new').firestore(),'users/rate-new'),{customerName:'Rate New',customRatePerKg:20}));
+    await assertFails(setDoc(doc(testEnv.authenticatedContext('staff').firestore(),'users/rate-buyer'),{customRatePerKg:20},{merge:true}));
+    await assertFails(setDoc(doc(testEnv.authenticatedContext('delivery').firestore(),'users/rate-buyer'),{customRatePerKg:20},{merge:true}));
+    // The customer's own profile save after an order still works (customer fields only).
+    await assertSucceeds(setDoc(doc(buyer,'users/rate-buyer'),{customerName:'Rate Buyer',customerPhone:'9876543210',city:'Lucknow',updatedAt:serverTimestamp()},{merge:true}));
+    // Their order at ₹30/kg (10 kg: 300 + thermocol 100 = 400) is accepted as a normal retail-type order.
+    const o=v65Order('C79A','rate-buyer',{dryIcePricePerKg:30,dryIceSubtotal:300,totalAmount:400,calculatedTotal:400,customerTotal:400});
+    await assertSucceeds(commit(buyer,o,v66Tracking(o),v66View(o)));
+    // A total that does not match the booked rate is still refused.
+    const bad=v65Order('C79B','rate-buyer',{dryIcePricePerKg:30,dryIceSubtotal:300,totalAmount:300,calculatedTotal:300,customerTotal:300});
+    await assertFails(commit(buyer,bad,v66Tracking(bad),v66View(bad)));
+    // "Default rate": the owner removes the field.
+    await assertSucceeds(updateDoc(doc(owner,'users/rate-buyer'),{customRatePerKg:deleteField(),customRateUpdatedAt:serverTimestamp()}));
+  });
   it('v1.0.72: owner saves a bus number on a BUS order and copies mode/stop/bus number to tracking; delivery and customers cannot', async () => {
     const owner=ownerDb();
     const o=v65Order('BUS72','owner_manual_entry',{deliveryMode:'BUS',busStopId:'alambagh'});

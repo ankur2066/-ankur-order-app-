@@ -1,9 +1,45 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { collection, onSnapshot, orderBy, query } from 'firebase/firestore';
+import { collection, deleteField, doc, onSnapshot, orderBy, query, serverTimestamp, setDoc } from 'firebase/firestore';
 import { db, isUserAdmin } from '../../firebase';
 import { istDateKey } from '../../utils/dispatchSchedule';
 import type { User } from 'firebase/auth';
 import type { Order } from '../../types';
+import { CUSTOM_RATE_CHIPS, CUSTOM_RATE_FIELD, orderRateLabel, parseCustomRate } from '../../utils/customerRate';
+
+/**
+ * v1.0.79 (Ankur, 17 Nov 2026): per-customer wholesale rate (₹35 / ₹30 / ₹28 or custom).
+ * Saved on the customer's own users/{uid} profile, which only the owner can write and the
+ * customer can only read; their next order uses it automatically. Staff see it read-only.
+ */
+export function CustomerRateEditor({ uid, current, canEdit }: { uid?: string; current?: number; canEdit: boolean }) {
+  const [custom, setCustom] = useState(''); const [busy, setBusy] = useState(false); const [msg, setMsg] = useState('');
+  if (!uid || uid === 'owner_manual_entry') return <p className="text-xs" data-customer-rate-none>Rate: Default (ऐप लॉगिन वाले ग्राहक का ही खास रेट लगता है)</p>;
+  const save = async (value: number | null) => {
+    if (!canEdit || busy) return;
+    const rate = value === null ? null : parseCustomRate(value);
+    if (value !== null && rate === undefined) { setMsg('सही रेट डालें (₹1–₹1000)'); return; }
+    if (value === null && current === undefined) return;
+    setBusy(true); setMsg('');
+    try {
+      await setDoc(doc(db, 'users', uid), { [CUSTOM_RATE_FIELD]: rate === null ? deleteField() : rate, customRateUpdatedAt: serverTimestamp() }, { merge: true });
+      setCustom(''); setMsg(rate === null ? 'Default rate लगा दिया ✓' : `₹${rate}/kg सेव ✓`);
+    } catch { setMsg('सेव नहीं हुआ, दोबारा कोशिश करें'); } finally { setBusy(false); }
+  };
+  return <div className="soft-card-inset p-2 space-y-2" data-customer-rate aria-label="Customer rate">
+    <p className="text-xs font-black">Rate (₹/kg): {current !== undefined ? `₹${current}/kg (खास)` : 'Default rate'}</p>
+    {canEdit && <>
+      <div className="flex flex-wrap gap-2">
+        {CUSTOM_RATE_CHIPS.map(r => <button type="button" key={r} className="soft-button secondary-button" aria-pressed={current === r} disabled={busy} onClick={() => void save(r)}>₹{r}</button>)}
+        <button type="button" className="soft-button secondary-button" aria-pressed={current === undefined} disabled={busy || current === undefined} onClick={() => void save(null)}>Default rate</button>
+      </div>
+      <div className="flex gap-2">
+        <input className="w-full rounded-xl p-2" type="number" inputMode="decimal" min={1} max={1000} step="0.5" value={custom} onChange={e => setCustom(e.target.value)} placeholder="Custom ₹/kg" aria-label="Custom rate per kg" />
+        <button type="button" className="soft-button" disabled={busy || custom.trim() === ''} onClick={() => void save(Number(custom))}>Save</button>
+      </div>
+    </>}
+    {msg && <p className="text-xs font-bold" role="status">{msg}</p>}
+  </div>;
+}
 
 type CustomerRow = { id: string; uid?: string; name?: string; phone?: string; firstLoginAt?: any; lastLoginAt?: any; orderCount?: number; completedOrders?: number; tag?: 'New' | 'Old' };
 function dateKey(value: any): string { const d = value?.toDate?.() || (value instanceof Date ? value : null); return d ? istDateKey(d) : ''; }
@@ -51,7 +87,7 @@ function CustomerLedger({ l, onBack }: { l: Ledger; onBack: () => void }) {
     <h3 className="font-black">ऑर्डर का पूरा हिसाब</h3>
     <ul className="space-y-2">{l.orders.map(o => <li className="soft-card-inset p-3" key={o.orderId}>
       <div className="flex justify-between gap-2"><b>#{o.orderId.slice(-4)} · {orderDay(o) || '—'}</b><span className={`status-chip ${isPaid(o) ? 'status-delivered' : 'status-pending'}`}>{isPaid(o) ? 'Paid' : 'Due'}</span></div>
-      <p>{o.quantityKg} KG · {rupee(orderAmount(o))} · {STATUS_LABEL[o.status] || o.status}{o.district ? ` · ${o.district}` : ''}</p>
+      <p>{o.quantityKg} KG · {rupee(orderAmount(o))}{orderRateLabel(o) ? ` · ${orderRateLabel(o)}` : ''} · {STATUS_LABEL[o.status] || o.status}{o.district ? ` · ${o.district}` : ''}</p>
     </li>)}</ul>
   </section>;
 }
@@ -63,6 +99,17 @@ export function CustomersView({ user, orders = [], staffAccess = false }: { user
   const [range, setRange] = useState('all'); const [from, setFrom] = useState(''); const [to, setTo] = useState('');
   const [openKey, setOpenKey] = useState<string | null>(null);
   const [view, setView] = useState<'all' | 'login'>('all');
+  // v1.0.79: per-customer rates from users/{uid} (owner and staff may list users).
+  const canEditRate = isUserAdmin(user);
+  const [customRates, setCustomRates] = useState<Record<string, number>>({});
+  useEffect(() => {
+    if (!allowed) return;
+    return onSnapshot(collection(db, 'users'), snap => {
+      const next: Record<string, number> = {};
+      snap.docs.forEach(d => { const r = parseCustomRate(d.data()[CUSTOM_RATE_FIELD]); if (r !== undefined) next[d.id] = r; });
+      setCustomRates(next);
+    }, () => setCustomRates({}));
+  }, [user, allowed]);
   useEffect(() => {
     if (!allowed) return;
     return onSnapshot(query(collection(db, 'customers'), orderBy('lastLoginAt', 'desc')), snap => setRows(snap.docs.map(d => ({ id: d.id, ...d.data() } as CustomerRow))));
@@ -109,7 +156,8 @@ export function CustomersView({ user, orders = [], staffAccess = false }: { user
           <div className="flex justify-between gap-2"><b>{c.name || l?.name || 'Customer'}</b><span className={`status-chip ${dateKey(c.lastLoginAt) === istDateKey() ? 'status-delivered' : 'status-pending'}`}>{dateKey(c.lastLoginAt) === istDateKey() ? 'आज' : (c.tag || 'New')}</span></div>
           <p>{c.phone || c.id} · {l ? l.orders.length : (c.orderCount || 0)} orders</p>
           <small>Last login: {loginTime(c.lastLoginAt)} · पहला: {dateKey(c.firstLoginAt) || '—'}</small>
-        </button></li>;
+        </button>
+        <CustomerRateEditor uid={c.uid} current={c.uid ? customRates[c.uid] : undefined} canEdit={canEditRate} /></li>;
       })}</ul>}
     </> : <>
     <div className="grid grid-cols-3 gap-2 text-center">{[['Total', counts.total], ['New', counts.new], ['Old', counts.old]].map(([label, count]) => <div className="soft-card-inset p-3" key={label}><b>{label}</b><div>{count}</div></div>)}</div>
@@ -123,7 +171,8 @@ export function CustomersView({ user, orders = [], staffAccess = false }: { user
         <p>{c.phone || c.id} · {l ? l.orders.length : (c.orderCount || 0)} orders{l ? ` · ${l.kg} KG · ${rupee(l.amount)}` : ''}</p>
         {l && l.due > 0 && <p className="font-bold text-rose-700">बाकी: {rupee(l.due)}</p>}
         <small>Last: {l?.last || dateKey(c.lastLoginAt) || '—'}{l ? ' · पूरा हिसाब देखें ›' : ''}</small>
-      </button></li>;
+      </button>
+      <CustomerRateEditor uid={c.uid} current={c.uid ? customRates[c.uid] : undefined} canEdit={canEditRate} /></li>;
     })}</ul>
     </>}
   </section>;

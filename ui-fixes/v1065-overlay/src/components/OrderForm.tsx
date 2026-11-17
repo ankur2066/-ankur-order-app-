@@ -5,6 +5,7 @@ import { DeliveryModePicker } from './DeliveryModePicker';
 import { subscribeDeliverySettings } from '../services/deliverySettings';
 import { DEFAULT_DELIVERY_SETTINGS, resolveDeliveryDefault, validateDeliveryChoice, type DeliveryMode, type DeliverySettings } from '../utils/delivery';
 import { PRIMARY_UPI_ID } from '../config/businessConfig';
+import { CUSTOM_RATE_FIELD, customRateLine, effectiveDryIceRate, parseCustomRate } from '../utils/customerRate';
 import { 
   Snowflake, 
   MapPin, 
@@ -97,6 +98,8 @@ const LegacyOrderForm: React.FC<OrderFormProps> = ({
   const pendingOrderStorageKey = 'ankur.pending.order.v1.' + (currentUser?.uid || 'guest');
   const [customerName, setCustomerName] = useState(currentUser?.displayName || '');
   const [customerType, setCustomerType] = useState<'retail' | 'wholesale'>('retail');
+  // v1.0.79: this customer's own owner-set dry-ice rate (users/{uid}.customRatePerKg); read-only here.
+  const [customRate, setCustomRate] = useState<number | undefined>(undefined);
   const [thermocolIncluded, setThermocolIncluded] = useState(true);
   const [customerPhone, setCustomerPhone] = useState('');
   // Single city / place field: "शहर"
@@ -124,15 +127,16 @@ const LegacyOrderForm: React.FC<OrderFormProps> = ({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   useEffect(() => {
-    if (!currentUser?.uid) { setCustomerType('retail'); return; }
+    if (!currentUser?.uid) { setCustomerType('retail'); setCustomRate(undefined); return; }
     void getDoc(doc(db, 'users', currentUser.uid)).then((snap) => {
       const profile = snap.data();
       const nextType = profile?.customerType === 'wholesale' ? 'wholesale' : 'retail';
       setCustomerType(nextType);
+      setCustomRate(parseCustomRate(profile?.[CUSTOM_RATE_FIELD]));
       setThermocolIncluded(nextType === 'retail');
       const phone = profile?.customerPhone || currentUser.phoneNumber;
       if (phone) void import('../services/customers').then(({ upsertCustomerLogin }) => upsertCustomerLogin(currentUser.uid, profile?.customerName || currentUser.displayName || 'Customer', phone)).catch((error) => console.warn('Customer login record unavailable:', error));
-    }).catch(() => setCustomerType('retail'));
+    }).catch(() => { setCustomerType('retail'); setCustomRate(undefined); });
   }, [currentUser?.uid]);
   
   // Dispatch Slots (IST)
@@ -373,7 +377,9 @@ const LegacyOrderForm: React.FC<OrderFormProps> = ({
     setDeliveryStopId(resolved?.busStopId);
     setDeliveryStaleStop(resolved?.source === 'ask' && resolved.warning ? resolved.staleStopId : undefined);
   }, [customerDeliveryDefaults, address, deliverySettings, deliveryTouched]);
-  const activeDryIceRate = customerType === 'wholesale' ? rates.wholesaleRate : rates.dryIceRate;
+  // v1.0.79: the customer's own rate (if the owner set one) wins over the normal retail/wholesale price.
+  const activeDryIceRate = effectiveDryIceRate(customerType, rates, customRate);
+  const shownDryIceRate = activeDryIceRate ?? rates.dryIceRate;
   const currentUnitRate = (activeDryIceRate || 0) + (thermocolIncluded ? rates.thermocolRate : 0) + (rates.transportRate || 0);
   const dryIceSubtotal = Math.round(currentQuantityKg * (activeDryIceRate || 0) * 100) / 100;
   const thermocolSubtotal = thermocolIncluded ? Math.round(currentQuantityKg * rates.thermocolRate * 100) / 100 : 0;
@@ -783,7 +789,7 @@ const LegacyOrderForm: React.FC<OrderFormProps> = ({
       return;
     }
 
-    if (customerType === 'wholesale' && !(typeof rates.wholesaleRate === 'number' && rates.wholesaleRate > 0)) {
+    if (customerType === 'wholesale' && customRate === undefined && !(typeof rates.wholesaleRate === 'number' && rates.wholesaleRate > 0)) {
       setErrorMsg('Wholesale rate is not set yet. Please contact the owner.'); return;
     }
     const priceChanged = customerType === 'wholesale' && extraAmountText.trim() !== '' && Number(extraAmountText) !== totalAmount;
@@ -970,10 +976,11 @@ const LegacyOrderForm: React.FC<OrderFormProps> = ({
         <div className="apb-price-topline">ड्राई आइस व सुरक्षित पैकिंग</div>
         <div className="apb-hero-total">₹{currentUnitRate}<small>/kg</small></div>
         <div className="apb-rate-breakdown">
-          <span>ड्राई आइस <strong>₹{rates.dryIceRate}/kg</strong></span>
+          <span>ड्राई आइस <strong>₹{shownDryIceRate}/kg</strong></span>
           <span>थर्मोकोल पैकिंग <strong>₹{rates.thermocolRate}/kg</strong></span>
           {(rates.transportRate || 0) > 0 && <span>अतिरिक्त परिवहन <strong>₹{rates.transportRate}/kg</strong></span>}
         </div>
+        {customRate !== undefined && <p className="apb-rate-footnote font-black" data-custom-rate>{customRateLine(customRate)}</p>}
         <p className="apb-rate-footnote">ऊपर दिखाए गए सभी शुल्क कुल रेट में शामिल हैं।</p>
       </section>
 
@@ -1055,7 +1062,7 @@ const LegacyOrderForm: React.FC<OrderFormProps> = ({
             <div className="p-2.5 rounded-lg bg-sky-50 border border-sky-200 text-sky-900 text-xs flex items-center justify-between gap-2">
               <div className="min-w-0">
                 <div className="font-extrabold truncate">चुना गया प्रोडक्ट: {selectedProduct.hindiName}</div>
-                <div className="text-[11px] text-sky-700">₹{rates.dryIceRate + rates.thermocolRate}/kg (थर्मोकोल पैकिंग सहित)</div>
+                <div className="text-[11px] text-sky-700">₹{shownDryIceRate + rates.thermocolRate}/kg (थर्मोकोल पैकिंग सहित)</div>
               </div>
               {onClearProduct && (
                 <button type="button" onClick={onClearProduct} className="text-sky-600 hover:text-sky-800 text-[11px] font-bold shrink-0 underline">
@@ -1422,9 +1429,10 @@ const LegacyOrderForm: React.FC<OrderFormProps> = ({
                 <div className="apb-total-heading text-sm font-bold mb-2">
                   Price Breakdown
                 </div>
+                {customRate !== undefined && <p className="text-xs font-black" data-custom-rate-breakdown>{customRateLine(customRate)}</p>}
 
                 <div className="apb-total-row flex items-start justify-between gap-3 text-sm">
-                  <span>ड्राई आइस ({currentQuantityKg} kg × ₹{rates.dryIceRate}):</span>
+                  <span>ड्राई आइस ({currentQuantityKg} kg × ₹{shownDryIceRate}):</span>
                   <span className="font-mono font-semibold text-slate-900">₹{dryIceSubtotal}</span>
                 </div>
 

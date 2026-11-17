@@ -2,6 +2,7 @@ import { StaffOrderAccessManager } from './StaffOrderAccessManager';
 import { DailyWinnerOwnerControls } from './customer/DailyWinner';
 import { HomeSlidesOwnerControls } from './customer/HomeSlides';
 import { CustomersView } from './owner/CustomersView';
+import { CUSTOM_RATE_FIELD, effectiveDryIceRate, orderRateLabel } from '../utils/customerRate';
 import { FeatureSuiteSettings } from './owner/FeatureSuiteSettings';
 import { PaymentProofPreview } from './owner/PaymentProofPreview';
 import { BusStopSettings } from './owner/BusStopSettings';
@@ -820,7 +821,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       const userSnap = cleanOrderPhone.length === 10 ? await getDocs(collection(db, 'users')) : null;
       const customerUser = userSnap?.docs.find((userDoc) => String(userDoc.data().phone || '').replace(/[^0-9]/g, '').slice(-10) === cleanOrderPhone);
       const customerType = customerUser?.data().customerType === 'wholesale' ? 'wholesale' : 'retail';
-      const bookedDryIceRate = customerType === 'wholesale' ? rates.wholesaleRate : rates.dryIceRate;
+      // v1.0.79: an owner-entered order for an app customer uses that customer's own rate when set.
+      const rateUser = customerUser || userSnap?.docs.find((userDoc) => String(userDoc.data().customerPhone || '').replace(/[^0-9]/g, '').slice(-10) === cleanOrderPhone);
+      const bookedDryIceRate = effectiveDryIceRate(customerType, rates, rateUser?.data()[CUSTOM_RATE_FIELD]);
       if (typeof bookedDryIceRate !== 'number' || bookedDryIceRate <= 0) throw new Error('Owner must set the wholesale rate first.');
       const slotId = dispatchSlots.find((item) => item.label === newDispatchTiming)?.id || 'tomorrow_morning';
       const slot = slotId.endsWith('morning') ? 'morning' : 'evening';
@@ -1600,7 +1603,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   </div>
                   {overdue && <p className="text-xs font-black text-amber-800">Old date</p>}
                   <p className="text-base font-black">{ord.customerName}</p>
-                  <p className="text-sm"><b className="tabular-nums">{Number(ord.quantityKg) || 0} KG</b> · {ord.district || ord.city || '—'}{stop ? ` · ${stop.name}` : ''} · <span className="tabular-nums">₹{(Number(ord.totalAmount) || 0).toLocaleString('en-IN')}</span></p>
+                  <p className="text-sm"><b className="tabular-nums">{Number(ord.quantityKg) || 0} KG</b> · {ord.district || ord.city || '—'}{stop ? ` · ${stop.name}` : ''} · <span className="tabular-nums">₹{(Number(ord.totalAmount) || 0).toLocaleString('en-IN')}</span>{orderRateLabel(ord) && <span className="tabular-nums" data-order-rate> · {orderRateLabel(ord)}</span>}</p>
                   <OwnerOrderContactActions order={ord} settings={deliverySettings} />
                   {/* v1.0.75: set the Mode here; Confirm is blocked until it is set. */}
                   {confirmModeError(ord) && <p className="text-xs font-black text-rose-700" data-mode-required>Mode not set — select Mode to confirm</p>}
@@ -1969,7 +1972,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                               </div>
                               <div className="text-right">
                                 <span className="text-slate-800 text-[10px] font-semibold">कुल राशि: </span>
-                                <span className="font-mono font-bold text-emerald-700 text-xs sm:text-sm">₹{ord.totalAmount}</span>
+                                <span className="font-mono font-bold text-emerald-700 text-xs sm:text-sm">₹{ord.totalAmount}</span>{orderRateLabel(ord) && <span className="block text-[10px] font-bold text-slate-700" data-order-rate>{orderRateLabel(ord)}</span>}
                                 {ord.amountChanged === true && <span className="ml-1 rounded bg-orange-100 px-1 text-[9px] font-bold text-orange-900" title={`Calculated ₹${ord.calculatedTotal} · customer ₹${ord.customerTotal}`}>Rate changed · ₹{ord.calculatedTotal} → ₹{ord.customerTotal}</span>}
                               </div>
 
@@ -2409,7 +2412,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                             </div>
                             <div className="text-right truncate">
                               <span className="text-slate-700 text-[10px] font-semibold">कुल राशि: </span>
-                              <span className="font-mono font-bold text-emerald-700 text-xs sm:text-sm">₹{ord.totalAmount}</span>
+                              <span className="font-mono font-bold text-emerald-700 text-xs sm:text-sm">₹{ord.totalAmount}</span>{orderRateLabel(ord) && <span className="block text-[10px] font-bold text-slate-700" data-order-rate>{orderRateLabel(ord)}</span>}
                               {ord.amountChanged === true && <span className="ml-1 rounded bg-orange-100 px-1 text-[9px] font-bold text-orange-900" title={`Calculated ₹${ord.calculatedTotal} · customer ₹${ord.customerTotal}`}>Rate changed · ₹{ord.calculatedTotal} → ₹{ord.customerTotal}</span>}
                             </div>
 

@@ -1,5 +1,14 @@
 # Changelog
 
+## v1.0.79 — per-customer wholesale rate (₹35 / ₹30 / ₹28 or custom)
+
+Android **versionCode 79 / versionName 1.0.79**, same applicationId `com.ankurdryice.events` and keystore (installs over v1.0.78). **No Firestore rules change.** Nothing deployed from CI; no app data changed, migrated or deleted.
+
+- Owner → Customers → All customers and dues / Customer login: each app customer's card has **Rate (₹/kg)** with quick chips ₹35, ₹30, ₹28, a custom ₹/kg field + Save, and **Default rate** to clear it. Saved on that customer's own `users/{uid}` profile as `customRatePerKg` (owner-only write under the existing rules; the customer can only read it). Staff see the rate read-only.
+- When that customer is logged in, the booking form uses their rate automatically for the dry-ice price and order total (no code to type) and shows "आपका खास रेट: ₹30/kg". Customers without a rate see the normal price. Owner-entered orders for that customer's mobile use the same rate.
+- Owner order cards (new orders and both order lists) and the customer ledger show the booked rate ("Rate ₹30/kg"), read from the order's existing `dryIcePricePerKg` (no new order field).
+- Tests: `src/utils/customerRate.test.ts`, `ui-fixes/v1079-customer-rate.test.mjs` (both in the review job) and a new emulator case in `tests/firestore.rules.test.mjs`. No test removed or weakened.
+
 ## v1.0.78 — Home: Lucky Winner card shows the winner, no blank gap
 
 Android **versionCode 78 / versionName 1.0.78**, same applicationId `com.ankurdryice.events` and keystore (installs over v1.0.77). **No Firestore rules change.** Nothing deployed from CI; no app data changed or deleted.

@@ -46,6 +46,8 @@ files = [
     "src/utils/appResume.ts", "src/utils/appResume.test.ts", "src/utils/staffDial.ts", "src/utils/staffDial.test.ts",
     # v1.0.77: staff get the owner dashboard without delete (Expenses delete is owner-only)
     "src/components/ExpensesView.tsx",
+    # v1.0.79: per-customer wholesale rate (owner sets on Customers; customer order uses it)
+    "src/utils/customerRate.ts", "src/utils/customerRate.test.ts",
 ]
 for relative in files:
     source = overlay / relative
