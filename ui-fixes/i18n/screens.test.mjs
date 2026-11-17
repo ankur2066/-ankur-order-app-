@@ -34,6 +34,7 @@ async function screen(path,name,props={},seed=[],staffViews=[]){
  if(id==='./dispatchSchedule.ts'&&file.endsWith('/utils/orderWorkflow.ts'))return load(resolve(dirname(file),id));
  if(/\/utils\/staffDial$/.test(id))return load(resolve(dirname(file),id)+'.ts');// v1.0.76: real staff dial helper
  if(/\/utils\/orderProgress$/.test(id))return load(resolve(dirname(file),id)+'.ts');// v1.0.76: real step-tracker helpers
+ if(/\/utils\/customerRate$/.test(id))return load(resolve(dirname(file),id)+'.ts');// v1.0.79: real per-customer rate helper (no customer rate in fixtures -> normal price)
  if(id.endsWith('/customer/OrderStatusTracker'))return load(resolve(dirname(file),id)+'.tsx');
  if(/\/utils\//.test(id))return synthetic(id,Object.fromEntries(names.map(k=>[k,()=>false])));
  if(id==='./customer/HomeSlides')return load(resolve(dirname(file),id)+'.tsx');// real owner slide editor, rendered in the language check
