@@ -3,6 +3,11 @@ name: Attach signed APK to a GitHub release
 # "PR verification and visual artifacts" run onto an existing release (so the in-app
 # update check, which reads releases/latest, can offer it). Builds nothing, deploys nothing.
 on:
+  # A push that changes only this marker file attaches the APK it names (a
+  # dispatch needs the workflow on the default branch, which this branch is not).
+  push:
+    branches: [codex/fix-v1065-test-feedback]
+    paths: ['release-batches/attach-release-apk.json']
   workflow_dispatch:
     inputs:
       release_id: {description: 'GitHub release id', required: true}
@@ -18,6 +23,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
+      - uses: actions/checkout@v4
       - name: Download, verify and attach
         env:
           GH_TOKEN: ${{ github.token }}
@@ -29,6 +35,12 @@ jobs:
           SHA: ${{ inputs.sha256 }}
         run: |
           set -euo pipefail
+          if [ "${{ github.event_name }}" = push ]; then
+            M=release-batches/attach-release-apk.json
+            RELEASE_ID=$(jq -r .release_id $M); RUN_ID=$(jq -r .run_id $M); ARTIFACT=$(jq -r .artifact $M)
+            ASSET=$(jq -r .asset_name $M); SHA=$(jq -r .sha256 $M)
+          fi
+          [[ "$SHA" =~ ^[0-9a-f]{64}$ ]] || { echo 'bad sha'; exit 1; }
           [[ "$ASSET" =~ ^Ankur-Dryice-v1\.0\.[0-9]{2,6}\.apk$ ]] || { echo 'bad asset name'; exit 1; }
           [[ "$RELEASE_ID" =~ ^[0-9]+$ && "$RUN_ID" =~ ^[0-9]+$ ]] || { echo 'bad id'; exit 1; }
           gh run download "$RUN_ID" -R "$REPO" -n "$ARTIFACT" -D dl
